@@ -34,30 +34,60 @@ def load_save_data(file_dir):
 
 def add_files_in_folder(parent, dirname, command, data):
     files = os.listdir(dirname)
-    for f in files:
-        fullname = os.path.join(dirname, f)
-        if os.path.isdir(fullname):
-            treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
-            add_files_in_folder(fullname, fullname, command, data)
-        else:
-            file_extension = pathlib.Path(f).suffix
-            f_icon = file_icon
-            
-            if(data is not None):
+    
+    if(data.fileExists):
+        for f in files:
+            fullname = os.path.join(dirname, f)
+            if os.path.isdir(fullname):
+                treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
+                add_files_in_folder(fullname, fullname, command, data)
+            else:
+                file_extension = pathlib.Path(f).suffix
+                f_icon = file_icon
+                f_name = os.path.basename(f)
+                f_path = fullname.replace(f_name, '')
+
                 dataObj = None
-                for obj in data[parent]:
-                    if(obj.path == dirname):
-                        dataObj = obj
-                        break
-                if dataObj != None:
-                    if(dataObj.active == False):
-                        f_icon = ignore_file
-                    else:
-                        f_icon = get_file_icon(dataObj.type)
-                            
-            if file_extension == '.md':
-                treedata.Insert(parent, fullname, f, values=[
-                                os.stat(fullname).st_size, 0], icon=f_icon)
+                
+                if f_path in data.folders.keys():
+                
+                    for key in data.folders[f_path]:
+                        obj = data.folders[f_path][key]
+
+                        if(obj['path'] == f_name):
+                            dataObj = obj
+                            break
+                    if dataObj != None:
+                        if(dataObj['active'] == False):
+                            f_icon = ignore_file
+                        else:
+                            if(dataObj['type'] != 'Default'):
+                                f_icon = get_file_icon(dataObj['type'])
+
+                                
+                if file_extension == '.md':
+                    treedata.Insert(parent, fullname, f, values=[
+                                    os.stat(fullname).st_size, 0], icon=f_icon)
+    else:
+        for f in files:
+            fullname = os.path.join(dirname, f)
+            if os.path.isdir(fullname):
+                treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
+                add_files_in_folder(fullname, fullname, command, data)
+
+            else:
+                file_extension = pathlib.Path(f).suffix
+                f_icon = file_icon
+                f_name = os.path.basename(f)
+                                
+                if file_extension == '.md':
+                    f_path = fullname.replace(f_name, '')
+                    treedata.Insert(parent, fullname, f, values=[
+                                    os.stat(fullname).st_size, 0], icon=f_icon)
+                    
+                    data.updateFile(f_path, f, 'Default', True)
+                
+    data.saveData()
                 
 def get_file_icon(uiType):
     result = file_icon
@@ -122,11 +152,11 @@ starting_path = sg.popup_get_folder('Folder to display')
 if not starting_path:
     sys.exit(0)
     
-DATA_HANDLER = SiteDataHandler.SiteDataHandler(starting_path)
+DATA = SiteDataHandler.SiteDataHandler(starting_path)
 
 command = ['Block', 'Block-Thumb', 'Block-Inset', 'Block-Inset-Thumb', 'Expandable', 'Expandable-Thumb', 'Expandable-Inset', 'Expandable-Inset-Thumb', 'Card', 'Form-Email']
 treedata = sg.TreeData()
-add_files_in_folder('', starting_path, command, None)
+add_files_in_folder('', starting_path, command, DATA)
 font = ('Ariel', 16)
 
 layout = [[sg.Tree(data=treedata, headings=[], auto_size_columns=True,
@@ -138,7 +168,7 @@ tree = window['-TREE-']         # type: sg.Tree
 tree.bind("<Double-1>", '+DOUBLE')
 while True:
     event, values = window.read()
-    print(event)
+    #print(event)
     if event in (sg.WIN_CLOSED, 'Cancel'):
         break
     if len(values['-TREE-']) > 0:
@@ -151,8 +181,12 @@ while True:
                 double_click(check)
         elif event in command:
             if os.path.isfile(path_val):
+                f_name = os.path.basename(path_val)
+                f_path = path_val.replace(f_name, '')
                 set_file_icon(event)
+                DATA.updateFile(f_path, f_name, event, True)
+                DATA.saveData()
         
 
-    print(event, values)
+    #print(event, values)
 window.close()

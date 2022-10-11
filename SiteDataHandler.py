@@ -22,23 +22,24 @@ class SiteDataHandler:
    def __init__(self, filePath):
       self.folders = {}
       self.dataFilePath = os.path.join(filePath, 'site.data')
-      self.data = None
+      self.fileExists = False
       
       if os.path.isfile(self.dataFilePath):
           data = open(self.dataFilePath, 'rb')
-          self.data = pickle.load(data)
+          self.folders = pickle.load(data)
+          self.fileExists = True
       else:
           self.saveData()
           
       
    def addFolder(self, folder):
        if(folder not in self.folders):
-           self.folders[folder] = []
+           self.folders[folder] = {}
            
    def updateFile(self, folder, path, uiType, active=True):
        if(folder in self.folders):
            folderData = {'path':path, "type":uiType, "active":active}
-           self.folders[folder].append(folderData)
+           self.folders[folder][path] = folderData
        else:
            self.addFolder(folder)
            self.updateFile(folder, path, uiType, active)
