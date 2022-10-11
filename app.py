@@ -7,6 +7,9 @@ from io import BytesIO
 from PIL import Image, ImageDraw
 import PySimpleGUI as sg
 
+sg.theme("DarkGrey13")
+NAME_SIZE = 23
+
 
 folder_icon = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA3XAAAN1wFCKJt4AAAE7mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4yLWMwMDAgNzkuMWI2NWE3OSwgMjAyMi8wNi8xMy0xNzo0NjoxNCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgc3RFdnQ6d2hlbj0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuxPXaQAAAFhSURBVFiF7de9itRQGMbx3znJREEHVNBiC7HyLpRBC6/AWhY/aq/C0htwi90LERRL72CttFywERk0cfJaZAZGGHGYjZwt5oFAzglv3v9585yPpIhQUrlo9osAUDtJ6+1nuIfL6EfOlfEDH3C06kxxvHwY3gqzv4aOq3d4iD5r0XohzFTLZKurQkKLxfJ+HM3wEmo3KiqPXa2oE+uzIi0zznvOOjpMMM7EuY/XtYPJU8kDPfogbaj3rZom8bkdnDFOJTqodfHqz/4Nw5sH04pp5ms/WPQ8SkgWAwDXtgpaBDdruo4udjdmMvipNV8BtGj+GdgFTeZOM0Ts+hkSfgXf+wOLUNvWUslQhbSGu6sZJ5kr+RGepHh/6RumO77qvDorvRRfLw3wszRAlAYovx3vAfYAe4DV4atY/mybrfj/qck4LQhwmnFYEOCwxkfcxXPcNubhe7MCX/AGn9L+57Q0wG/4oVYsu0eeMwAAAABJRU5ErkJggg=='
 folder_icon_off = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA3XAAAN1wFCKJt4AAACkElEQVRYhe2XT0gUURzHP+/tY92NNtyJlswlKsSDkcYGwkKJ/aGIqEMQBFEhWWfDU8qeVkQCy0snvXfbwLNeLPIQSHgQWiMiFMFghBbd1XbmdRgddilxRse2Q1+Yw/zen99nfu/3fu+N0FpTS8maev8XAETuzOnK927gAhAB7IB9SaAEvAXGtozKbdRMouncdmhwegDcAy4DtsSWYMsnaDqRm84qH+F0CzgenUAPgCIKSO6IOgUhAZW7QggA9LoNBcAWIAPbNR3ACyXq1SMEl9CArUH8Hm9xKARKoE0LNE5U9q6fAApLD1aZ/1QXNoCIhIgNpRDo8t5cC0BgOQBQ72mQBnFQoi0Lyuw+CgInn2y5tgWwAYR3HFjWoCTisMBh34MsjV63j6EdAG9ZJXByBCC0adttPiqJiMhrwEO1Y+cKtfRkAFiammBlZtq1x1NpGjquADA3kt15Isslf+4L4MCRBMn0eRrOtTN5/6ZrTz3tI9aYZGH6nZ/pAOK+atzscJaiaRJrTNLWPwRAW/8QscYkRdNkdtjD11drPXT35NFnQJ2X3lZxFfPzPCeu3iB+qgkZT9B03YnE+0wvq18++QbwXeVXZqbJj+cAaL51G4D8eK4qJ/xoV8fM3EiWcqkIQLlU9JZ4QQK09GRQkSgAKhJ1d8dfAYin0m7oP46+ApyliKfS+w8QNhK09w0Azrp/fT3m5kN73wBhI7G/AK29GaKGQWFxwV33uZEshcUFooZBa6//pfBciMJGgrXvy+THcyxNTVS1zbwcdCth2EiwYS57BhBvLp79AcQ8jwhWha2LV60kJV6O4v1TWAL5GgLkJdBVQ4AuBXwAmoHHwHGCunJuLw18A0aBefH/57TWAL8As2q+p/+gTSYAAAAASUVORK5CYII='
@@ -144,6 +147,32 @@ def icon(check):
         png = ignore_file
     return png
 
+
+def name(name):
+    dots = NAME_SIZE-len(name)-2
+    return sg.Text(name + ' ' + ' '*dots, size=(NAME_SIZE,1), justification='r',pad=(0,0), font='Courier 10')
+
+#Window controll
+def block_focus(window):
+    for key in window.key_dict:    # Remove dash box of all Buttons
+        element = window[key]
+        if isinstance(element, sg.Button):
+            element.block_focus()
+            
+def popup_predict_risk(industry):
+
+    col_layout = [[sg.Button("Predict Risk", bind_return_key=True), sg.Button('Cancel')]]
+    layout = [
+        [sg.Text(f"Industry: {industry}")],
+        [sg.Text('Enter Observation/Recommendation: '), sg.InputText(key='Observation')],
+        [sg.Column(col_layout, expand_x=True, element_justification='right')],
+    ]
+    window = sg.Window("Predict Risk", layout, use_default_focus=False, finalize=True, modal=True)
+    block_focus(window)
+    event, values = window.read()
+    window.close()
+    return values['Observation'] if event == 'Predict Risk' else None
+
 dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
 
 check = [icon(0), icon(1), icon(2)]
@@ -159,13 +188,23 @@ treedata = sg.TreeData()
 add_files_in_folder('', starting_path, command, DATA)
 font = ('Ariel', 16)
 
-layout = [[sg.Tree(data=treedata, headings=[], auto_size_columns=True,
+tab1_layout =  [[sg.Tree(data=treedata, headings=[], auto_size_columns=True,
                    num_rows=10, col0_width=40, key='-TREE-', font=font,
                    row_height=48, show_expanded=False, enable_events=True, right_click_menu=['&Right', command])],
-          [sg.Button('Ok', font=font), sg.Button('Cancel', font=font)]]
-window = sg.Window('Tree Element Test', layout, finalize=True)
+          [sg.Button('Ok', font=font), sg.Button('Cancel', font=font)]]    
+
+tab2_layout = [[name('Site Name'), sg.Input(s=15)],
+               [name('Navigation'), sg.Combo(DATA.navigation, default_value=DATA.settings['pageType'], s=(15,22), enable_events=True, readonly=True, k='-COMBO-')],
+               [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='-COMBO-')],
+               [sg.In(key='in')]] 
+
+layout = [[sg.TabGroup([[sg.Tab(starting_path, tab1_layout, tooltip='tip'), sg.Tab('Settings', tab2_layout)]], tooltip='TIP2')]]
+
+window = sg.Window('Tree Element Test', layout, use_default_focus=False, finalize=True)
 tree = window['-TREE-']         # type: sg.Tree
 tree.bind("<Double-1>", '+DOUBLE')
+block_focus(window)
+
 while True:
     event, values = window.read()
     #print(event)

@@ -21,12 +21,17 @@ class SiteDataHandler:
    
    def __init__(self, filePath):
       self.folders = {}
+      self.settings = {'siteName':'', 'pageType':'carousel', 'theme':'light'}
+      self.navigation = ['carousel', 'splitter', 'tabs']
+      self.themes = ['light', 'dark']
       self.dataFilePath = os.path.join(filePath, 'site.data')
       self.fileExists = False
       
       if os.path.isfile(self.dataFilePath):
-          data = open(self.dataFilePath, 'rb')
-          self.folders = pickle.load(data)
+          dataFile = open(self.dataFilePath, 'rb')
+          data = pickle.load(dataFile)
+          self.folders = data['folders']
+          self.settings = data['settings']
           self.fileExists = True
       else:
           self.saveData()
@@ -44,9 +49,14 @@ class SiteDataHandler:
            self.addFolder(folder)
            self.updateFile(folder, path, uiType, active)
            
+   def updateSetting(self, setting, value):
+       self.settings[setting] = value
+       self.saveData()
+           
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
-       pickle.dump(self.folders, file)
+       data = {'folders':self.folders, 'settings':self.settings}
+       pickle.dump(data, file)
        file.close()
              
        
