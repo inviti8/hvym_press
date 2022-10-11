@@ -159,19 +159,19 @@ def block_focus(window):
         if isinstance(element, sg.Button):
             element.block_focus()
             
-def popup_predict_risk(industry):
+def popup_set_description(md_name):
 
-    col_layout = [[sg.Button("Predict Risk", bind_return_key=True), sg.Button('Cancel')]]
+    col_layout = [[sg.Button("Save", bind_return_key=True, enable_events=True, k='-SAVE-DESCRIPTION-'), sg.Button('Cancel')]]
     layout = [
-        [sg.Text(f"Industry: {industry}")],
-        [sg.Text('Enter Observation/Recommendation: '), sg.InputText(key='Observation')],
+        [sg.Text(f"File: {md_name}")],
+        [name('Meta-Description'), sg.Multiline(s=(15,2), k='-DESCRIPTION-')],
         [sg.Column(col_layout, expand_x=True, element_justification='right')],
     ]
-    window = sg.Window("Predict Risk", layout, use_default_focus=False, finalize=True, modal=True)
+    window = sg.Window("Set Description", layout, use_default_focus=False, finalize=True, modal=True)
     block_focus(window)
     event, values = window.read()
     window.close()
-    return values['Observation'] if event == 'Predict Risk' else None
+    return values['-DESCRIPTION-'] if event == '-SAVE-DESCRIPTION-' else None
 
 dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
 
@@ -183,7 +183,7 @@ if not starting_path:
     
 DATA = SiteDataHandler.SiteDataHandler(starting_path)
 
-command = ['Block', 'Block-Thumb', 'Block-Inset', 'Block-Inset-Thumb', 'Expandable', 'Expandable-Thumb', 'Expandable-Inset', 'Expandable-Inset-Thumb', 'Card', 'Form-Email']
+command = ['Block', 'Block-Thumb', 'Block-Inset', 'Block-Inset-Thumb', 'Expandable', 'Expandable-Thumb', 'Expandable-Inset', 'Expandable-Inset-Thumb', 'Card', 'Form-Email', 'Set-Description']
 treedata = sg.TreeData()
 add_files_in_folder('', starting_path, command, DATA)
 font = ('Ariel', 16)
@@ -222,9 +222,15 @@ while True:
             if os.path.isfile(path_val):
                 f_name = os.path.basename(path_val)
                 f_path = path_val.replace(f_name, '')
-                set_file_icon(event)
-                DATA.updateFile(f_path, f_name, event, True)
-                DATA.saveData()
+                if(event == 'Set-Description'):
+                    print('x')
+                    description = popup_set_description(f_name)
+                    print(description)
+                else:
+                    set_file_icon(event)
+                    DATA.updateFile(f_path, f_name, event, True)
+                    DATA.saveData()
+        
         
 
     #print(event, values)

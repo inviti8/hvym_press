@@ -41,13 +41,28 @@ class SiteDataHandler:
        if(folder not in self.folders):
            self.folders[folder] = {}
            
-   def updateFile(self, folder, path, uiType, active=True):
+   def updateFile(self, folder, path, uiType, active=True, description=None):
        if(folder in self.folders):
-           folderData = {'path':path, "type":uiType, "active":active}
+           folderData = {'path':path, "type":uiType, "active":active, "description":description}
            self.folders[folder][path] = folderData
        else:
            self.addFolder(folder)
-           self.updateFile(folder, path, uiType, active)
+           self.updateFile(folder, path, uiType, active, description)
+           
+   def updateMetaDescription(self, folder, path, description):
+       if(path in self.folders[folder]):
+           path = self.folders[folder][path]['path']
+           uiType = self.folders[folder][path]['type']
+           active = self.folders[folder][path]['active']
+           folderData = {'path':path, "type":uiType, "active":active, "description":description}
+           self.folders[folder][path] = folderData
+   
+   def getMetaDescription(self, folder, path):
+       result = None
+       if(path in self.folders[folder]):
+           result = self.folders[folder][path]['description']
+           
+       return result
            
    def updateSetting(self, setting, value):
        self.settings[setting] = value
