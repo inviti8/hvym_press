@@ -21,7 +21,9 @@ class SiteDataHandler:
    
    def __init__(self, filePath):
       self.folders = {}
-      self.settings = {'siteName':'', 'pageType':'carousel', 'theme':'light'}
+      self.pageData = {}
+      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'', 'pinataJWT':''}
+      self.uiFramework = ['onsen']
       self.navigation = ['carousel', 'splitter', 'tabs']
       self.themes = ['light', 'dark']
       self.dataFilePath = os.path.join(filePath, 'site.data')
@@ -34,35 +36,29 @@ class SiteDataHandler:
           self.settings = data['settings']
           self.fileExists = True
       else:
-          self.saveData()
-          
+          self.saveData()       
       
-   def addFolder(self, folder):
-       if(folder not in self.folders):
-           self.folders[folder] = {}
+   def addFolder(self, folder, selfData):
+       if(folder not in selfData):
+           selfData[folder] = {}
            
-   def updateFile(self, folder, path, uiType, active=True, description=None):
+   def updateFile(self, folder, path, uiType, active=True):
        if(folder in self.folders):
-           folderData = {'path':path, "type":uiType, "active":active, "description":description}
-           self.folders[folder][path] = folderData
+           data = {'path':path, "type":uiType, "active":active}
+           self.folders[folder][path] = data
        else:
-           self.addFolder(folder)
-           self.updateFile(folder, path, uiType, active, description)
+           self.addFolder(folder, self.folders)
+           self.updateFile(folder, path, uiType, active)
            
-   def updateMetaDescription(self, folder, path, description):
-       if(path in self.folders[folder]):
-           path = self.folders[folder][path]['path']
-           uiType = self.folders[folder][path]['type']
-           active = self.folders[folder][path]['active']
-           folderData = {'path':path, "type":uiType, "active":active, "description":description}
-           self.folders[folder][path] = folderData
-   
-   def getMetaDescription(self, folder, path):
-       result = None
-       if(path in self.folders[folder]):
-           result = self.folders[folder][path]['description']
-           
-       return result
+   def updatePageData(self, folder, path, data):
+       if(folder in self.pageData):
+           self.pageData[folder][path] = data
+           print('-----------------------')
+           print(self.pageData)
+           print('-----------------------')
+       else:
+           self.addFolder(folder, self.pageData)
+           self.updatePageData(folder, path, data)
            
    def updateSetting(self, setting, value):
        self.settings[setting] = value

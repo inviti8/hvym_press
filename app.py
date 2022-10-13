@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw
 import PySimpleGUI as sg
 
 sg.theme("DarkGrey13")
-NAME_SIZE = 23
+NAME_SIZE = 15
 
 
 folder_icon = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA3XAAAN1wFCKJt4AAAE7mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4yLWMwMDAgNzkuMWI2NWE3OSwgMjAyMi8wNi8xMy0xNzo0NjoxNCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgc3RFdnQ6d2hlbj0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuxPXaQAAAFhSURBVFiF7de9itRQGMbx3znJREEHVNBiC7HyLpRBC6/AWhY/aq/C0htwi90LERRL72CttFywERk0cfJaZAZGGHGYjZwt5oFAzglv3v9585yPpIhQUrlo9osAUDtJ6+1nuIfL6EfOlfEDH3C06kxxvHwY3gqzv4aOq3d4iD5r0XohzFTLZKurQkKLxfJ+HM3wEmo3KiqPXa2oE+uzIi0zznvOOjpMMM7EuY/XtYPJU8kDPfogbaj3rZom8bkdnDFOJTqodfHqz/4Nw5sH04pp5ms/WPQ8SkgWAwDXtgpaBDdruo4udjdmMvipNV8BtGj+GdgFTeZOM0Ts+hkSfgXf+wOLUNvWUslQhbSGu6sZJ5kr+RGepHh/6RumO77qvDorvRRfLw3wszRAlAYovx3vAfYAe4DV4atY/mybrfj/qck4LQhwmnFYEOCwxkfcxXPcNubhe7MCX/AGn9L+57Q0wG/4oVYsu0eeMwAAAABJRU5ErkJggg=='
@@ -25,6 +25,9 @@ expandable_inset_thumb = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIW
 card = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAA7AAAAOwBeShxvQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAF2SURBVFiF7Za/SgNBEIe/kXSioKBPYB5AX0RMYWFhJRZKECFoFUFtREhSCL6FGPQJbGIXEDuN9iL4tzQ7a3G5eJfLJSdkL839YNm722W/HzN7w0CmTGOWxK407CxKAcMiljkMYAEDaIJnb/8rhiZtLtmQt+QGGnYH5QhlGg0cnmT03/uJUmZTzoYbaNgqyu6QA/8DD65X2JZSvIFbW8Bw4QTuD8syRbnykRMhA4ZDp3AF2hz3j8CNzSM8OIWb7rzAnjz1RiCfClw7rI5yXbxlMhW4N6Z87F8E0oN73yIR8AuNa7gSUi70lga8x0TyFIy2IPWJwKAUjPp+BDQ8Ba4uZ0eDU+Dyz4hEwPAdSoFLuOUraqBNC0kBrsAPj9EUrEoL5T6FgnRHTZ6jBrw0HDiGg6EcRIYNrEkdpeIMrpxSk+t4AwDrUkIp4rVRo4J/oGxRlf1eXHxTem5nEFawLGGZ7zaaSrLm1JtfUJrkqHMi77GsTJnGqV9yNlgHEHsA2gAAAABJRU5ErkJggg=='
 form_email = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAE7mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4yLWMwMDAgNzkuMWI2NWE3OSwgMjAyMi8wNi8xMy0xNzo0NjoxNCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMi0xMC0wN1QxNDowNDo1Ni0wNzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjItMTAtMDdUMTQ6MjE6NDQtMDc6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjItMTAtMDdUMTQ6MjE6NDQtMDc6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjhkMzcwOWVmLTg1OTItMTE0ZC04ZTg2LWM1ZWM1OTA2YmZmYiIgeG1wTU06RG9jdW1lbnRJRD0i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'
 ignore_file = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAACWklEQVRYheWXPW8TQRCG39m9O/suDrKxYyMgCFFQUIBEAYiSgiYikaCi5S9E+D8kESkCEgjS8FEBDYQOuUNCVCjIiI4G2UKO0UVBsbmP3aUKOu6c3IcvIMTb3czOzDM7d3taUkohqMGNOfS+U1U4YoGILgMoI07SByYOiFK51Cw1yg/0cxegHG/kUuPq9d+etfAC11cV6aoPUuOHuZCxtQFA+YAGCafcuK+fOT+0ZmafJAoEwMIGe4uWBWeJi/+CEATdKsJprz+2nz67lhlAKXUlbfEdcc4hpcR2q/Xc+dSeyQSAEWNJKqUUeNECq9Wxsbr6yml/vJQFwM0KsAPBJk1w6Og/etjyO52LaQHGFnkCVJsC91z0VlbeuP1vZ/8oAACQ74LX6lCuT/byrbdiyz61bwBMAEQEmCZgWmAFE6xgAnoBxvEjEEIY9r2779RwcDICGj6IPs/N9gBMpQEgX4IMDVr1ICRpCOdkjMHvfYU+Pf3l6O07x4K+zG98UKKogzwfXrcD5glIFk3LdMLg/fqhsD0XAOYLgAhcLwA6wHdZp1Urm5HYPADG0V8HiB1B7WYTANBfWozYgvagLezbS4l3YFSBPGJSjyAuaX9pcdfdygUgb6UCSDOGJPNPDZBGSWEzASTtLolyOQmDCnceB5t4B7J0nSQml79hCm2cePGyHjT8W5/hfwNg7GO9SO5RAKMvdfkokjsCwCXWBOV+PEApBbJoLRZg0pLzBrxu+PMcR4IzEPRuZZvNh32RVidKzP4xVKd9pS2ARLLr+d7aVEq91kk2TdWww86fjc/a7PX2dcMAAAAASUVORK5CYII='
+
+#TOOL-TIPS:
+tt_debug_btn = "Renders site, and launches at localhost:8080."
 
 def load_save_data(file_dir):
     result = None
@@ -89,6 +92,7 @@ def add_files_in_folder(parent, dirname, command, data):
                                     os.stat(fullname).st_size, 0], icon=f_icon)
                     
                     data.updateFile(f_path, f, 'Default', True)
+                    data.updatePageData(f_path, f, {'name':"", 'description':""})
                 
     data.saveData()
                 
@@ -159,19 +163,22 @@ def block_focus(window):
         if isinstance(element, sg.Button):
             element.block_focus()
             
-def popup_set_description(md_name):
-
-    col_layout = [[sg.Button("Save", bind_return_key=True, enable_events=True, k='-SAVE-DESCRIPTION-'), sg.Button('Cancel')]]
+def popup_set_data(md_name, data):
+    
+    col_layout = [[sg.Text("Page Name:"), sg.Input(s=(30,8), default_text=data.pageData['name'], k='META-NAME')],
+                  [sg.Text("Page Description:")],[sg.Multiline(s=(30,8), default_text=data.pageData['description'], k='META-DESCRIPTION')]]
+    col_layout_btns = [[sg.Button("Save", bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel')]]
     layout = [
         [sg.Text(f"File: {md_name}")],
-        [name('Meta-Description'), sg.Multiline(s=(15,2), k='-DESCRIPTION-')],
-        [sg.Column(col_layout, expand_x=True, element_justification='right')],
+        [sg.Column(col_layout, expand_x=True, element_justification='center')],
+        [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
     ]
     window = sg.Window("Set Description", layout, use_default_focus=False, finalize=True, modal=True)
     block_focus(window)
     event, values = window.read()
     window.close()
-    return values['-DESCRIPTION-'] if event == '-SAVE-DESCRIPTION-' else None
+    page_data = {'name':values['META-NAME'], 'description':values['META-DESCRIPTION']}
+    return page_data if event == '-SAVE-DATA-' else None
 
 dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
 
@@ -183,24 +190,36 @@ if not starting_path:
     
 DATA = SiteDataHandler.SiteDataHandler(starting_path)
 
-command = ['Block', 'Block-Thumb', 'Block-Inset', 'Block-Inset-Thumb', 'Expandable', 'Expandable-Thumb', 'Expandable-Inset', 'Expandable-Inset-Thumb', 'Card', 'Form-Email', 'Set-Description']
+command = ['Block', 'Block-Thumb', 'Block-Inset', 'Block-Inset-Thumb', 'Expandable', 'Expandable-Thumb', 'Expandable-Inset', 'Expandable-Inset-Thumb', 'Card', 'Form-Email', 'Set-Meta-Data']
 treedata = sg.TreeData()
 add_files_in_folder('', starting_path, command, DATA)
 font = ('Ariel', 16)
 
+ui_settings_layout = [[sg.Frame('UI Settings', [[name('UI Framework'), sg.Combo(DATA.uiFramework, default_value=DATA.settings['uiFramework'], s=(15,22), enable_events=True, readonly=True, k='SETTING-uiFramework')],
+                                                [name('Navigation'), sg.Combo(DATA.navigation, default_value=DATA.settings['pageType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-pageType')],
+               [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='SETTING-theme')],
+               [name('Custom Theme'), sg.Input(default_text=DATA.settings['customTheme'], s=20), sg.FolderBrowse(enable_events=True, k='SETTING-customTheme')]
+               ], expand_y=True, expand_x=True)]]
+
+site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input(default_text=DATA.settings['siteName'], s=20, enable_events=True, k='SETTING-sideName')],
+               [name('Description'), sg.Multiline(default_text=DATA.settings['description'],s=(20,8), enable_events=True, k='SETTING-description')],
+               ], expand_y=True, expand_x=True)]]
+
+pinata_settings_layout = [[sg.Frame('Pinata Settings', [[name('JWT'), sg.Input(default_text=DATA.settings['pinataJWT'], s=20, enable_events=True, k='SETTING-pinataJWT')],
+               ], expand_y=True, expand_x=True)]]
+
 tab1_layout =  [[sg.Tree(data=treedata, headings=[], auto_size_columns=True,
                    num_rows=10, col0_width=40, key='-TREE-', font=font,
-                   row_height=48, show_expanded=False, enable_events=True, right_click_menu=['&Right', command])],
-          [sg.Button('Ok', font=font), sg.Button('Cancel', font=font)]]    
+                   row_height=48, show_expanded=False, expand_x=True, enable_events=True, right_click_menu=['&Right', command])],
+          [sg.Button('Debug Site', font=font, tooltip=tt_debug_btn), sg.Button('Cancel', font=font)]]    
 
-tab2_layout = [[name('Site Name'), sg.Input(s=15)],
-               [name('Navigation'), sg.Combo(DATA.navigation, default_value=DATA.settings['pageType'], s=(15,22), enable_events=True, readonly=True, k='-COMBO-')],
-               [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='-COMBO-')],
-               [sg.In(key='in')]] 
+tab2_layout = [[sg.Column(ui_settings_layout, expand_y=True, element_justification='left'), 
+                sg.Column(site_settings_layout, expand_y=True, element_justification='left')],
+               [sg.Column(pinata_settings_layout, expand_y=True, element_justification='left')]]
 
-layout = [[sg.TabGroup([[sg.Tab(starting_path, tab1_layout, tooltip='tip'), sg.Tab('Settings', tab2_layout)]], tooltip='TIP2')]]
+layout = [[sg.TabGroup([[sg.Tab(starting_path, tab1_layout), sg.Tab('Settings', tab2_layout)]], tooltip='TIP2')]]
 
-window = sg.Window('Tree Element Test', layout, use_default_focus=False, finalize=True)
+window = sg.Window('Weeeb3', layout, use_default_focus=False, finalize=True)
 tree = window['-TREE-']         # type: sg.Tree
 tree.bind("<Double-1>", '+DOUBLE')
 block_focus(window)
@@ -222,10 +241,9 @@ while True:
             if os.path.isfile(path_val):
                 f_name = os.path.basename(path_val)
                 f_path = path_val.replace(f_name, '')
-                if(event == 'Set-Description'):
-                    print('x')
-                    description = popup_set_description(f_name)
-                    print(description)
+                if(event == 'Set-Meta-Data'):
+                    data = popup_set_data(f_name, DATA)
+                    DATA.updatePageData(f_path, f_name, data)
                 else:
                     set_file_icon(event)
                     DATA.updateFile(f_path, f_name, event, True)
