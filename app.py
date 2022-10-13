@@ -36,6 +36,12 @@ def load_save_data(file_dir):
         result = pickle.load(data)
         
     return result
+
+
+def baseFolder(f_path):
+    sep = os.path.sep
+    arr = f_path.split(sep)
+    return(arr[len(arr)-2])
     
 
 def add_files_in_folder(parent, dirname, command, data):
@@ -51,7 +57,7 @@ def add_files_in_folder(parent, dirname, command, data):
                 file_extension = pathlib.Path(f).suffix
                 f_icon = file_icon
                 f_name = os.path.basename(f)
-                f_path = fullname.replace(f_name, '')
+                f_path = baseFolder(fullname.replace(f_name, ''))
 
                 dataObj = None
                 
@@ -87,10 +93,9 @@ def add_files_in_folder(parent, dirname, command, data):
                 f_name = os.path.basename(f)
                                 
                 if file_extension == '.md':
-                    f_path = fullname.replace(f_name, '')
+                    f_path = baseFolder(fullname.replace(f_name, ''))
                     treedata.Insert(parent, fullname, f, values=[
                                     os.stat(fullname).st_size, 0], icon=f_icon)
-                    
                     data.updateFile(f_path, f, 'Default', True)
                     data.updatePageData(f_path, f, {'name':"", 'description':""})
                 
@@ -164,9 +169,11 @@ def block_focus(window):
             element.block_focus()
             
 def popup_set_data(md_name, data):
+    print('=========')
+    print(data)
     
-    col_layout = [[sg.Text("Page Name:"), sg.Input(s=(30,8), default_text=data.pageData['name'], k='META-NAME')],
-                  [sg.Text("Page Description:")],[sg.Multiline(s=(30,8), default_text=data.pageData['description'], k='META-DESCRIPTION')]]
+    col_layout = [[sg.Text("Page Name:"), sg.Input(s=(30,8), default_text=data['name'], k='META-NAME')],
+                  [sg.Text("Page Description:")],[sg.Multiline(s=(30,8), default_text=data['description'], k='META-DESCRIPTION')]]
     col_layout_btns = [[sg.Button("Save", bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel')]]
     layout = [
         [sg.Text(f"File: {md_name}")],
@@ -177,7 +184,9 @@ def popup_set_data(md_name, data):
     block_focus(window)
     event, values = window.read()
     window.close()
-    page_data = {'name':values['META-NAME'], 'description':values['META-DESCRIPTION']}
+    page_data = None
+    if event == '-SAVE-DATA-':
+        page_data = {'name':values['META-NAME'], 'description':values['META-DESCRIPTION']}
     return page_data if event == '-SAVE-DATA-' else None
 
 dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
@@ -240,10 +249,13 @@ while True:
         elif event in command:
             if os.path.isfile(path_val):
                 f_name = os.path.basename(path_val)
-                f_path = path_val.replace(f_name, '')
+                f_path = baseFolder(path_val.replace(f_name, ''))
                 if(event == 'Set-Meta-Data'):
-                    data = popup_set_data(f_name, DATA)
-                    DATA.updatePageData(f_path, f_name, data)
+                    data = DATA.getData(f_path, f_name, DATA.pageData)
+                    d = popup_set_data(f_name, data)
+                    if(d != None):
+                        DATA.updatePageData(f_path, f_name, d)
+                        DATA.saveData()
                 else:
                     set_file_icon(event)
                     DATA.updateFile(f_path, f_name, event, True)

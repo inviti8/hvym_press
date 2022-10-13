@@ -33,6 +33,7 @@ class SiteDataHandler:
           dataFile = open(self.dataFilePath, 'rb')
           data = pickle.load(dataFile)
           self.folders = data['folders']
+          self.pageData = data['pageData']
           self.settings = data['settings']
           self.fileExists = True
       else:
@@ -50,23 +51,35 @@ class SiteDataHandler:
            self.addFolder(folder, self.folders)
            self.updateFile(folder, path, uiType, active)
            
+       print('+++++++++++++++++++++')
+       print(self.folders)
+       print('+++++++++++++++++++++')
+           
    def updatePageData(self, folder, path, data):
        if(folder in self.pageData):
            self.pageData[folder][path] = data
-           print('-----------------------')
-           print(self.pageData)
-           print('-----------------------')
        else:
            self.addFolder(folder, self.pageData)
            self.updatePageData(folder, path, data)
            
+       print('-----------------------')
+       print(self.pageData)
+       print('-----------------------')
+           
    def updateSetting(self, setting, value):
        self.settings[setting] = value
        self.saveData()
+       
+   def getData(self, folder, path, selfData):
+       result = None
+       if(folder in selfData.keys() and path in selfData[folder].keys()):
+           result = selfData[folder][path]
+           
+       return result
            
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
-       data = {'folders':self.folders, 'settings':self.settings}
+       data = {'folders':self.folders, 'pageData':self.pageData, 'settings':self.settings}
        pickle.dump(data, file)
        file.close()
              
