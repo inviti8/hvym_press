@@ -2,13 +2,18 @@ import os
 import sys
 import pickle
 import pathlib
+import requests
+import webbrowser
+import ServerHandler
 import SiteDataHandler
 from io import BytesIO
 from PIL import Image, ImageDraw
 import PySimpleGUI as sg
 
 sg.theme("DarkGrey13")
+SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
 NAME_SIZE = 15
+font = ('Ariel', 12)
 
 
 folder_icon = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA3XAAAN1wFCKJt4AAAE7mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4yLWMwMDAgNzkuMWI2NWE3OSwgMjAyMi8wNi8xMy0xNzo0NjoxNCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgc3RFdnQ6d2hlbj0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuxPXaQAAAFhSURBVFiF7de9itRQGMbx3znJREEHVNBiC7HyLpRBC6/AWhY/aq/C0htwi90LERRL72CttFywERk0cfJaZAZGGHGYjZwt5oFAzglv3v9585yPpIhQUrlo9osAUDtJ6+1nuIfL6EfOlfEDH3C06kxxvHwY3gqzv4aOq3d4iD5r0XohzFTLZKurQkKLxfJ+HM3wEmo3KiqPXa2oE+uzIi0zznvOOjpMMM7EuY/XtYPJU8kDPfogbaj3rZom8bkdnDFOJTqodfHqz/4Nw5sH04pp5ms/WPQ8SkgWAwDXtgpaBDdruo4udjdmMvipNV8BtGj+GdgFTeZOM0Ts+hkSfgXf+wOLUNvWUslQhbSGu6sZJ5kr+RGepHh/6RumO77qvDorvRRfLw3wszRAlAYovx3vAfYAe4DV4atY/mybrfj/qck4LQhwmnFYEOCwxkfcxXPcNubhe7MCX/AGn9L+57Q0wG/4oVYsu0eeMwAAAABJRU5ErkJggg=='
@@ -98,6 +103,7 @@ def add_files_in_folder(parent, dirname, command, data):
                                     os.stat(fullname).st_size, 0], icon=f_icon)
                     data.updateFile(f_path, f, 'Default', True)
                     data.updatePageData(f_path, f, {'name':"", 'description':""})
+                    data.updateFormData(f_path, f, {'formType':"email", 'cryptoAddress':"polygon"})
                 
     data.saveData()
                 
@@ -159,7 +165,7 @@ def icon(check):
 
 def name(name):
     dots = NAME_SIZE-len(name)-2
-    return sg.Text(name + ' ' + ' '*dots, size=(NAME_SIZE,1), justification='r',pad=(0,0), font='Courier 10')
+    return sg.Text(' ' + name + ' ' + ' '*dots, size=(NAME_SIZE,1), justification='l',pad=(0,0),  font=font)
 
 #Window controll
 def block_focus(window):
@@ -168,13 +174,11 @@ def block_focus(window):
         if isinstance(element, sg.Button):
             element.block_focus()
             
-def popup_set_data(md_name, data):
-    print('=========')
-    print(data)
+def popup_set_meta_data(md_name, data):
     
-    col_layout = [[sg.Text("Page Name:"), sg.Input(s=(30,8), default_text=data['name'], k='META-NAME')],
-                  [sg.Text("Page Description:")],[sg.Multiline(s=(30,8), default_text=data['description'], k='META-DESCRIPTION')]]
-    col_layout_btns = [[sg.Button("Save", bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel')]]
+    col_layout = [[sg.Text("Page Name:", font=font), sg.Input(s=(30,8), default_text=data['name'], k='META-NAME')],
+                  [sg.Text("Page Description:", font=font)],[sg.Multiline(s=(30,8), default_text=data['description'], k='META-DESCRIPTION')]]
+    col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
     layout = [
         [sg.Text(f"File: {md_name}")],
         [sg.Column(col_layout, expand_x=True, element_justification='center')],
@@ -189,6 +193,45 @@ def popup_set_data(md_name, data):
         page_data = {'name':values['META-NAME'], 'description':values['META-DESCRIPTION']}
     return page_data if event == '-SAVE-DATA-' else None
 
+def popup_set_form_data(md_name, data):
+    
+    form_types = ['email', 'name-email', 'name-email-address', 'name-email-address-phone']
+    crypto_addresses = ['polygon']
+    
+    col_layout = [[sg.Text("Form Type:", font=font), sg.Combo(form_types, default_value=data['formType'], s=(25,22), readonly=True, k='FORM-TYPE')],
+                  [sg.Text("Crypto Address:", font=font), sg.Combo(crypto_addresses, default_value=data['cryptoAddress'], s=(15,22), readonly=True, k='CRYPTO-ADDRESS')]]
+    col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
+    layout = [
+        [sg.Text(f"File: {md_name}")],
+        [sg.Column(col_layout, expand_x=True, element_justification='center')],
+        [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
+    ]
+    window = sg.Window("Set Form Data", layout, use_default_focus=False, finalize=True, modal=True)
+    block_focus(window)
+    event, values = window.read()
+    window.close()
+    page_data = None
+    if event == '-SAVE-DATA-':
+        page_data = {'formType':values['FORM-TYPE'], 'cryptoAddress':values['CRYPTO-ADDRESS']}
+    return page_data if event == '-SAVE-DATA-' else None
+
+
+def StartServer(path=SCRIPT_DIR, port=8000):
+    '''
+    Starts a Simple HTTP Server on port 8000.
+
+    '''
+    ServerHandler.Server(ServerHandler.ServerHandler)
+    #server_path = os.path.join(SCRIPT_DIR, 'serve', 'heavymeta_simple_server.py')
+    #subprocess.Popen([str(sys.executable), server_path])
+    
+def StopServer():
+    '''
+    Stops the running server.
+
+    '''
+    requests.post('http://localhost:8000/kill_server', data={})
+
 dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
 
 check = [icon(0), icon(1), icon(2)]
@@ -199,10 +242,10 @@ if not starting_path:
     
 DATA = SiteDataHandler.SiteDataHandler(starting_path)
 
-command = ['Block', 'Block-Thumb', 'Block-Inset', 'Block-Inset-Thumb', 'Expandable', 'Expandable-Thumb', 'Expandable-Inset', 'Expandable-Inset-Thumb', 'Card', 'Form-Email', 'Set-Meta-Data']
+command = ['Block', 'Block-Thumb', 'Block-Inset', 'Block-Inset-Thumb', 'Expandable', 'Expandable-Thumb', 'Expandable-Inset', 'Expandable-Inset-Thumb', 'Card', 'Form-Email', 'Set-Meta-Data', 'Set-Form-Data']
 treedata = sg.TreeData()
 add_files_in_folder('', starting_path, command, DATA)
-font = ('Ariel', 16)
+
 
 ui_settings_layout = [[sg.Frame('UI Settings', [[name('UI Framework'), sg.Combo(DATA.uiFramework, default_value=DATA.settings['uiFramework'], s=(15,22), enable_events=True, readonly=True, k='SETTING-uiFramework')],
                                                 [name('Navigation'), sg.Combo(DATA.navigation, default_value=DATA.settings['pageType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-pageType')],
@@ -220,13 +263,13 @@ pinata_settings_layout = [[sg.Frame('Deployment Settings', [[name('Pinata JWT'),
 tab1_layout =  [[sg.Tree(data=treedata, headings=[], auto_size_columns=True,
                    num_rows=10, col0_width=40, key='-TREE-', font=font,
                    row_height=48, show_expanded=False, expand_x=True, enable_events=True, right_click_menu=['&Right', command])],
-          [sg.Button('Debug Site', font=font, tooltip=tt_debug_btn), sg.Button('Cancel', font=font)]]    
+          [sg.Button('Debug Site', font=font, tooltip=tt_debug_btn, k='-DEBUG-'), sg.Button('Cancel', font=font)]]    
 
 tab2_layout = [[sg.Column(ui_settings_layout, expand_y=True, element_justification='left'), 
                 sg.Column(site_settings_layout, expand_y=True, element_justification='left')],
                [sg.Column(pinata_settings_layout, expand_y=True, element_justification='left')]]
 
-layout = [[sg.TabGroup([[sg.Tab(starting_path, tab1_layout), sg.Tab('Settings', tab2_layout)]], tooltip='TIP2')]]
+layout = [[sg.TabGroup([[sg.Tab(starting_path, tab1_layout, font=font,), sg.Tab('Settings', tab2_layout, font=font,)]])]]
 
 window = sg.Window('Weeeb3', layout, use_default_focus=False, finalize=True)
 tree = window['-TREE-']         # type: sg.Tree
@@ -252,21 +295,32 @@ while True:
                 f_path = baseFolder(path_val.replace(f_name, ''))
                 if(event == 'Set-Meta-Data'):
                     data = DATA.getData(f_path, f_name, DATA.pageData)
-                    d = popup_set_data(f_name, data)
+                    d = popup_set_meta_data(f_name, data)
                     if(d != None):
                         DATA.updatePageData(f_path, f_name, d)
                         DATA.saveData()
+                elif(event == 'Set-Form-Data'):
+                    folderData = DATA.getData(f_path, f_name, DATA.folders)
+                    data = DATA.getData(f_path, f_name, DATA.formData)
+                    if(folderData['type'] == 'Form-Email'):
+                        d = popup_set_form_data(f_name, data)
+                        if(d != None):
+                            DATA.updateFormData(f_path, f_name, d)
+                            DATA.saveData()
                 else:
                     set_file_icon(event)
                     DATA.updateFile(f_path, f_name, event, True)
                     DATA.saveData()
+                #print(f_name)
     if 'SETTING-' in event:
         arr = event.split('-')
         setting = arr[len(arr)-1]
         val = values[event]
         DATA.updateSetting(setting, val)
         DATA.saveData()
+    if event == '-DEBUG-':
+        print("debug")
           
-
+    #print(values[event])
     #print(event, values)
 window.close()

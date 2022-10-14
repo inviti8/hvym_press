@@ -22,6 +22,7 @@ class SiteDataHandler:
    def __init__(self, filePath):
       self.folders = {}
       self.pageData = {}
+      self.formData = {}
       self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'', 'pinataJWT':''}
       self.uiFramework = ['onsen']
       self.navigation = ['carousel', 'splitter', 'tabs']
@@ -34,6 +35,7 @@ class SiteDataHandler:
           data = pickle.load(dataFile)
           self.folders = data['folders']
           self.pageData = data['pageData']
+          self.formData = data['formData']
           self.settings = data['settings']
           self.fileExists = True
       else:
@@ -43,22 +45,34 @@ class SiteDataHandler:
        if(folder not in selfData):
            selfData[folder] = {}
            
+   def updateData(self, folder, path, selfData, data):
+       if(folder in selfData):
+           selfData[folder][path] = data
+       else:
+           self.addFolder(folder, self.folders)
+           self.updateData(folder, path, selfData, data)
+           
    def updateFile(self, folder, path, uiType, active=True):
        if(folder in self.folders):
            data = {'path':path, "type":uiType, "active":active}
-           self.folders[folder][path] = data
+           self.updateData(folder, path, self.folders, data)
        else:
            self.addFolder(folder, self.folders)
-           self.updateFile(folder, path, uiType, active)
-           
+           self.updateFile(folder, path, uiType, active)         
            
    def updatePageData(self, folder, path, data):
        if(folder in self.pageData):
-           self.pageData[folder][path] = data
+           self.updateData(folder, path, self.pageData, data)
        else:
            self.addFolder(folder, self.pageData)
            self.updatePageData(folder, path, data)
            
+   def updateFormData(self, folder, path, data):
+       if(folder in self.formData):
+           self.updateData(folder, path, self.formData, data)
+       else:
+           self.addFolder(folder, self.formData)
+           self.updateFormData(folder, path, data) 
            
    def updateSetting(self, setting, value):
        self.settings[setting] = value
@@ -73,7 +87,7 @@ class SiteDataHandler:
            
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
-       data = {'folders':self.folders, 'pageData':self.pageData, 'settings':self.settings}
+       data = {'folders':self.folders, 'pageData':self.pageData, 'formData':self.formData, 'settings':self.settings}
        pickle.dump(data, file)
        file.close()
              
