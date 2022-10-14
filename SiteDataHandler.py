@@ -51,9 +51,6 @@ class SiteDataHandler:
            self.addFolder(folder, self.folders)
            self.updateFile(folder, path, uiType, active)
            
-       print('+++++++++++++++++++++')
-       print(self.folders)
-       print('+++++++++++++++++++++')
            
    def updatePageData(self, folder, path, data):
        if(folder in self.pageData):
@@ -62,9 +59,6 @@ class SiteDataHandler:
            self.addFolder(folder, self.pageData)
            self.updatePageData(folder, path, data)
            
-       print('-----------------------')
-       print(self.pageData)
-       print('-----------------------')
            
    def updateSetting(self, setting, value):
        self.settings[setting] = value

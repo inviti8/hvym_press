@@ -210,11 +210,11 @@ ui_settings_layout = [[sg.Frame('UI Settings', [[name('UI Framework'), sg.Combo(
                [name('Custom Theme'), sg.Input(default_text=DATA.settings['customTheme'], s=20), sg.FolderBrowse(enable_events=True, k='SETTING-customTheme')]
                ], expand_y=True, expand_x=True)]]
 
-site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input(default_text=DATA.settings['siteName'], s=20, enable_events=True, k='SETTING-sideName')],
+site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input(default_text=DATA.settings['siteName'], s=20, enable_events=True, k='SETTING-siteName')],
                [name('Description'), sg.Multiline(default_text=DATA.settings['description'],s=(20,8), enable_events=True, k='SETTING-description')],
                ], expand_y=True, expand_x=True)]]
 
-pinata_settings_layout = [[sg.Frame('Pinata Settings', [[name('JWT'), sg.Input(default_text=DATA.settings['pinataJWT'], s=20, enable_events=True, k='SETTING-pinataJWT')],
+pinata_settings_layout = [[sg.Frame('Deployment Settings', [[name('Pinata JWT'), sg.Input(default_text=DATA.settings['pinataJWT'], s=20, enable_events=True, k='SETTING-pinataJWT')],
                ], expand_y=True, expand_x=True)]]
 
 tab1_layout =  [[sg.Tree(data=treedata, headings=[], auto_size_columns=True,
@@ -260,8 +260,13 @@ while True:
                     set_file_icon(event)
                     DATA.updateFile(f_path, f_name, event, True)
                     DATA.saveData()
-        
-        
+    if 'SETTING-' in event:
+        arr = event.split('-')
+        setting = arr[len(arr)-1]
+        val = values[event]
+        DATA.updateSetting(setting, val)
+        DATA.saveData()
+          
 
     #print(event, values)
 window.close()
