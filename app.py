@@ -3,6 +3,7 @@ import sys
 import pickle
 import pathlib
 import requests
+import threading
 import webbrowser
 import ServerHandler
 import SiteDataHandler
@@ -30,6 +31,7 @@ expandable_inset_thumb = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIW
 card = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAA7AAAAOwBeShxvQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAF2SURBVFiF7Za/SgNBEIe/kXSioKBPYB5AX0RMYWFhJRZKECFoFUFtREhSCL6FGPQJbGIXEDuN9iL4tzQ7a3G5eJfLJSdkL839YNm722W/HzN7w0CmTGOWxK407CxKAcMiljkMYAEDaIJnb/8rhiZtLtmQt+QGGnYH5QhlGg0cnmT03/uJUmZTzoYbaNgqyu6QA/8DD65X2JZSvIFbW8Bw4QTuD8syRbnykRMhA4ZDp3AF2hz3j8CNzSM8OIWb7rzAnjz1RiCfClw7rI5yXbxlMhW4N6Z87F8E0oN73yIR8AuNa7gSUi70lga8x0TyFIy2IPWJwKAUjPp+BDQ8Ba4uZ0eDU+Dyz4hEwPAdSoFLuOUraqBNC0kBrsAPj9EUrEoL5T6FgnRHTZ6jBrw0HDiGg6EcRIYNrEkdpeIMrpxSk+t4AwDrUkIp4rVRo4J/oGxRlf1eXHxTem5nEFawLGGZ7zaaSrLm1JtfUJrkqHMi77GsTJnGqV9yNlgHEHsA2gAAAABJRU5ErkJggg=='
 form_email = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAE7mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4yLWMwMDAgNzkuMWI2NWE3OSwgMjAyMi8wNi8xMy0xNzo0NjoxNCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMi0xMC0wN1QxNDowNDo1Ni0wNzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjItMTAtMDdUMTQ6MjE6NDQtMDc6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjItMTAtMDdUMTQ6MjE6NDQtMDc6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjhkMzcwOWVmLTg1OTItMTE0ZC04ZTg2LWM1ZWM1OTA2YmZmYiIgeG1wTU06RG9jdW1lbnRJRD0i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'
 ignore_file = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAACWklEQVRYheWXPW8TQRCG39m9O/suDrKxYyMgCFFQUIBEAYiSgiYikaCi5S9E+D8kESkCEgjS8FEBDYQOuUNCVCjIiI4G2UKO0UVBsbmP3aUKOu6c3IcvIMTb3czOzDM7d3taUkohqMGNOfS+U1U4YoGILgMoI07SByYOiFK51Cw1yg/0cxegHG/kUuPq9d+etfAC11cV6aoPUuOHuZCxtQFA+YAGCafcuK+fOT+0ZmafJAoEwMIGe4uWBWeJi/+CEATdKsJprz+2nz67lhlAKXUlbfEdcc4hpcR2q/Xc+dSeyQSAEWNJKqUUeNECq9Wxsbr6yml/vJQFwM0KsAPBJk1w6Og/etjyO52LaQHGFnkCVJsC91z0VlbeuP1vZ/8oAACQ74LX6lCuT/byrbdiyz61bwBMAEQEmCZgWmAFE6xgAnoBxvEjEEIY9r2779RwcDICGj6IPs/N9gBMpQEgX4IMDVr1ICRpCOdkjMHvfYU+Pf3l6O07x4K+zG98UKKogzwfXrcD5glIFk3LdMLg/fqhsD0XAOYLgAhcLwA6wHdZp1Urm5HYPADG0V8HiB1B7WYTANBfWozYgvagLezbS4l3YFSBPGJSjyAuaX9pcdfdygUgb6UCSDOGJPNPDZBGSWEzASTtLolyOQmDCnceB5t4B7J0nSQml79hCm2cePGyHjT8W5/hfwNg7GO9SO5RAKMvdfkokjsCwCXWBOV+PEApBbJoLRZg0pLzBrxu+PMcR4IzEPRuZZvNh32RVidKzP4xVKd9pS2ARLLr+d7aVEq91kk2TdWww86fjc/a7PX2dcMAAAAASUVORK5CYII='
+anon = b'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'
 
 #TOOL-TIPS:
 tt_debug_btn = "Renders site, and launches at localhost:8080."
@@ -103,7 +105,9 @@ def add_files_in_folder(parent, dirname, command, data):
                                     os.stat(fullname).st_size, 0], icon=f_icon)
                     data.updateFile(f_path, f, 'Default', True)
                     data.updatePageData(f_path, f, {'name':"", 'description':""})
-                    data.updateFormData(f_path, f, {'formType':"email", 'cryptoAddress':"polygon"})
+                    data.updateArticleData(f_path, f, {'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use-thumb':False})
+                    data.updateFormData(f_path, f, {'formType':"email", 'customHtml':"polygon"})
+                    data.addAuthor('anonymous', anon)
                 
     data.saveData()
                 
@@ -174,11 +178,52 @@ def block_focus(window):
         if isinstance(element, sg.Button):
             element.block_focus()
             
+            
+def popup_set_article_data(md_name, data):
+    
+    columns = ['1', '2', '3', '4']
+    article_types = ['Block', 'Block-Thumb', 'Block-Inset-Thumb', 'Expandable', 'Expandable-Thumb', 'Expandable-Inset-Thumb', 'Card', 'Form-Email']
+    styles = ['default', 'material']
+    border_types = ['default', 'noborder', 'inset']
+    
+    col_layout_l = [[sg.Text("Column:", font=font)],
+                  [sg.Text("Article Type:", font=font)],
+                  [sg.Text("Style:", font=font)],
+                  [sg.Text("Border Type:", font=font)],
+                  [sg.Text("Author:", font=font)],
+                  [sg.Text("Use Thumbnail:", font=font)]]
+    
+    col_layout_r = [[sg.Combo(columns, default_value=data['column'], s=(25,22), readonly=True, k='COLUMN')],
+                  [sg.Combo(article_types, default_value=data['type'], s=(25,22), readonly=True, k='TYPE')],
+                  [sg.Combo(styles, default_value=data['style'], s=(25,22), readonly=True, k='STYLE')],
+                  [sg.Combo(border_types, default_value=data['border'], s=(25,22), readonly=True, k='BORDER-TYPE')],
+                  [sg.Combo(DATA.authors, default_value=data['author'], s=(25,22), readonly=True, k='AUTHOR')],
+                  [sg.Checkbox('Checkbox', default=data['use-thumb'], k='USE-THUMB')]]
+    
+    col_layout = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
+    
+    col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
+    layout = [
+        [sg.Text(f"File: {md_name}")],
+        [sg.Column(col_layout, expand_x=True, element_justification='left')],
+        [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
+    ]
+    window = sg.Window("Set Article Data", layout, use_default_focus=False, finalize=True, modal=True)
+    block_focus(window)
+    event, values = window.read()
+    window.close()
+    page_data = None
+    if event == '-SAVE-DATA-':
+        page_data = {'column':values['COLUMN'], 'type':values['TYPE'], 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use-thumb':values['USE-THUMB']}
+    return page_data if event == '-SAVE-DATA-' else None
+            
 def popup_set_meta_data(md_name, data):
     
     col_layout = [[sg.Text("Page Name:", font=font), sg.Input(s=(30,8), default_text=data['name'], k='META-NAME')],
                   [sg.Text("Page Description:", font=font)],[sg.Multiline(s=(30,8), default_text=data['description'], k='META-DESCRIPTION')]]
+    
     col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
+    
     layout = [
         [sg.Text(f"File: {md_name}")],
         [sg.Column(col_layout, expand_x=True, element_justification='center')],
@@ -198,8 +243,14 @@ def popup_set_form_data(md_name, data):
     form_types = ['email', 'name-email', 'name-email-address', 'name-email-address-phone']
     crypto_addresses = ['polygon']
     
-    col_layout = [[sg.Text("Form Type:", font=font), sg.Combo(form_types, default_value=data['formType'], s=(25,22), readonly=True, k='FORM-TYPE')],
-                  [sg.Text("Crypto Address:", font=font), sg.Combo(crypto_addresses, default_value=data['cryptoAddress'], s=(15,22), readonly=True, k='CRYPTO-ADDRESS')]]
+    col_layout_l = [[sg.Text("Form Type:", font=font)],
+                  [sg.Text("Chain:", font=font)]]
+    
+    col_layout_r = [[sg.Combo(form_types, default_value=data['formType'], s=(25,22), readonly=True, k='FORM-TYPE')],
+                  [sg.Multiline(s=(30,8), default_text=data['customHtml'], k='CUSTOM-HTML')]]
+    
+    col_layout = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
+    
     col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
     layout = [
         [sg.Text(f"File: {md_name}")],
@@ -212,7 +263,7 @@ def popup_set_form_data(md_name, data):
     window.close()
     page_data = None
     if event == '-SAVE-DATA-':
-        page_data = {'formType':values['FORM-TYPE'], 'cryptoAddress':values['CRYPTO-ADDRESS']}
+        page_data = {'formType':values['FORM-TYPE'], 'customHtml':values['CUSTOM-HTML']}
     return page_data if event == '-SAVE-DATA-' else None
 
 
@@ -230,7 +281,11 @@ def StopServer():
     Stops the running server.
 
     '''
-    requests.post('http://localhost:8000/kill_server', data={})
+    requests.post('http://localhost:8000/shutdown/', data={})
+    
+def LaunchSite(route):
+    url = os.path.join('http://localhost:8000', route)
+    webbrowser.open_new_tab(url)
 
 dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
 
@@ -242,7 +297,7 @@ if not starting_path:
     
 DATA = SiteDataHandler.SiteDataHandler(starting_path)
 
-command = ['Block', 'Block-Thumb', 'Block-Inset', 'Block-Inset-Thumb', 'Expandable', 'Expandable-Thumb', 'Expandable-Inset', 'Expandable-Inset-Thumb', 'Card', 'Form-Email', 'Set-Meta-Data', 'Set-Form-Data']
+command = ['Block', 'Block-Thumb', 'Block-Inset', 'Block-Inset-Thumb', 'Expandable', 'Expandable-Thumb', 'Expandable-Inset', 'Expandable-Inset-Thumb', 'Card', 'Form-Email', 'Set-Page-Data', 'Set-Article-Data', 'Set-Meta-Data', 'Set-Form-Data']
 treedata = sg.TreeData()
 add_files_in_folder('', starting_path, command, DATA)
 
@@ -263,7 +318,7 @@ pinata_settings_layout = [[sg.Frame('Deployment Settings', [[name('Pinata JWT'),
 tab1_layout =  [[sg.Tree(data=treedata, headings=[], auto_size_columns=True,
                    num_rows=10, col0_width=40, key='-TREE-', font=font,
                    row_height=48, show_expanded=False, expand_x=True, enable_events=True, right_click_menu=['&Right', command])],
-          [sg.Button('Debug Site', font=font, tooltip=tt_debug_btn, k='-DEBUG-'), sg.Button('Cancel', font=font)]]    
+          [sg.Button('Debug Site', font=font, tooltip=tt_debug_btn, k='-DEBUG-'), sg.Button('Cancel', font=font, k='-CANCEL-')]]    
 
 tab2_layout = [[sg.Column(ui_settings_layout, expand_y=True, element_justification='left'), 
                 sg.Column(site_settings_layout, expand_y=True, element_justification='left')],
@@ -307,6 +362,25 @@ while True:
                         if(d != None):
                             DATA.updateFormData(f_path, f_name, d)
                             DATA.saveData()
+                elif(event == 'Set-Article-Data'):
+                    data = DATA.getData(f_path, f_name, DATA.articleData)
+
+                    if '.md' in f_name:
+                        d = popup_set_article_data(f_name, data)
+                        print(d)
+                        if(d != None):
+                            DATA.updateArticleData(f_path, f_name, d)
+                            DATA.saveData()        
+                elif(event == 'Set-Page-Data'):
+                    data = DATA.getData(f_path, f_name, DATA.pageData)
+
+                    if '.md' in f_name:
+                        d = popup_set_article_data(f_name, data)
+                        print(d)
+                        if(d != None):
+                            DATA.updateArticleData(f_path, f_name, d)
+                            DATA.saveData()
+                    
                 else:
                     set_file_icon(event)
                     DATA.updateFile(f_path, f_name, event, True)
@@ -320,7 +394,10 @@ while True:
         DATA.saveData()
     if event == '-DEBUG-':
         print("debug")
-          
+        LaunchSite('Debug')
+        threading.Thread(target=StartServer, args=(), daemon=True).start()
+    if event == '-CANCEL-':
+        threading.Thread(target=StopServer, args=(), daemon=True).start()         
     #print(values[event])
     #print(event, values)
 window.close()

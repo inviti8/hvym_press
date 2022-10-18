@@ -22,8 +22,10 @@ class SiteDataHandler:
    def __init__(self, filePath):
       self.folders = {}
       self.pageData = {}
+      self.articleData = {}
       self.formData = {}
       self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'', 'pinataJWT':''}
+      self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['carousel', 'splitter', 'tabs']
       self.themes = ['light', 'dark']
@@ -35,6 +37,7 @@ class SiteDataHandler:
           data = pickle.load(dataFile)
           self.folders = data['folders']
           self.pageData = data['pageData']
+          self.articleData = data['articleData']
           self.formData = data['formData']
           self.settings = data['settings']
           self.fileExists = True
@@ -67,6 +70,13 @@ class SiteDataHandler:
            self.addFolder(folder, self.pageData)
            self.updatePageData(folder, path, data)
            
+   def updateArticleData(self, folder, path, data):
+       if(folder in self.articleData):
+           self.updateData(folder, path, self.articleData, data)
+       else:
+           self.addFolder(folder, self.articleData)
+           self.updateArticleData(folder, path, data)
+           
    def updateFormData(self, folder, path, data):
        if(folder in self.formData):
            self.updateData(folder, path, self.formData, data)
@@ -84,10 +94,14 @@ class SiteDataHandler:
            result = selfData[folder][path]
            
        return result
+   
+   def addAuthor(self, name, img):
+       if name not in self.authors.keys():
+           self.authors[name] = img
            
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
-       data = {'folders':self.folders, 'pageData':self.pageData, 'formData':self.formData, 'settings':self.settings}
+       data = {'folders':self.folders, 'pageData':self.pageData, 'articleData':self.articleData, 'formData':self.formData, 'settings':self.settings, 'authors':self.authors}
        pickle.dump(data, file)
        file.close()
              
