@@ -62,7 +62,7 @@ def add_files_in_folder(parent, dirname, command, data):
                 add_files_in_folder(fullname, fullname, command, data)
             else:
                 file_extension = pathlib.Path(f).suffix
-                f_icon = file_icon
+                f_icon = block
                 f_name = os.path.basename(f)
                 f_path = baseFolder(fullname.replace(f_name, ''))
 
@@ -97,7 +97,7 @@ def add_files_in_folder(parent, dirname, command, data):
 
             else:
                 file_extension = pathlib.Path(f).suffix
-                f_icon = file_icon
+                f_icon = block
                 f_name = os.path.basename(f)
                                 
                 if file_extension == '.md':
@@ -257,24 +257,25 @@ def popup_set_article_data(md_name, data):
     thumb_concat = ""
     inset_concat = ""
     
-    if values['TYPE'] != None:
-        type_concat = values['TYPE']
-    if values['BORDER-TYPE'] != None and values['BORDER-TYPE'] == 'inset':
-        inset_concat = "Inset"
-    if values['USE-THUMB'] != None and  values['USE-THUMB'] == True:
-        thumb_concat = "Thumb"
+    if values != None:
+        if values['TYPE'] != None:
+            type_concat = values['TYPE']
+        if values['BORDER-TYPE'] != None and values['BORDER-TYPE'] == 'inset':
+            inset_concat = "Inset"
+        if values['USE-THUMB'] != None and  values['USE-THUMB'] == True:
+            thumb_concat = "Thumb"
+            
+        type_arr = [type_concat, inset_concat, thumb_concat]
         
-    type_arr = [type_concat, inset_concat, thumb_concat]
-    
-    type_string = concat_array(type_arr)
-    
-    print(type_string)
-    
-    set_file_icon(type_string)
-    
-    if event == '-SAVE-DATA-':
-        page_data = {'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use-thumb':values['USE-THUMB']}
-    return page_data if event == '-SAVE-DATA-' else None
+        type_string = concat_array(type_arr)
+        
+        print(type_string)
+        
+        set_file_icon(type_string)
+        
+        if event == '-SAVE-DATA-':
+            page_data = {'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use-thumb':values['USE-THUMB']}
+        return page_data if event == '-SAVE-DATA-' else None
             
 def popup_set_meta_data(md_name, data):
     
@@ -439,9 +440,6 @@ while True:
                     if(d != None):
                         DATA.updatePageData(f_path, d)
                         DATA.saveData()
-                    # set_file_icon(event)
-                    # DATA.updateFile(f_path, f_name, event, True)
-                    # DATA.saveData()
                 #print(f_name)
     if 'SETTING-' in event:
         arr = event.split('-')
