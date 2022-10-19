@@ -14,7 +14,7 @@ import PySimpleGUI as sg
 sg.theme("DarkGrey13")
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
 NAME_SIZE = 15
-font = ('Ariel', 12)
+font = ('Ariel', 9)
 
 
 folder_icon = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA3XAAAN1wFCKJt4AAAE7mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4yLWMwMDAgNzkuMWI2NWE3OSwgMjAyMi8wNi8xMy0xNzo0NjoxNCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgc3RFdnQ6d2hlbj0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuxPXaQAAAFhSURBVFiF7de9itRQGMbx3znJREEHVNBiC7HyLpRBC6/AWhY/aq/C0htwi90LERRL72CttFywERk0cfJaZAZGGHGYjZwt5oFAzglv3v9585yPpIhQUrlo9osAUDtJ6+1nuIfL6EfOlfEDH3C06kxxvHwY3gqzv4aOq3d4iD5r0XohzFTLZKurQkKLxfJ+HM3wEmo3KiqPXa2oE+uzIi0zznvOOjpMMM7EuY/XtYPJU8kDPfogbaj3rZom8bkdnDFOJTqodfHqz/4Nw5sH04pp5ms/WPQ8SkgWAwDXtgpaBDdruo4udjdmMvipNV8BtGj+GdgFTeZOM0Ts+hkSfgXf+wOLUNvWUslQhbSGu6sZJ5kr+RGepHh/6RumO77qvDorvRRfLw3wszRAlAYovx3vAfYAe4DV4atY/mybrfj/qck4LQhwmnFYEOCwxkfcxXPcNubhe7MCX/AGn9L+57Q0wG/4oVYsu0eeMwAAAABJRU5ErkJggg=='
@@ -93,6 +93,7 @@ def add_files_in_folder(parent, dirname, command, data):
             if os.path.isdir(fullname):
                 treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
                 add_files_in_folder(fullname, fullname, command, data)
+                data.updatePageData(dirname, {'title':"", 'max-height':800, 'columns':"1", 'footer-height':200})
 
             else:
                 file_extension = pathlib.Path(f).suffix
@@ -104,9 +105,9 @@ def add_files_in_folder(parent, dirname, command, data):
                     treedata.Insert(parent, fullname, f, values=[
                                     os.stat(fullname).st_size, 0], icon=f_icon)
                     data.updateFile(f_path, f, 'Default', True)
-                    data.updatePageData(f_path, f, {'name':"", 'description':""})
                     data.updateArticleData(f_path, f, {'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use-thumb':False})
                     data.updateFormData(f_path, f, {'formType':"email", 'customHtml':"polygon"})
+                    data.updateMetaData(f_path, f, {'name':"", 'description':""})
                     data.addAuthor('anonymous', anon)
                 
     data.saveData()
@@ -129,8 +130,6 @@ def get_file_icon(uiType):
         result = expandable_inset
     elif uiType == 'Expandable-Inset-Thumb':
         result = expandable_inset_thumb
-    elif uiType == 'Card':
-        result = card
     elif uiType == 'Form-Email':
         result = form_email
         
@@ -166,23 +165,64 @@ def icon(check):
         png = ignore_file
     return png
 
+def concat_array(arr):
+    result = ""
+    idx = 0
+    for string in arr:
+        if string != "":
+            if idx == 0:
+                result += string
+            else:
+                result += '-' + string
+        idx += 1
+        
+    return result
 
 def name(name):
     dots = NAME_SIZE-len(name)-2
     return sg.Text(' ' + name + ' ' + ' '*dots, size=(NAME_SIZE,1), justification='l',pad=(0,0),  font=font)
 
-#Window controll
+#Window control
 def block_focus(window):
     for key in window.key_dict:    # Remove dash box of all Buttons
         element = window[key]
         if isinstance(element, sg.Button):
             element.block_focus()
-            
+
+def popup_set_page_data(md_name, data):
+    columns = ['1', '2', '3', '4']
+    
+    col_layout_l = [[sg.Text("Title:", font=font)],
+                  [sg.Text("Max Height:", font=font)],
+                  [sg.Text("Columns:", font=font)],
+                  [sg.Text("Footer Height:", font=font)]]
+    
+    col_layout_r = [[sg.Input(data['title'], s=(25,22), k='TITLE')],
+                  [sg.Spin([x+1 for x in range(1050)], initial_value=data['max-height'], key='MAX-HEIGHT')],
+                  [sg.Combo(columns, default_value=data['columns'], s=(25,22), readonly=True, k='COLUMNS')],
+                  [sg.Spin([x+1 for x in range(10)], initial_value=data['footer-height'], key='FOOTER-HEIGHT')]]
+    
+    col_layout = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
+    
+    col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
+    layout = [
+        [sg.Text(f"File: {md_name}")],
+        [sg.Column(col_layout, expand_x=True, element_justification='left')],
+        [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
+    ]
+    window = sg.Window("Set Article Data", layout, use_default_focus=False, finalize=True, modal=True)
+    block_focus(window)
+    event, values = window.read()
+    window.close()
+    page_data = None
+    if event == '-SAVE-DATA-':
+        page_data = {'title':values['TITLE'], 'max-height':values['MAX-HEIGHT'], 'columns':values['COLUMNS'], 'footer-height':values['FOOTER-HEIGHT']}
+    return page_data if event == '-SAVE-DATA-' else None            
             
 def popup_set_article_data(md_name, data):
-    
     columns = ['1', '2', '3', '4']
-    article_types = ['Block', 'Block-Thumb', 'Block-Inset-Thumb', 'Expandable', 'Expandable-Thumb', 'Expandable-Inset-Thumb', 'Card', 'Form-Email']
+    article_types = ['Block', 'Expandable', 'Form-Email']
+    article_type = data['type'].split('-')[0]
     styles = ['default', 'material']
     border_types = ['default', 'noborder', 'inset']
     
@@ -194,7 +234,7 @@ def popup_set_article_data(md_name, data):
                   [sg.Text("Use Thumbnail:", font=font)]]
     
     col_layout_r = [[sg.Combo(columns, default_value=data['column'], s=(25,22), readonly=True, k='COLUMN')],
-                  [sg.Combo(article_types, default_value=data['type'], s=(25,22), readonly=True, k='TYPE')],
+                  [sg.Combo(article_types, default_value=article_type, s=(25,22), readonly=True, k='TYPE')],
                   [sg.Combo(styles, default_value=data['style'], s=(25,22), readonly=True, k='STYLE')],
                   [sg.Combo(border_types, default_value=data['border'], s=(25,22), readonly=True, k='BORDER-TYPE')],
                   [sg.Combo(DATA.authors, default_value=data['author'], s=(25,22), readonly=True, k='AUTHOR')],
@@ -213,8 +253,27 @@ def popup_set_article_data(md_name, data):
     event, values = window.read()
     window.close()
     page_data = None
+    type_concat = ""
+    thumb_concat = ""
+    inset_concat = ""
+    
+    if values['TYPE'] != None:
+        type_concat = values['TYPE']
+    if values['BORDER-TYPE'] != None and values['BORDER-TYPE'] == 'inset':
+        inset_concat = "Inset"
+    if values['USE-THUMB'] != None and  values['USE-THUMB'] == True:
+        thumb_concat = "Thumb"
+        
+    type_arr = [type_concat, inset_concat, thumb_concat]
+    
+    type_string = concat_array(type_arr)
+    
+    print(type_string)
+    
+    set_file_icon(type_string)
+    
     if event == '-SAVE-DATA-':
-        page_data = {'column':values['COLUMN'], 'type':values['TYPE'], 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use-thumb':values['USE-THUMB']}
+        page_data = {'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use-thumb':values['USE-THUMB']}
     return page_data if event == '-SAVE-DATA-' else None
             
 def popup_set_meta_data(md_name, data):
@@ -241,7 +300,6 @@ def popup_set_meta_data(md_name, data):
 def popup_set_form_data(md_name, data):
     
     form_types = ['email', 'name-email', 'name-email-address', 'name-email-address-phone']
-    crypto_addresses = ['polygon']
     
     col_layout_l = [[sg.Text("Form Type:", font=font)],
                   [sg.Text("Chain:", font=font)]]
@@ -297,7 +355,7 @@ if not starting_path:
     
 DATA = SiteDataHandler.SiteDataHandler(starting_path)
 
-command = ['Block', 'Block-Thumb', 'Block-Inset', 'Block-Inset-Thumb', 'Expandable', 'Expandable-Thumb', 'Expandable-Inset', 'Expandable-Inset-Thumb', 'Card', 'Form-Email', 'Set-Page-Data', 'Set-Article-Data', 'Set-Meta-Data', 'Set-Form-Data']
+command = ['Set-Page-Data', 'Set-Article-Data', 'Set-Meta-Data', 'Set-Form-Data']
 treedata = sg.TreeData()
 add_files_in_folder('', starting_path, command, DATA)
 
@@ -345,15 +403,19 @@ while True:
             if os.path.isfile(path_val):
                 double_click(check)
         elif event in command:
-            if os.path.isfile(path_val):
-                f_name = os.path.basename(path_val)
-                f_path = baseFolder(path_val.replace(f_name, ''))
-                if(event == 'Set-Meta-Data'):
-                    data = DATA.getData(f_path, f_name, DATA.pageData)
-                    d = popup_set_meta_data(f_name, data)
+            f_name = os.path.basename(path_val)
+            f_path = baseFolder(path_val.replace(f_name, ''))
+            
+            if os.path.isfile(path_val) and '.md' in f_name:
+                
+                if(event == 'Set-Article-Data'):
+                    data = DATA.getData(f_path, f_name, DATA.articleData)
+
+                    d = popup_set_article_data(f_name, data)
+                    print(d)
                     if(d != None):
-                        DATA.updatePageData(f_path, f_name, d)
-                        DATA.saveData()
+                        DATA.updateArticleData(f_path, f_name, d)
+                        DATA.saveData() 
                 elif(event == 'Set-Form-Data'):
                     folderData = DATA.getData(f_path, f_name, DATA.folders)
                     data = DATA.getData(f_path, f_name, DATA.formData)
@@ -361,30 +423,24 @@ while True:
                         d = popup_set_form_data(f_name, data)
                         if(d != None):
                             DATA.updateFormData(f_path, f_name, d)
-                            DATA.saveData()
-                elif(event == 'Set-Article-Data'):
-                    data = DATA.getData(f_path, f_name, DATA.articleData)
-
-                    if '.md' in f_name:
-                        d = popup_set_article_data(f_name, data)
-                        print(d)
-                        if(d != None):
-                            DATA.updateArticleData(f_path, f_name, d)
-                            DATA.saveData()        
-                elif(event == 'Set-Page-Data'):
-                    data = DATA.getData(f_path, f_name, DATA.pageData)
-
-                    if '.md' in f_name:
-                        d = popup_set_article_data(f_name, data)
-                        print(d)
-                        if(d != None):
-                            DATA.updateArticleData(f_path, f_name, d)
-                            DATA.saveData()
-                    
-                else:
-                    set_file_icon(event)
-                    DATA.updateFile(f_path, f_name, event, True)
-                    DATA.saveData()
+                            DATA.saveData()           
+                elif(event == 'Set-Meta-Data'):
+                    data = DATA.getData(f_path, f_name, DATA.metaData)
+                    d = popup_set_meta_data(f_name, data)
+                    if(d != None):
+                        DATA.updateMetaData(f_path, f_name, d)
+                        DATA.saveData()       
+        
+            elif os.path.isdir(path_val) and '.md' not in f_name:
+                if(event == 'Set-Page-Data'):
+                    data = DATA.pageData[f_path]
+                    d = popup_set_page_data(f_name, data)
+                    if(d != None):
+                        DATA.updatePageData(f_path, d)
+                        DATA.saveData()
+                    # set_file_icon(event)
+                    # DATA.updateFile(f_path, f_name, event, True)
+                    # DATA.saveData()
                 #print(f_name)
     if 'SETTING-' in event:
         arr = event.split('-')

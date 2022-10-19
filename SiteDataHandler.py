@@ -24,6 +24,7 @@ class SiteDataHandler:
       self.pageData = {}
       self.articleData = {}
       self.formData = {}
+      self.metaData = {}
       self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'', 'pinataJWT':''}
       self.authors = {}
       self.uiFramework = ['onsen']
@@ -39,6 +40,7 @@ class SiteDataHandler:
           self.pageData = data['pageData']
           self.articleData = data['articleData']
           self.formData = data['formData']
+          self.metaData = data['metaData']
           self.settings = data['settings']
           self.fileExists = True
       else:
@@ -63,12 +65,12 @@ class SiteDataHandler:
            self.addFolder(folder, self.folders)
            self.updateFile(folder, path, uiType, active)         
            
-   def updatePageData(self, folder, path, data):
+   def updatePageData(self, folder, data):
        if(folder in self.pageData):
-           self.updateData(folder, path, self.pageData, data)
+           self.pageData[folder] = data
        else:
            self.addFolder(folder, self.pageData)
-           self.updatePageData(folder, path, data)
+           self.updatePageData(folder, data)
            
    def updateArticleData(self, folder, path, data):
        if(folder in self.articleData):
@@ -82,7 +84,14 @@ class SiteDataHandler:
            self.updateData(folder, path, self.formData, data)
        else:
            self.addFolder(folder, self.formData)
-           self.updateFormData(folder, path, data) 
+           self.updateFormData(folder, path, data)
+           
+   def updateMetaData(self, folder, path, data):
+       if(folder in self.metaData):
+           self.updateData(folder, path, self.metaData, data)
+       else:
+           self.addFolder(folder, self.metaData)
+           self.updateMetaData(folder, path, data)
            
    def updateSetting(self, setting, value):
        self.settings[setting] = value
@@ -101,7 +110,7 @@ class SiteDataHandler:
            
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
-       data = {'folders':self.folders, 'pageData':self.pageData, 'articleData':self.articleData, 'formData':self.formData, 'settings':self.settings, 'authors':self.authors}
+       data = {'folders':self.folders, 'pageData':self.pageData, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors}
        pickle.dump(data, file)
        file.close()
              
