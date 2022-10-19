@@ -415,6 +415,7 @@ while True:
                     print(d)
                     if(d != None):
                         DATA.updateArticleData(f_path, f_name, d)
+                        DATA.updateFile(f_path, f_name, d['type'], True)
                         DATA.saveData() 
                 elif(event == 'Set-Form-Data'):
                     folderData = DATA.getData(f_path, f_name, DATA.folders)
