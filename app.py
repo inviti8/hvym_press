@@ -94,7 +94,8 @@ def add_files_in_folder(parent, dirname, command, data):
             if os.path.isdir(fullname):
                 treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
                 add_files_in_folder(fullname, fullname, command, data)
-                data.updatePageData(dirname, {'title':"", 'max-height':800, 'columns':"1", 'footer-height':200})
+                print(f)
+                data.updatePageData(f, {'title':"", 'max-height':800, 'columns':"1", 'footer-height':200})
 
             else:
                 file_extension = pathlib.Path(f).suffix
@@ -405,7 +406,7 @@ site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input
                [name('Description'), sg.Multiline(default_text=DATA.settings['description'],s=(20,8), enable_events=True, k='SETTING-description')],
                ], expand_y=True, expand_x=True)]]
 
-author_settings_layout = [[sg.Frame('Author Settings', [[name('Authors:'), sg.Listbox(DATA.authors.keys(), right_click_menu=['&Right', author_dropdown], no_scrollbar=True,  s=(15,2), k='AUTHOR-LIST')]], expand_y=True, expand_x=True)]]
+author_settings_layout = [[sg.Frame('Author Settings', [[name('Authors:'), sg.Listbox(DATA.authors.keys(), right_click_menu=['&Right', author_dropdown], expand_y=True, no_scrollbar=True,  s=(15,2), k='AUTHOR-LIST')]], expand_y=True, expand_x=True)]]
 
 deployment_settings_layout = [[sg.Frame('Deployment Settings', [[name('Pinata JWT:'), sg.Input(default_text=DATA.settings['pinataJWT'], s=20, enable_events=True, k='SETTING-pinataJWT')],
                ], expand_y=True, expand_x=True)]]
@@ -472,10 +473,10 @@ while True:
         
             elif os.path.isdir(path_val) and '.md' not in f_name:
                 if(event == 'Set-Page-Data'):
-                    data = DATA.pageData[f_path]
+                    data = DATA.pageData[f_name]
                     d = popup_set_page_data(f_name, data)
                     if(d != None):
-                        DATA.updatePageData(f_path, d)
+                        DATA.updatePageData(f_name, d)
                         DATA.saveData()
                 #print(f_name)
     if 'SETTING-' in event:
@@ -495,9 +496,7 @@ while True:
     if event == 'Delete-Author':
         idx = window.Element('AUTHOR-LIST').Widget.curselection()[0]
         key = window.Element('AUTHOR-LIST').Widget.get(idx)
-        print(values)
-        print(window.Element('AUTHOR-LIST').Widget.get(idx))
-        print(window.Element('AUTHOR-LIST').Widget.curselection())
+
         if key != 'anonymous':
             d = sg.popup_yes_no(f"Are you sure you want to delete: {key}")
             if d == 'Yes':
