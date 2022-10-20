@@ -42,6 +42,7 @@ class SiteDataHandler:
           self.formData = data['formData']
           self.metaData = data['metaData']
           self.settings = data['settings']
+          self.authors = data['authors']
           self.fileExists = True
       else:
           self.saveData()       
