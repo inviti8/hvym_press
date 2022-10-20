@@ -239,7 +239,7 @@ def popup_set_article_data(md_name, data):
                   [sg.Combo(article_types, default_value=article_type, s=(25,22), readonly=True, k='TYPE')],
                   [sg.Combo(styles, default_value=data['style'], s=(25,22), readonly=True, k='STYLE')],
                   [sg.Combo(border_types, default_value=data['border'], s=(25,22), readonly=True, k='BORDER-TYPE')],
-                  [sg.Combo(DATA.authors, default_value=data['author'], s=(25,22), readonly=True, k='AUTHOR')],
+                  [sg.Combo(list(DATA.authors.keys()), default_value=data['author'], s=(25,22), readonly=True, k='AUTHOR')],
                   [sg.Checkbox('Checkbox', default=data['use-thumb'], k='USE-THUMB')]]
     
     col_layout = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
