@@ -505,7 +505,7 @@ while True:
                         columns = int(d['columns'])
                         if len(colData) == 0:
                             arr = []
-                            val = 100/columns
+                            val = round(100/columns, 2)
                             for num in range(0, columns):
                                 arr.append(val)
                             DATA.updateColumnWidths(f_name, arr)
@@ -518,9 +518,6 @@ while True:
                     columns = int(data['columns'])
                     if columns > 1:
                         d = popup_set_column_widths(f_name, data, colData)
-                        print('&&&&&&&&&&&&&&')
-                        print(d)
-                        print('&&&&&&&&&&&&&&')
                         if(d != None):
                             DATA.updateColumnWidths(f_name, d)
                             DATA.saveData()
