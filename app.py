@@ -94,8 +94,8 @@ def add_files_in_folder(parent, dirname, command, data):
             if os.path.isdir(fullname):
                 treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
                 add_files_in_folder(fullname, fullname, command, data)
-                print(f)
                 data.updatePageData(f, {'title':"", 'max-height':800, 'columns':"1", 'footer-height':200})
+                data.updateColumnWidths(f, [])
 
             else:
                 file_extension = pathlib.Path(f).suffix
@@ -190,6 +190,29 @@ def block_focus(window):
         element = window[key]
         if isinstance(element, sg.Button):
             element.block_focus()
+            
+def popup_set_column_widths(md_name, data, colData):
+    columns = int(data['columns'])
+    
+    layout = [[sg.Spin([x+1 for x in range(1050)], initial_value=colData[num], key='COL-WIDTH-'+str(num)) for num in range(0, columns)]]
+    
+    col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
+    layout = [
+        [sg.Text("Set Column Width Percentages")],
+        [sg.Column(layout, expand_x=True, element_justification='center')],
+        [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
+    ]
+    window = sg.Window("Column Widths", layout, use_default_focus=False, finalize=True, modal=True)
+    block_focus(window)
+    event, values = window.read()
+    window.close()
+    width_arr = []
+    
+    if event == '-SAVE-DATA-':
+        for num in range(0, columns):
+            width_arr.append(values['COL-WIDTH-'+str(num)])
+            
+    return width_arr if event == '-SAVE-DATA-' else None 
 
 def popup_set_page_data(md_name, data):
     columns = ['1', '2', '3', '4']
@@ -212,7 +235,7 @@ def popup_set_page_data(md_name, data):
         [sg.Column(col_layout, expand_x=True, element_justification='left')],
         [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
     ]
-    window = sg.Window("Set Article Data", layout, use_default_focus=False, finalize=True, modal=True)
+    window = sg.Window("Set Page Data", layout, use_default_focus=False, finalize=True, modal=True)
     block_focus(window)
     event, values = window.read()
     window.close()
@@ -221,12 +244,15 @@ def popup_set_page_data(md_name, data):
         page_data = {'title':values['TITLE'], 'max-height':values['MAX-HEIGHT'], 'columns':values['COLUMNS'], 'footer-height':values['FOOTER-HEIGHT']}
     return page_data if event == '-SAVE-DATA-' else None            
             
-def popup_set_article_data(md_name, data):
-    columns = ['1', '2', '3', '4']
+def popup_set_article_data(md_name, data, colData):
+    columns = []
     article_types = ['Block', 'Expandable', 'Form']
     article_type = data['type'].split('-')[0]
     styles = ['default', 'material']
     border_types = ['default', 'noborder', 'inset']
+    
+    for n in range(0, len(colData)):
+        columns.append(str(n+1))
     
     col_layout_l = [[sg.Text("Column:", font=font)],
                   [sg.Text("Article Type:", font=font)],
@@ -334,7 +360,7 @@ def popup_set_form_data(md_name, data):
             page_data = {'formType':form_type, 'customHtml':values['CUSTOM-HTML']}
         return page_data if event == '-SAVE-DATA-' else None
     
-def popup_add_author():
+def popup_author():
     
     col_layout = [[sg.Text("Author:", font=font), sg.Input(s=(30,8), k='AUTHOR-NAME')],
                   [sg.Text("Image:", font=font), sg.Input(default_text="", s=20, k='AUTHOR-IMG'), sg.FileBrowse(file_types=(("PNG", "*.png"),))]]
@@ -358,6 +384,7 @@ def popup_add_author():
         if event == '-SAVE-DATA-':
             author_data = {'name':values['AUTHOR-NAME'], 'image':img}
         return author_data if event == '-SAVE-DATA-' else None
+
 
 
 def StartServer(path=SCRIPT_DIR, port=8000):
@@ -390,7 +417,7 @@ if not starting_path:
     
 DATA = SiteDataHandler.SiteDataHandler(starting_path)
 
-command = ['Set-Page-Data', 'Set-Article-Data', 'Set-Meta-Data', 'Set-Form-Data']
+command = ['Set-Page-Data', 'Set-Column-Widths', 'Set-Article-Data', 'Set-Meta-Data', 'Set-Form-Data']
 author_dropdown = ['Add-Author', 'Update-Author', 'Delete-Author']
 treedata = sg.TreeData()
 add_files_in_folder('', starting_path, command, DATA)
@@ -446,12 +473,10 @@ while True:
             f_path = baseFolder(path_val.replace(f_name, ''))
             
             if os.path.isfile(path_val) and '.md' in f_name:
-                
                 if(event == 'Set-Article-Data'):
                     data = DATA.getData(f_path, f_name, DATA.articleData)
-
-                    d = popup_set_article_data(f_name, data)
-                    print(d)
+                    colData = DATA.columnWidths[f_path]
+                    d = popup_set_article_data(f_name, data, colData)
                     if(d != None):
                         DATA.updateArticleData(f_path, f_name, d)
                         DATA.updateFile(f_path, f_name, d['type'], True)
@@ -474,10 +499,32 @@ while True:
             elif os.path.isdir(path_val) and '.md' not in f_name:
                 if(event == 'Set-Page-Data'):
                     data = DATA.pageData[f_name]
+                    colData = DATA.columnWidths[f_name]
                     d = popup_set_page_data(f_name, data)
                     if(d != None):
+                        columns = int(d['columns'])
+                        if len(colData) == 0:
+                            arr = []
+                            val = 100/columns
+                            for num in range(0, columns):
+                                arr.append(val)
+                            DATA.updateColumnWidths(f_name, arr)
+                                
                         DATA.updatePageData(f_name, d)
                         DATA.saveData()
+                elif(event == 'Set-Column-Widths'):
+                    data = DATA.pageData[f_name]
+                    colData = DATA.columnWidths[f_name]
+                    columns = int(data['columns'])
+                    if columns > 1:
+                        d = popup_set_column_widths(f_name, data, colData)
+                        print('&&&&&&&&&&&&&&')
+                        print(d)
+                        print('&&&&&&&&&&&&&&')
+                        if(d != None):
+                            DATA.updateColumnWidths(f_name, d)
+                            DATA.saveData()
+                        
                 #print(f_name)
     if 'SETTING-' in event:
         arr = event.split('-')
@@ -487,12 +534,18 @@ while True:
         DATA.updateSetting(setting, val)
         DATA.saveData()
             
-    if event == 'Add-Author':
-        d = popup_add_author()
-        if(d != None):
-            DATA.addAuthor(d['name'], d['image'])
+    if event == 'Add-Author' or event == 'Update-Author':
+        d = popup_author()
+        author_list = list(DATA.authors.keys())
+        if(d != None ):
+            if d['name'] in author_list:
+                DATA.updateAuthor(d['name'], d['image'])
+            else:
+                DATA.addAuthor(d['name'], d['image'])
+                
             DATA.saveData()
             window['AUTHOR-LIST'].Update(DATA.authors.keys())
+
     if event == 'Delete-Author':
         idx = window.Element('AUTHOR-LIST').Widget.curselection()[0]
         key = window.Element('AUTHOR-LIST').Widget.get(idx)

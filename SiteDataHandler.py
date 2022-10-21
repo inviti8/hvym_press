@@ -22,6 +22,7 @@ class SiteDataHandler:
    def __init__(self, filePath):
       self.folders = {}
       self.pageData = {}
+      self.columnWidths = {}
       self.articleData = {}
       self.formData = {}
       self.metaData = {}
@@ -38,6 +39,7 @@ class SiteDataHandler:
           data = pickle.load(dataFile)
           self.folders = data['folders']
           self.pageData = data['pageData']
+          self.columnWidths = data['columnWidths']
           self.articleData = data['articleData']
           self.formData = data['formData']
           self.metaData = data['metaData']
@@ -72,6 +74,13 @@ class SiteDataHandler:
        else:
            self.addFolder(folder, self.pageData)
            self.updatePageData(folder, data)
+           
+   def updateColumnWidths(self, folder, data):
+       if(folder in self.columnWidths):
+           self.columnWidths[folder] = data
+       else:
+           self.addFolder(folder, self.columnWidths)
+           self.updateColumnWidths(folder, data)
            
    def updateArticleData(self, folder, path, data):
        if(folder in self.articleData):
@@ -109,9 +118,13 @@ class SiteDataHandler:
        if name not in self.authors.keys():
            self.authors[name] = img
            
+   def updateAuthor(self, name, img):
+       if name in self.authors.keys():
+           self.authors[name] = img
+           
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
-       data = {'folders':self.folders, 'pageData':self.pageData, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors}
+       data = {'folders':self.folders, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors}
        pickle.dump(data, file)
        file.close()
              
