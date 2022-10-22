@@ -50,7 +50,18 @@ def baseFolder(f_path):
     sep = os.path.sep
     arr = f_path.split(sep)
     return(arr[len(arr)-2])
-    
+
+def addPageData(f, data):
+    data.updatePageData(f, {'title':"", 'max-height':800, 'columns':"1", 'footer-height':200})
+    data.updateColumnWidths(f, [])
+
+def addFileData(fullname, f_path, f, data):
+    data.updateFile(f_path, f, 'Default', True)
+    data.updateArticleData(f_path, f, {'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use-thumb':False, 'html':""})
+    data.updateArticleHTML(f_path, fullname)
+    data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':""})
+    data.updateMetaData(f_path, f, {'name':"", 'description':""})
+    data.addAuthor('anonymous', anon)
 
 def add_files_in_folder(parent, dirname, command, data):
     files = os.listdir(dirname)
@@ -59,6 +70,8 @@ def add_files_in_folder(parent, dirname, command, data):
         for f in files:
             fullname = os.path.join(dirname, f)
             if os.path.isdir(fullname):
+                if data.addFolderAll(f) == False:
+                    addPageData(f, data)
                 treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
                 add_files_in_folder(fullname, fullname, command, data)
             else:
@@ -86,6 +99,10 @@ def add_files_in_folder(parent, dirname, command, data):
 
                                 
                 if file_extension == '.md':
+                    if data.addFolderAll(f_path) ==False:
+                        addFileData(fullname, f_path, f, data)
+                        
+                    data.updateArticleHTML(f_path, fullname)
                     treedata.Insert(parent, fullname, f, values=[
                                     os.stat(fullname).st_size, 0], icon=f_icon)
     else:
@@ -94,23 +111,18 @@ def add_files_in_folder(parent, dirname, command, data):
             if os.path.isdir(fullname):
                 treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
                 add_files_in_folder(fullname, fullname, command, data)
-                data.updatePageData(f, {'title':"", 'max-height':800, 'columns':"1", 'footer-height':200})
-                data.updateColumnWidths(f, [])
+                addPageData(f)
 
             else:
                 file_extension = pathlib.Path(f).suffix
                 f_icon = block
-                f_name = os.path.basename(f)
+                f_name = os.path.basename(f, data)
                                 
                 if file_extension == '.md':
                     f_path = baseFolder(fullname.replace(f_name, ''))
                     treedata.Insert(parent, fullname, f, values=[
                                     os.stat(fullname).st_size, 0], icon=f_icon)
-                    data.updateFile(f_path, f, 'Default', True)
-                    data.updateArticleData(f_path, f, {'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use-thumb':False})
-                    data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':""})
-                    data.updateMetaData(f_path, f, {'name':"", 'description':""})
-                    data.addAuthor('anonymous', anon)
+                    addFileData(fullname, f_path, f, data)
                 
     data.saveData()
                 
@@ -301,7 +313,7 @@ def popup_set_article_data(md_name, data, colData):
         
         type_string = concat_array(type_arr)
         
-        print(type_string)
+        #print(type_string)
         
         set_file_icon(type_string)
         
@@ -417,7 +429,7 @@ if not starting_path:
     
 DATA = SiteDataHandler.SiteDataHandler(starting_path)
 
-command = ['Set-Page-Data', 'Set-Column-Widths', 'Set-Article-Data', 'Set-Meta-Data', 'Set-Form-Data']
+command = ['__________','Set-Page-Data', 'Set-Column-Widths', '__________', 'Set-Article-Data', 'Set-Meta-Data', 'Set-Form-Data']
 author_dropdown = ['Add-Author', 'Update-Author', 'Delete-Author']
 treedata = sg.TreeData()
 add_files_in_folder('', starting_path, command, DATA)
@@ -556,6 +568,7 @@ while True:
         
     if event == '-DEBUG-':
         print("debug")
+        #print(DATA.getJsonData())
         LaunchSite('Debug')
         threading.Thread(target=StartServer, args=(), daemon=True).start()
     if event == '-CANCEL-':

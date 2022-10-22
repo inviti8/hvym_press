@@ -14,6 +14,9 @@ with .md files contained in the folder:
 
 """
 import os
+import json
+import markdown
+import jsonpickle
 import pickle
 
 class SiteDataHandler:
@@ -50,8 +53,40 @@ class SiteDataHandler:
           self.saveData()       
       
    def addFolder(self, folder, selfData):
+       result = False
        if(folder not in selfData):
            selfData[folder] = {}
+           result = True
+           
+       return result
+           
+   def addPageAll(self, folder):
+       print('This is called:')
+       print(folder)
+       result = False
+       if self.addFolder(folder, self.pageData):
+           result = True
+       if self.addFolder(folder, self.columnWidths):
+           result = True
+           
+       return result
+       
+   def addFolderAll(self, folder):
+       result = False
+       if self.addFolder(folder, self.folders):
+           result = True
+       if self.addFolder(folder, self.pageData):
+           result = True
+       if self.addFolder(folder, self.columnWidths):
+           result = True
+       if self.addFolder(folder, self.articleData):
+           result = True
+       if self.addFolder(folder, self.formData):
+           result = True
+       if self.addFolder(folder, self.metaData):
+           result = True
+           
+       return result
            
    def updateData(self, folder, path, selfData, data):
        if(folder in selfData):
@@ -89,6 +124,15 @@ class SiteDataHandler:
            self.addFolder(folder, self.articleData)
            self.updateArticleData(folder, path, data)
            
+   def updateArticleHTML(self, folder, filePath):
+       if(folder in self.articleData):
+           file = open(filePath, 'rb')
+           md_file = file.read()
+           html = markdown.markdown(md_file)
+           #print(html)
+           self.articleData['html'] = html
+           file.close()
+           
    def updateFormData(self, folder, path, data):
        if(folder in self.formData):
            self.updateData(folder, path, self.formData, data)
@@ -121,6 +165,12 @@ class SiteDataHandler:
    def updateAuthor(self, name, img):
        if name in self.authors.keys():
            self.authors[name] = img
+           
+   def getJsonData(self):
+       dataFile = open(self.dataFilePath, 'rb')
+       data = pickle.load(dataFile)
+       json_obj = jsonpickle.encode(data)
+       #print(json_obj)
            
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
