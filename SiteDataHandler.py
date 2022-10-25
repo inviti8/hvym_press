@@ -87,6 +87,39 @@ class SiteDataHandler:
            result = True
            
        return result
+   
+   def hasNoFolder(self, folder):
+        result = False
+        if folder not in self.pageData.keys():
+            result = True
+            
+        return result
+    
+   def hasNoFileFolder(self, folder):
+       result = False
+       if folder not in self.folders:
+           result = True
+       if folder not in self.articleData:
+           result = True
+       if folder not in self.formData:
+           result = True
+       if folder not in self.metaData:
+           result = True
+           
+       return result
+   
+   def hasNoFile(self, folder, path):
+        result = False
+        if path not in self.folders[folder]:
+            result = True
+        if path not in self.articleData[folder]:
+            result = True
+        if path not in self.formData[folder]:
+            result = True
+        if path not in self.metaData[folder]:
+            result = True
+            
+        return result
            
    def updateData(self, folder, path, selfData, data):
        if(folder in selfData):
@@ -124,13 +157,13 @@ class SiteDataHandler:
            self.addFolder(folder, self.articleData)
            self.updateArticleData(folder, path, data)
            
-   def updateArticleHTML(self, folder, filePath):
+   def updateArticleHTML(self, folder, path, filePath):
        if(folder in self.articleData):
            file = open(filePath, 'rb')
            md_file = file.read()
            html = markdown.markdown(md_file)
            #print(html)
-           self.articleData['html'] = html
+           self.articleData[folder][path]['html'] = html
            file.close()
            
    def updateFormData(self, folder, path, data):
@@ -170,7 +203,7 @@ class SiteDataHandler:
        dataFile = open(self.dataFilePath, 'rb')
        data = pickle.load(dataFile)
        json_obj = jsonpickle.encode(data)
-       #print(json_obj)
+       print(json_obj)
            
    def saveData(self):
        file = open(self.dataFilePath, 'wb')

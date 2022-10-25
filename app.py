@@ -45,23 +45,21 @@ def load_save_data(file_dir):
         
     return result
 
-
 def baseFolder(f_path):
     sep = os.path.sep
     arr = f_path.split(sep)
     return(arr[len(arr)-2])
 
-def addPageData(f, data):
+def newFolderData(f, data):
     data.updatePageData(f, {'title':"", 'max-height':800, 'columns':"1", 'footer-height':200})
     data.updateColumnWidths(f, [])
 
-def addFileData(fullname, f_path, f, data):
+def newFileData(f_path, f, fullname, data):
     data.updateFile(f_path, f, 'Default', True)
     data.updateArticleData(f_path, f, {'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use-thumb':False, 'html':""})
-    data.updateArticleHTML(f_path, fullname)
+    data.updateArticleHTML(f_path, f, fullname)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
-    data.addAuthor('anonymous', anon)
 
 def add_files_in_folder(parent, dirname, command, data):
     files = os.listdir(dirname)
@@ -70,9 +68,9 @@ def add_files_in_folder(parent, dirname, command, data):
         for f in files:
             fullname = os.path.join(dirname, f)
             if os.path.isdir(fullname):
-                if data.addFolderAll(f) == False:
-                    addPageData(f, data)
                 treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
+                if data.hasNoFolder(f):
+                    newFolderData(f, data)
                 add_files_in_folder(fullname, fullname, command, data)
             else:
                 file_extension = pathlib.Path(f).suffix
@@ -99,30 +97,33 @@ def add_files_in_folder(parent, dirname, command, data):
 
                                 
                 if file_extension == '.md':
-                    if data.addFolderAll(f_path) ==False:
-                        addFileData(fullname, f_path, f, data)
-                        
-                    data.updateArticleHTML(f_path, fullname)
                     treedata.Insert(parent, fullname, f, values=[
                                     os.stat(fullname).st_size, 0], icon=f_icon)
+                    
+                    if data.hasNoFileFolder(f_path):
+                        newFileData(f_path, f, fullname, data)
+                    elif data.hasNoFile(f_path, f):
+                        newFileData(f_path, f, fullname, data)
     else:
         for f in files:
             fullname = os.path.join(dirname, f)
             if os.path.isdir(fullname):
                 treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
+                newFolderData(f, data)
                 add_files_in_folder(fullname, fullname, command, data)
-                addPageData(f)
+                
 
             else:
                 file_extension = pathlib.Path(f).suffix
                 f_icon = block
-                f_name = os.path.basename(f, data)
+                f_name = os.path.basename(f)
                                 
                 if file_extension == '.md':
                     f_path = baseFolder(fullname.replace(f_name, ''))
                     treedata.Insert(parent, fullname, f, values=[
                                     os.stat(fullname).st_size, 0], icon=f_icon)
-                    addFileData(fullname, f_path, f, data)
+                    newFileData(f_path, f, fullname, data)
+                    data.addAuthor('anonymous', anon)
                 
     data.saveData()
                 
@@ -204,8 +205,9 @@ def block_focus(window):
             element.block_focus()
             
 def popup_set_column_widths(md_name, data, colData):
-    columns = int(data['columns'])
     
+    columns = int(data['columns'])
+
     layout = [[sg.Spin([x+1 for x in range(1050)], initial_value=colData[num], key='COL-WIDTH-'+str(num)) for num in range(0, columns)]]
     
     col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
@@ -313,12 +315,12 @@ def popup_set_article_data(md_name, data, colData):
         
         type_string = concat_array(type_arr)
         
-        #print(type_string)
+        print(type_string)
         
         set_file_icon(type_string)
         
         if event == '-SAVE-DATA-':
-            page_data = {'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use-thumb':values['USE-THUMB']}
+            page_data = {'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use-thumb':values['USE-THUMB'], 'html': data['html']}
         return page_data if event == '-SAVE-DATA-' else None
             
 def popup_set_meta_data(md_name, data):
@@ -568,7 +570,7 @@ while True:
         
     if event == '-DEBUG-':
         print("debug")
-        #print(DATA.getJsonData())
+        print(DATA.getJsonData())
         LaunchSite('Debug')
         threading.Thread(target=StartServer, args=(), daemon=True).start()
     if event == '-CANCEL-':
