@@ -61,13 +61,21 @@ def newFileData(f_path, f, fullname, data):
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
 
+# def pruneFolder(f_path):
+#     for k in data.keys():
+
 def add_files_in_folder(parent, dirname, command, data):
     files = os.listdir(dirname)
     
     if(data.fileExists):
         for f in files:
             fullname = os.path.join(dirname, f)
+            f_name = os.path.basename(f)
+            f_path = baseFolder(fullname.replace(f_name, ''))
+            
             if os.path.isdir(fullname):
+                folderFiles = os.listdir(fullname)
+                data.pruneFiles(f_name, folderFiles)
                 treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
                 if data.hasNoFolder(f):
                     newFolderData(f, data)
@@ -75,8 +83,7 @@ def add_files_in_folder(parent, dirname, command, data):
             else:
                 file_extension = pathlib.Path(f).suffix
                 f_icon = block
-                f_name = os.path.basename(f)
-                f_path = baseFolder(fullname.replace(f_name, ''))
+                
 
                 dataObj = None
                 
@@ -104,6 +111,8 @@ def add_files_in_folder(parent, dirname, command, data):
                         newFileData(f_path, f, fullname, data)
                     elif data.hasNoFile(f_path, f):
                         newFileData(f_path, f, fullname, data)
+                        
+            data.deleteOldData()
     else:
         for f in files:
             fullname = os.path.join(dirname, f)
@@ -112,7 +121,6 @@ def add_files_in_folder(parent, dirname, command, data):
                 newFolderData(f, data)
                 add_files_in_folder(fullname, fullname, command, data)
                 
-
             else:
                 file_extension = pathlib.Path(f).suffix
                 f_icon = block

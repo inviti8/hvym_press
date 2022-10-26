@@ -36,6 +36,8 @@ class SiteDataHandler:
       self.themes = ['light', 'dark']
       self.dataFilePath = os.path.join(filePath, 'site.data')
       self.fileExists = False
+      self.oldDataFolders = []
+      self.oldDataKeys = []
       
       if os.path.isfile(self.dataFilePath):
           dataFile = open(self.dataFilePath, 'rb')
@@ -120,6 +122,57 @@ class SiteDataHandler:
             result = True
             
         return result
+    
+   def pruneFolder(self, folderArr, selfData):
+       for k in selfData:
+           if k not in folderArr:
+               selfData.pop(k)
+               
+   def pruneFile(self, folder, fileArr, selfData):
+       print(folder)
+       if folder in selfData.keys():
+           for k in selfData[folder]:
+               print(k)
+               if k not in fileArr and '.md' in k:
+                   if selfData[folder] not in self.oldData:
+                       print(k + " added to delete list")
+                       self.oldData.append(selfData[folder])
+                       self.oldDataFolders.append(folder)
+                       self.oldDataKeys.append(k)
+    
+   def pruneFolders(self, folder, arr):
+       self.pruneFolder(arr, self.folders)
+       self.pruneFolder(arr, self.pageData)
+       self.pruneFolder(arr, self.columnWidths)
+       self.pruneFolder(arr, self.articleData)
+       self.pruneFolder(arr, self.formData)
+       self.pruneFolder(arr, self.metaData)
+       
+   def pruneFiles(self, folder, arr):
+       self.pruneFile(folder, arr, self.folders)
+       self.pruneFile(folder, arr, self.articleData)
+       self.pruneFile(folder, arr, self.formData)
+       self.pruneFile(folder, arr, self.metaData)
+       
+   def deleteFile(self, folder, path, selfData):
+       if folder in selfData.keys() and path in selfData[folder].keys():
+           selfData[folder].pop(path)
+       
+   def deleteOldData(self):
+       idx = 0
+
+       for folder in self.oldDataFolders:
+           path = self.oldDataKeys[idx]
+           
+           self.deleteFile(folder, path, self.folders)
+           self.deleteFile(folder, path, self.articleData)
+           self.deleteFile(folder, path, self.formData)
+           self.deleteFile(folder, path, self.metaData)
+
+           idx += 1
+           
+       self.oldDataFolders.clear()
+       self.oldDataKeys.clear()
            
    def updateData(self, folder, path, selfData, data):
        if(folder in selfData):
