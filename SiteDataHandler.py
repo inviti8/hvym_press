@@ -36,6 +36,7 @@ class SiteDataHandler:
       self.themes = ['light', 'dark']
       self.dataFilePath = os.path.join(filePath, 'site.data')
       self.fileExists = False
+      self.oldFolders = []
       self.oldDataFolders = []
       self.oldDataKeys = []
       
@@ -122,25 +123,32 @@ class SiteDataHandler:
             result = True
             
         return result
-    
+
+   def arrHasPartial(self, lst, query):
+       result = False
+       for s in lst:
+           if query in s:
+               result = True
+               
+       return result
+           
    def pruneFolder(self, folderArr, selfData):
-       for k in selfData:
-           if k not in folderArr:
-               selfData.pop(k)
+       if self.arrHasPartial(folderArr, ".md") == False and self.arrHasPartial(folderArr, ".png") == False:
+           for k in selfData:
+               if '.data' not in k and '.md' not in k and '.png' not in k and k not in folderArr:
+                   if k not in self.oldFolders:
+                       self.oldFolders.append(k)
+                       print(k + " folder is added for delete.")
                
    def pruneFile(self, folder, fileArr, selfData):
-       print(folder)
        if folder in selfData.keys():
            for k in selfData[folder]:
-               print(k)
                if k not in fileArr and '.md' in k:
                    if selfData[folder] not in self.oldData:
-                       print(k + " added to delete list")
-                       self.oldData.append(selfData[folder])
                        self.oldDataFolders.append(folder)
                        self.oldDataKeys.append(k)
     
-   def pruneFolders(self, folder, arr):
+   def pruneFolders(self, arr):
        self.pruneFolder(arr, self.folders)
        self.pruneFolder(arr, self.pageData)
        self.pruneFolder(arr, self.columnWidths)
@@ -154,11 +162,15 @@ class SiteDataHandler:
        self.pruneFile(folder, arr, self.formData)
        self.pruneFile(folder, arr, self.metaData)
        
+   def deleteFolder(self, folder, selfData):
+       if folder in selfData.keys():
+           selfData.pop(folder)
+       
    def deleteFile(self, folder, path, selfData):
        if folder in selfData.keys() and path in selfData[folder].keys():
            selfData[folder].pop(path)
        
-   def deleteOldData(self):
+   def deleteOldFiles(self):
        idx = 0
 
        for folder in self.oldDataFolders:
@@ -171,8 +183,17 @@ class SiteDataHandler:
 
            idx += 1
            
+       for folder in self.oldFolders:
+           self.deleteFolder(folder, self.folders)
+           self.deleteFolder(folder, self.pageData)
+           self.deleteFolder(folder, self.columnWidths)
+           self.deleteFolder(folder, self.articleData)
+           self.deleteFolder(folder, self.formData)
+           self.deleteFolder(folder, self.metaData)
+           
        self.oldDataFolders.clear()
        self.oldDataKeys.clear()
+       self.oldFolders.clear()
            
    def updateData(self, folder, path, selfData, data):
        if(folder in selfData):

@@ -61,13 +61,11 @@ def newFileData(f_path, f, fullname, data):
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
 
-# def pruneFolder(f_path):
-#     for k in data.keys():
-
 def add_files_in_folder(parent, dirname, command, data):
     files = os.listdir(dirname)
     
     if(data.fileExists):
+        
         for f in files:
             fullname = os.path.join(dirname, f)
             f_name = os.path.basename(f)
@@ -112,7 +110,7 @@ def add_files_in_folder(parent, dirname, command, data):
                     elif data.hasNoFile(f_path, f):
                         newFileData(f_path, f, fullname, data)
                         
-            data.deleteOldData()
+            data.deleteOldFiles()
     else:
         for f in files:
             fullname = os.path.join(dirname, f)
@@ -132,7 +130,9 @@ def add_files_in_folder(parent, dirname, command, data):
                                     os.stat(fullname).st_size, 0], icon=f_icon)
                     newFileData(f_path, f, fullname, data)
                     data.addAuthor('anonymous', anon)
-                
+                    
+    data.pruneFolders(files)
+    data.deleteOldFiles()          
     data.saveData()
                 
 def get_file_icon(uiType):
