@@ -78,10 +78,11 @@ def add_files_in_folder(parent, dirname, command, data):
                 if data.hasNoFolder(f):
                     newFolderData(f, data)
                 add_files_in_folder(fullname, fullname, command, data)
+                if f_name not in data.pageList and not f_name.startswith("_"):
+                    data.pageList.append(f_name)
             else:
                 file_extension = pathlib.Path(f).suffix
                 f_icon = block
-                
 
                 dataObj = None
                 
@@ -114,10 +115,14 @@ def add_files_in_folder(parent, dirname, command, data):
     else:
         for f in files:
             fullname = os.path.join(dirname, f)
+            f_name = os.path.basename(f)
+            
             if os.path.isdir(fullname):
                 treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
                 newFolderData(f, data)
                 add_files_in_folder(fullname, fullname, command, data)
+                if not f_name.startswith("_"):
+                    data.pageList.append(f_name)
                 
             else:
                 file_extension = pathlib.Path(f).suffix
@@ -187,6 +192,18 @@ def icon(check):
     if check == 2:
         png = ignore_file
     return png
+
+def listbox_move(listbox, old_index, new_index):
+    limit = listbox.size()
+    if not(0<=old_index<limit and 0<=new_index<limit):
+        return False
+    try:
+        item = listbox.get(old_index)        # Get item by index
+        listbox.delete(old_index)            # Remove item by index
+        listbox.insert(new_index, item)      # insert item by index
+        return True
+    except:
+        return False
 
 def concat_array(arr):
     result = ""
@@ -382,6 +399,34 @@ def popup_set_form_data(md_name, data):
             page_data = {'formType':form_type, 'customHtml':values['CUSTOM-HTML']}
         return page_data if event == '-SAVE-DATA-' else None
     
+def popup_set_page_order(list_values):
+    
+    col_layout = [
+        [sg.Listbox(list_values, size=(10, 5), key="-ITEM-")],
+        [sg.Text('Initial list '+repr(list_values), size=(50, 1), key='-LIST-')],
+        [sg.Button("Move item 12 to top")],
+    ]
+    
+    col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
+    
+    layout = [
+        [sg.Column(col_layout, expand_x=True, element_justification='center')],
+        [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
+    ]
+    window = sg.Window("Add Author", layout, use_default_focus=False, finalize=True, modal=True)
+    block_focus(window)
+    event, values = window.read()
+    window.close()
+    
+    if values != None and os.path.isfile(values['AUTHOR-IMG']):
+        author_data = None
+        img = None
+        with open(values['AUTHOR-IMG'], "rb") as img_file:
+            img = base64.b64encode(img_file.read())
+        if event == '-SAVE-DATA-':
+            author_data = {'name':values['AUTHOR-NAME'], 'image':img}
+        return author_data if event == '-SAVE-DATA-' else None
+    
 def popup_author():
     
     col_layout = [[sg.Text("Author:", font=font), sg.Input(s=(30,8), k='AUTHOR-NAME')],
@@ -448,7 +493,9 @@ add_files_in_folder('', starting_path, command, DATA)
 ui_settings_layout = [[sg.Frame('UI Settings', [[name('UI Framework'), sg.Combo(DATA.uiFramework, default_value=DATA.settings['uiFramework'], s=(15,22), enable_events=True, readonly=True, k='SETTING-uiFramework')],
                                                 [name('Navigation'), sg.Combo(DATA.navigation, default_value=DATA.settings['pageType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-pageType')],
                [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='SETTING-theme')],
-               [name('Custom Theme'), sg.Input(default_text=DATA.settings['customTheme'], s=20), sg.FolderBrowse(enable_events=True, k='SETTING-customTheme')]
+               [name('Custom Theme'), sg.Input(default_text=DATA.settings['customTheme'], s=20), sg.FolderBrowse(enable_events=True, k='SETTING-customTheme')],
+               [name('Page Order'), sg.Listbox(DATA.pageList, expand_x=True, size=(10, 5), key="-ITEM-")],
+               [name(''), sg.Button("Move item to top", key="-CHANGE-PAGE-ORDER-")]
                ], expand_y=True, expand_x=True)]]
 
 site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input(default_text=DATA.settings['siteName'], s=20, enable_events=True, k='SETTING-siteName')],
@@ -543,6 +590,7 @@ while True:
                         if(d != None):
                             DATA.updateColumnWidths(f_name, d)
                             DATA.saveData()
+
                         
                 #print(f_name)
     if 'SETTING-' in event:
@@ -574,15 +622,26 @@ while True:
             if d == 'Yes':
                 DATA.authors.pop(key)
                 window['AUTHOR-LIST'].Update(DATA.authors.keys())
+    if(event == '-CHANGE-PAGE-ORDER-'):
+        listbox = window['-ITEM-'].Widget
+        idx = window.Element('-ITEM-').Widget.curselection()[0]
+        if idx != None:
+            old_index, new_index = idx, 0
+            if not listbox_move(listbox, old_index, new_index):
+                print("Something wrong, maybe wrong index.")
+            final_list = list(listbox.get(0, listbox.size()-1)) # Get final values in sg.litbox
+            DATA.pageList.insert(0, DATA.pageList.pop(idx))
+            DATA.saveData()
         
         
     if event == '-DEBUG-':
         print("debug")
         print(DATA.getJsonData())
-        LaunchSite('Debug')
-        threading.Thread(target=StartServer, args=(), daemon=True).start()
+
+        # LaunchSite('Debug')
+        # threading.Thread(target=StartServer, args=(), daemon=True).start()
     if event == '-CANCEL-':
         threading.Thread(target=StopServer, args=(), daemon=True).start()         
     #print(values[event])
-    #print(event, values)
+    print(event, values)
 window.close()

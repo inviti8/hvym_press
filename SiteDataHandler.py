@@ -23,6 +23,7 @@ class SiteDataHandler:
    'Class for handling site data.'
    
    def __init__(self, filePath):
+      self.pageList = []
       self.folders = {}
       self.pageData = {}
       self.columnWidths = {}
@@ -43,6 +44,7 @@ class SiteDataHandler:
       if os.path.isfile(self.dataFilePath):
           dataFile = open(self.dataFilePath, 'rb')
           data = pickle.load(dataFile)
+          self.pageList = data['pageList']
           self.folders = data['folders']
           self.pageData = data['pageData']
           self.columnWidths = data['columnWidths']
@@ -281,7 +283,7 @@ class SiteDataHandler:
            
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
-       data = {'folders':self.folders, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors}
+       data = {'pageList':self.pageList, 'folders':self.folders, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors}
        pickle.dump(data, file)
        file.close()
              
