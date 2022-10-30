@@ -290,6 +290,8 @@ def popup_set_article_data(md_name, data, colData):
     styles = ['default', 'material']
     border_types = ['default', 'noborder', 'inset']
     
+    print(colData)
+    
     for n in range(0, len(colData)):
         columns.append(str(n+1))
     
@@ -572,7 +574,7 @@ while True:
                     d = popup_set_page_data(f_name, data)
                     if(d != None):
                         columns = int(d['columns'])
-                        if len(colData) == 0:
+                        if len(colData) < columns:
                             arr = []
                             val = round(100/columns, 2)
                             for num in range(0, columns):
@@ -591,8 +593,7 @@ while True:
                             DATA.updateColumnWidths(f_name, d)
                             DATA.saveData()
 
-                        
-                #print(f_name)
+
     if 'SETTING-' in event:
         arr = event.split('-')
         setting = arr[len(arr)-1]
@@ -636,12 +637,34 @@ while True:
         
     if event == '-DEBUG-':
         print("debug")
-        print(DATA.getJsonData())
+        site_data = {}
+        for page in DATA.pageList:
+            print(page)
+            page_data = {'title':None, 'max-height':None, 'columns':None, 'footer-height':None, 'content':{}}
+            for k in DATA.pageData[page].keys():
+                print(k)
+                page_data[k] = DATA.pageData[page][k]
+            
+            columns = int(DATA.pageData[page]['columns'])
+            for idx in range(0, columns):
+                page_data['content'][str(idx+1)] = []
+            #data[page] = DATA.articleData[page]
+            
+            for k in DATA.articleData[page].keys():
+                idx = DATA.articleData[page][k]['column']
+                page_data['content'][idx] = DATA.articleData[page][k]
+            
+            site_data[page] = page_data
+            
+        print(site_data)
+            
+        
+        #print(DATA.getJsonData())
 
         # LaunchSite('Debug')
         # threading.Thread(target=StartServer, args=(), daemon=True).start()
     if event == '-CANCEL-':
         threading.Thread(target=StopServer, args=(), daemon=True).start()         
     #print(values[event])
-    print(event, values)
+    #print(event, values)
 window.close()
