@@ -16,7 +16,9 @@ with .md files contained in the folder:
 import os
 import json
 import pickle
+import shutil
 import markdown
+import datetime
 import jsonpickle
 from pathlib import Path
 from dataclasses import dataclass
@@ -79,11 +81,12 @@ class SiteDataHandler:
       self.articleData = {}
       self.formData = {}
       self.metaData = {}
-      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'', 'pinataJWT':''}
+      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'', 'pinataJWT':'', 'arWallet':''}
       self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['carousel', 'splitter', 'tabs']
       self.themes = ['light', 'dark']
+      self.deployTypes = ['Pinata', 'Arweave']
       self.dataFilePath = os.path.join(filePath, 'site.data')
       self.fileExists = False
       self.oldFolders = []
@@ -104,7 +107,34 @@ class SiteDataHandler:
           self.authors = data['authors']
           self.fileExists = True
       else:
-          self.saveData()       
+          self.saveData()  
+          
+   def _renderPageTemplate(self, template_file, data, page):
+
+       template = env.get_template(template_file)
+       output = template.render(data=data)
+       
+       with open(page, "wb") as f:
+           f.write(output.encode())
+           
+   def openStaticPage(self, template_file, data, route=0):
+       '''
+       Open model for debugging.
+       routes are:
+           0:/debug/
+           1:/deploy/
+       '''
+       routes = ['debug', 'deploy']
+       target_path = os.path.join(SCRIPT_DIR, 'serve', routes[route])
+       page_path = os.path.join(target_path,'index.html')
+       print("target_path")
+       print(target_path)
+       print("page_path")
+       print(page_path)
+       
+
+       # if route == 1:
+       #     self._renderPageTemplate(template_file, data, page_path)
       
    def addFolder(self, folder, selfData):
        result = False
@@ -285,10 +315,15 @@ class SiteDataHandler:
    def updateArticleHTML(self, folder, path, filePath):
        if(folder in self.articleData):
            file = open(filePath, 'rb')
+           t = os.path.getmtime(filePath)
            md_file = file.read()
+           md = markdown.Markdown(extensions=['meta'])
+           md.convert(md_file)
+           print(md.Meta)
            html = ""
            #html = markdown.markdown(md_file)
            self.articleData[folder][path]['html'] = html
+           self.articleData[folder][path]['time-stamp'] = t
            file.close()
            
    def updateFormData(self, folder, path, data):

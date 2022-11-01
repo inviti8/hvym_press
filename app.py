@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 import pickle
 import pathlib
 import base64
@@ -10,12 +11,16 @@ import ServerHandler
 import SiteDataHandler
 from io import BytesIO
 from PIL import Image, ImageDraw
+from jinja2 import Environment, FileSystemLoader
 import PySimpleGUI as sg
 
 sg.theme("DarkGrey13")
+CONTRACT_TEMPLATE = 'hvy_erc721_template.txt'
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
 NAME_SIZE = 15
 font = ('Ariel', 9)
+file_loader = FileSystemLoader('templates')
+env = Environment(loader=file_loader)
 
 
 folder_icon = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA3XAAAN1wFCKJt4AAAE7mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4yLWMwMDAgNzkuMWI2NWE3OSwgMjAyMi8wNi8xMy0xNzo0NjoxNCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgc3RFdnQ6d2hlbj0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuxPXaQAAAFhSURBVFiF7de9itRQGMbx3znJREEHVNBiC7HyLpRBC6/AWhY/aq/C0htwi90LERRL72CttFywERk0cfJaZAZGGHGYjZwt5oFAzglv3v9585yPpIhQUrlo9osAUDtJ6+1nuIfL6EfOlfEDH3C06kxxvHwY3gqzv4aOq3d4iD5r0XohzFTLZKurQkKLxfJ+HM3wEmo3KiqPXa2oE+uzIi0zznvOOjpMMM7EuY/XtYPJU8kDPfogbaj3rZom8bkdnDFOJTqodfHqz/4Nw5sH04pp5ms/WPQ8SkgWAwDXtgpaBDdruo4udjdmMvipNV8BtGj+GdgFTeZOM0Ts+hkSfgXf+wOLUNvWUslQhbSGu6sZJ5kr+RGepHh/6RumO77qvDorvRRfLw3wszRAlAYovx3vAfYAe4DV4atY/mybrfj/qck4LQhwmnFYEOCwxkfcxXPcNubhe7MCX/AGn9L+57Q0wG/4oVYsu0eeMwAAAABJRU5ErkJggg=='
@@ -55,8 +60,9 @@ def newFolderData(f, data):
     data.updateColumnWidths(f, [])
 
 def newFileData(f_path, f, fullname, data):
+    f_name = os.path.basename(f)
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use-thumb':False, 'html':""})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use-thumb':False, 'html':"", 'time-stamp':None})
     data.updateArticleHTML(f_path, f, fullname)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
@@ -229,6 +235,7 @@ def block_focus(window):
         if isinstance(element, sg.Button):
             element.block_focus()
             
+            
 def popup_set_column_widths(md_name, data, colData):
     
     columns = int(data['columns'])
@@ -295,14 +302,16 @@ def popup_set_article_data(md_name, data, colData):
     for n in range(0, len(colData)):
         columns.append(str(n+1))
     
-    col_layout_l = [[sg.Text("Column:", font=font)],
+    col_layout_l = [[sg.Text("Name:", font=font)],
+                  [sg.Text("Column:", font=font)],
                   [sg.Text("Article Type:", font=font)],
                   [sg.Text("Style:", font=font)],
                   [sg.Text("Border Type:", font=font)],
                   [sg.Text("Author:", font=font)],
                   [sg.Text("Use Thumbnail:", font=font)]]
     
-    col_layout_r = [[sg.Combo(columns, default_value=data['column'], s=(25,22), readonly=True, k='COLUMN')],
+    col_layout_r = [[sg.Input(data['name'], s=(27,22), k='NAME')],
+                  [sg.Combo(columns, default_value=data['column'], s=(25,22), readonly=True, k='COLUMN')],
                   [sg.Combo(article_types, default_value=article_type, s=(25,22), readonly=True, k='TYPE')],
                   [sg.Combo(styles, default_value=data['style'], s=(25,22), readonly=True, k='STYLE')],
                   [sg.Combo(border_types, default_value=data['border'], s=(25,22), readonly=True, k='BORDER-TYPE')],
@@ -347,7 +356,7 @@ def popup_set_article_data(md_name, data, colData):
         set_file_icon(type_string)
         
         if event == '-SAVE-DATA-':
-            page_data = {'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use-thumb':values['USE-THUMB'], 'html': data['html']}
+            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use-thumb':values['USE-THUMB'], 'html': data['html']}
         return page_data if event == '-SAVE-DATA-' else None
             
 def popup_set_meta_data(md_name, data):
@@ -475,6 +484,15 @@ def StopServer():
 def LaunchSite(route):
     url = os.path.join('http://localhost:8000', route)
     webbrowser.open_new_tab(url)
+    
+def handleDeployUI(window, data):
+    if data.settings['deployType'] == 'Pinata':
+        window.Element('PINATA-GRP').Update(visible=True)
+        window.Element('ARWEAVE-GRP').Update(visible=False)
+    elif data.settings['deployType'] == 'Arweave':
+        window.Element('PINATA-GRP').Update(visible=False)
+        window.Element('ARWEAVE-GRP').Update(visible=True)
+        
 
 dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
 
@@ -486,8 +504,9 @@ if not starting_path:
     
 DATA = SiteDataHandler.SiteDataHandler(starting_path)
 
-command = ['__________','Set-Page-Data', 'Set-Column-Widths', '__________', 'Set-Article-Data', 'Set-Meta-Data', 'Set-Form-Data']
+command = ['__________','Set-Column-Widths', '__________','Set-Meta-Data', 'Set-Form-Data']
 author_dropdown = ['Add-Author', 'Update-Author', 'Delete-Author']
+deploy_dropdown = ['Pinata', 'Arweave']
 treedata = sg.TreeData()
 add_files_in_folder('', starting_path, command, DATA)
 
@@ -506,7 +525,11 @@ site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input
 
 author_settings_layout = [[sg.Frame('Author Settings', [[name('Authors:'), sg.Listbox(DATA.authors.keys(), right_click_menu=['&Right', author_dropdown], expand_y=True, no_scrollbar=True,  s=(15,2), k='AUTHOR-LIST')]], expand_y=True, expand_x=True)]]
 
-deployment_settings_layout = [[sg.Frame('Deployment Settings', [[name('Pinata JWT:'), sg.Input(default_text=DATA.settings['pinataJWT'], s=20, enable_events=True, k='SETTING-pinataJWT')],
+deployment_settings_layout = [[sg.Frame('Deployment Settings', [[name('Deploy Type:'), sg.Combo(DATA.deployTypes, default_value=DATA.settings['deployType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-deployType')],
+               [sg.Frame('Pinata JWT', [[sg.Input(default_text=DATA.settings['pinataJWT'], s=20, enable_events=True, k='SETTING-pinataJWT')]
+               ], expand_y=True, expand_x=True, k='PINATA-GRP')],
+               [sg.Frame('Arweave Wallet', [[sg.Input(default_text=DATA.settings['arWallet'], s=20), sg.FileBrowse(enable_events=True, k='SETTING-arWallet')]
+               ], expand_y=True, expand_x=True,  k='ARWEAVE-GRP')],
                ], expand_y=True, expand_x=True)]]
 
 tab1_layout =  [[sg.Tree(data=treedata, headings=[], auto_size_columns=True,
@@ -525,6 +548,7 @@ window = sg.Window('Weeeb3', layout, use_default_focus=False, finalize=True)
 tree = window['-TREE-']         # type: sg.Tree
 tree.bind("<Double-1>", '+DOUBLE')
 block_focus(window)
+handleDeployUI(window, DATA)
 
 while True:
     event, values = window.read()
@@ -533,26 +557,40 @@ while True:
         break
     if len(values['-TREE-']) > 0:
         path_val = values['-TREE-'][0]
+        f_name = os.path.basename(path_val)
+        f_path = baseFolder(path_val.replace(f_name, ''))
         
         if event.endswith('DOUBLE'):
             if os.path.isdir(path_val):
-                double_click(dir_check)
+                data = DATA.pageData[f_name]
+                colData = DATA.columnWidths[f_name]
+                d = popup_set_page_data(f_name, data)
+                if(d != None):
+                    columns = int(d['columns'])
+                    if len(colData) < columns:
+                        arr = []
+                        val = round(100/columns, 2)
+                        for num in range(0, columns):
+                            arr.append(val)
+                        DATA.updateColumnWidths(f_name, arr)
+                            
+                    DATA.updatePageData(f_name, d)
+                    DATA.saveData()
+                #double_click(dir_check)
             if os.path.isfile(path_val):
-                double_click(check)
+                data = DATA.getData(f_path, f_name, DATA.articleData)
+                colData = DATA.columnWidths[f_path]
+                d = popup_set_article_data(f_name, data, colData)
+                if(d != None):
+                    DATA.updateArticleData(f_path, f_name, d)
+                    DATA.updateFile(f_path, f_name, d['type'], True)
+                    DATA.saveData()
+                #double_click(check)
         elif event in command:
-            f_name = os.path.basename(path_val)
-            f_path = baseFolder(path_val.replace(f_name, ''))
             
             if os.path.isfile(path_val) and '.md' in f_name:
-                if(event == 'Set-Article-Data'):
-                    data = DATA.getData(f_path, f_name, DATA.articleData)
-                    colData = DATA.columnWidths[f_path]
-                    d = popup_set_article_data(f_name, data, colData)
-                    if(d != None):
-                        DATA.updateArticleData(f_path, f_name, d)
-                        DATA.updateFile(f_path, f_name, d['type'], True)
-                        DATA.saveData() 
-                elif(event == 'Set-Form-Data'):
+ 
+                if(event == 'Set-Form-Data'):
                     folderData = DATA.getData(f_path, f_name, DATA.folders)
                     data = DATA.getData(f_path, f_name, DATA.formData)
                     if(folderData['type'] == 'Form'):
@@ -568,22 +606,8 @@ while True:
                         DATA.saveData()       
         
             elif os.path.isdir(path_val) and '.md' not in f_name:
-                if(event == 'Set-Page-Data'):
-                    data = DATA.pageData[f_name]
-                    colData = DATA.columnWidths[f_name]
-                    d = popup_set_page_data(f_name, data)
-                    if(d != None):
-                        columns = int(d['columns'])
-                        if len(colData) < columns:
-                            arr = []
-                            val = round(100/columns, 2)
-                            for num in range(0, columns):
-                                arr.append(val)
-                            DATA.updateColumnWidths(f_name, arr)
-                                
-                        DATA.updatePageData(f_name, d)
-                        DATA.saveData()
-                elif(event == 'Set-Column-Widths'):
+
+                if(event == 'Set-Column-Widths'):
                     data = DATA.pageData[f_name]
                     colData = DATA.columnWidths[f_name]
                     columns = int(data['columns'])
@@ -601,6 +625,9 @@ while True:
         
         DATA.updateSetting(setting, val)
         DATA.saveData()
+        
+        if setting == 'deployType':
+            handleDeployUI(window, DATA)
             
     if event == 'Add-Author' or event == 'Update-Author':
         d = popup_author()
@@ -637,7 +664,7 @@ while True:
         
     if event == '-DEBUG-':
         print("debug")
-        site_data = {}
+        site_data = {'pages':[], 'settings':DATA.settings}
         for page in DATA.pageList:
             print(page)
             page_data = {'title':None, 'max-height':None, 'columns':None, 'footer-height':None, 'content':{}}
@@ -652,11 +679,21 @@ while True:
             
             for k in DATA.articleData[page].keys():
                 idx = DATA.articleData[page][k]['column']
-                page_data['content'][idx] = DATA.articleData[page][k]
+                article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'author':None, 'use-thumb':None, 'html':None, 'author-img':None }
+                props = DATA.articleData[page][k].keys()
+                
+                for prop in props:
+                    article_data[prop] = DATA.articleData[page][k][prop]
+                    
+                author = DATA.articleData[page][k]['author']
+                author_img = DATA.authors[author]
+                article_data['author-img'] = "author_img"
+                page_data['content'][idx].append(article_data)
             
-            site_data[page] = page_data
-            
+            site_data['pages'].append(page_data)
+        
         print(site_data)
+        DATA.openStaticPage('template_index.txt', site_data)
             
         
         #print(DATA.getJsonData())
