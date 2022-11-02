@@ -103,8 +103,8 @@
     <div style="text-align: center">
       
       <ons-row>
-        {% for column in page.content %}
-           <ons-col width="{{column.width}}">
+        {% for column in page.content.columns %}
+           <ons-col width="{{page.content.widths[loop.index0]}}%">
                 {% for card in column %}
                   <ons-card>
                     <div class="title">

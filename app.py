@@ -668,14 +668,15 @@ while True:
         site_data = {'pages':[], 'settings':DATA.settings}
         for page in DATA.pageList:
             print(page)
-            page_data = {'title':None, 'max_height':None, 'columns':None, 'footer_height':None, 'content':[]}
+            col_widths = DATA.columnWidths[page]
+            page_data = {'title':None, 'max_height':None, 'columns':None, 'footer_height':None, 'content':{'columns':[], 'widths':col_widths}}
             for k in DATA.pageData[page].keys():
                 print(k)
                 page_data[k] = DATA.pageData[page][k]
             
             columns = int(DATA.pageData[page]['columns'])
             for idx in range(0, columns):
-                page_data['content'].append([])
+                page_data['content']['columns'].append([])
             #data[page] = DATA.articleData[page]
             
             for k in DATA.articleData[page].keys():
@@ -690,7 +691,7 @@ while True:
                 author_img = DATA.authors[author]
                 article_data['author_img'] = "author_img"
                 index = int(article_data['column'])-1
-                page_data['content'][index].append(article_data)
+                page_data['content']['columns'][index].append(article_data)
             
             site_data['pages'].append(page_data)
         
