@@ -131,10 +131,10 @@ class SiteDataHandler:
        print(target_path)
        print("page_path")
        print(page_path)
-       
 
-       # if route == 1:
-       #     self._renderPageTemplate(template_file, data, page_path)
+       if route == 0:
+           self._renderPageTemplate(template_file, data, page_path)
+           
       
    def addFolder(self, folder, selfData):
        result = False

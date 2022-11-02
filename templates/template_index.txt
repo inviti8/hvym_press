@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>CodePen - Onsen UI</title>
+  <link rel="stylesheet" href="css/onsenui.css">
+  <link rel="stylesheet" href="css/onsen-css-components.min.css">
+  <script src="js/onsenui.min.js"></script>
+  <script type="module">
+    window.fn = {};
+
+    window.fn.open = function () {
+      var menu = document.getElementById('menu');
+      menu.open();
+    };
+    
+    window.fn.load = function (page) {
+      var menu = document.getElementById('menu');
+      var myNavigator = document.getElementById('myNavigator');
+    
+      menu.close();
+      myNavigator.resetToPage(page, { animation: 'fade' });
+    };
+    
+    document.addEventListener('init', function (event) {
+      if (event.target.id === 'pageNav1') {
+        var title = event.target.data && event.target.data.title ? event.target.data.title : 'Custom Page';
+        event.target.querySelector('ons-toolbar div.center').textContent = title;
+      }
+      if (event.target.id === 'pageNav2') {
+        var cardTitle = event.target.data && event.target.data.cardTitle ? event.target.data.cardTitle : 'Custom Card';
+        event.target.querySelector('ons-card div.title').textContent = cardTitle;
+      }
+    });
+    
+    var customPush = function () {
+      myNavigator.pushPage('pageNav1.html', { data: { title: myNavigator.topPage.querySelector('ons-input').value } })
+    };
+    
+    var customPush2 = function (event) {
+      myNavigator.pushPage('pageNav2.html', { data: { cardTitle: event.target.textContent } })
+    };
+  </script>
+  <style>
+    textarea {
+        border: none;
+        overflow: auto;
+        outline: none;
+    
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none;
+    }
+    .author{
+      padding-left: 10px;
+    }
+    
+    .article { 
+        height: 200px; 
+        width:100%; 
+        overflow: scroll;
+        outline: none;
+    
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none; 
+        }
+    </style>
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<ons-splitter>
+  <ons-splitter-side id="menu" side="right" width="220px" collapse swipeable>
+    <ons-page>
+      <ons-list>
+        {% for section in data.sections -%}
+        <ons-list-item onclick="fn.load({{section}}'.html')" tappable>
+          {{section}}
+        </ons-list-item>
+        {% endfor %}
+      </ons-list>
+    </ons-page>
+  </ons-splitter-side>
+  <ons-splitter-content>
+    <ons-navigator id="myNavigator" page="home.html"></ons-navigator>
+  </ons-splitter-content>
+</ons-splitter>
+{% for page in data.pages %}
+<template id="{{page.title}}.html">
+  <ons-page>
+    <ons-toolbar>
+      <div class="center">
+        Splitter+Navigator
+      </div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+    
+    <div style="text-align: center">
+      
+      <ons-row>
+        {% for column in page.content %}
+           <ons-col width="{{column.width}}">
+                {% for card in column %}
+                  <ons-card>
+                    <div class="title">
+                      {{card.title}}
+                    </div>
+                      <div class="content">
+                        <ons-list>
+                          <ons-list-item {{card.type}}>
+                            {% if card.author_img != '' %}
+                            <div class="left">
+                              <img class="list-item__thumbnail" src="{{card.author_img}}">
+                            </div>
+                            {% endif %}
+                            <div class="{{card.type}}-content">
+                              <div class="article">
+                                <br />
+                                {{card.html}}
+                              </div>
+                              <ons-fab onclick="myNavigator.pushPage('{{card.name}}.html')">
+                                <ons-icon icon="fa-chevron-left"></ons-icon>
+                              </ons-fab>
+                            </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                {% endfor %}
+           </ons-col>
+        {% endfor %}
+       </ons-row>
+    </div>
+  </ons-page>
+</template>
+{% endfor %}
+
+<template id="pageNav1.html">
+  <ons-page id="pageNav1">
+    <ons-toolbar>
+      <div class="left">
+        <ons-back-button>Back</ons-back-button>
+      </div>
+      <div class="center"></div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <div style="text-align: center">
+      <h1>Custom Page</h1>
+      <p>
+        <ons-input modifier="underbar" placeholder="Title" float></ons-input>
+      </p>
+      <ons-button onclick="customPush()">
+        Push Page
+      </ons-button>
+      <ons-button onclick="myNavigator.popPage()">
+        Pop Page
+      </ons-button>
+    </div>
+
+    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
+      Swipe left to open the menu!
+    </p>
+  </ons-page>
+</template>
+
+<template id="cards.html">
+  <ons-page>
+    <ons-toolbar>
+      <div class="center">
+        Splitter+Navigator
+      </div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <h2>Cards</h2>
+    <ons-list-title>Card List</ons-list-title>
+    <ons-list>
+      <ons-list-item onclick="customPush2(event)">Card One</ons-list-item>
+      <ons-list-item onclick="customPush2(event)">Card Two</ons-list-item>
+      <ons-list-item onclick="customPush2(event)">Card Three</ons-list-item>
+    </ons-list>
+
+    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
+      Swipe left to open the menu!
+    </p>
+  </ons-page>
+</template>
+
+<template id="pageNav2.html">
+  <ons-page id="pageNav2">
+    <ons-toolbar>
+      <div class="left">
+        <ons-back-button>Back</ons-back-button>
+      </div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <ons-card>
+      <img src="https://monaca.io/img/logos/download_image_onsenui_01.png" alt="Onsen UI" style="width: 100%">
+      <div class="title"></div>
+      <div class="content">
+        <div>
+          <ons-button>
+            <ons-icon icon="ion-ios-thumbs-up"></ons-icon>
+          </ons-button>
+          <ons-button>
+            <ons-icon icon="ion-ios-share"></ons-icon>
+          </ons-button>
+        </div>
+        <ons-list>
+          <ons-list-header>Bindings</ons-list-header>
+          <ons-list-item>Vue</ons-list-item>
+          <ons-list-item>Angular</ons-list-item>
+          <ons-list-item>React</ons-list-item>
+        </ons-list>
+      </div>
+    </ons-card>
+
+    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
+      Swipe left to open the menu!
+    </p>
+  </ons-page>
+</template>
+
+<template id="settings.html">
+  <ons-page>
+    <ons-toolbar>
+      <div class="center">
+        Splitter+Navigator
+      </div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <h2>Settings</h2>
+
+    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
+      Swipe left to open the menu!
+    </p>
+  </ons-page>
+</template>
+<!-- partial -->
+<script  src="./script.js"></script>
+
+</body>
+</html>

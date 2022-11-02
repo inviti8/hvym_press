@@ -56,13 +56,13 @@ def baseFolder(f_path):
     return(arr[len(arr)-2])
 
 def newFolderData(f, data):
-    data.updatePageData(f, {'title':"", 'max-height':800, 'columns':"1", 'footer-height':200})
+    data.updatePageData(f, {'title':"", 'max_height':800, 'columns':"1", 'footer_height':200})
     data.updateColumnWidths(f, [])
 
 def newFileData(f_path, f, fullname, data):
     f_name = os.path.basename(f)
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use-thumb':False, 'html':"", 'time-stamp':None})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':None})
     data.updateArticleHTML(f_path, f, fullname)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
@@ -269,9 +269,9 @@ def popup_set_page_data(md_name, data):
                   [sg.Text("Footer Height:", font=font)]]
     
     col_layout_r = [[sg.Input(data['title'], s=(27,22), k='TITLE')],
-                  [sg.Spin([x+1 for x in range(1050)], initial_value=data['max-height'], s=(25,22), key='MAX-HEIGHT')],
+                  [sg.Spin([x+1 for x in range(1050)], initial_value=data['max_height'], s=(25,22), key='MAX-HEIGHT')],
                   [sg.Combo(columns, default_value=data['columns'], s=(25,22), readonly=True, k='COLUMNS')],
-                  [sg.Spin([x+1 for x in range(10)], initial_value=data['footer-height'], s=(25,22), key='FOOTER-HEIGHT')]]
+                  [sg.Spin([x+1 for x in range(10)], initial_value=data['footer_height'], s=(25,22), key='FOOTER-HEIGHT')]]
     
     col_layout = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
     
@@ -287,7 +287,7 @@ def popup_set_page_data(md_name, data):
     window.close()
     page_data = None
     if event == '-SAVE-DATA-':
-        page_data = {'title':values['TITLE'], 'max-height':values['MAX-HEIGHT'], 'columns':values['COLUMNS'], 'footer-height':values['FOOTER-HEIGHT']}
+        page_data = {'title':values['TITLE'], 'max_height':values['MAX-HEIGHT'], 'columns':values['COLUMNS'], 'footer_height':values['FOOTER-HEIGHT']}
     return page_data if event == '-SAVE-DATA-' else None            
             
 def popup_set_article_data(md_name, data, colData):
@@ -316,7 +316,7 @@ def popup_set_article_data(md_name, data, colData):
                   [sg.Combo(styles, default_value=data['style'], s=(25,22), readonly=True, k='STYLE')],
                   [sg.Combo(border_types, default_value=data['border'], s=(25,22), readonly=True, k='BORDER-TYPE')],
                   [sg.Combo(list(DATA.authors.keys()), default_value=data['author'], s=(25,22), readonly=True, k='AUTHOR')],
-                  [sg.Checkbox('Checkbox', default=data['use-thumb'], k='USE-THUMB')]]
+                  [sg.Checkbox('Checkbox', default=data['use_thumb'], k='USE-THUMB')]]
     
     col_layout = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
     
@@ -356,7 +356,7 @@ def popup_set_article_data(md_name, data, colData):
         set_file_icon(type_string)
         
         if event == '-SAVE-DATA-':
-            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use-thumb':values['USE-THUMB'], 'html': data['html']}
+            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html']}
         return page_data if event == '-SAVE-DATA-' else None
             
 def popup_set_meta_data(md_name, data):
@@ -526,9 +526,9 @@ site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input
 author_settings_layout = [[sg.Frame('Author Settings', [[name('Authors:'), sg.Listbox(DATA.authors.keys(), right_click_menu=['&Right', author_dropdown], expand_y=True, no_scrollbar=True,  s=(15,2), k='AUTHOR-LIST')]], expand_y=True, expand_x=True)]]
 
 deployment_settings_layout = [[sg.Frame('Deployment Settings', [[name('Deploy Type:'), sg.Combo(DATA.deployTypes, default_value=DATA.settings['deployType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-deployType')],
-               [sg.Frame('Pinata JWT', [[sg.Input(default_text=DATA.settings['pinataJWT'], s=20, enable_events=True, k='SETTING-pinataJWT')]
+               [sg.Frame('Pinata JWT', [[sg.Input(default_text=DATA.settings['pinataJWT'], s=20, enable_events=True, expand_x=True, k='SETTING-pinataJWT')]
                ], expand_y=True, expand_x=True, k='PINATA-GRP')],
-               [sg.Frame('Arweave Wallet', [[sg.Input(default_text=DATA.settings['arWallet'], s=20), sg.FileBrowse(enable_events=True, k='SETTING-arWallet')]
+               [sg.Frame('Arweave Wallet', [[sg.Input(default_text=DATA.settings['arWallet'], expand_x=True, s=20, enable_events=True, k='SETTING-arWallet'), sg.FileBrowse(enable_events=True)]
                ], expand_y=True, expand_x=True,  k='ARWEAVE-GRP')],
                ], expand_y=True, expand_x=True)]]
 
@@ -624,10 +624,11 @@ while True:
         val = values[event]
         
         DATA.updateSetting(setting, val)
-        DATA.saveData()
         
         if setting == 'deployType':
             handleDeployUI(window, DATA)
+            
+        DATA.saveData()
             
     if event == 'Add-Author' or event == 'Update-Author':
         d = popup_author()
@@ -667,19 +668,19 @@ while True:
         site_data = {'pages':[], 'settings':DATA.settings}
         for page in DATA.pageList:
             print(page)
-            page_data = {'title':None, 'max-height':None, 'columns':None, 'footer-height':None, 'content':{}}
+            page_data = {'title':None, 'max_height':None, 'columns':None, 'footer_height':None, 'content':[]}
             for k in DATA.pageData[page].keys():
                 print(k)
                 page_data[k] = DATA.pageData[page][k]
             
             columns = int(DATA.pageData[page]['columns'])
             for idx in range(0, columns):
-                page_data['content'][str(idx+1)] = []
+                page_data['content'].append([])
             #data[page] = DATA.articleData[page]
             
             for k in DATA.articleData[page].keys():
                 idx = DATA.articleData[page][k]['column']
-                article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'author':None, 'use-thumb':None, 'html':None, 'author-img':None }
+                article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'author':None, 'use_thumb':None, 'html':None, 'author_img':None }
                 props = DATA.articleData[page][k].keys()
                 
                 for prop in props:
@@ -687,8 +688,9 @@ while True:
                     
                 author = DATA.articleData[page][k]['author']
                 author_img = DATA.authors[author]
-                article_data['author-img'] = "author_img"
-                page_data['content'][idx].append(article_data)
+                article_data['author_img'] = "author_img"
+                index = int(article_data['column'])-1
+                page_data['content'][index].append(article_data)
             
             site_data['pages'].append(page_data)
         
