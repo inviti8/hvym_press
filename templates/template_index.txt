@@ -32,14 +32,7 @@
         event.target.querySelector('ons-card div.title').textContent = cardTitle;
       }
     });
-    
-    var customPush = function () {
-      myNavigator.pushPage('pageNav1.html', { data: { title: myNavigator.topPage.querySelector('ons-input').value } })
-    };
-    
-    var customPush2 = function (event) {
-      myNavigator.pushPage('pageNav2.html', { data: { cardTitle: event.target.textContent } })
-    };
+
   </script>
   <style>
     textarea {
@@ -74,24 +67,25 @@
   <ons-splitter-side id="menu" side="right" width="220px" collapse swipeable>
     <ons-page>
       <ons-list>
-        {% for section in data.sections -%}
-        <ons-list-item onclick="fn.load({{section}}'.html')" tappable>
-          {{section}}
+        {% for page in data.pages %}
+        <ons-list-item onclick="fn.load('{{page.title}}.html')" tappable>
+          {{page.title}}
         </ons-list-item>
         {% endfor %}
       </ons-list>
     </ons-page>
   </ons-splitter-side>
   <ons-splitter-content>
-    <ons-navigator id="myNavigator" page="home.html"></ons-navigator>
+    <ons-navigator id="myNavigator" page="{{data.pages[0].title}}.html"></ons-navigator>
   </ons-splitter-content>
 </ons-splitter>
+
 {% for page in data.pages %}
 <template id="{{page.title}}.html">
   <ons-page>
     <ons-toolbar>
       <div class="center">
-        Splitter+Navigator
+        {{page.title}}
       </div>
       <div class="right">
         <ons-toolbar-button onclick="fn.open()">
@@ -99,9 +93,7 @@
         </ons-toolbar-button>
       </div>
     </ons-toolbar>
-    
     <div style="text-align: center">
-      
       <ons-row>
         {% for column in page.content.columns %}
            <ons-col width="{{page.content.widths[loop.index0]}}%">
@@ -123,7 +115,7 @@
                                 <br />
                                 {{card.html}}
                               </div>
-                              <ons-fab onclick="myNavigator.pushPage('{{card.name}}.html')">
+                              <ons-fab onclick="myNavigator.pushPage('nav_{{card.name}}.html')">
                                 <ons-icon icon="fa-chevron-left"></ons-icon>
                               </ons-fab>
                             </div>
@@ -140,8 +132,11 @@
 </template>
 {% endfor %}
 
-<template id="pageNav1.html">
-  <ons-page id="pageNav1">
+{% for page in data.pages %}
+{% for column in page.content.columns %}
+{% for card in column %}
+<template id="nav_{{card.name}}.html">
+  <ons-page id="nav_{{card.name}}">
     <ons-toolbar>
       <div class="left">
         <ons-back-button>Back</ons-back-button>
@@ -155,111 +150,16 @@
     </ons-toolbar>
 
     <div style="text-align: center">
-      <h1>Custom Page</h1>
-      <p>
-        <ons-input modifier="underbar" placeholder="Title" float></ons-input>
-      </p>
-      <ons-button onclick="customPush()">
-        Push Page
-      </ons-button>
-      <ons-button onclick="myNavigator.popPage()">
-        Pop Page
-      </ons-button>
+      <h1>{{card.name}}</h1>
+      <br />
+      {{card.html}}
     </div>
-
-    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
-      Swipe left to open the menu!
-    </p>
   </ons-page>
 </template>
+{% endfor %}
+{% endfor %}
+{% endfor %}
 
-<template id="cards.html">
-  <ons-page>
-    <ons-toolbar>
-      <div class="center">
-        Splitter+Navigator
-      </div>
-      <div class="right">
-        <ons-toolbar-button onclick="fn.open()">
-          <ons-icon icon="md-menu"></ons-icon>
-        </ons-toolbar-button>
-      </div>
-    </ons-toolbar>
-
-    <h2>Cards</h2>
-    <ons-list-title>Card List</ons-list-title>
-    <ons-list>
-      <ons-list-item onclick="customPush2(event)">Card One</ons-list-item>
-      <ons-list-item onclick="customPush2(event)">Card Two</ons-list-item>
-      <ons-list-item onclick="customPush2(event)">Card Three</ons-list-item>
-    </ons-list>
-
-    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
-      Swipe left to open the menu!
-    </p>
-  </ons-page>
-</template>
-
-<template id="pageNav2.html">
-  <ons-page id="pageNav2">
-    <ons-toolbar>
-      <div class="left">
-        <ons-back-button>Back</ons-back-button>
-      </div>
-      <div class="right">
-        <ons-toolbar-button onclick="fn.open()">
-          <ons-icon icon="md-menu"></ons-icon>
-        </ons-toolbar-button>
-      </div>
-    </ons-toolbar>
-
-    <ons-card>
-      <img src="https://monaca.io/img/logos/download_image_onsenui_01.png" alt="Onsen UI" style="width: 100%">
-      <div class="title"></div>
-      <div class="content">
-        <div>
-          <ons-button>
-            <ons-icon icon="ion-ios-thumbs-up"></ons-icon>
-          </ons-button>
-          <ons-button>
-            <ons-icon icon="ion-ios-share"></ons-icon>
-          </ons-button>
-        </div>
-        <ons-list>
-          <ons-list-header>Bindings</ons-list-header>
-          <ons-list-item>Vue</ons-list-item>
-          <ons-list-item>Angular</ons-list-item>
-          <ons-list-item>React</ons-list-item>
-        </ons-list>
-      </div>
-    </ons-card>
-
-    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
-      Swipe left to open the menu!
-    </p>
-  </ons-page>
-</template>
-
-<template id="settings.html">
-  <ons-page>
-    <ons-toolbar>
-      <div class="center">
-        Splitter+Navigator
-      </div>
-      <div class="right">
-        <ons-toolbar-button onclick="fn.open()">
-          <ons-icon icon="md-menu"></ons-icon>
-        </ons-toolbar-button>
-      </div>
-    </ons-toolbar>
-
-    <h2>Settings</h2>
-
-    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
-      Swipe left to open the menu!
-    </p>
-  </ons-page>
-</template>
 <!-- partial -->
 <script  src="./script.js"></script>
 

@@ -92,6 +92,7 @@ class SiteDataHandler:
       self.oldFolders = []
       self.oldDataFolders = []
       self.oldDataKeys = []
+      self.templateDebug = 'template_index.txt'
       
       if os.path.isfile(self.dataFilePath):
           dataFile = open(self.dataFilePath, 'rb')
@@ -135,7 +136,45 @@ class SiteDataHandler:
        if route == 0:
            self._renderPageTemplate(template_file, data, page_path)
            
-      
+   def generatePageData(self, page):
+       result = {'title':None, 'max_height':None, 'columns':None, 'footer_height':None, 'content':{'columns':[], 'widths':self.columnWidths[page]}}
+       for k in self.pageData[page].keys():
+           result[k] = self.pageData[page][k]
+       
+       columns = int(self.pageData[page]['columns'])
+       for idx in range(0, columns):
+           result['content']['columns'].append([])
+       
+       for k in self.articleData[page].keys():
+           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'author':None, 'use_thumb':None, 'html':None, 'author_img':None }
+           props = self.articleData[page][k].keys()
+           
+           for prop in props:
+               article_data[prop] = self.articleData[page][k][prop]
+               
+           author = self.articleData[page][k]['author']
+           author_img = self.authors[author]
+           article_data['author_img'] = author_img
+           index = int(article_data['column'])-1
+           result['content']['columns'][index].append(article_data)
+           
+       return result
+       
+  
+           
+   
+   def generateSiteData(self):
+       result = {'pages':[], 'settings':self.settings}
+       print(self.pageList)
+       for page in self.pageList:
+          print(page)
+          page_data = self.generatePageData(page)
+          result['pages'].append(page_data)
+           
+       return result
+           
+           
+   
    def addFolder(self, folder, selfData):
        result = False
        if(folder not in selfData):
@@ -314,15 +353,14 @@ class SiteDataHandler:
            
    def updateArticleHTML(self, folder, path, filePath):
        if(folder in self.articleData):
-           file = open(filePath, 'rb')
+           file = open(filePath, 'rb', encoding="utf-8")
            t = os.path.getmtime(filePath)
            md_file = file.read()
-           md = markdown.Markdown(extensions=['meta'])
+           md = markdown.Markdown()
            md.convert(md_file)
-           print(md.Meta)
-           html = ""
-           #html = markdown.markdown(md_file)
-           self.articleData[folder][path]['html'] = html
+           #html = ""
+           html = markdown.markdown(md_file)
+           self.articleData[folder][path]['html'] = md.convert(html)
            self.articleData[folder][path]['time-stamp'] = t
            file.close()
            
