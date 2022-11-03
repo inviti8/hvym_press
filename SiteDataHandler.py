@@ -353,7 +353,7 @@ class SiteDataHandler:
            
    def updateArticleHTML(self, folder, path, filePath):
        if(folder in self.articleData):
-           file = open(filePath, 'rb', encoding="utf-8")
+           file = open(filePath, 'r', encoding="utf-8")
            t = os.path.getmtime(filePath)
            md_file = file.read()
            md = markdown.Markdown()
@@ -397,6 +397,12 @@ class SiteDataHandler:
        if name in self.authors.keys():
            self.authors[name] = img
            
+   def deleteAuthor(self, author):
+       for page in self.pageList:
+          for article in self.articleData[page]:
+              if article['author'] == author:
+                  self.articleData['author'] = "anonymous"          
+                  
    def getJsonData(self):
        dataFile = open(self.dataFilePath, 'rb')
        data = pickle.load(dataFile)

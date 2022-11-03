@@ -652,6 +652,8 @@ while True:
             if d == 'Yes':
                 DATA.authors.pop(key)
                 window['AUTHOR-LIST'].Update(DATA.authors.keys())
+                DATA.deleteAuthor(key)
+                
     if(event == '-CHANGE-PAGE-ORDER-'):
         listbox = window['-ITEM-'].Widget
         idx = window.Element('-ITEM-').Widget.curselection()[0]

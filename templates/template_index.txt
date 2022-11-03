@@ -58,6 +58,11 @@
         -moz-box-shadow: none;
         box-shadow: none; 
         }
+      .expanded_article {
+        width: 80%;
+        padding-left: 10%;
+        text-align: left;
+      }
     </style>
 
 </head>
@@ -152,7 +157,10 @@
     <div style="text-align: center">
       <h1>{{card.name}}</h1>
       <br />
-      {{card.html}}
+        <div class="expanded_article">
+          <br />
+          {{card.html}}
+        </div>
     </div>
   </ons-page>
 </template>
