@@ -399,9 +399,9 @@ class SiteDataHandler:
            
    def deleteAuthor(self, author):
        for page in self.pageList:
-          for article in self.articleData[page]:
-              if article['author'] == author:
-                  self.articleData['author'] = "anonymous"          
+          for k in self.articleData[page]:
+              if self.articleData[page][k]['author'] == author:
+                   self.articleData['author'] = "anonymous"          
                   
    def getJsonData(self):
        dataFile = open(self.dataFilePath, 'rb')

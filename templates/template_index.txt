@@ -105,17 +105,22 @@
                 {% for card in column %}
                   <ons-card>
                     <div class="title">
-                      {{card.title}}
+                      {{card.name}}
                     </div>
                       <div class="content">
                         <ons-list>
-                          <ons-list-item {{card.type}}>
+                          {% if card.type == 'Expandable' %}
+                          <ons-list-item expandable>
+                          {% else %}
+                          <ons-list-item expandable expanded class="list-item list-item--expandable expanded">
+                          {% endif %}
                             {% if card.author_img != '' %}
                             <div class="left">
                               <img class="list-item__thumbnail" src="{{card.author_img}}">
+                              <p class="list-item__subtitle author">{{card.author}}</p>
                             </div>
                             {% endif %}
-                            <div class="{{card.type}}-content">
+                            <div class="expandable-content">
                               <div class="article">
                                 <br />
                                 {{card.html}}

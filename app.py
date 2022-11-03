@@ -62,6 +62,7 @@ def newFolderData(f, data):
 
 def newFileData(f_path, f, fullname, data):
     f_name = os.path.basename(f)
+    f_name.replace('.md', '')
     data.updateFile(f_path, f, 'Default', True)
     data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':None})
     data.updateArticleHTML(f_path, f, fullname)
@@ -459,9 +460,9 @@ def popup_author():
         author_data = None
         img = None
         with open(values['AUTHOR-IMG'], "rb") as img_file:
-            img = base64.b64encode(img_file.read())
+            img = base64.b64encode(img_file.read()).decode('utf-8')
         if event == '-SAVE-DATA-':
-            author_data = {'name':values['AUTHOR-NAME'], 'image':img}
+            author_data = {'name':values['AUTHOR-NAME'], 'image':'data:image/png;base64,'+img}
         return author_data if event == '-SAVE-DATA-' else None
 
 
@@ -653,6 +654,7 @@ while True:
                 DATA.authors.pop(key)
                 window['AUTHOR-LIST'].Update(DATA.authors.keys())
                 DATA.deleteAuthor(key)
+                DATA.saveData()
                 
     if(event == '-CHANGE-PAGE-ORDER-'):
         listbox = window['-ITEM-'].Widget
