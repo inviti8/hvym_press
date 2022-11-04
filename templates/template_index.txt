@@ -45,7 +45,7 @@
         box-shadow: none;
     }
     ons-list{
-      opacity: 80%;
+      opacity: 90%;
     }
     .author{
       padding-left: 10px;
@@ -116,7 +116,11 @@
            <ons-col width="{{page.content.widths[loop.index0]}}%">
                 {% for card in column %}
                 {% if card.type == 'Form' %}
+                  {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
+                <ons-card style="background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                  {% else %}
                 <ons-card>
+                  {% endif %}
                     <div class="title">
                       {{card.name}}
                     </div>
@@ -140,7 +144,11 @@
                       </div>
                     </ons-card>
                 {% else %}
+                {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
+                <ons-card style="background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                  {% else %}
                 <ons-card>
+                  {% endif %}
                     <div class="title">
                       {{card.name}}
                     </div>

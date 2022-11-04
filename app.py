@@ -730,8 +730,8 @@ while True:
         
         #print(DATA.getJsonData())
         sub_path = os.path.join('serve', 'debug')
-        # LaunchSite(sub_path)
-        # threading.Thread(target=StartServer, args=(), daemon=True).start()
+        LaunchSite(sub_path)
+        threading.Thread(target=StartServer, args=(), daemon=True).start()
     if event == '-CANCEL-':
         threading.Thread(target=StopServer, args=(), daemon=True).start()         
     #print(values[event])
