@@ -64,7 +64,7 @@ def newFileData(f_path, f, fullname, data):
     f_name = os.path.basename(f)
     f_name.replace('.md', '')
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':None})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':None, 'height':"default"})
     data.updateArticleHTML(f_path, f, fullname)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
@@ -298,8 +298,7 @@ def popup_set_article_data(md_name, data, colData):
     article_type = data['type'].split('-')[0]
     styles = ['default', 'material']
     border_types = ['default', 'noborder', 'inset']
-    
-    print(colData)
+    heights = ['default', 'medium', 'tall']
     
     for n in range(0, len(colData)):
         columns.append(str(n+1))
@@ -310,7 +309,9 @@ def popup_set_article_data(md_name, data, colData):
                   [sg.Text("Style:", font=font)],
                   [sg.Text("Border Type:", font=font)],
                   [sg.Text("Author:", font=font)],
-                  [sg.Text("Use Thumbnail:", font=font)]]
+                  [sg.Text("Height:", font=font)],
+                  [sg.Text("Use Thumbnail:", font=font)],
+                  ]
     
     col_layout_r = [[sg.Input(data['name'], s=(27,22), k='NAME')],
                   [sg.Combo(columns, default_value=data['column'], s=(25,22), readonly=True, k='COLUMN')],
@@ -318,7 +319,9 @@ def popup_set_article_data(md_name, data, colData):
                   [sg.Combo(styles, default_value=data['style'], s=(25,22), readonly=True, k='STYLE')],
                   [sg.Combo(border_types, default_value=data['border'], s=(25,22), readonly=True, k='BORDER-TYPE')],
                   [sg.Combo(list(DATA.authors.keys()), default_value=data['author'], s=(25,22), readonly=True, k='AUTHOR')],
-                  [sg.Checkbox('Checkbox', default=data['use_thumb'], k='USE-THUMB')]]
+                  [sg.Combo(heights, default_value=data['height'], s=(25,22), readonly=True, k='HEIGHT')],
+                  [sg.Checkbox('yes', default=data['use_thumb'], k='USE-THUMB')],
+                  ]
     
     col_layout = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
     
@@ -353,12 +356,10 @@ def popup_set_article_data(md_name, data, colData):
         
         type_string = concat_array(type_arr)
         
-        print(type_string)
-        
         set_file_icon(type_string)
         
         if event == '-SAVE-DATA-':
-            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html']}
+            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'height':values['HEIGHT']}
         return page_data if event == '-SAVE-DATA-' else None
             
 def popup_set_meta_data(md_name, data):
@@ -591,7 +592,6 @@ while True:
         elif event in command:
             
             if os.path.isfile(path_val) and '.md' in f_name:
- 
                 if(event == 'Set-Form-Data'):
                     folderData = DATA.getData(f_path, f_name, DATA.folders)
                     data = DATA.getData(f_path, f_name, DATA.formData)
@@ -599,7 +599,8 @@ while True:
                         d = popup_set_form_data(f_name, data)
                         if(d != None):
                             DATA.updateFormData(f_path, f_name, d)
-                            DATA.saveData()           
+                            DATA.saveData()
+                            
                 elif(event == 'Set-Meta-Data'):
                     data = DATA.getData(f_path, f_name, DATA.metaData)
                     d = popup_set_meta_data(f_name, data)
@@ -608,7 +609,6 @@ while True:
                         DATA.saveData()       
         
             elif os.path.isdir(path_val) and '.md' not in f_name:
-
                 if(event == 'Set-Column-Widths'):
                     data = DATA.pageData[f_name]
                     colData = DATA.columnWidths[f_name]
@@ -671,7 +671,7 @@ while True:
     if event == '-DEBUG-':
         print("debug")
         site_data = DATA.generateSiteData()
-        print(site_data)
+        #print(site_data)
         DATA.openStaticPage('template_index.txt', site_data)
             
         

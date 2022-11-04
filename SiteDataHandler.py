@@ -136,6 +136,18 @@ class SiteDataHandler:
        if route == 0:
            self._renderPageTemplate(template_file, data, page_path)
            
+   def generateFormData(self, page, article):
+       result = []
+       form_data = self.formData[page][article]
+       
+       for k in form_data['formType'].keys():
+           print('key is: '+k)
+           if form_data['formType'][k] == True:
+               print('adding input: ' + k)
+               result.append(k)
+           
+       return result
+           
    def generatePageData(self, page):
        result = {'title':None, 'max_height':None, 'columns':None, 'footer_height':None, 'content':{'columns':[], 'widths':self.columnWidths[page]}}
        for k in self.pageData[page].keys():
@@ -146,7 +158,7 @@ class SiteDataHandler:
            result['content']['columns'].append([])
        
        for k in self.articleData[page].keys():
-           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'author':None, 'use_thumb':None, 'html':None, 'author_img':None }
+           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'form_data':[], 'form_html':"" }
            props = self.articleData[page][k].keys()
            
            for prop in props:
@@ -155,19 +167,20 @@ class SiteDataHandler:
            author = self.articleData[page][k]['author']
            author_img = self.authors[author]
            article_data['author_img'] = author_img
+
+           if article_data['type'] == 'Form':
+               print('Ge GET HERE!!!')
+               article_data['form_data'] = self.generateFormData(page, k)
+               article_data['form_html'] = self.formData[page][k]['customHtml']
            index = int(article_data['column'])-1
            result['content']['columns'][index].append(article_data)
            
        return result
        
   
-           
-   
    def generateSiteData(self):
        result = {'pages':[], 'settings':self.settings}
-       print(self.pageList)
        for page in self.pageList:
-          print(page)
           page_data = self.generatePageData(page)
           result['pages'].append(page_data)
            

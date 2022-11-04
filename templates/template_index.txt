@@ -44,6 +44,9 @@
         -moz-box-shadow: none;
         box-shadow: none;
     }
+    ons-list{
+      opacity: 80%;
+    }
     .author{
       padding-left: 10px;
     }
@@ -62,6 +65,15 @@
         width: 80%;
         padding-left: 10%;
         text-align: left;
+      }
+      .content_default{
+        height: 200px;
+      }
+      .content_medium{
+        height: 250px;
+      }
+      .content_tall{
+        height: 300px;
       }
     </style>
 
@@ -103,7 +115,32 @@
         {% for column in page.content.columns %}
            <ons-col width="{{page.content.widths[loop.index0]}}%">
                 {% for card in column %}
-                  <ons-card>
+                {% if card.type == 'Form' %}
+                <ons-card>
+                    <div class="title">
+                      {{card.name}}
+                    </div>
+                      <div>
+                        <ons-list>
+                          <ons-list-item>
+                              <div class="article">
+                                <br />
+                                {{card.html}}
+                                <ons-list>
+                                  {% for input in card.form_data %}
+                                  <ons-list-item>
+                                    <ons-input id="{{input}}" modifier="underbar" placeholder="{{input}}" float></ons-input>
+                                  </ons-list-item>
+                                  {% endfor %}
+                                </ons-list>
+                                {{card.form_html}}
+                              </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                {% else %}
+                <ons-card>
                     <div class="title">
                       {{card.name}}
                     </div>
@@ -112,7 +149,7 @@
                           {% if card.type == 'Expandable' %}
                           <ons-list-item expandable>
                           {% else %}
-                          <ons-list-item expandable expanded class="list-item list-item--expandable expanded">
+                          <ons-list-item expandable expanded class="list-item list-item--expandable expanded ">
                           {% endif %}
                             {% if card.author_img != '' %}
                             <div class="left">
@@ -124,6 +161,14 @@
                               <div class="article">
                                 <br />
                                 {{card.html}}
+                                <ons-list>
+                                  {% for input in card.form_data %}
+                                  <ons-list-item>
+                                    <ons-input id="{{input}}" modifier="underbar" placeholder="{{input}}" float></ons-input>
+                                  </ons-list-item>
+                                  {% endfor %}
+                                </ons-list>
+                                {{card.form_html}}
                               </div>
                               <ons-fab onclick="myNavigator.pushPage('nav_{{card.name}}.html')">
                                 <ons-icon icon="fa-chevron-left"></ons-icon>
@@ -133,6 +178,7 @@
                         </ons-list>
                       </div>
                     </ons-card>
+                {% endif %}
                 {% endfor %}
            </ons-col>
         {% endfor %}
@@ -165,6 +211,13 @@
         <div class="expanded_article">
           <br />
           {{card.html}}
+          <ons-list>
+          {% for input in card.form_data %}
+          <ons-list-item>
+            <ons-input id="{{input}}" modifier="underbar" placeholder="{{input}}" float></ons-input>
+          </ons-list-item>
+          {% endfor %}
+          </ons-list>
         </div>
     </div>
   </ons-page>
