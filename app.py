@@ -9,6 +9,8 @@ import threading
 import webbrowser
 import ServerHandler
 import SiteDataHandler
+import PIL.Image
+import io
 from io import BytesIO
 from PIL import Image, ImageDraw
 from jinja2 import Environment, FileSystemLoader
@@ -22,7 +24,7 @@ font = ('Ariel', 9)
 file_loader = FileSystemLoader('templates')
 env = Environment(loader=file_loader)
 
-
+empty_px = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg=='
 folder_icon = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA3XAAAN1wFCKJt4AAAE7mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4yLWMwMDAgNzkuMWI2NWE3OSwgMjAyMi8wNi8xMy0xNzo0NjoxNCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgc3RFdnQ6d2hlbj0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuxPXaQAAAFhSURBVFiF7de9itRQGMbx3znJREEHVNBiC7HyLpRBC6/AWhY/aq/C0htwi90LERRL72CttFywERk0cfJaZAZGGHGYjZwt5oFAzglv3v9585yPpIhQUrlo9osAUDtJ6+1nuIfL6EfOlfEDH3C06kxxvHwY3gqzv4aOq3d4iD5r0XohzFTLZKurQkKLxfJ+HM3wEmo3KiqPXa2oE+uzIi0zznvOOjpMMM7EuY/XtYPJU8kDPfogbaj3rZom8bkdnDFOJTqodfHqz/4Nw5sH04pp5ms/WPQ8SkgWAwDXtgpaBDdruo4udjdmMvipNV8BtGj+GdgFTeZOM0Ts+hkSfgXf+wOLUNvWUslQhbSGu6sZJ5kr+RGepHh/6RumO77qvDorvRRfLw3wszRAlAYovx3vAfYAe4DV4atY/mybrfj/qck4LQhwmnFYEOCwxkfcxXPcNubhe7MCX/AGn9L+57Q0wG/4oVYsu0eeMwAAAABJRU5ErkJggg=='
 folder_icon_off = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA3XAAAN1wFCKJt4AAACkElEQVRYhe2XT0gUURzHP+/tY92NNtyJlswlKsSDkcYGwkKJ/aGIqEMQBFEhWWfDU8qeVkQCy0snvXfbwLNeLPIQSHgQWiMiFMFghBbd1XbmdRgddilxRse2Q1+Yw/zen99nfu/3fu+N0FpTS8maev8XAETuzOnK927gAhAB7IB9SaAEvAXGtozKbdRMouncdmhwegDcAy4DtsSWYMsnaDqRm84qH+F0CzgenUAPgCIKSO6IOgUhAZW7QggA9LoNBcAWIAPbNR3ACyXq1SMEl9CArUH8Hm9xKARKoE0LNE5U9q6fAApLD1aZ/1QXNoCIhIgNpRDo8t5cC0BgOQBQ72mQBnFQoi0Lyuw+CgInn2y5tgWwAYR3HFjWoCTisMBh34MsjV63j6EdAG9ZJXByBCC0adttPiqJiMhrwEO1Y+cKtfRkAFiammBlZtq1x1NpGjquADA3kt15Isslf+4L4MCRBMn0eRrOtTN5/6ZrTz3tI9aYZGH6nZ/pAOK+atzscJaiaRJrTNLWPwRAW/8QscYkRdNkdtjD11drPXT35NFnQJ2X3lZxFfPzPCeu3iB+qgkZT9B03YnE+0wvq18++QbwXeVXZqbJj+cAaL51G4D8eK4qJ/xoV8fM3EiWcqkIQLlU9JZ4QQK09GRQkSgAKhJ1d8dfAYin0m7oP46+ApyliKfS+w8QNhK09w0Azrp/fT3m5kN73wBhI7G/AK29GaKGQWFxwV33uZEshcUFooZBa6//pfBciMJGgrXvy+THcyxNTVS1zbwcdCth2EiwYS57BhBvLp79AcQ8jwhWha2LV60kJV6O4v1TWAL5GgLkJdBVQ4AuBXwAmoHHwHGCunJuLw18A0aBefH/57TWAL8As2q+p/+gTSYAAAAASUVORK5CYII='
 file_icon = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7EAAAOxAGVKw4bAAACTUlEQVRYheWXy2sTURSHf+fOI69JrVRFixSE0oWgBUEQly7cFFeCi+6lf0Ch0L8gdCO4jK58kJXQRdtFqWIXLbZQFNSVm4LRRJvSptbWkOTe46JNGWdi585koogfZJFz7z3nu/fMIyFmhpv7j+dQq+32SSWniOgmgF4EIKVCKmlLJ+NM9DjZh4MD5yCVajv32vDQL99Nf7LmScXqLQH9QYVbMBgAIZUwHlw43/fj6qXBp7prhTdQb+zfA3M/iHRzHEkkEwl8LG08WX79/nZkAWa+FbZ4C8MwoJTCuw/rz4rlykgkAbRpiy7MDNu2kM2ksLC8Nlv8UrkRRaAeVaAlkbRtGKaBlytvXmzt7F4PK9AxihlOOgmpGHOLK0vfvu9d+aMCAKAUo8dJoyklzS6uvtrbr13smgADICLYlgnbMmEdfgxD4FTvCUgp7fmltdV6oznkXRv5gnNjCIFmU6JYroDo4DpwI4TA56+bzqPpned374wMxC9ABCklNreqh6fhnyNIYP1T+aw3HovAUQts69h5WTNd9YnFIdAJf10gsAWTY6MAgFy+4Iu54+6Yd+w4tE+gXYE41oRuQVDSXL7w29OKRSBuQgmEaYNO/0MLhEFXNpKA7u50iOVJ6Ma78yBZ7ROIsmudNeR9c+XyhQ0Ap0NX06MyOTZ6xh34t27D/0bA7mI9X+52Ao0uCvhy+wWIZg5+48QLM4OYZgIFLDM5DoiS9/bssDpIUMnOpMe9Q74noWUmtqVqXJZSTQHQ+nseQJWZFwxhThgpa9s7+BMoWNGFUVzMQgAAAABJRU5ErkJggg=='
@@ -64,7 +66,7 @@ def newFileData(f_path, f, fullname, data):
     f_name = os.path.basename(f)
     f_name.replace('.md', '')
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':None, 'height':"default"})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':None, 'bg_img':empty_px})
     data.updateArticleHTML(f_path, f, fullname)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
@@ -170,6 +172,26 @@ def get_file_icon(uiType):
         result = form
         
     return result
+
+def resize_image(image_path, resize=None): #image_path: "C:User/Image/img.jpg"
+    if isinstance(image_path, str):
+        img = PIL.Image.open(image_path)
+    else:
+        try:
+            img = PIL.Image.open(io.BytesIO(base64.b64decode(image_path)))
+        except Exception as e:
+            data_bytes_io = io.BytesIO(image_path)
+            img = PIL.Image.open(data_bytes_io)
+
+    cur_width, cur_height = img.size
+    if resize:
+        new_width, new_height = resize
+        scale = min(new_height/cur_height, new_width/cur_width)
+        img = img.resize((int(cur_width*scale), int(cur_height*scale)), PIL.Image.ANTIALIAS)
+    bio = io.BytesIO()
+    img.save(bio, format="PNG")
+    del img
+    return bio.getvalue()
                 
 def set_file_icon(event):
     item = tree.Widget.selection()[0]
@@ -298,10 +320,25 @@ def popup_set_article_data(md_name, data, colData):
     article_type = data['type'].split('-')[0]
     styles = ['default', 'material']
     border_types = ['default', 'noborder', 'inset']
-    heights = ['default', 'medium', 'tall']
+    bg_img = data['bg_img'].replace('data:image/png;base64,', '').encode()
+    buffer = io.BytesIO()
+    imgdata = base64.b64decode(bg_img)
+    image = Image.open(io.BytesIO(imgdata))
+    new_img = image.resize((50, 50))
+    new_img.save(buffer, format="PNG")
+    img_b64 = base64.b64encode(buffer.getvalue())
+    img_vis = False
+    
+    if data['bg_img'] != empty_px:
+        img_vis = True
     
     for n in range(0, len(colData)):
         columns.append(str(n+1))
+        
+    col_layout_0 = [[sg.Text("Image:", visible=img_vis, font=font)],
+                    [sg.Text("", font=font)]]
+    col_layout_0r = [[sg.Image(img_b64, visible=img_vis, size=(50,50))],
+                     [sg.Button("Delete Image", visible=img_vis,)]]
     
     col_layout_l = [[sg.Text("Name:", font=font)],
                   [sg.Text("Column:", font=font)],
@@ -309,8 +346,8 @@ def popup_set_article_data(md_name, data, colData):
                   [sg.Text("Style:", font=font)],
                   [sg.Text("Border Type:", font=font)],
                   [sg.Text("Author:", font=font)],
-                  [sg.Text("Height:", font=font)],
-                  [sg.Text("Use Thumbnail:", font=font)],
+                  [sg.Text("Background Image:", font=font)],
+                  [sg.Text("Use Author Name & Thumbnail:", font=font)],
                   ]
     
     col_layout_r = [[sg.Input(data['name'], s=(27,22), k='NAME')],
@@ -319,16 +356,18 @@ def popup_set_article_data(md_name, data, colData):
                   [sg.Combo(styles, default_value=data['style'], s=(25,22), readonly=True, k='STYLE')],
                   [sg.Combo(border_types, default_value=data['border'], s=(25,22), readonly=True, k='BORDER-TYPE')],
                   [sg.Combo(list(DATA.authors.keys()), default_value=data['author'], s=(25,22), readonly=True, k='AUTHOR')],
-                  [sg.Combo(heights, default_value=data['height'], s=(25,22), readonly=True, k='HEIGHT')],
+                  [sg.Input(default_text="", s=20, k='BG-IMG'), sg.FileBrowse(file_types=(("PNG", "*.png"),))],
                   [sg.Checkbox('yes', default=data['use_thumb'], k='USE-THUMB')],
                   ]
     
-    col_layout = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
+    col_layout0 = [[sg.Column(col_layout_0, expand_x=True, element_justification='left'), sg.Column(col_layout_0r, expand_x=True, element_justification='right')]]
+    col_layout1 = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
     
     col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
     layout = [
         [sg.Text(f"File: {md_name}")],
-        [sg.Column(col_layout, expand_x=True, element_justification='left')],
+        [sg.Column(col_layout0, expand_x=True, element_justification='left')],
+        [sg.Column(col_layout1, expand_x=True, element_justification='left')],
         [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
     ]
     window = sg.Window("Set Article Data", layout, use_default_focus=False, finalize=True, modal=True)
@@ -339,8 +378,13 @@ def popup_set_article_data(md_name, data, colData):
     type_concat = ""
     thumb_concat = ""
     inset_concat = ""
+    img = empty_px
+    
+    if data['bg_img'] != empty_px:
+        img = data['bg_img']
     
     if values != None:
+        print(event)
         if 'Form' not in values['TYPE']:
             if values['TYPE'] != None:
                 type_concat = values['TYPE']
@@ -351,16 +395,25 @@ def popup_set_article_data(md_name, data, colData):
         else:
             if values['TYPE'] != None:
                 type_concat = values['TYPE']
+                
+        if os.path.isfile(values['BG-IMG']):
+            with open(values['BG-IMG'], "rb") as img_file:
+                img = base64.b64encode(img_file.read()).decode('utf-8')
+                img = 'data:image/png;base64,'+img
             
         type_arr = [type_concat, inset_concat, thumb_concat]
-        
         type_string = concat_array(type_arr)
-        
         set_file_icon(type_string)
         
         if event == '-SAVE-DATA-':
-            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'height':values['HEIGHT']}
-        return page_data if event == '-SAVE-DATA-' else None
+            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img}
+        elif event == 'Delete Image':
+            delete_img = sg.PopupOKCancel("Delete Image?")
+            page_data = None
+            if delete_img == 'OK':
+                page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':empty_px}
+            
+        return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' else None
             
 def popup_set_meta_data(md_name, data):
     
@@ -677,8 +730,8 @@ while True:
         
         #print(DATA.getJsonData())
         sub_path = os.path.join('serve', 'debug')
-        LaunchSite(sub_path)
-        threading.Thread(target=StartServer, args=(), daemon=True).start()
+        # LaunchSite(sub_path)
+        # threading.Thread(target=StartServer, args=(), daemon=True).start()
     if event == '-CANCEL-':
         threading.Thread(target=StopServer, args=(), daemon=True).start()         
     #print(values[event])
