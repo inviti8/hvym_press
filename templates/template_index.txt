@@ -50,7 +50,9 @@
     .author{
       padding-left: 10px;
     }
-    
+    .form_container{
+      margin: 0 auto;
+    }
     .article { 
         height: 200px; 
         width:100%; 
@@ -60,7 +62,7 @@
         -webkit-box-shadow: none;
         -moz-box-shadow: none;
         box-shadow: none; 
-        }
+      }
       .expanded_article {
         width: 80%;
         padding-left: 10%;
@@ -127,7 +129,7 @@
                       <div>
                         <ons-list>
                           <ons-list-item>
-                              <div class="article">
+                              <div class="form_container">
                                 <br />
                                 {{card.html}}
                                 <ons-list>
@@ -159,11 +161,13 @@
                           {% else %}
                           <ons-list-item expandable expanded class="list-item list-item--expandable expanded ">
                           {% endif %}
+                          {% if card.use_thumb %}
                             {% if card.author_img != '' %}
                             <div class="left">
                               <img class="list-item__thumbnail" src="{{card.author_img}}">
                               <p class="list-item__subtitle author">{{card.author}}</p>
                             </div>
+                              {% endif %}
                             {% endif %}
                             <div class="expandable-content">
                               <div class="article">

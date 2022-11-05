@@ -384,7 +384,6 @@ def popup_set_article_data(md_name, data, colData):
         img = data['bg_img']
     
     if values != None:
-        print(event)
         if 'Form' not in values['TYPE']:
             if values['TYPE'] != None:
                 type_concat = values['TYPE']
