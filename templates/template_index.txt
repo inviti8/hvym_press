@@ -102,12 +102,12 @@
 {% for page in data.pages %}
 <template id="{{page.title}}.html">
   <ons-page>
-    <ons-toolbar>
+    <ons-toolbar modifier="{{data.settings.style}}">
       <div class="center">
         {{page.title}}
       </div>
       <div class="right">
-        <ons-toolbar-button onclick="fn.open()">
+        <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
           <ons-icon icon="md-menu"></ons-icon>
         </ons-toolbar-button>
       </div>
@@ -119,15 +119,15 @@
                 {% for card in column %}
                 {% if card.type == 'Form' %}
                   {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
-                <ons-card style="background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                <ons-card modifier="{{data.settings.style}}" style="background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
                   {% else %}
-                <ons-card>
+                <ons-card modifier="{{data.settings.style}}">
                   {% endif %}
                     <div class="title">
                       {{card.name}}
                     </div>
                       <div>
-                        <ons-list>
+                        <ons-list modifier="{{card.border}}">
                           <ons-list-item>
                               <div class="form_container">
                                 <br />
@@ -147,15 +147,15 @@
                     </ons-card>
                 {% else %}
                 {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
-                <ons-card style="background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                <ons-card modifier="{{data.settings.style}}" style="background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
                   {% else %}
-                <ons-card>
+                <ons-card modifier="{{data.settings.style}}">
                   {% endif %}
                     <div class="title">
                       {{card.name}}
                     </div>
                       <div class="content">
-                        <ons-list>
+                        <ons-list modifier="{{card.border}}">
                           {% if card.type == 'Expandable' %}
                           <ons-list-item expandable>
                           {% else %}
@@ -182,7 +182,7 @@
                                 </ons-list>
                                 {{card.form_html}}
                               </div>
-                              <ons-fab onclick="myNavigator.pushPage('nav_{{card.name}}.html')">
+                              <ons-fab onclick="myNavigator.pushPage('nav_{{card.name}}.html')" modifier="{{data.settings.style}}">
                                 <ons-icon icon="fa-chevron-left"></ons-icon>
                               </ons-fab>
                             </div>
@@ -205,13 +205,13 @@
 {% for card in column %}
 <template id="nav_{{card.name}}.html">
   <ons-page id="nav_{{card.name}}">
-    <ons-toolbar>
+    <ons-toolbar modifier="{{data.settings.style}}">
       <div class="left">
-        <ons-back-button>Back</ons-back-button>
+        <ons-back-button modifier="{{data.settings.style}}">Back</ons-back-button>
       </div>
       <div class="center"></div>
       <div class="right">
-        <ons-toolbar-button onclick="fn.open()">
+        <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
           <ons-icon icon="md-menu"></ons-icon>
         </ons-toolbar-button>
       </div>

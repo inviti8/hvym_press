@@ -319,7 +319,7 @@ def popup_set_article_data(md_name, data, colData):
     article_types = ['Block', 'Expandable', 'Form']
     article_type = data['type'].split('-')[0]
     styles = ['default', 'material']
-    border_types = ['default', 'noborder', 'inset']
+    border_types = ['noborder', 'inset']
     bg_img = data['bg_img'].replace('data:image/png;base64,', '').encode()
     buffer = io.BytesIO()
     imgdata = base64.b64decode(bg_img)
@@ -343,7 +343,6 @@ def popup_set_article_data(md_name, data, colData):
     col_layout_l = [[sg.Text("Name:", font=font)],
                   [sg.Text("Column:", font=font)],
                   [sg.Text("Article Type:", font=font)],
-                  [sg.Text("Style:", font=font)],
                   [sg.Text("Border Type:", font=font)],
                   [sg.Text("Author:", font=font)],
                   [sg.Text("Background Image:", font=font)],
@@ -353,7 +352,6 @@ def popup_set_article_data(md_name, data, colData):
     col_layout_r = [[sg.Input(data['name'], s=(27,22), k='NAME')],
                   [sg.Combo(columns, default_value=data['column'], s=(25,22), readonly=True, k='COLUMN')],
                   [sg.Combo(article_types, default_value=article_type, s=(25,22), readonly=True, k='TYPE')],
-                  [sg.Combo(styles, default_value=data['style'], s=(25,22), readonly=True, k='STYLE')],
                   [sg.Combo(border_types, default_value=data['border'], s=(25,22), readonly=True, k='BORDER-TYPE')],
                   [sg.Combo(list(DATA.authors.keys()), default_value=data['author'], s=(25,22), readonly=True, k='AUTHOR')],
                   [sg.Input(default_text="", s=20, k='BG-IMG'), sg.FileBrowse(file_types=(("PNG", "*.png"),))],
@@ -405,12 +403,12 @@ def popup_set_article_data(md_name, data, colData):
         set_file_icon(type_string)
         
         if event == '-SAVE-DATA-':
-            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img}
+            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img}
         elif event == 'Delete Image':
             delete_img = sg.PopupOKCancel("Delete Image?")
             page_data = None
             if delete_img == 'OK':
-                page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'style':values['STYLE'], 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':empty_px}
+                page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':empty_px}
             
         return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' else None
             
@@ -568,6 +566,7 @@ add_files_in_folder('', starting_path, command, DATA)
 
 ui_settings_layout = [[sg.Frame('UI Settings', [[name('UI Framework'), sg.Combo(DATA.uiFramework, default_value=DATA.settings['uiFramework'], s=(15,22), enable_events=True, readonly=True, k='SETTING-uiFramework')],
                                                 [name('Navigation'), sg.Combo(DATA.navigation, default_value=DATA.settings['pageType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-pageType')],
+                                                [name('Style'), sg.Combo(DATA.styles, default_value=DATA.settings['style'], s=(15,22), enable_events=True, readonly=True, k='SETTING-style')],
                [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='SETTING-theme')],
                [name('Custom Theme'), sg.Input(default_text=DATA.settings['customTheme'], s=20), sg.FolderBrowse(enable_events=True, k='SETTING-customTheme')],
                [name('Page Order'), sg.Listbox(DATA.pageList, expand_x=True, size=(10, 5), key="-ITEM-")],

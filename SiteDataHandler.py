@@ -81,11 +81,12 @@ class SiteDataHandler:
       self.articleData = {}
       self.formData = {}
       self.metaData = {}
-      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'', 'pinataJWT':'', 'arWallet':''}
+      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'style':'default', 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'', 'pinataJWT':'', 'arWallet':''}
       self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['carousel', 'splitter', 'tabs']
       self.themes = ['light', 'dark']
+      self.styles = ['default', 'material']
       self.deployTypes = ['Pinata', 'Arweave']
       self.dataFilePath = os.path.join(filePath, 'site.data')
       self.fileExists = False
