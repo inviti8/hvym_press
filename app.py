@@ -10,6 +10,7 @@ import webbrowser
 import ServerHandler
 import SiteDataHandler
 import PIL.Image
+import ColorPicker
 import io
 from io import BytesIO
 from PIL import Image, ImageDraw
@@ -66,7 +67,7 @@ def newFileData(f_path, f, fullname, data):
     f_name = os.path.basename(f)
     f_name.replace('.md', '')
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':None, 'bg_img':empty_px})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':None, 'bg_img':empty_px, 'color':"#FFFFFF", 'use_color':False})
     data.updateArticleHTML(f_path, f, fullname)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
@@ -318,7 +319,6 @@ def popup_set_article_data(md_name, data, colData):
     columns = []
     article_types = ['Block', 'Expandable', 'Form']
     article_type = data['type'].split('-')[0]
-    styles = ['default', 'material']
     border_types = ['noborder', 'inset']
     bg_img = data['bg_img'].replace('data:image/png;base64,', '').encode()
     buffer = io.BytesIO()
@@ -335,10 +335,16 @@ def popup_set_article_data(md_name, data, colData):
     for n in range(0, len(colData)):
         columns.append(str(n+1))
         
-    col_layout_0 = [[sg.Text("Image:", visible=img_vis, font=font)],
+    col_layout_img = [[sg.Text("Background Image:", visible=img_vis, font=font)],
                     [sg.Text("", font=font)]]
-    col_layout_0r = [[sg.Image(img_b64, visible=img_vis, size=(50,50))],
-                     [sg.Button("Delete Image", visible=img_vis,)]]
+    col_layout_imgr = [[sg.Image(img_b64, visible=img_vis, size=(50,50))],
+                     [sg.Button("Delete Image", visible=img_vis,)],
+                     ]
+    
+    col_layout_color = [[sg.Text("Color:", font=font)],
+                    [sg.Text("Use Color:", font=font)]]
+    col_layout_colorr = [[sg.Input(key='COLOR', default_text=data['color'], visible=False), sg.Button('Color Picker', button_color=data['color'])],
+                     [sg.Checkbox('yes', default=data['use_color'], k='USE-COLOR')],]
     
     col_layout_l = [[sg.Text("Name:", font=font)],
                   [sg.Text("Column:", font=font)],
@@ -358,14 +364,16 @@ def popup_set_article_data(md_name, data, colData):
                   [sg.Checkbox('yes', default=data['use_thumb'], k='USE-THUMB')],
                   ]
     
-    col_layout0 = [[sg.Column(col_layout_0, expand_x=True, element_justification='left'), sg.Column(col_layout_0r, expand_x=True, element_justification='right')]]
-    col_layout1 = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
+    col_layout0 = [[sg.Column(col_layout_img, expand_x=True, element_justification='left'), sg.Column(col_layout_imgr, expand_x=True, element_justification='right')]]
+    col_layout1 = [[sg.Column(col_layout_color, expand_x=True, element_justification='left'), sg.Column(col_layout_colorr, expand_x=True, element_justification='right')]]
+    col_layout2 = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
     
     col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
     layout = [
         [sg.Text(f"File: {md_name}")],
         [sg.Column(col_layout0, expand_x=True, element_justification='left')],
         [sg.Column(col_layout1, expand_x=True, element_justification='left')],
+        [sg.Column(col_layout2, expand_x=True, element_justification='left')],
         [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
     ]
     window = sg.Window("Set Article Data", layout, use_default_focus=False, finalize=True, modal=True)
@@ -403,14 +411,21 @@ def popup_set_article_data(md_name, data, colData):
         set_file_icon(type_string)
         
         if event == '-SAVE-DATA-':
-            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img}
+            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'color':values['COLOR'], 'use_color':values['USE-COLOR']}
         elif event == 'Delete Image':
             delete_img = sg.PopupOKCancel("Delete Image?")
             page_data = None
             if delete_img == 'OK':
-                page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':empty_px}
-            
-        return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' else None
+                page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':empty_px, 'color':values['COLOR'], 'use_color':values['USE-COLOR']}
+        elif event == 'Color Picker':
+            color_chosen = ColorPicker.popup_color_chooser()
+            page_data = None
+            if color_chosen != None:
+                print("Color Chosen!!")
+                print(color_chosen)
+                page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'color':color_chosen, 'use_color':values['USE-COLOR']}    
+                
+        return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' or event == 'Color Picker' else None
             
 def popup_set_meta_data(md_name, data):
     
