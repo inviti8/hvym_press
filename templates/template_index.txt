@@ -22,6 +22,12 @@
       menu.close();
       myNavigator.resetToPage(page, { animation: 'fade' });
     };
+
+    window.fn.hideDialog = function(id) {
+      document
+        .getElementById(id)
+        .hide();
+    };
     
     document.addEventListener('init', function (event) {
       if (event.target.id === 'pageNav1') {
@@ -32,6 +38,45 @@
         var cardTitle = event.target.data && event.target.data.cardTitle ? event.target.data.cardTitle : 'Custom Card';
         event.target.querySelector('ons-card div.title').textContent = cardTitle;
       }
+    });
+
+    ons.ready(function() {
+
+      var forms = document.getElementsByTagName("form");
+
+      console.log(forms)
+
+      for (var i = 0; i < forms.length; i++) {
+         var form = forms.item(i);
+
+
+        form.onsubmit = function (e) {
+            e.preventDefault();
+            fetch(form.action, {
+                method: "post", 
+                body: new FormData(form)
+            }).then(response => {
+                // do something with the response...
+                console.log(response);
+                var form_id = form.id
+                var dlg_id = form_id.replace("form_", "dlg_")
+
+                var dialog = document.getElementById(dlg_id);
+
+                if (dialog) {
+                  dialog.show();
+                } else {
+                  ons.createElement(dlg_id+'.html', { append: true })
+                    .then(function(dialog) {
+                      dialog.show();
+                    });
+                }
+
+            });
+        }
+      }
+
+
     });
 
   </script>
@@ -141,21 +186,25 @@
                               <div class="form_container">
                                 <br />
                                 {{card.html}}
+                              {% if card.form_id != ""%}
+                              <form class="gform" id="form_{{card.name}}" method="post" action="https://script.google.com/macros/s/{{card.form_id}}/exec">
                                 {% if card.use_color%}
                                 <ons-list style="background-color: {{card.color}};">
                                 {% else %}
-                                <form class="gform" id="form" method="post" action="https://script.google.com/macros/s/{{card.form_id}}/exec">
                                   <ons-list>
                                 {% endif %}
                                   {% for input in card.form_data %}
                                   <ons-list-item>
-                                    <ons-input id="{{input}}" modifier="underbar" placeholder="{{input}}" float></ons-input>
+                                    <ons-input id="{{input}}" name="{{input}}" modifier="underbar" placeholder="{{input}}" float></ons-input>
                                   </ons-list-item>
                                   {% endfor %}
                                 </ons-list>
-                                <input class="button--large button" id="submit" type="submit" name="submit" value="{{card.form_btn_txt}}">
+                                <input class="button--large button" id="submit" type="submit" value="{{card.form_btn_txt}}">
                                 </form>
                                 {{card.form_html}}
+                              {% else %}
+                              <p>FORM ID IS NOT SET!!!</p>
+                              {% endif %}
                               </div>
                           </ons-list-item>
                         </ons-list>
@@ -230,7 +279,22 @@
 {% for page in data.pages %}
 {% for column in page.content.columns %}
 {% for card in column %}
-<template id="nav_{{card.name}}.html">
+  {% if card.type == 'Form' %}
+  <template id="dlg_{{card.name}}.html">
+  <ons-dialog id="dlg_{{card.name}}">
+    <div style="text-align: center; padding: 10px;">
+      <p>
+        {{card.form_response}}
+      </p>
+
+      <p>
+        <ons-button onclick="fn.hideDialog('dlg_{{card.name}}')">Close</ons-button>
+      </p>
+    </div>
+  </ons-dialog>
+</template>
+  {% else %}
+  <template id="nav_{{card.name}}.html">
   <ons-page id="nav_{{card.name}}">
     <ons-toolbar modifier="{{data.settings.style}}">
       <div class="left">
@@ -261,6 +325,7 @@
     </div>
   </ons-page>
 </template>
+  {% endif %}
 {% endfor %}
 {% endfor %}
 {% endfor %}

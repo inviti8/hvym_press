@@ -69,7 +69,7 @@ def newFileData(f_path, f, fullname, data):
     data.updateFile(f_path, f, 'Default', True)
     data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':None, 'bg_img':empty_px, 'color':"#FFFFFF", 'use_color':False})
     data.updateArticleHTML(f_path, f, fullname)
-    data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':"", 'btn_txt':"SUBMIT", 'form_id':""})
+    data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':"", 'btn_txt':"SUBMIT", 'response':"Form Submitted", 'form_id':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
 
 def add_files_in_folder(parent, dirname, command, data):
@@ -457,20 +457,24 @@ def popup_set_form_data(md_name, data):
                                             [sg.Checkbox('Ethereum', default=form_data['eth'], k='-ETH-'), sg.Checkbox('Bitcoin', default=form_data['btc'], k='-BTC-'),
                                              sg.Checkbox('Polygon', default=form_data['polygon'], k='-POLYGON-'), sg.Checkbox('Generic', default=form_data['generic'], k='-GENERIC-')]], expand_y=True, expand_x=True)]]
     
+    col_layout_html = [[sg.Text("Custom HTML:", font=font)],[sg.Multiline(s=(30,8), expand_x=True, default_text=data['customHtml'], k='CUSTOM-HTML')]]
+    
     col_layout_data_l = [[sg.Text("Submit Button Text:", font=font)],
+                         [sg.Text("Form Response Text:", font=font)],
                          [sg.Text("Form Deploy ID:", font=font)]]
     col_layout_data_r = [[sg.Input(key='BTN-TXT', default_text=data['btn_txt'])],
+                         [sg.Multiline(s=(20,5), expand_x=True, default_text=data['response'], k='RESPONSE')],
                          [sg.Input(key='FORM-ID', default_text=data['form_id'])]]
+
     
     col_layout_data = [[sg.Column(col_layout_data_l, expand_x=True, element_justification='left'), sg.Column(col_layout_data_r, expand_x=True, element_justification='right')]]
     
-    col_layout = [[sg.Text("Custom HTML:", font=font)],[sg.Multiline(s=(30,8), expand_x=True, default_text=data['customHtml'], k='CUSTOM-HTML')]]
     
     col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
     layout = [
         [sg.Text(f"File: {md_name}")],
         [elements_layout],
-        [sg.Column(col_layout, expand_x=True, element_justification='center')],
+        [sg.Column(col_layout_html, expand_x=True, element_justification='center')],
         [sg.Column(col_layout_data, expand_x=True, element_justification='center')],
         [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
     ]
@@ -483,7 +487,7 @@ def popup_set_form_data(md_name, data):
         page_data = None
         form_type = {'name':values['-NAME-'], 'email':values['-EMAIL-'], 'address':values['-ADDRESS-'], 'phone':values['-PHONE-'],'eth':values['-ETH-'], 'btc':values['-BTC-'], 'polygon':values['-POLYGON-'], 'generic':values['-GENERIC-']}
         if event == '-SAVE-DATA-':
-            page_data = {'formType':form_type, 'customHtml':values['CUSTOM-HTML'], 'btn_txt':values['BTN-TXT'], 'form_id':values['FORM-ID']}
+            page_data = {'formType':form_type, 'customHtml':values['CUSTOM-HTML'], 'btn_txt':values['BTN-TXT'], 'response':values['RESPONSE'], 'form_id':values['FORM-ID']}
         return page_data if event == '-SAVE-DATA-' else None
     
 def popup_set_page_order(list_values):
