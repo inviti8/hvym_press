@@ -129,10 +129,6 @@ class SiteDataHandler:
        routes = ['debug', 'deploy']
        target_path = os.path.join(SCRIPT_DIR, 'serve', routes[route])
        page_path = os.path.join(target_path,'index.html')
-       print("target_path")
-       print(target_path)
-       print("page_path")
-       print(page_path)
 
        if route == 0:
            self._renderPageTemplate(template_file, data, page_path)
@@ -159,7 +155,7 @@ class SiteDataHandler:
            result['content']['columns'].append([])
        
        for k in self.articleData[page].keys():
-           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"" }
+           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_id':""}
            props = self.articleData[page][k].keys()
            
            for prop in props:
@@ -170,9 +166,10 @@ class SiteDataHandler:
            article_data['author_img'] = author_img
 
            if article_data['type'] == 'Form':
-               print('Ge GET HERE!!!')
                article_data['form_data'] = self.generateFormData(page, k)
                article_data['form_html'] = self.formData[page][k]['customHtml']
+               article_data['form_btn_txt'] = self.formData[page][k]['btn_txt']
+               article_data['form_id'] = self.formData[page][k]['form_id']
            index = int(article_data['column'])-1
            result['content']['columns'][index].append(article_data)
            
