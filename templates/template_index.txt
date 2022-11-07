@@ -43,10 +43,8 @@
     };
 
     window.fn.formStateHandler = function (form, state) {
-        var buttons = form.querySelectorAll("input");
-        console.log('formDisabler')
+        var buttons = form.querySelectorAll("button");
         for (var i = 0; i < buttons.length; i++) {
-        console.log(buttons[i])
           buttons[i].disabled = state;
         }
     }
@@ -86,7 +84,6 @@
             });
         }
       }
-
 
     });
 
@@ -210,7 +207,7 @@
                                   </ons-list-item>
                                   {% endfor %}
                                 </ons-list>
-                                <input class="button--large button" id="submit" type="submit" value="{{card.form_btn_txt}}">
+                                <button class="button--large button" id="submit" type="submit">{{card.form_btn_txt}}</button>
                                 </form>
                                 {{card.form_html}}
                               {% else %}
