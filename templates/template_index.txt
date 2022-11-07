@@ -23,11 +23,33 @@
       myNavigator.resetToPage(page, { animation: 'fade' });
     };
 
+    window.fn.showDialog = function(id) {
+      var dialog = document.getElementById(id);
+
+      if (dialog) {
+          dialog.show();
+      } else {
+        ons.createElement(id+'.html', { append: true })
+          .then(function(dialog) {
+              dialog.show();
+            });
+        }
+    };
+
     window.fn.hideDialog = function(id) {
       document
         .getElementById(id)
         .hide();
     };
+
+    window.fn.formStateHandler = function (form, state) {
+        var buttons = form.querySelectorAll("input");
+        console.log('formDisabler')
+        for (var i = 0; i < buttons.length; i++) {
+        console.log(buttons[i])
+          buttons[i].disabled = state;
+        }
+    }
     
     document.addEventListener('init', function (event) {
       if (event.target.id === 'pageNav1') {
@@ -41,36 +63,25 @@
     });
 
     ons.ready(function() {
-
       var forms = document.getElementsByTagName("form");
-
-      console.log(forms)
 
       for (var i = 0; i < forms.length; i++) {
          var form = forms.item(i);
 
-
         form.onsubmit = function (e) {
             e.preventDefault();
+            fn.formStateHandler(form, true);
+            fn.showDialog('loading')
+
             fetch(form.action, {
                 method: "post", 
                 body: new FormData(form)
             }).then(response => {
-                // do something with the response...
-                console.log(response);
                 var form_id = form.id
                 var dlg_id = form_id.replace("form_", "dlg_")
-
-                var dialog = document.getElementById(dlg_id);
-
-                if (dialog) {
-                  dialog.show();
-                } else {
-                  ons.createElement(dlg_id+'.html', { append: true })
-                    .then(function(dialog) {
-                      dialog.show();
-                    });
-                }
+                fn.hideDialog('loading');
+                fn.showDialog(dlg_id);
+                fn.formStateHandler(form, false);
 
             });
         }
@@ -329,6 +340,16 @@
 {% endfor %}
 {% endfor %}
 {% endfor %}
+
+<template id="loading.html">
+  <ons-dialog id="loading">
+    <div style="text-align: center; padding: 10px;">
+      <p>
+        <ons-progress-circular indeterminate></ons-progress-circular>
+      </p>
+    </div>
+  </ons-dialog>
+</template>
 
 <!-- partial -->
 <script  src="./script.js"></script>
