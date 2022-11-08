@@ -171,17 +171,20 @@
       margin: 0 auto;
     }
     .form_list{
+        width: 100%;
         margin: 0 auto;
-        max-width: 35%;
-        min-width: 200px;
+        max-width: 350px;
+        min-width: 250px;
     }
     .form_list_item{
-      min-width:300px;
-      margin: 0;
+        width: 100%;
+        min-width:200px;
+        margin: 0;
     }
     .form_input{
-      min-width:300px;
-      margin: 0 auto;
+        width: 100%;
+        min-width:250px;
+        margin: 0 auto;
     }
     .article { 
         height: 200px; 
