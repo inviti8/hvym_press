@@ -175,6 +175,14 @@
         max-width: 35%;
         min-width: 200px;
     }
+    .form_list_item{
+      min-width:300px;
+      margin: 0;
+    }
+    .form_input{
+      min-width:300px;
+      margin: 0 auto;
+    }
     .article { 
         height: 200px; 
         width:100%; 
@@ -270,8 +278,8 @@
                                   <ons-list class="form_list">
                                 {% endif %}
                                   {% for input in card.form_data %}
-                                  <ons-list-item>
-                                    <ons-input class="form_list" id="{{input}}" name="{{input}}" modifier="underbar" placeholder="{{input}}" float></ons-input>
+                                  <ons-list-item class="form_list_item">
+                                    <ons-input class="form_input" id="{{input}}" name="{{input}}" modifier="underbar" placeholder="{{input}}" float></ons-input>
                                   </ons-list-item>
                                   {% endfor %}
                                 </ons-list>
