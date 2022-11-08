@@ -160,11 +160,20 @@
     ons-list{
       opacity: 90%;
     }
+    ons-col{
+        min-width: 250px;
+        margin: 0 auto;
+    }
     .author{
       padding-left: 10px;
     }
     .form_container{
       margin: 0 auto;
+    }
+    .form_list{
+        margin: 0 auto;
+        max-width: 35%;
+        min-width: 200px;
     }
     .article { 
         height: 200px; 
@@ -258,15 +267,15 @@
                                 {% if card.use_color%}
                                 <ons-list style="background-color: {{card.color}};">
                                 {% else %}
-                                  <ons-list>
+                                  <ons-list class="form_list">
                                 {% endif %}
                                   {% for input in card.form_data %}
                                   <ons-list-item>
-                                    <ons-input id="{{input}}" name="{{input}}" modifier="underbar" placeholder="{{input}}" float></ons-input>
+                                    <ons-input class="form_list" id="{{input}}" name="{{input}}" modifier="underbar" placeholder="{{input}}" float></ons-input>
                                   </ons-list-item>
                                   {% endfor %}
                                 </ons-list>
-                                <button class="button--large button" id="submit" type="submit">{{card.form_btn_txt}}</button>
+                                <button class="form_list button--large button" id="submit" type="submit">{{card.form_btn_txt}}</button>
                                 </form>
                                 {{card.form_html}}
                               {% else %}
