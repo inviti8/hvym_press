@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="css/onsenui.css">
   <link rel="stylesheet" href="css/onsen-css-components.min.css">
   <script src="js/onsenui.min.js"></script>
-  <script data-cfasync="false" type="text/javascript" src="js/form-submission-handler.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/approvejs/3.1.2/approve.min.js" integrity="sha512-TmhOO3rUu5WfsLdsw9H1pB/p5/A/KnhydCuLNGlZoukfUUopMmA2sq6DWR9E+acuLB1DBk2A8cq63f7JMwHgVQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script type="module">
     window.fn = {};
 
@@ -48,17 +48,64 @@
           buttons[i].disabled = state;
         }
     }
-    
-    document.addEventListener('init', function (event) {
-      if (event.target.id === 'pageNav1') {
-        var title = event.target.data && event.target.data.title ? event.target.data.title : 'Custom Page';
-        event.target.querySelector('ons-toolbar div.center').textContent = title;
-      }
-      if (event.target.id === 'pageNav2') {
-        var cardTitle = event.target.data && event.target.data.cardTitle ? event.target.data.cardTitle : 'Custom Card';
-        event.target.querySelector('ons-card div.title').textContent = cardTitle;
-      }
-    });
+
+    window.fn.validateEmail = function (form) {
+        var result = false;
+
+        var rules = {
+            required: true,
+            email: true
+        };
+
+        var inputs = document.getElementsByTagName("input");
+        var email = null;
+
+        for (var i = 0; i < inputs.length; i++) {
+            var input = inputs[i];
+
+            if(input.name == "email"){
+                email = input;
+                break;
+            }
+        }
+
+        if(email != null){
+            result = approve.value(email.value, rules);
+        }
+
+        return result['approved'];
+    }
+
+    window.fn.validateFields = function (form) {
+        var result = false;
+        var results = []
+
+        var rules = {
+            required: true
+        };
+
+        var inputs = document.getElementsByTagName("input");
+        var email = null;
+
+        for (var i = 0; i < inputs.length; i++) {
+            var input = inputs[i];
+            results.push(approve.value(input.value, rules)['approved']);
+        }
+
+        for (var i = 0; i < results.length; i++) {
+            var approved = results[i];
+
+            if(approved == false){
+                break;
+            }
+
+            result = approved;
+
+        }
+
+
+        return result;
+    }
 
     ons.ready(function() {
       var forms = document.getElementsByTagName("form");
@@ -68,20 +115,32 @@
 
         form.onsubmit = function (e) {
             e.preventDefault();
-            fn.formStateHandler(form, true);
-            fn.showDialog('loading')
+            var fields_filled = fn.validateFields(form);
+            var email_valid = fn.validateEmail(form);
 
-            fetch(form.action, {
-                method: "post", 
-                body: new FormData(form)
-            }).then(response => {
-                var form_id = form.id
-                var dlg_id = form_id.replace("form_", "dlg_")
-                fn.hideDialog('loading');
-                fn.showDialog(dlg_id);
-                fn.formStateHandler(form, false);
+            if(fields_filled){
+                if(email_valid){
+                    fn.showDialog('loading');
+                    fn.formStateHandler(form, true);
 
-            });
+                    fetch(form.action, {
+                        method: "post", 
+                        body: new FormData(form)
+                    }).then(response => {
+                        var form_id = form.id
+                        var dlg_id = form_id.replace("form_", "dlg_")
+                        fn.hideDialog('loading');
+                        fn.showDialog(dlg_id);
+                        fn.formStateHandler(form, false);
+                    });
+
+                }else{
+                    alert('Email is invalid!');
+                }
+
+            }else{
+                alert('Some fields are empty!');
+            }
         }
       }
 
