@@ -594,6 +594,7 @@ add_files_in_folder('', starting_path, command, DATA)
 ui_settings_layout = [[sg.Frame('UI Settings', [[name('UI Framework'), sg.Combo(DATA.uiFramework, default_value=DATA.settings['uiFramework'], s=(15,22), enable_events=True, readonly=True, k='SETTING-uiFramework')],
                                                 [name('Navigation'), sg.Combo(DATA.navigation, default_value=DATA.settings['pageType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-pageType')],
                                                 [name('Style'), sg.Combo(DATA.styles, default_value=DATA.settings['style'], s=(15,22), enable_events=True, readonly=True, k='SETTING-style')],
+                                                [name('Row Padding'), sg.Spin(values=[i for i in range(1, 100)], initial_value=DATA.settings['row_pad'], enable_events=True, s=(25,22), k='SETTING-row_pad')],
                [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='SETTING-theme')],
                [name('Custom Theme'), sg.Input(default_text=DATA.settings['customTheme'], s=20), sg.FolderBrowse(enable_events=True, k='SETTING-customTheme')],
                [name('Page Order'), sg.Listbox(DATA.pageList, expand_x=True, size=(10, 5), key="-ITEM-")],

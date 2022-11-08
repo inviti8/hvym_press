@@ -160,6 +160,9 @@
     ons-list{
       opacity: 90%;
     }
+    ons-row{
+        padding: {{data.settings.row_pad}}%;
+    }
     ons-col, ons-card{
         min-width: 350px;
         margin: 0 auto;

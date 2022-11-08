@@ -81,7 +81,7 @@ class SiteDataHandler:
       self.articleData = {}
       self.formData = {}
       self.metaData = {}
-      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'style':'default', 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'', 'pinataJWT':'', 'arWallet':''}
+      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'', 'pinataJWT':'', 'arWallet':''}
       self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['carousel', 'splitter', 'tabs']
