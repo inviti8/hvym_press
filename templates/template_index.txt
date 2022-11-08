@@ -160,8 +160,8 @@
     ons-list{
       opacity: 90%;
     }
-    ons-col{
-        min-width: 250px;
+    ons-col, ons-card{
+        min-width: 350px;
         margin: 0 auto;
     }
     .author{
@@ -253,12 +253,12 @@
                 {% if card.type == 'Form' %}
                   {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
                     {% if card.use_color%}
-                    <ons-card modifier="{{data.settings.style}}" style="background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                    <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}" style="background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
                     {% else %}
-                    <ons-card modifier="{{data.settings.style}}" style="background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                    <ons-card modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
                     {% endif %}
                   {% else %}
-                <ons-card modifier="{{data.settings.style}}">
+                <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}">
                   {% endif %}
                     <div class="title">
                       {{card.name}}
@@ -300,15 +300,15 @@
                 {% else %}
                 {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
                     {% if card.use_color%}
-                    <ons-card modifier="{{data.settings.style}}" style="background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                    <ons-card modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
                     {% else %}
-                    <ons-card modifier="{{data.settings.style}}" style="background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                    <ons-card modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
                     {% endif %}
                   {% else %}
                     {% if card.use_color%}
-                    <ons-card style="background-color: {{card.color}};" modifier="{{data.settings.style}}">
+                    <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}};" modifier="{{data.settings.style}}">
                     {% else %}
-                    <ons-card modifier="{{data.settings.style}}">
+                    <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;" modifier="{{data.settings.style}}">
                     {% endif %}
                   {% endif %}
                     <div class="title">

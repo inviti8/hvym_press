@@ -155,7 +155,7 @@ class SiteDataHandler:
            result['content']['columns'].append([])
        
        for k in self.articleData[page].keys():
-           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':""}
+           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'max_width':None, 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':""}
            props = self.articleData[page][k].keys()
            
            for prop in props:

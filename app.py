@@ -67,7 +67,7 @@ def newFileData(f_path, f, fullname, data):
     f_name = os.path.basename(f)
     f_name.replace('.md', '')
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':None, 'bg_img':empty_px, 'color':"#FFFFFF", 'use_color':False})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'max_width':100, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':None, 'bg_img':empty_px, 'color':"#FFFFFF", 'use_color':False})
     data.updateArticleHTML(f_path, f, fullname)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':"", 'btn_txt':"SUBMIT", 'response':"Form Submitted", 'form_id':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
@@ -350,6 +350,7 @@ def popup_set_article_data(md_name, data, colData):
                   [sg.Text("Column:", font=font)],
                   [sg.Text("Article Type:", font=font)],
                   [sg.Text("Border Type:", font=font)],
+                  [sg.Text("Max Width:", font=font)],
                   [sg.Text("Author:", font=font)],
                   [sg.Text("Background Image:", font=font)],
                   [sg.Text("Use Author Name & Thumbnail:", font=font)],
@@ -359,6 +360,7 @@ def popup_set_article_data(md_name, data, colData):
                   [sg.Combo(columns, default_value=data['column'], s=(25,22), readonly=True, k='COLUMN')],
                   [sg.Combo(article_types, default_value=article_type, s=(25,22), readonly=True, k='TYPE')],
                   [sg.Combo(border_types, default_value=data['border'], s=(25,22), readonly=True, k='BORDER-TYPE')],
+                  [sg.Spin(values=[i for i in range(25, 100)], initial_value=data['max_width'], s=(25,22), k='MAX-WIDTH')],
                   [sg.Combo(list(DATA.authors.keys()), default_value=data['author'], s=(25,22), readonly=True, k='AUTHOR')],
                   [sg.Input(default_text="", s=20, k='BG-IMG'), sg.FileBrowse(file_types=(("PNG", "*.png"),))],
                   [sg.Checkbox('yes', default=data['use_thumb'], k='USE-THUMB')],
@@ -411,19 +413,17 @@ def popup_set_article_data(md_name, data, colData):
         set_file_icon(type_string)
         
         if event == '-SAVE-DATA-':
-            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'color':values['COLOR'], 'use_color':values['USE-COLOR']}
+            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'max_width':values['MAX-WIDTH'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'color':values['COLOR'], 'use_color':values['USE-COLOR']}
         elif event == 'Delete Image':
             delete_img = sg.PopupOKCancel("Delete Image?")
             page_data = None
             if delete_img == 'OK':
-                page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':empty_px, 'color':values['COLOR'], 'use_color':values['USE-COLOR']}
+                page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'max_width':values['MAX-WIDTH'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':empty_px, 'color':values['COLOR'], 'use_color':values['USE-COLOR']}
         elif event == 'Color Picker':
             color_chosen = ColorPicker.popup_color_chooser()
             page_data = None
             if color_chosen != None:
-                print("Color Chosen!!")
-                print(color_chosen)
-                page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'color':color_chosen, 'use_color':values['USE-COLOR']}    
+                page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'max_width':values['MAX-WIDTH'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'color':color_chosen, 'use_color':values['USE-COLOR']}    
                 
         return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' or event == 'Color Picker' else None
             
