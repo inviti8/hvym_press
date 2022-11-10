@@ -328,11 +328,12 @@ class SiteDataHandler:
        for link in links:
            if '.mp4' in link['href']:
                new_tag = soup.new_tag('video', controls=None, muted=None, autoplay=None, width="320", height="240", src=link['href'], type="video/mp4")
-
+               link.parent['class'] = 'vid_container'
                link.replaceWith(new_tag)
                
            if '.mp3' in link['href']:
                new_tag = soup.new_tag('audio', controls=None, src=link['href'], type="audio/mpeg")
+               link.parent['class'] = 'audio_container'
                link.replaceWith(new_tag)
                
        return soup.decode(formatter='html')
