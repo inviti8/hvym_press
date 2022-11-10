@@ -14,10 +14,11 @@ with .md files contained in the folder:
 
 """
 import os
+import time
 import pickle
 import markdown
-import datetime
 import jsonpickle
+import MarkdownHandler
 from pathlib import Path
 from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
@@ -32,7 +33,6 @@ env = Environment(loader=file_loader)
 
 class SiteDataHandler:
    'Class for handling site data.'
-   
    def __init__(self, filePath):
       self.pageList = []
       self.folders = {}
@@ -41,7 +41,7 @@ class SiteDataHandler:
       self.articleData = {}
       self.formData = {}
       self.metaData = {}
-      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'', 'pinataJWT':'', 'arWallet':''}
+      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'', 'pinata_key':'', 'pinata_gateway':'', 'arWallet':''}
       self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['carousel', 'splitter', 'tabs']
@@ -50,10 +50,16 @@ class SiteDataHandler:
       self.deployTypes = ['Pinata', 'Arweave']
       self.dataFilePath = os.path.join(filePath, 'site.data')
       self.fileExists = False
+      self.resourcesExist = False
       self.oldFolders = []
       self.oldDataFolders = []
       self.oldDataKeys = []
       self.templateDebug = 'template_index.txt'
+      self.markdownHandler = MarkdownHandler.MarkdownHandler(filePath)
+      self.resourcePath = os.path.join(filePath, '_resources')
+      
+      if(os.path.isdir(self.resourcePath)):
+          self.resourcesExist = True
       
       if os.path.isfile(self.dataFilePath):
           dataFile = open(self.dataFilePath, 'rb')
@@ -70,14 +76,6 @@ class SiteDataHandler:
           self.fileExists = True
       else:
           self.saveData()  
-          
-   def _renderPageTemplate(self, template_file, data, page):
-
-       template = env.get_template(template_file)
-       output = template.render(data=data)
-       
-       with open(page, "wb") as f:
-           f.write(output.encode())
            
    def openStaticPage(self, template_file, data, route=0):
        '''
@@ -91,7 +89,7 @@ class SiteDataHandler:
        page_path = os.path.join(target_path,'index.html')
 
        if route == 0:
-           self._renderPageTemplate(template_file, data, page_path)
+           self.markdownHandler.renderPageTemplate(template_file, data, page_path)
            
    def generateFormData(self, page, article):
        result = []
@@ -270,8 +268,6 @@ class SiteDataHandler:
            self.deleteFile(folder, path, self.articleData)
            self.deleteFile(folder, path, self.formData)
            self.deleteFile(folder, path, self.metaData)
-
-           idx += 1
            
        for folder in self.oldFolders:
            self.deleteFolder(folder, self.folders)
@@ -321,36 +317,11 @@ class SiteDataHandler:
            self.addFolder(folder, self.articleData)
            self.updateArticleData(folder, path, data)
    
-   def _handleMediaTags(self, html):
-       soup = BeautifulSoup(html, 'html.parser')
-       links = soup.findAll('a')
-
-       for link in links:
-           if '.mp4' in link['href']:
-               new_tag = soup.new_tag('video', controls=None, muted=None, autoplay=None, width="320", height="240", src=link['href'], type="video/mp4")
-               link.parent['class'] = 'vid_container'
-               link.replaceWith(new_tag)
-               
-           if '.mp3' in link['href']:
-               new_tag = soup.new_tag('audio', controls=None, src=link['href'], type="audio/mpeg")
-               link.parent['class'] = 'audio_container'
-               link.replaceWith(new_tag)
-               
-       return soup.decode(formatter='html')
-   
    def updateArticleHTML(self, folder, path, filePath):
        if(folder in self.articleData):
-           file = open(filePath, 'r', encoding="utf-8")
-           t = os.path.getmtime(filePath)
-           md_file = file.read()
-           md = markdown.Markdown()
-           md.convert(md_file)
-           #html = ""
-           html = markdown.markdown(md_file)
-           html = self._handleMediaTags(html)
-           self.articleData[folder][path]['html'] = md.convert(html)
-           self.articleData[folder][path]['time-stamp'] = t
-           file.close()
+           t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(filePath)))
+           self.articleData[folder][path]['html'] = self.markdownHandler.generateHTML(filePath)
+           self.articleData[folder][path]['time_stamp'] = t
            
    def updateFormData(self, folder, path, data):
        if(folder in self.formData):

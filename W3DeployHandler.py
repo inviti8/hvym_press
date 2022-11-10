@@ -11,8 +11,6 @@ import os
 import pickle
 import requests
 import markdown
-import datetime
-import jsonpickle
 from pathlib import Path
 from PIL import Image
 from jinja2 import Environment, FileSystemLoader
@@ -30,11 +28,11 @@ class W3DeployHandler:
    
    """
    
-   def __init__(self, filePath):
+   def __init__(self, filePath, settings):
        self.files = os.listdir(filePath)
        self.dataFilePath = os.path.join(filePath, 'deploy.data')
        self.manifest = {}
-       self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'api_key':None}
+       self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'api_key':settings['pinata_key'], 'gateway':['pinata_gateway']}
        
        if os.path.isfile(self.dataFilePath):
            dataFile = open(self.dataFilePath, 'rb')
@@ -43,16 +41,13 @@ class W3DeployHandler:
            self.pinata = data['pinata']
 
        self.updateManifestData(filePath)
-       self.saveData()
        
        # print(self.files)
        # print(self.manifest)
        
    def newFileData(self, filePath):
        f_type = None
-       
-       
-       return {'type':f_type, 'path':filePath, 'url':None}
+       return {'time_stamp':'', 'type':f_type, 'path':filePath, 'url':None}
    
    def updateManifestData(self, filePath):
        files = os.listdir(filePath)
@@ -71,7 +66,13 @@ class W3DeployHandler:
                 
        for k in prune_data:
            self.manifest.pop(k)
-   
+           
+       self.saveData()
+           
+   def updateSettings(self, settings):
+       self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'api_key':settings['pinata_key'], 'gateway':['pinata_gateway']}
+       self.saveData()
+       
    def setPinataApiKey(self, api_key):
        self.pinata['api_key'] = api_key
        

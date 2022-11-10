@@ -1,7 +1,9 @@
 import os
 import sys
+import time
 import shutil
 import pickle
+from datetime import datetime
 import pathlib
 import base64
 import requests
@@ -54,6 +56,17 @@ def load_save_data(file_dir):
         
     return result
 
+def fileIsNew(filePath, time_stamp):
+    result = False
+    t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(filePath)))
+
+    latest = max((t, time_stamp))
+    
+    if t == latest and t != time_stamp:
+        result = True
+    
+    return result
+
 def baseFolder(f_path):
     sep = os.path.sep
     arr = f_path.split(sep)
@@ -64,12 +77,14 @@ def newFolderData(f, data):
     data.updatePageData(f, {'title':f_name, 'max_height':800, 'columns':"1", 'footer_height':200})
     data.updateColumnWidths(f, [])
 
-def newFileData(f_path, f, fullname, data):
+def newFileData(f_path, f, full_path, data):
     f_name = os.path.basename(f)
     f_name.replace('.md', '')
+    t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(full_path)))
+
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'max_width':100, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':None, 'bg_img':empty_px, 'color':"#FFFFFF", 'use_color':False})
-    data.updateArticleHTML(f_path, f, fullname)
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'max_width':100, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'use_color':False})
+    data.updateArticleHTML(f_path, f, full_path)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':"", 'btn_txt':"SUBMIT", 'response':"Form Submitted", 'form_id':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
 
@@ -115,13 +130,16 @@ def add_files_in_folder(parent, dirname, command, data):
 
                                 
                 if file_extension == '.md':
+                    data_t = data.articleData[f_path][f_name]['time_stamp']
+                    
                     treedata.Insert(parent, fullname, f, values=[
                                     os.stat(fullname).st_size, 0], icon=f_icon)
                     
-                    if data.hasNoFileFolder(f_path):
+                    if data.hasNoFileFolder(f_path) or data.hasNoFile(f_path, f):
                         newFileData(f_path, f, fullname, data)
-                    elif data.hasNoFile(f_path, f):
-                        newFileData(f_path, f, fullname, data)
+                    elif fileIsNew(fullname, data_t):
+                        print('Do update article!!')
+                        data.updateArticleHTML(f_path, f_name, fullname)
                         
             data.deleteOldFiles()
     else:
@@ -611,7 +629,8 @@ site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input
 author_settings_layout = [[sg.Frame('Author Settings', [[name('Authors:'), sg.Listbox(DATA.authors.keys(), right_click_menu=['&Right', author_dropdown], expand_y=True, no_scrollbar=True,  s=(15,2), k='AUTHOR-LIST')]], expand_y=True, expand_x=True)]]
 
 deployment_settings_layout = [[sg.Frame('Deployment Settings', [[name('Deploy Type:'), sg.Combo(DATA.deployTypes, default_value=DATA.settings['deployType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-deployType')],
-               [sg.Frame('Pinata JWT', [[sg.Input(default_text=DATA.settings['pinataJWT'], s=20, enable_events=True, expand_x=True, k='SETTING-pinataJWT')]
+               [sg.Frame('Pinata', [[name('Api Key'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_key')],
+                                    [name('Gateway URL'), sg.Input(default_text=DATA.settings['pinata_gateway'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_gateway')]
                ], expand_y=True, expand_x=True, k='PINATA-GRP')],
                [sg.Frame('Arweave Wallet', [[sg.Input(default_text=DATA.settings['arWallet'], expand_x=True, s=20, enable_events=True, k='SETTING-arWallet'), sg.FileBrowse(enable_events=True)]
                ], expand_y=True, expand_x=True,  k='ARWEAVE-GRP')],
@@ -635,7 +654,7 @@ tree.bind("<Double-1>", '+DOUBLE')
 block_focus(window)
 handleDeployUI(window, DATA)
 
-DEPLOYER = W3DeployHandler.W3DeployHandler(resource_path)
+DEPLOYER = W3DeployHandler.W3DeployHandler(resource_path, DATA.settings)
 
 while True:
     event, values = window.read()
@@ -663,7 +682,7 @@ while True:
                             
                     DATA.updatePageData(f_name, d)
                     DATA.saveData()
-                #double_click(dir_check)
+
             if os.path.isfile(path_val):
                 data = DATA.getData(f_path, f_name, DATA.articleData)
                 colData = DATA.columnWidths[f_path]
@@ -672,7 +691,7 @@ while True:
                     DATA.updateArticleData(f_path, f_name, d)
                     DATA.updateFile(f_path, f_name, d['type'], True)
                     DATA.saveData()
-                #double_click(check)
+
         elif event in command:
             
             if os.path.isfile(path_val) and '.md' in f_name:
@@ -715,6 +734,7 @@ while True:
             handleDeployUI(window, DATA)
             
         DATA.saveData()
+        DEPLOYER.updateSettings(DATA.settings)
             
     if event == 'Add-Author' or event == 'Update-Author':
         d = popup_author()
