@@ -16,6 +16,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw
 from jinja2 import Environment, FileSystemLoader
 import PySimpleGUI as sg
+import W3DeployHandler
 
 sg.theme("DarkGrey13")
 CONTRACT_TEMPLATE = 'hvy_erc721_template.txt'
@@ -579,6 +580,8 @@ dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
 check = [icon(0), icon(1), icon(2)]
 
 starting_path = sg.popup_get_folder('Site Directory')
+resource_path = os.path.join(starting_path, '_resources')
+
 if not starting_path:
     sys.exit(0)
     
@@ -631,6 +634,8 @@ tree = window['-TREE-']         # type: sg.Tree
 tree.bind("<Double-1>", '+DOUBLE')
 block_focus(window)
 handleDeployUI(window, DATA)
+
+DEPLOYER = W3DeployHandler.W3DeployHandler(resource_path)
 
 while True:
     event, values = window.read()

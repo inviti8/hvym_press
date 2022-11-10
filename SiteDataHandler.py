@@ -19,7 +19,10 @@ import markdown
 import datetime
 import jsonpickle
 from pathlib import Path
+from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
+
+
 
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
 HOME_PATH = str(Path.home())
@@ -153,8 +156,6 @@ class SiteDataHandler:
        return result
            
    def addPageAll(self, folder):
-       print('This is called:')
-       print(folder)
        result = False
        if self.addFolder(folder, self.pageData):
            result = True
@@ -319,7 +320,23 @@ class SiteDataHandler:
        else:
            self.addFolder(folder, self.articleData)
            self.updateArticleData(folder, path, data)
-           
+   
+   def _handleMediaTags(self, html):
+       soup = BeautifulSoup(html, 'html.parser')
+       links = soup.findAll('a')
+
+       for link in links:
+           if '.mp4' in link['href']:
+               new_tag = soup.new_tag('video', controls=None, muted=None, autoplay=None, width="320", height="240", src=link['href'], type="video/mp4")
+
+               link.replaceWith(new_tag)
+               
+           if '.mp3' in link['href']:
+               new_tag = soup.new_tag('audio', controls=None, src=link['href'], type="audio/mpeg")
+               link.replaceWith(new_tag)
+               
+       return soup.decode(formatter='html')
+   
    def updateArticleHTML(self, folder, path, filePath):
        if(folder in self.articleData):
            file = open(filePath, 'r', encoding="utf-8")
@@ -329,6 +346,7 @@ class SiteDataHandler:
            md.convert(md_file)
            #html = ""
            html = markdown.markdown(md_file)
+           html = self._handleMediaTags(html)
            self.articleData[folder][path]['html'] = md.convert(html)
            self.articleData[folder][path]['time-stamp'] = t
            file.close()

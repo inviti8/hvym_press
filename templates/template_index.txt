@@ -167,6 +167,11 @@
         min-width: 350px;
         margin: 0 auto;
     }
+    video {
+      /* override other styles to make responsive */
+      width: 100%    !important;
+      height: auto   !important;
+    }
     .author{
       padding-left: 10px;
     }
@@ -212,6 +217,11 @@
       }
       .content_tall{
         height: 300px;
+      }
+      .vid_container{
+        margin: 0 auto;
+        max-width: 80%;
+        min-width: 250px;
       }
     </style>
 
