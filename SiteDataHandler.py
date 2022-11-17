@@ -41,7 +41,7 @@ class SiteDataHandler:
       self.articleData = {}
       self.formData = {}
       self.metaData = {}
-      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'', 'pinata_key':'', 'pinata_gateway':'', 'arWallet':''}
+      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'arWallet':''}
       self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['carousel', 'splitter', 'tabs']
@@ -96,9 +96,7 @@ class SiteDataHandler:
        form_data = self.formData[page][article]
        
        for k in form_data['formType'].keys():
-           print('key is: '+k)
            if form_data['formType'][k] == True:
-               print('adding input: ' + k)
                result.append(k)
            
        return result
@@ -226,7 +224,6 @@ class SiteDataHandler:
                if '.data' not in k and '.md' not in k and '.png' not in k and k not in folderArr:
                    if k not in self.oldFolders:
                        self.oldFolders.append(k)
-                       print(k + " folder is added for delete.")
                
    def pruneFile(self, folder, fileArr, selfData):
        if folder in selfData.keys():

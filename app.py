@@ -138,7 +138,6 @@ def add_files_in_folder(parent, dirname, command, data):
                     if data.hasNoFileFolder(f_path) or data.hasNoFile(f_path, f):
                         newFileData(f_path, f, fullname, data)
                     elif fileIsNew(fullname, data_t):
-                        print('Do update article!!')
                         data.updateArticleHTML(f_path, f_name, fullname)
                         
             data.deleteOldFiles()
@@ -629,7 +628,8 @@ site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input
 author_settings_layout = [[sg.Frame('Author Settings', [[name('Authors:'), sg.Listbox(DATA.authors.keys(), right_click_menu=['&Right', author_dropdown], expand_y=True, no_scrollbar=True,  s=(15,2), k='AUTHOR-LIST')]], expand_y=True, expand_x=True)]]
 
 deployment_settings_layout = [[sg.Frame('Deployment Settings', [[name('Deploy Type:'), sg.Combo(DATA.deployTypes, default_value=DATA.settings['deployType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-deployType')],
-               [sg.Frame('Pinata', [[name('Api Key'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_key')],
+               [sg.Frame('Pinata', [[name('Submarine Key'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_key')],
+                                    [name('JWT'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_jwt')],
                                     [name('Gateway URL'), sg.Input(default_text=DATA.settings['pinata_gateway'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_gateway')]
                ], expand_y=True, expand_x=True, k='PINATA-GRP')],
                [sg.Frame('Arweave Wallet', [[sg.Input(default_text=DATA.settings['arWallet'], expand_x=True, s=20, enable_events=True, k='SETTING-arWallet'), sg.FileBrowse(enable_events=True)]
@@ -654,7 +654,7 @@ tree.bind("<Double-1>", '+DOUBLE')
 block_focus(window)
 handleDeployUI(window, DATA)
 
-DEPLOYER = W3DeployHandler.W3DeployHandler(resource_path, DATA.settings)
+DEPLOYER = W3DeployHandler.W3DeployHandler(starting_path, '_resources', DATA.settings)
 
 while True:
     event, values = window.read()
@@ -773,7 +773,6 @@ while True:
         
         
     if event == '-DEBUG-':
-        print("debug")
         site_data = DATA.generateSiteData()
         #print(site_data)
         DATA.openStaticPage('template_index.txt', site_data)
