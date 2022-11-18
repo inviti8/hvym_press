@@ -47,7 +47,6 @@ class pinata_payload:
     pinataOptions: str
     name: str
     path: str
-    fileType: str
     wrapWithDirectory: False
     pinToIPFS: False
     pinataMetadata:str
@@ -74,7 +73,7 @@ class W3DeployHandler:
        self.dataFilePath = os.path.join(filePath, 'deploy.data')
        self.manifest = {}
        self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'jwt':settings['pinata_jwt'], 'api_key':settings['pinata_key'], 'gateway':settings['pinata_gateway']}
-       self.deployFolder = []
+       self.deployFiles = []
        
        if os.path.isfile(self.dataFilePath):
            dataFile = open(self.dataFilePath, 'rb')
@@ -98,9 +97,9 @@ class W3DeployHandler:
            if os.path.isdir(full_path):
                self._folderArray(full_path, full_path, basePath)
            else:
-               self.deployFolder.append(('file',(f_name,open(full_path,'rb'),'application/octet-stream')))
+               self.deployFiles.append(('file',(f_name,open(full_path,'rb'),'application/octet-stream')))
                
-   def pinFiles(self, files, payload):
+   def pinataFiles(self, files, payload):
        url = "https://api.pinata.cloud/pinning/pinFileToIPFS"
        
        headers = {
@@ -112,7 +111,7 @@ class W3DeployHandler:
        return response.text
        
        
-   def pinFile(self, fileName, filePath, fileType, payload):
+   def pinataFile(self, fileName, filePath, fileType, payload):
        url = "https://api.pinata.cloud/pinning/pinFileToIPFS"
 
        files=[
@@ -125,6 +124,16 @@ class W3DeployHandler:
        response = requests.request("POST", url, headers=headers, data=payload, files=files)
        
        return response.text
+   
+   def pinataDirectory(self, filePath, wrapWithDirectory=True, pinToIPFS=True):
+       root_folder = os.path.basename(filePath)
+       base_path = filePath.replace(root_folder, '')
+       metadata = '{"keyvalues": { "example": "value" }}'
+       payload = pinata_payload('{"cidVersion": 1}', root_folder, filePath, wrapWithDirectory, pinToIPFS, metadata)
+       self.deployFiles.clear()
+       self._folderArray('', filePath, base_path)
+       
+       self.pinataFiles(self.deployFiles, payload)
        
    def newFileData(self, filePath):
        f_type = None

@@ -34,6 +34,7 @@ env = Environment(loader=file_loader)
 class SiteDataHandler:
    'Class for handling site data.'
    def __init__(self, filePath):
+      self.filePath = filePath
       self.pageList = []
       self.folders = {}
       self.pageData = {}
@@ -41,7 +42,7 @@ class SiteDataHandler:
       self.articleData = {}
       self.formData = {}
       self.metaData = {}
-      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'arWallet':''}
+      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'pinata_meta_data':'', 'arWallet':''}
       self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['carousel', 'splitter', 'tabs']
@@ -57,6 +58,10 @@ class SiteDataHandler:
       self.templateDebug = 'template_index.txt'
       self.markdownHandler = MarkdownHandler.MarkdownHandler(filePath)
       self.resourcePath = os.path.join(filePath, '_resources')
+      self.images = {}
+      self.videos = {}
+      self.audio = {}
+      self.gltfs = {}
       
       if(os.path.isdir(self.resourcePath)):
           self.resourcesExist = True
@@ -74,6 +79,10 @@ class SiteDataHandler:
           self.settings = data['settings']
           self.authors = data['authors']
           self.fileExists = True
+          self.images = data['media']['images']
+          self.videos = data['media']['videos']
+          self.audio = data['media']['audio']
+          self.gltfs = data['media']['gltf']
       else:
           self.saveData()  
            
@@ -111,7 +120,7 @@ class SiteDataHandler:
            result['content']['columns'].append([])
        
        for k in self.articleData[page].keys():
-           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'max_width':None, 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':""}
+           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'max_width':None, 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':"", 'images':[], 'videos':[]}
            props = self.articleData[page][k].keys()
            
            for prop in props:
@@ -130,8 +139,7 @@ class SiteDataHandler:
            index = int(article_data['column'])-1
            result['content']['columns'][index].append(article_data)
            
-       return result
-       
+       return result    
   
    def generateSiteData(self):
        result = {'pages':[], 'settings':self.settings}
@@ -140,8 +148,6 @@ class SiteDataHandler:
           result['pages'].append(page_data)
            
        return result
-           
-           
    
    def addFolder(self, folder, selfData):
        result = False
@@ -277,6 +283,88 @@ class SiteDataHandler:
        self.oldDataFolders.clear()
        self.oldDataKeys.clear()
        self.oldFolders.clear()
+       
+   def mediaSaved(self, file_name):
+       result = False
+       if file_name in self.images.keys() or file_name in self.videos.keys() or file_name in self.audio.keys() or file_name in self.gltf.keys():
+           result = True
+           
+       return result 
+
+   def mediaOutOfDate(self, file_name):
+       result = None
+       media = {'images':self.images, 'videos':self.videos, 'audio':self.audio, 'gltf':self.gltf}
+       
+       for k in media.keys():
+           if file_name in media[k].keys():
+               path = media[k][file_name]['path']
+               time_stamp = media[k][file_name]['time_stamp']
+               if self.fileIsNew(path, time_stamp):
+                   result = k
+                   break
+               
+       return result
+   
+       
+   def fileList(self, ext):
+       result = {}
+       media = {'images':self.images, 'videos':self.videos, 'audio':self.audio, 'gltf':self.gltf}
+       files = os.listdir(self.resourcePath)
+       m_type = 'image'
+       
+       if ext == '.mp4':
+           m_type = 'video'
+       elif ext == '.mp3':
+           m_type = 'audio'
+       elif ext == '.gltf':
+           m_type = '3d'
+       
+       result = {'type':m_type, 'path':None, 'cid':None, 'time_stamp':None}
+       
+       for f in files:
+           f_name = os.path.basename(f)
+           obj = {'type':m_type, 'path':None, 'cid':None, 'time_stamp':None}
+           if os.path.isfile(f) and ext in f:
+               if self.mediaSaved(f_name) == False:
+                   key = self.mediaOutOfDate(f_name)
+                   if key != None:
+                       obj['path'] = f
+                       obj['time_stamp'] = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(f)))
+                       result[f_name] = obj
+                   else:
+                        media[key]['path'] = f
+                        media[key]['time_stamp'] = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(f)))
+                        result[f_name] = obj
+               
+       return result
+   
+   def fileIsNew(filePath, time_stamp):
+       result = False
+       t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(filePath)))
+
+       latest = max((t, time_stamp))
+       
+       if t == latest and t != time_stamp:
+           result = True
+       
+       return result
+   
+   def deployMedia(self):
+       media = self.gatherMedia()
+       f_paths = []
+       
+       for obj in media:
+           for k in obj.keys():
+               print('x')
+           
+   
+   def gatherMedia(self):
+       self.images = self.fileList('.png')
+       self.videos = self.fileList('.mp4')
+       self.audio = self.fileList('.mp3')
+       self.gltfs = self.fileList('.gltf')
+       
+       return{'images':self.images, 'videos':self.videos, 'audio':self.audio, 'gltf':self.gltf}
            
    def updateData(self, folder, path, selfData, data):
        if(folder in selfData):
@@ -319,6 +407,17 @@ class SiteDataHandler:
            t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(filePath)))
            self.articleData[folder][path]['html'] = self.markdownHandler.generateHTML(filePath)
            self.articleData[folder][path]['time_stamp'] = t
+           
+   def updateMediaFiles(self, folder, path, filePath):
+       if(folder in self.articleData):
+           html = self.articleData[folder][path]['html']
+           media = self.gatherMedia()
+           soup = BeautifulSoup(html, 'html.parser')
+           html_imgs = soup.find_all('img')
+           html_vids = soup.find_all('video')
+           
+           for image in media['images']:
+               i_name = os.path.basename(image)
            
    def updateFormData(self, folder, path, data):
        if(folder in self.formData):
@@ -367,7 +466,7 @@ class SiteDataHandler:
            
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
-       data = {'pageList':self.pageList, 'folders':self.folders, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors}
+       data = {'pageList':self.pageList, 'folders':self.folders, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors, 'media':self.gatherMedia}
        pickle.dump(data, file)
        file.close()
              

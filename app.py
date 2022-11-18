@@ -83,7 +83,7 @@ def newFileData(f_path, f, full_path, data):
     t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(full_path)))
 
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'max_width':100, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'use_color':False})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'max_width':100, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'use_color':False, 'images':[], 'videos':[]})
     data.updateArticleHTML(f_path, f, full_path)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':"", 'btn_txt':"SUBMIT", 'response':"Form Submitted", 'form_id':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
@@ -630,7 +630,8 @@ author_settings_layout = [[sg.Frame('Author Settings', [[name('Authors:'), sg.Li
 deployment_settings_layout = [[sg.Frame('Deployment Settings', [[name('Deploy Type:'), sg.Combo(DATA.deployTypes, default_value=DATA.settings['deployType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-deployType')],
                [sg.Frame('Pinata', [[name('Submarine Key'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_key')],
                                     [name('JWT'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_jwt')],
-                                    [name('Gateway URL'), sg.Input(default_text=DATA.settings['pinata_gateway'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_gateway')]
+                                    [name('Gateway URL'), sg.Input(default_text=DATA.settings['pinata_gateway'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_gateway')],
+                                    [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['pinata_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-pinata_meta_data')]
                ], expand_y=True, expand_x=True, k='PINATA-GRP')],
                [sg.Frame('Arweave Wallet', [[sg.Input(default_text=DATA.settings['arWallet'], expand_x=True, s=20, enable_events=True, k='SETTING-arWallet'), sg.FileBrowse(enable_events=True)]
                ], expand_y=True, expand_x=True,  k='ARWEAVE-GRP')],
@@ -638,7 +639,7 @@ deployment_settings_layout = [[sg.Frame('Deployment Settings', [[name('Deploy Ty
 
 tab1_layout =  [[sg.Tree(data=treedata, headings=[], auto_size_columns=True,
                    num_rows=10, col0_width=40, key='-TREE-', font=font,
-                   row_height=48, show_expanded=False, expand_x=True, enable_events=True, right_click_menu=['&Right', command])],
+                   row_height=48, show_expanded=False, expand_x=True, expand_y=True, enable_events=True, right_click_menu=['&Right', command])],
           [sg.Button('Debug Site', font=font, tooltip=tt_debug_btn, k='-DEBUG-'), sg.Button('Cancel', font=font, k='-CANCEL-')]]    
 
 tab2_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, element_justification='left'), 
