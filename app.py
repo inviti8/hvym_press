@@ -560,6 +560,30 @@ def popup_author():
         if event == '-SAVE-DATA-':
             author_data = {'name':values['AUTHOR-NAME'], 'image':'data:image/png;base64,'+img}
         return author_data if event == '-SAVE-DATA-' else None
+    
+def popup_uploader():
+    
+    col_layout = [[sg.Text('Testing progress bar:')],
+              [sg.ProgressBar(max_value=10, orientation='h', size=(20, 20), key='progress_1')]]
+    
+    col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
+    
+    layout = [
+        [sg.Column(col_layout, expand_x=True, element_justification='center')]
+    ]
+    window = sg.Window("Deploying Files", layout, use_default_focus=False, finalize=True, modal=True)
+    block_focus(window)
+    event, values = window.read()
+    window.close()
+    
+    # if values != None and os.path.isfile(values['AUTHOR-IMG']):
+    #     author_data = None
+    #     img = None
+    #     with open(values['AUTHOR-IMG'], "rb") as img_file:
+    #         img = base64.b64encode(img_file.read()).decode('utf-8')
+    #     if event == '-SAVE-DATA-':
+    #         author_data = {'name':values['AUTHOR-NAME'], 'image':'data:image/png;base64,'+img}
+    #     return author_data if event == '-SAVE-DATA-' else None
 
 
 
@@ -640,7 +664,8 @@ deployment_settings_layout = [[sg.Frame('Deployment Settings', [[name('Deploy Ty
 tab1_layout =  [[sg.Tree(data=treedata, headings=[], auto_size_columns=True,
                    num_rows=10, col0_width=40, key='-TREE-', font=font,
                    row_height=48, show_expanded=False, expand_x=True, expand_y=True, enable_events=True, right_click_menu=['&Right', command])],
-          [sg.Button('Debug Site', font=font, tooltip=tt_debug_btn, k='-DEBUG-'), sg.Button('Cancel', font=font, k='-CANCEL-')]]    
+          [sg.Button('Debug Site', font=font, tooltip=tt_debug_btn, k='-DEBUG-'), sg.Button('Cancel', font=font, k='-CANCEL-'),
+           sg.Button('Deploy', font=font, k='-DEPLOY-')]]    
 
 tab2_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, element_justification='left'), 
                 sg.Column(site_settings_layout, expand_x=True, expand_y=True, element_justification='left')],
@@ -654,8 +679,6 @@ tree = window['-TREE-']         # type: sg.Tree
 tree.bind("<Double-1>", '+DOUBLE')
 block_focus(window)
 handleDeployUI(window, DATA)
-
-DEPLOYER = W3DeployHandler.W3DeployHandler(starting_path, '_resources', DATA.settings)
 
 while True:
     event, values = window.read()
@@ -735,7 +758,7 @@ while True:
             handleDeployUI(window, DATA)
             
         DATA.saveData()
-        DEPLOYER.updateSettings(DATA.settings)
+        DATA.deployHandler.updateSettings(DATA.settings)
             
     if event == 'Add-Author' or event == 'Update-Author':
         d = popup_author()
@@ -784,7 +807,11 @@ while True:
         LaunchSite(sub_path)
         threading.Thread(target=StartServer, args=(), daemon=True).start()
     if event == '-CANCEL-':
-        threading.Thread(target=StopServer, args=(), daemon=True).start()         
+        threading.Thread(target=StopServer, args=(), daemon=True).start()
+    if event =='-DEPLOY-':
+        print('deploy!')
+        DATA.deployMedia()
+        DATA.saveData()       
     #print(values[event])
     #print(event, values)
 window.close()

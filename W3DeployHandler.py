@@ -67,8 +67,9 @@ class W3DeployHandler:
    
    """
    
-   def __init__(self, filePath, dirName, settings):
-       self.resourcePath = os.path.join(filePath, dirName)
+   def __init__(self, filePath, sitePath, resourcePath, settings):
+       self.resourcePath = resourcePath
+       self.sitePath = sitePath
        self.files = os.listdir(self.resourcePath)
        self.dataFilePath = os.path.join(filePath, 'deploy.data')
        self.manifest = {}
@@ -84,8 +85,8 @@ class W3DeployHandler:
        self.updateManifestData(filePath)
        
        # print(self.files)
-       print(self.manifest)
-       print(self.pinata)
+       # print(self.manifest)
+       # print(self.pinata)
        
    def _folderArray(self, parentPath, filePath, basePath):
        paths = os.listdir(filePath)
