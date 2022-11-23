@@ -799,6 +799,7 @@ while True:
     if event == '-DEBUG-':
         site_data = DATA.generateSiteData()
         #print(site_data)
+        DATA.refreshDebugMedia()
         DATA.openStaticPage('template_index.txt', site_data)
             
         

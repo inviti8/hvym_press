@@ -16,6 +16,7 @@ with .md files contained in the folder:
 import os
 import time
 import pickle
+import shutil
 import markdown
 import jsonpickle
 import MarkdownHandler
@@ -36,6 +37,7 @@ class SiteDataHandler:
    'Class for handling site data.'
    def __init__(self, filePath):
       self.filePath = filePath
+      self.resourcePath = os.path.join(self.filePath, '_resources')
       self.pageList = []
       self.folders = {}
       self.pageData = {}
@@ -59,7 +61,7 @@ class SiteDataHandler:
       self.templateDebug = 'template_index.txt'
       self.markdownHandler = MarkdownHandler.MarkdownHandler(filePath)
       self.debugPath = os.path.join(SCRIPT_DIR, 'serve', 'debug')
-      self.resourcePath = os.path.join(SCRIPT_DIR, 'serve', '_resources')
+      self.debugResourcePath = os.path.join(SCRIPT_DIR, 'serve', '_resources')
       self.deployHandler = W3DeployHandler.W3DeployHandler(self.filePath, self.debugPath, self.resourcePath, self.settings)
       self.images = {}
       self.videos = {}
@@ -265,7 +267,23 @@ class SiteDataHandler:
    def deleteFile(self, folder, path, selfData):
        if folder in selfData.keys() and path in selfData[folder].keys():
            selfData[folder].pop(path)
+           
+   def cloneDirectory(self, source, target):
+       source_files = os.listdir(source)
+       target_files = os.listdir(target)
        
+       for f in target_files:
+           f_path = os.path.join(target, f)
+           os.remove(f_path)
+           
+       for f in source_files:
+            src_path = os.path.join(source, f)
+            dst_path = os.path.join(target, f)
+            shutil.copy(src_path, dst_path)
+   
+   def refreshDebugMedia(self):
+       self.cloneDirectory(self.resourcePath, self.debugResourcePath)
+        
    def deleteOldFiles(self):
        idx = 0
 
@@ -299,13 +317,8 @@ class SiteDataHandler:
    def mediaOutOfDate(self, file_name, m_type):
        result = False
        media = {'images':self.images, 'videos':self.videos, 'audio':self.audio, 'gltf':self.gltf}
-       
 
        if file_name in media[m_type].keys():
-           print('=================================================================')
-           print('in here!!')
-           print('=================================================================')
-
            path = media[m_type][file_name]['path']
            time_stamp = media[m_type][file_name]['time_stamp']
                
@@ -341,20 +354,9 @@ class SiteDataHandler:
                key = 'gltf'
                
            if os.path.isfile(f_path) and ext in f:
-               if self.mediaSaved(f) == False:
-                   # print('key: ')
-                   # print(key)
-                   if self.mediaOutOfDate(f, key) == False:
-                       result[f] = obj
-                   else:
-                       if m_type == 'image':
-                           result[f] = media['images'][f]
-                       elif m_type == 'video':
-                           result[f] = media['videos'][f]
-                       elif m_type == 'audio':
-                           result[f] = media['audio'][f]
-                       elif m_type == '3d':
-                           result[f] = media['gltf'][f]
+               if self.mediaSaved(f) == False or self.mediaOutOfDate(f, key) == True:
+                   result[f] = obj
+
                else:
                    if m_type == 'image':
                        result[f] = media['images'][f]
@@ -367,10 +369,9 @@ class SiteDataHandler:
                
        return result
    
-   def fileIsNew(filePath, time_stamp):
+   def fileIsNew(self, filePath, time_stamp):
        result = False
        t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(filePath)))
-
        latest = max((t, time_stamp))
        
        if t == latest and t != time_stamp:
@@ -381,9 +382,6 @@ class SiteDataHandler:
    def deployMedia(self):
        media = self.gatherMedia()
        f_paths = []
-       print(media)
-       # print(self.resourcePath)
-       # print(self.images)
        
        for k in media.keys():
            obj = media[k]
@@ -394,9 +392,6 @@ class SiteDataHandler:
        self.videos = self.fileList('.mp4')
        self.audio = self.fileList('.mp3')
        self.gltfs = self.fileList('.gltf')
-       #print('----------------------------')
-       # print(self.images)
-       #print('----------------------------')
        
        return{'images':self.images, 'videos':self.videos, 'audio':self.audio, 'gltf':self.gltf}
            
@@ -500,7 +495,7 @@ class SiteDataHandler:
            
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
-       data = {'pageList':self.pageList, 'folders':self.folders, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors, 'media':{'images':self.images, 'videos':self.videos, 'audio':self.audio, 'gltf':self.gltf}}
+       data = {'pageList':self.pageList, 'folders':self.folders, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors, 'media':self.gatherMedia()}
        pickle.dump(data, file)
        file.close()
              
