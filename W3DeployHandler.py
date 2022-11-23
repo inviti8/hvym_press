@@ -5,9 +5,14 @@ Created on Tue Nov  8 13:27:01 2022
 @author: meta-cronos
 
 A class for handling web content deployment.
+
+Sample Path:
+https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/bafybeiapx5hzywrsw76v7dd6s5bvpta3djad65ovfrrwvs2367ul7kokde/DALL%C2%B7E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png
 """
 
 import os
+import time
+import sys
 import pickle
 import requests
 import markdown
@@ -75,8 +80,11 @@ class W3DeployHandler:
        self.files = os.listdir(self.resourcePath)
        self.dataFilePath = os.path.join(filePath, 'deploy.data')
        self.manifest = {}
+       self.pinataPinURL = 'https://api.pinata.cloud/pinning'
+       self.pinataDataURL = 'https://api.pinata.cloud/data'
        self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'jwt':settings['pinata_jwt'], 'api_key':settings['pinata_key'], 'gateway':settings['pinata_gateway']}
        self.deployFiles = []
+       self.folderCID = None
        
        if os.path.isfile(self.dataFilePath):
            dataFile = open(self.dataFilePath, 'rb')
@@ -89,6 +97,33 @@ class W3DeployHandler:
        # print(self.files)
        # print(self.manifest)
        # print(self.pinata)
+       
+   def _folderDeploymentChecker(self, window):
+       result = False
+       responses = []
+       
+       while self.folderCID == None:
+           time.sleep(1)
+           self._folderDeploymentChecker(window)
+       
+       for f in self.deployFiles:
+           time.sleep(1)
+           f_name = f[1][0]
+           f_name = os.path.basename(f_name)
+           url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, f_name).replace('\\', '/')
+           
+           response = requests.get(url)
+           responses.append(response.status_code)
+           
+       for r in responses:
+           if r != 200:
+               self._folderDeploymentChecker(window)
+             
+
+       if window != None and window.write_event_value != None:
+           window.write_event_value('Exit', '')
+           sys.exit()
+       
        
    def _folderArray(self, parentPath, filePath, basePath, window=None):
        paths = os.listdir(filePath)
@@ -109,24 +144,28 @@ class W3DeployHandler:
             
                
    def pinataFiles(self, files, payload, window=None):
-       url = "https://api.pinata.cloud/pinning/pinFileToIPFS"
+       url = os.path.join(self.pinataPinURL, 'pinFileToIPFS').replace('\\', '/')
        
        headers = {
          'Authorization': "Bearer "+self.pinata['jwt']
        }
        
+       if window != None:
+           threading.Thread(target=self._folderDeploymentChecker,
+                             args=(window, ),
+                             daemon=True).start()
+       
        response = requests.request("POST", url, headers=headers, data=payload, files=files)
        
+       print(response)
        print(response.text)
-       
-       if window != None:
-           window.write_event_value('Exit', '')
+       self.folderCID = response.json().get('IpfsHash')
        
        return response.text
        
        
    def pinataFile(self, fileName, filePath, fileType, payload):
-       url = "https://api.pinata.cloud/pinning/pinFileToIPFS"
+       url = os.path.join(self.pinataPinURL, 'pinFileToIPFS').replace('\\', '/')
 
        files=[
          ('file',(fileName,open(filePath,'rb'),fileType))
@@ -151,46 +190,50 @@ class W3DeployHandler:
        self.deployFiles.clear()
        self._folderArray('', filePath, base_path)
        
-       
        self.pinataFiles(self.deployFiles, payload.dictionary)
        
    def pinataDirectoryGUI(self, filePath, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False):
        root_folder = os.path.basename(filePath)
-       #base_path = filePath.replace(root_folder, '')
-       base_path = os.path.basename(os.path.normpath(filePath))
+       base_path = filePath.replace(root_folder, '').replace('\\', '/')
+       #base_path = os.path.basename(os.path.normpath(root_folder))
        if useParentDirs==True:
            drive_tail = os.path.splitdrive(base_path)
            base_path = base_path.replace(drive_tail[0], '')
+           
+       print(base_path)
+       print(root_folder)
+       print(filePath)
        metadata = '{"keyvalues": { "example": "value" }}'
        payload = pinata_payload('{"cidVersion": 1}', root_folder, filePath, wrapWithDirectory, pinToIPFS, metadata)
        
        layout = [[sg.Text('Testing progress bar:')],
-                 [sg.ProgressBar(max_value=10, orientation='h', size=(20, 20), key='progress_1')]]
+                  [sg.ProgressBar(max_value=10, orientation='h', size=(20, 20), key='progress_1')]]
 
        main_window = sg.Window('Test', layout, finalize=True)
        current_value = 1
        main_window['progress_1'].update(current_value)
        
        self.deployFiles.clear()
+       self.folderCID = None
        self._folderArray('', filePath, base_path, main_window)
        
        print(self.deployFiles)
 
        threading.Thread(target=self.pinataFiles,
-                        args=(self.deployFiles, payload.dictionary, main_window, ),
-                        daemon=True).start()
+                         args=(self.deployFiles, payload.dictionary, main_window, ),
+                         daemon=True).start()
 
        while True:
-           window, event, values = sg.read_all_windows()
-           if event == 'Exit':
-               break
-           if event.startswith('update_'):
-               print(f'event: {event}, value: {values[event]}')
-               key_to_update = event[len('update_'):]
-               window[key_to_update].update(values[event])
-               window.refresh()
-               continue
-           # process any other events ...
+            window, event, values = sg.read_all_windows()
+            if event == 'Exit':
+                break
+            if event.startswith('update_'):
+                print(f'event: {event}, value: {values[event]}')
+                key_to_update = event[len('update_'):]
+                window[key_to_update].update(values[event])
+                window.refresh()
+                continue
+            # process any other events ...
        window.close()
 
    def another_function(window):
@@ -206,6 +249,11 @@ class W3DeployHandler:
    def newFileData(self, filePath):
        f_type = None
        return {'time_stamp':'', 'type':f_type, 'path':filePath, 'url':None}
+   
+   def updateFileDataPinataURL(self, filePath, cid):
+       f_name = os.path.basename(filePath)
+       if f_name in self.manifest.keys():
+           self.manifest[f_name]['url'] = os.path.join('https:/', self.pinata['gateway'], 'ipfs', cid, f_name)
    
    def updateManifestData(self, filePath):
        files = os.listdir(filePath)
