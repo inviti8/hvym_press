@@ -811,6 +811,9 @@ while True:
         threading.Thread(target=StopServer, args=(), daemon=True).start()
     if event =='-DEPLOY-':
         print('deploy!')
+        media = DATA.gatherMedia()
+        data_size = len(media['images'])+len(media['videos'])+len(media['audio'])+len(media['gltf'])
+        chunk = data_size/10
         DATA.deployMedia()
         DATA.saveData()       
     #print(values[event])

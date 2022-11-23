@@ -11,9 +11,11 @@ import os
 import pickle
 import requests
 import markdown
+import threading
 from PIL import Image
 from json import dumps
 from pathlib import Path
+import PySimpleGUI as sg
 from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 from dataclasses import dataclass, asdict, field
@@ -88,8 +90,10 @@ class W3DeployHandler:
        # print(self.manifest)
        # print(self.pinata)
        
-   def _folderArray(self, parentPath, filePath, basePath):
+   def _folderArray(self, parentPath, filePath, basePath, window=None):
        paths = os.listdir(filePath)
+       data_size = len(paths)
+       idx = 0
        
        for f in paths:
            full_path = os.path.join(filePath, f).replace('\\', '/')
@@ -99,8 +103,12 @@ class W3DeployHandler:
                self._folderArray(full_path, full_path, basePath)
            else:
                self.deployFiles.append(('file',(f_name,open(full_path,'rb'),'application/octet-stream')))
+       if window != None:
+            window.write_event_value('update_progress_1', idx)
+            idx+=1
+            
                
-   def pinataFiles(self, files, payload):
+   def pinataFiles(self, files, payload, window=None):
        url = "https://api.pinata.cloud/pinning/pinFileToIPFS"
        
        headers = {
@@ -108,6 +116,11 @@ class W3DeployHandler:
        }
        
        response = requests.request("POST", url, headers=headers, data=payload, files=files)
+       
+       print(response.text)
+       
+       if window != None:
+           window.write_event_value('Exit', '')
        
        return response.text
        
@@ -126,15 +139,69 @@ class W3DeployHandler:
        
        return response.text
    
-   def pinataDirectory(self, filePath, wrapWithDirectory=True, pinToIPFS=True):
+   def pinataDirectory(self, filePath, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False):
        root_folder = os.path.basename(filePath)
-       base_path = filePath.replace(root_folder, '')
+       #base_path = filePath.replace(root_folder, '')
+       base_path = os.path.basename(os.path.normpath(filePath))
+       if useParentDirs:
+           drive_tail = os.path.splitdrive(base_path)
+           base_path = base_path.replace(drive_tail[0], '')
        metadata = '{"keyvalues": { "example": "value" }}'
        payload = pinata_payload('{"cidVersion": 1}', root_folder, filePath, wrapWithDirectory, pinToIPFS, metadata)
        self.deployFiles.clear()
        self._folderArray('', filePath, base_path)
        
-       self.pinataFiles(self.deployFiles, payload)
+       
+       self.pinataFiles(self.deployFiles, payload.dictionary)
+       
+   def pinataDirectoryGUI(self, filePath, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False):
+       root_folder = os.path.basename(filePath)
+       #base_path = filePath.replace(root_folder, '')
+       base_path = os.path.basename(os.path.normpath(filePath))
+       if useParentDirs==True:
+           drive_tail = os.path.splitdrive(base_path)
+           base_path = base_path.replace(drive_tail[0], '')
+       metadata = '{"keyvalues": { "example": "value" }}'
+       payload = pinata_payload('{"cidVersion": 1}', root_folder, filePath, wrapWithDirectory, pinToIPFS, metadata)
+       
+       layout = [[sg.Text('Testing progress bar:')],
+                 [sg.ProgressBar(max_value=10, orientation='h', size=(20, 20), key='progress_1')]]
+
+       main_window = sg.Window('Test', layout, finalize=True)
+       current_value = 1
+       main_window['progress_1'].update(current_value)
+       
+       self.deployFiles.clear()
+       self._folderArray('', filePath, base_path, main_window)
+       
+       print(self.deployFiles)
+
+       threading.Thread(target=self.pinataFiles,
+                        args=(self.deployFiles, payload.dictionary, main_window, ),
+                        daemon=True).start()
+
+       while True:
+           window, event, values = sg.read_all_windows()
+           if event == 'Exit':
+               break
+           if event.startswith('update_'):
+               print(f'event: {event}, value: {values[event]}')
+               key_to_update = event[len('update_'):]
+               window[key_to_update].update(values[event])
+               window.refresh()
+               continue
+           # process any other events ...
+       window.close()
+
+   def another_function(window):
+       import time
+       import random
+       for i in range(10):
+           time.sleep(2)
+           current_value = random.randrange(1, 10)
+           window.write_event_value('update_progress_1', current_value)
+       time.sleep(2)
+       window.write_event_value('Exit', '')
        
    def newFileData(self, filePath):
        f_type = None

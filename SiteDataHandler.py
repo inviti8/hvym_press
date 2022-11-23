@@ -383,9 +383,7 @@ class SiteDataHandler:
        media = self.gatherMedia()
        f_paths = []
        
-       for k in media.keys():
-           obj = media[k]
-           f_paths.append(obj)
+       self.deployHandler.pinataDirectoryGUI(self.resourcePath, True, True, False)
    
    def gatherMedia(self):
        self.images = self.fileList('.png')
