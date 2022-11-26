@@ -109,7 +109,7 @@ class W3DeployHandler:
         for f in self.deployFiles:
             time.sleep(1)
             f_name = f[1][0]
-            f_name = os.path.basename(f_name)
+            f_name = f_name = "/".join(f_name.strip("/").split('/')[1:])
             url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, f_name).replace('\\', '/')
            
             response = requests.get(url)
@@ -164,32 +164,38 @@ class W3DeployHandler:
        
        
    def pinataFile(self, fileName, filePath, fileType, payload):
-        url = os.path.join(self.pinataPinURL, 'pinFileToIPFS').replace('\\', '/')
-
-        files=[
-          ('file',(fileName,open(filePath,'rb'),fileType))
-        ]
-        headers = {
-          'Authorization': "Bearer "+self.pinata['jwt']
-        }
-       
-        response = requests.request("POST", url, headers=headers, data=payload, files=files)
-       
-        return response.text
+       if len(self.pinata['jwt'])>0 and len(self.pinata['gateway'])>0:
+            url = os.path.join(self.pinataPinURL, 'pinFileToIPFS').replace('\\', '/')
+    
+            files=[
+              ('file',(fileName,open(filePath,'rb'),fileType))
+            ]
+            headers = {
+              'Authorization': "Bearer "+self.pinata['jwt']
+            }
+           
+            response = requests.request("POST", url, headers=headers, data=payload, files=files)
+           
+            return response.text
+       else:
+             print('Pinata Credentials Not Set!')
    
    def pinataDirectory(self, filePath, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False):
-       root_folder = os.path.basename(filePath)
-       #base_path = filePath.replace(root_folder, '')
-       base_path = os.path.basename(os.path.normpath(filePath))
-       if useParentDirs:
-           drive_tail = os.path.splitdrive(base_path)
-           base_path = base_path.replace(drive_tail[0], '')
-       metadata = self.pinata['meta_data']
-       payload = pinata_payload('{"cidVersion": 1}', root_folder, filePath, wrapWithDirectory, pinToIPFS, metadata)
-       self.deployFiles.clear()
-       self._folderArray('', filePath, base_path)
-       
-       self.pinataFiles(self.deployFiles, payload.dictionary)
+       if len(self.pinata['jwt'])>0 and len(self.pinata['gateway'])>0:
+           root_folder = os.path.basename(filePath)
+           base_path = filePath.replace(root_folder, '').replace('\\', '/')
+           if useParentDirs:
+               drive_tail = os.path.splitdrive(base_path)
+               base_path = drive_tail[0].replace('\\', '/')
+               
+           metadata = self.pinata['meta_data']
+           payload = pinata_payload('{"cidVersion": 1}', root_folder, filePath, wrapWithDirectory, pinToIPFS, metadata)
+           self.deployFiles.clear()
+           self._folderArray('', filePath, base_path)
+           
+           self.pinataFiles(self.deployFiles, payload.dictionary)
+       else:
+            print('Pinata Credentials Not Set!')
        
    def pinataDirectoryGUI(self, filePath, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False):
        popup = sg.popup_ok_cancel('Deploy Files?')
@@ -199,7 +205,7 @@ class W3DeployHandler:
                base_path = filePath.replace(root_folder, '').replace('\\', '/')
                if useParentDirs==True:
                    drive_tail = os.path.splitdrive(base_path)
-                   base_path = base_path.replace(drive_tail[0], '')
+                   base_path = drive_tail[0].replace('\\', '/')
                    
                metadata = self.pinata['meta_data']
                payload = pinata_payload('{"cidVersion": 1}', root_folder, filePath, wrapWithDirectory, pinToIPFS, metadata)
