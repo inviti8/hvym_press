@@ -95,7 +95,7 @@ class W3DeployHandler:
        self.updateManifestData(filePath)
        
        # print(self.files)
-       # print(self.manifest)
+       #print(self.manifest)
        # print(self.pinata)
        
    def _folderDeploymentChecker(self, window):
@@ -110,11 +110,13 @@ class W3DeployHandler:
             time.sleep(1)
             f_name = f[1][0]
             f_name = f_name = "/".join(f_name.strip("/").split('/')[1:])
+            f_key = os.path.basename(f_name)
             url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, f_name).replace('\\', '/')
+            
+            self.updateFileDataPinataURL(f_key, url)
            
             response = requests.get(url)
             responses.append(response.status_code)
-            print(response.status_code)
            
         for r in responses:
             if r != 200:
@@ -125,6 +127,7 @@ class W3DeployHandler:
        
         if window != None and window.write_event_value != None:
             window.write_event_value('Exit', '')
+            self.saveData()
             sys.exit()
        
    def _folderArray(self, parentPath, filePath, basePath, window=None):
@@ -160,10 +163,11 @@ class W3DeployHandler:
        
         self.folderCID = response.json().get('IpfsHash')
        
-        return response.text
+        return response
        
        
    def pinataFile(self, fileName, filePath, fileType, payload):
+       result = False
        if len(self.pinata['jwt'])>0 and len(self.pinata['gateway'])>0:
             url = os.path.join(self.pinataPinURL, 'pinFileToIPFS').replace('\\', '/')
     
@@ -176,11 +180,15 @@ class W3DeployHandler:
            
             response = requests.request("POST", url, headers=headers, data=payload, files=files)
            
-            return response.text
+            if response.status_code == 200:
+                result = True
        else:
              print('Pinata Credentials Not Set!')
+             
+       return result
    
    def pinataDirectory(self, filePath, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False):
+       result = False
        if len(self.pinata['jwt'])>0 and len(self.pinata['gateway'])>0:
            root_folder = os.path.basename(filePath)
            base_path = filePath.replace(root_folder, '').replace('\\', '/')
@@ -193,11 +201,17 @@ class W3DeployHandler:
            self.deployFiles.clear()
            self._folderArray('', filePath, base_path)
            
-           self.pinataFiles(self.deployFiles, payload.dictionary)
+           response = self.pinataFiles(self.deployFiles, payload.dictionary)
+           
+           if response.status_code == 200:
+               result = True
        else:
             print('Pinata Credentials Not Set!')
+            
+       return result
        
    def pinataDirectoryGUI(self, filePath, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False):
+       result = False
        popup = sg.popup_ok_cancel('Deploy Files?')
        if popup == 'OK':
            if len(self.pinata['jwt'])>0 and len(self.pinata['gateway'])>0:
@@ -255,22 +269,15 @@ class W3DeployHandler:
                        break
                    # update the animation in the window
                    window['-IMAGE-'].update_animation(gif,  time_between_frames=100)
+               result = True
                window.close()
            else:
                sg.popup_ok('Pinata Credentials Not Set!')
+               
+           return result
        
    def pinataResourcesGUI(self, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False):
        self.pinataDirectoryGUI(self.resourcePath, wrapWithDirectory, pinToIPFS, useParentDirs)
-
-   def another_function(window):
-       import time
-       import random
-       for i in range(10):
-           time.sleep(2)
-           current_value = random.randrange(1, 10)
-           window.write_event_value('update_progress_1', current_value)
-       time.sleep(2)
-       window.write_event_value('Exit', '')
        
    def newFileData(self, filePath):
        f_type = None
@@ -288,17 +295,18 @@ class W3DeployHandler:
            f_name = os.path.basename(f)
            f_path = os.path.join(filePath, f)
            
-           if f_name not in self.manifest.keys():
-               if f_name != 'deploy.data':
-                   self.manifest[f_name] = self.newFileData(f_path)
-               
+           if '.data' not in f_name and '.md' not in f_name:
+               if os.path.isfile(f_path):
+                   if f_name not in self.manifest.keys():
+                       self.manifest[f_name] = self.newFileData(f_path)
+                   
+               else:
+                   self.updateManifestData(f_path)
+                   
        for k in self.manifest.keys():
-            if k not in files:
-                prune_data.append(k)
-                
-       for k in prune_data:
-           self.manifest.pop(k)
-           
+             if k not in files:
+                 prune_data.append(k)
+       print(prune_data)       
        self.saveData()
            
    def updateSettings(self, settings):

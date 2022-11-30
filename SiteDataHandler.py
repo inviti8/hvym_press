@@ -156,6 +156,11 @@ class SiteDataHandler:
            
        return result
    
+   def baseFolder(self, f_path):
+       sep = os.path.sep
+       arr = f_path.split(sep)
+       return(arr[len(arr)-2])
+   
    def addFolder(self, folder, selfData):
        result = False
        if(folder not in selfData):
@@ -379,11 +384,16 @@ class SiteDataHandler:
        
        return result
    
-   def deployMedia(self):
+   def deployMedia(self, usefullPath=False):
+       result = False
        media = self.gatherMedia()
        f_paths = []
        
-       self.deployHandler.pinataDirectoryGUI(self.resourcePath, True, True, False)
+       result = self.deployHandler.pinataDirectoryGUI(self.resourcePath, True, True, usefullPath)
+       self.deployHandler.saveData()
+       print(self.deployHandler.manifest)
+       
+       return result
    
    def gatherMedia(self):
        self.images = self.fileList('.png')
@@ -432,8 +442,25 @@ class SiteDataHandler:
    def updateArticleHTML(self, folder, path, filePath):
        if(folder in self.articleData):
            t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(filePath)))
+           
+           if self.deployHandler.manifest != None:
+               self.markdownHandler.deployerManifest = self.deployHandler.manifest
+           
            self.articleData[folder][path]['html'] = self.markdownHandler.generateHTML(filePath)
            self.articleData[folder][path]['time_stamp'] = t
+           
+   def updateAllArticleHTML(self, folder):
+       files = os.listdir(folder)
+       
+       for f in files:
+           fullname = os.path.join(folder, f)
+           f_name = os.path.basename(f)
+           f_path = self.baseFolder(fullname.replace(f_name, ''))
+           
+           if os.path.isdir(fullname):
+               self.updateAllArticleHTML(fullname)
+           else:
+               self.updateArticleHTML(f_path, f_name, fullname)
            
    def updateMediaFiles(self, folder, path, filePath):
        if(folder in self.articleData):

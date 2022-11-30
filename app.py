@@ -812,10 +812,20 @@ while True:
     if event =='-DEPLOY-':
         print('deploy!')
         media = DATA.gatherMedia()
-        data_size = len(media['images'])+len(media['videos'])+len(media['audio'])+len(media['gltf'])
-        chunk = data_size/10
-        DATA.deployMedia()
-        DATA.saveData()       
+        deployed = DATA.deployMedia()
+        if deployed == True:
+            DATA.updateAllArticleHTML(DATA.filePath)
+        
+        print('Deployed: ')
+        print(deployed)
+        DATA.saveData()
+        site_data = DATA.generateSiteData()
+        DATA.openStaticPage('template_index.txt', site_data)
+        
+        sub_path = os.path.join('serve', 'debug')
+        LaunchSite(sub_path)
+        threading.Thread(target=StartServer, args=(), daemon=True).start()
+        
     #print(values[event])
     #print(event, values)
 window.close()

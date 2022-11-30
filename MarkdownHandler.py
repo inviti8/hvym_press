@@ -23,25 +23,77 @@ class MarkdownHandler:
    of .md to html
    
    """
-   def __init__(self, filePath):
+   def __init__(self, filePath, deployerManifest=None):
        self.filePath = filePath
+       self.deployerManifest = deployerManifest
+       
+   def _deployedURL(self, href):
+       result = None
+       f_name = os.path.basename(href)
+
+       if self.deployerManifest != None and f_name in self.deployerManifest.keys():
+           if self.deployerManifest[f_name]['url'] != None:
+               result = self.deployerManifest[f_name]['url']
+               
+       return result
+   
+   def _handleImgTags(self, html):
+        def handleHREF(href):
+            result = self._deployedURL(href)
+               
+            if result == None:
+                result = href
+                
+            return result
+        
+        soup = BeautifulSoup(html, 'html.parser')
+        links = soup.findAll('img')
+        
+        for link in links:
+            if '.png' in link['src']:
+                src = handleHREF(link['src'])
+                f_name = os.path.basename(src)
+                   
+                new_tag = soup.new_tag('img',alt=f_name, src=src)
+                link.parent['class'] = 'deployed_img'
+                link.replaceWith(new_tag)
+                
+        return soup.decode(formatter='html')
+        
        
    def _handleMediaTags(self, html):
+       
+       def handleHREF(href):
+           result = self._deployedURL(href)
+              
+           if result == None:
+               result = href
+               
+           return result
+               
        soup = BeautifulSoup(html, 'html.parser')
        links = soup.findAll('a')
 
        for link in links:
+           
            if '.mp4' in link['href']:
-               new_tag = soup.new_tag('video', controls=None, muted=None, autoplay=None, width="320", height="240", src=link['href'], type="video/mp4")
+               href = handleHREF(link['href'])
+                  
+               new_tag = soup.new_tag('video', controls=None, muted=None, autoplay=None, width="320", height="240", src=href, type="video/mp4")
                link.parent['class'] = 'vid_container'
                link.replaceWith(new_tag)
                
            if '.mp3' in link['href']:
-               new_tag = soup.new_tag('audio', controls=None, src=link['href'], type="audio/mpeg")
+               href = handleHREF(link['href'])
+               
+               new_tag = soup.new_tag('audio', controls=None, src=href, type="audio/mpeg")
                link.parent['class'] = 'audio_container'
                link.replaceWith(new_tag)
                
        return soup.decode(formatter='html')
+   
+   def updateDeployermanifest(self, manifest):
+       self.deployerManifest = manifest
    
    def generateHTML(self, filePath):
        file = open(filePath, 'r', encoding="utf-8")
@@ -50,6 +102,7 @@ class MarkdownHandler:
        md.convert(md_file)
        html = markdown.markdown(md_file)
        html = self._handleMediaTags(html)
+       html = self._handleImgTags(html)
        file.close()
        
        return md.convert(html)
