@@ -384,16 +384,21 @@ class SiteDataHandler:
        
        return result
    
-   def deployMedia(self, usefullPath=False):
+   def deployMedia(self, usefullPath=False, askPermission=True):
        result = False
-       media = self.gatherMedia()
-       f_paths = []
        
-       result = self.deployHandler.pinataDirectoryGUI(self.resourcePath, True, True, usefullPath)
+       result = self.deployHandler.pinataDirectoryGUI(self.resourcePath, True, True, usefullPath, askPermission)
        self.deployHandler.saveData()
-       print(self.deployHandler.manifest)
        
        return result
+   
+   def deploySite(self, usefullPath=False, askPermission=True):
+        result = False
+        
+        result = self.deployHandler.pinataDirectoryGUI(self.debugPath, True, True, usefullPath, askPermission)
+        self.deployHandler.saveData()
+        
+        return result
    
    def gatherMedia(self):
        self.images = self.fileList('.png')

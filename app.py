@@ -603,7 +603,7 @@ def StopServer():
     '''
     requests.post('http://localhost:8000/shutdown/', data={})
     
-def LaunchSite(route):
+def LaunchStaticSite(route):
     url = os.path.join('http://localhost:8000', route)
     webbrowser.open_new_tab(url)
     
@@ -805,26 +805,25 @@ while True:
         
         #print(DATA.getJsonData())
         sub_path = os.path.join('serve', 'debug')
-        LaunchSite(sub_path)
+        LaunchStaticSite(sub_path)
         threading.Thread(target=StartServer, args=(), daemon=True).start()
     if event == '-CANCEL-':
         threading.Thread(target=StopServer, args=(), daemon=True).start()
     if event =='-DEPLOY-':
         print('deploy!')
         media = DATA.gatherMedia()
-        deployed = DATA.deployMedia()
-        if deployed == True:
+        media_cid = DATA.deployMedia()
+        if media_cid != None:
+            sg.popup_no_buttons("Media Deployed, Deploying Site", auto_close=True, auto_close_duration=1.5, non_blocking=False)
             DATA.updateAllArticleHTML(DATA.filePath)
+            DATA.saveData()
+            
+        site_cid = DATA.deploySite(False, False)
         
-        print('Deployed: ')
-        print(deployed)
-        DATA.saveData()
-        site_data = DATA.generateSiteData()
-        DATA.openStaticPage('template_index.txt', site_data)
-        
-        sub_path = os.path.join('serve', 'debug')
-        LaunchSite(sub_path)
-        threading.Thread(target=StartServer, args=(), daemon=True).start()
+        if site_cid != None:
+            sg.popup_no_buttons("Site Deployed", auto_close=True, auto_close_duration=1.5, non_blocking=False)
+            url = os.path.join('https://', DATA.settings['pinata_gateway'], 'ipfs' ,site_cid, 'index.html').replace('\\', '/')
+            webbrowser.open_new_tab(url)
         
     #print(values[event])
     #print(event, values)

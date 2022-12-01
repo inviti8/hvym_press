@@ -84,6 +84,9 @@ class W3DeployHandler:
        self.pinataDataURL = 'https://api.pinata.cloud/data'
        self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'jwt':settings['pinata_jwt'], 'api_key':settings['pinata_key'], 'gateway':settings['pinata_gateway'], 'meta_data':settings['pinata_meta_data']}
        self.deployFiles = []
+       self.deployedStatuses = {}
+       self.maxCalls = 5
+       self.usedCalls = self.maxCalls
        self.folderCID = None
        
        if os.path.isfile(self.dataFilePath):
@@ -104,7 +107,20 @@ class W3DeployHandler:
        
         while self.folderCID == None:
             time.sleep(1)
-            self._folderDeploymentChecker(window)
+            if self.usedCalls > 0:
+                self._folderDeploymentChecker(window)
+        
+        #Deploy index first, if it's there
+        for f in self.deployFiles:
+            f_name = f[1][0]
+            f_name = f_name = "/".join(f_name.strip("/").split('/')[1:])
+            f_key = os.path.basename(f_name)
+            if 'index.html' in f and f_key not in self.deployedStatuses.keys():
+                url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, f_name).replace('\\', '/')
+                response = requests.get(url)
+                self.usedCalls -= 1
+                responses.append(response.status_code)
+                self.deployedStatuses[f_key] = response.status_code
        
         for f in self.deployFiles:
             time.sleep(1)
@@ -114,16 +130,33 @@ class W3DeployHandler:
             url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, f_name).replace('\\', '/')
             
             self.updateFileDataPinataURL(f_key, url)
-           
-            response = requests.get(url)
-            responses.append(response.status_code)
-           
+            
+            if self.usedCalls > 0:
+                if f_key not in self.deployedStatuses.keys():
+                    response = requests.get(url)
+                    self.usedCalls -= 1
+                    responses.append(response.status_code)
+                    self.deployedStatuses[f_key] = response.status_code
+                    print(url)
+                    print('Is reponding with: ')
+                    print(response.status_code)
+                else:
+                    if self.deployedStatuses[f_key] != 200:
+                        response = requests.get(url)
+                        self.usedCalls -= 1
+                        responses.append(response.status_code)
+                        self.deployedStatuses[f_key] = response.status_code
+                        print(url)
+                        print('Stored status call, Is reponding with: ')
+                        print(response.status_code)
+  
         for r in responses:
-            if r != 200:
+            if r != 200 and self.usedCalls > 0:
                 self._folderDeploymentChecker(window)
                
         self.deployFiles.clear()
-        self.folderCID = None
+        self.deployedStatuses.clear()
+        self.usedCalls = self.maxCalls
        
         if window != None and window.write_event_value != None:
             window.write_event_value('Exit', '')
@@ -210,9 +243,12 @@ class W3DeployHandler:
             
        return result
        
-   def pinataDirectoryGUI(self, filePath, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False):
-       result = False
-       popup = sg.popup_ok_cancel('Deploy Files?')
+   def pinataDirectoryGUI(self, filePath, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False, askPermission=True):
+       result = None
+       popup = 'OK'
+       if askPermission == True:
+           popup = sg.popup_ok_cancel('Deploy Files?')
+           
        if popup == 'OK':
            if len(self.pinata['jwt'])>0 and len(self.pinata['gateway'])>0:
                root_folder = os.path.basename(filePath)
@@ -252,9 +288,6 @@ class W3DeployHandler:
                        # transparent_color='white' if sg.running_windows() else None,
                        alpha_channel=.8,
                        margins=(0,0))
-               self.deployFiles.clear()
-               self.folderCID = None
-               
                self._folderArray('', filePath, base_path)
         
                threading.Thread(target=self.pinataFiles,
@@ -269,7 +302,9 @@ class W3DeployHandler:
                        break
                    # update the animation in the window
                    window['-IMAGE-'].update_animation(gif,  time_between_frames=100)
-               result = True
+               result = self.folderCID
+               self.folderCID = None
+               self.deployFiles.clear() 
                window.close()
            else:
                sg.popup_ok('Pinata Credentials Not Set!')

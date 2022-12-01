@@ -92,7 +92,7 @@ class MarkdownHandler:
                
        return soup.decode(formatter='html')
    
-   def updateDeployermanifest(self, manifest):
+   def updateDeployerManifest(self, manifest):
        self.deployerManifest = manifest
    
    def generateHTML(self, filePath):
