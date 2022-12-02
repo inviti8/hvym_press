@@ -290,6 +290,26 @@ class SiteDataHandler:
             dst_path = os.path.join(target, f)
             shutil.copy(src_path, dst_path)
             
+   def refreshCss(self):
+       if os.path.isdir(self.settings['customTheme']):
+           dist_css = os.path.join(self.distPath,'css', 'onsen-css-components.min.css')
+           dist_theme_css = os.path.join(self.distPath,'css', 'theme.css')
+           new_css = os.path.join(self.settings['customTheme'], 'onsen-css-components.min.css')
+           theme_css = os.path.join(self.settings['customTheme'], 'theme.css')
+
+           
+           if os.path.isfile(dist_css):
+               os.remove(dist_css)
+               
+           if os.path.isfile(dist_theme_css):
+               os.remove(dist_theme_css)
+               
+           if os.path.isfile(new_css):    
+               shutil.copy(new_css, dist_css)
+               
+           if os.path.isfile(theme_css):    
+               shutil.copy(theme_css, dist_theme_css)
+            
    def refereshDist(self):
        siteName = self.settings['siteName']
        
@@ -301,7 +321,8 @@ class SiteDataHandler:
            
            for f in target_files:
                f_path = os.path.join(self.distPath, f)
-               os.remove(f_path)
+               if os.path.isfile(f_path):
+                   os.remove(f_path)
                
            shutil.rmtree(self.distPath)
            
@@ -409,9 +430,6 @@ class SiteDataHandler:
    
    def setDeployFolder(self, folder):
        self.deployHandler.deployFolderName = folder
-       
-   def setDeployFolderToSiteName(self):
-       self.deployHandler.deployFolderName = self.settings['siteName']
    
    def deployMedia(self, usefullPath=False, askPermission=True):
        result = False

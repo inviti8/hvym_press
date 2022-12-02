@@ -640,7 +640,7 @@ ui_settings_layout = [[sg.Frame('UI Settings', [[name('UI Framework'), sg.Combo(
                                                 [name('Style'), sg.Combo(DATA.styles, default_value=DATA.settings['style'], s=(15,22), enable_events=True, readonly=True, k='SETTING-style')],
                                                 [name('Row Padding'), sg.Spin(values=[i for i in range(1, 100)], initial_value=DATA.settings['row_pad'], enable_events=True, s=(25,22), k='SETTING-row_pad')],
                [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='SETTING-theme')],
-               [name('Custom Theme'), sg.Input(default_text=DATA.settings['customTheme'], s=20), sg.FolderBrowse(enable_events=True, k='SETTING-customTheme')],
+               [name('Custom Theme'), sg.Input(default_text=DATA.settings['customTheme'], s=20, enable_events=True, k='SETTING-customTheme'), sg.FolderBrowse()],
                [name('Page Order'), sg.Listbox(DATA.pageList, expand_x=True, size=(10, 5), key="-ITEM-")],
                [name(''), sg.Button("Move item to top", key="-CHANGE-PAGE-ORDER-")]
                ], expand_y=True, expand_x=True)]]
@@ -812,12 +812,12 @@ while True:
     if event =='-DEPLOY-':
         print('deploy!')
         media = DATA.gatherMedia()
-        #DATA.setDeployFolderToSiteName()
         media_cid = DATA.deployMedia()
         if media_cid != None:
             sg.popup_no_buttons("Media Deployed, Deploying Site", auto_close=True, auto_close_duration=1.5, non_blocking=False)
             DATA.updateAllArticleHTML(DATA.filePath)
             DATA.refereshDist()
+            DATA.refreshCss()
             DATA.saveData()
             
         site_cid = DATA.deploySite(False, False)
