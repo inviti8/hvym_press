@@ -38,6 +38,7 @@ class SiteDataHandler:
    def __init__(self, filePath):
       self.filePath = filePath
       self.resourcePath = os.path.join(self.filePath, '_resources')
+      self.distPath = os.path.join(SCRIPT_DIR, 'dist')
       self.pageList = []
       self.folders = {}
       self.pageData = {}
@@ -75,6 +76,9 @@ class SiteDataHandler:
       if os.path.isfile(self.dataFilePath):
           dataFile = open(self.dataFilePath, 'rb')
           data = pickle.load(dataFile)
+          if self.settings['siteName'] != '':
+              self.distPath = self.distPath.replace('dist', self.settings['siteName'])
+              
           self.pageList = data['pageList']
           self.folders = data['folders']
           self.pageData = data['pageData']
@@ -285,6 +289,25 @@ class SiteDataHandler:
             src_path = os.path.join(source, f)
             dst_path = os.path.join(target, f)
             shutil.copy(src_path, dst_path)
+            
+   def refereshDist(self):
+       siteName = self.settings['siteName']
+       
+       if siteName !=  '' and siteName not in self.distPath:
+           self.distPath = self.distPath.replace('dist', self.settings['siteName'])
+       
+       if os.path.isdir(self.distPath):
+           target_files = os.listdir(self.distPath)
+           
+           for f in target_files:
+               f_path = os.path.join(self.distPath, f)
+               os.remove(f_path)
+               
+           shutil.rmtree(self.distPath)
+           
+           
+       shutil.copytree(self.debugPath, self.distPath)
+       #self.cloneDirectory(self.debugPath, self.distPath)
    
    def refreshDebugMedia(self):
        self.cloneDirectory(self.resourcePath, self.debugResourcePath)
@@ -384,6 +407,12 @@ class SiteDataHandler:
        
        return result
    
+   def setDeployFolder(self, folder):
+       self.deployHandler.deployFolderName = folder
+       
+   def setDeployFolderToSiteName(self):
+       self.deployHandler.deployFolderName = self.settings['siteName']
+   
    def deployMedia(self, usefullPath=False, askPermission=True):
        result = False
        
@@ -395,7 +424,7 @@ class SiteDataHandler:
    def deploySite(self, usefullPath=False, askPermission=True):
         result = False
         
-        result = self.deployHandler.pinataDirectoryGUI(self.debugPath, True, True, usefullPath, askPermission)
+        result = self.deployHandler.pinataDirectoryGUI(self.distPath, True, True, usefullPath, askPermission)
         self.deployHandler.saveData()
         
         return result

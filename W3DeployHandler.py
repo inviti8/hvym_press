@@ -85,6 +85,7 @@ class W3DeployHandler:
        self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'jwt':settings['pinata_jwt'], 'api_key':settings['pinata_key'], 'gateway':settings['pinata_gateway'], 'meta_data':settings['pinata_meta_data']}
        self.deployFiles = []
        self.deployedStatuses = {}
+       self.deployFolderName = ''
        self.maxCalls = 5
        self.usedCalls = self.maxCalls
        self.folderCID = None
@@ -137,18 +138,14 @@ class W3DeployHandler:
                     self.usedCalls -= 1
                     responses.append(response.status_code)
                     self.deployedStatuses[f_key] = response.status_code
-                    print(url)
-                    print('Is reponding with: ')
-                    print(response.status_code)
+                    
+
                 else:
                     if self.deployedStatuses[f_key] != 200:
                         response = requests.get(url)
                         self.usedCalls -= 1
                         responses.append(response.status_code)
                         self.deployedStatuses[f_key] = response.status_code
-                        print(url)
-                        print('Stored status call, Is reponding with: ')
-                        print(response.status_code)
   
         for r in responses:
             if r != 200 and self.usedCalls > 0:
@@ -171,6 +168,12 @@ class W3DeployHandler:
        for f in paths:
            full_path = os.path.join(filePath, f).replace('\\', '/')
            f_name = full_path.replace(basePath, '').replace('\\', '/')
+           
+           if self.deployFolderName != '':
+               arr = f_name.split('/')
+               name = arr[len(arr)-1]
+               folder = arr[len(arr)-2]
+               f_name = f_name.replace(folder, self.deployFolderName)
            
            if os.path.isdir(full_path):
                self._folderArray(full_path, full_path, basePath)
@@ -304,6 +307,7 @@ class W3DeployHandler:
                    window['-IMAGE-'].update_animation(gif,  time_between_frames=100)
                result = self.folderCID
                self.folderCID = None
+               self.deployFolderName = ''
                self.deployFiles.clear() 
                window.close()
            else:

@@ -2,6 +2,7 @@
 <html lang="en" >
 <head>
   <meta charset="UTF-8">
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
   <title>{{data.settings.site_name}}</title>
   <link rel="stylesheet" href="css/onsenui.css">
   <link rel="stylesheet" href="css/onsen-css-components.min.css">
