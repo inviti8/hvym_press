@@ -46,10 +46,10 @@ class SiteDataHandler:
       self.articleData = {}
       self.formData = {}
       self.metaData = {}
-      self.settings = {'uiFramework':'onsen', 'pageType':'carousel', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'pinata_meta_data':'', 'arWallet':''}
+      self.settings = {'uiFramework':'onsen', 'pageType':'splitter', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'pinata_meta_data':'', 'arWallet':''}
       self.authors = {}
       self.uiFramework = ['onsen']
-      self.navigation = ['carousel', 'splitter', 'tabs']
+      self.navigation = ['splitter', 'tabs']
       self.themes = ['light', 'dark']
       self.styles = ['default', 'material']
       self.deployTypes = ['Pinata', 'Arweave']
@@ -296,7 +296,6 @@ class SiteDataHandler:
            dist_theme_css = os.path.join(self.distPath,'css', 'theme.css')
            new_css = os.path.join(self.settings['customTheme'], 'onsen-css-components.min.css')
            theme_css = os.path.join(self.settings['customTheme'], 'theme.css')
-
            
            if os.path.isfile(dist_css):
                os.remove(dist_css)
