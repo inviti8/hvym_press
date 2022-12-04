@@ -320,7 +320,7 @@ def popup_set_page_data(md_name, data):
     
     col_layout_r = [[sg.Input(data['title'], s=(27,22), k='TITLE')],
                   [sg.Checkbox('yes', default=data['use_text'], k='USE-TEXT')],
-                  [sg.Input(key='ICON', default_text=data['icon'], visible=False), sg.Button('', image_data=icon)],
+                  [sg.Input(key='ICON', default_text=data['icon'], visible=False), sg.Button('', image_data=icon, k='-SET-ICON-')],
                   [sg.Spin([x+1 for x in range(1050)], initial_value=data['max_height'], s=(25,22), key='MAX-HEIGHT')],
                   [sg.Combo(columns, default_value=data['columns'], s=(25,22), readonly=True, k='COLUMNS')],
                   [sg.Spin([x+1 for x in range(10)], initial_value=data['footer_height'], s=(25,22), key='FOOTER-HEIGHT')]]
@@ -338,17 +338,18 @@ def popup_set_page_data(md_name, data):
     event, values = window.read()
     window.close()
     page_data = None
+
     if event == '-SAVE-DATA-':
-        page_data = {'title':values['TITLE'], 'icon':icon, 'use_text':values['USE-TEXT'], 'max_height':values['MAX-HEIGHT'], 'columns':values['COLUMNS'], 'footer_height':values['FOOTER-HEIGHT']}
+        page_data = {'title':values['TITLE'], 'icon':data['icon'], 'use_text':values['USE-TEXT'], 'max_height':values['MAX-HEIGHT'], 'columns':values['COLUMNS'], 'footer_height':values['FOOTER-HEIGHT']}
         
-    elif event == 'Icon Picker':
+    elif event == '-SET-ICON-':
         icon_chosen = ICON_PICKER.popup_icon_chooser()
         page_data = None
         
         if icon_chosen != 'none':
             page_data = {'title':values['TITLE'], 'icon':icon_chosen, 'use_text':values['USE-TEXT'], 'max_height':values['MAX-HEIGHT'], 'columns':values['COLUMNS'], 'footer_height':values['FOOTER-HEIGHT']}
             
-    return page_data if event == '-SAVE-DATA-' or event == 'Icon Picker' else None            
+    return page_data if event == '-SAVE-DATA-' or event == '-SET-ICON-' else None            
             
 def popup_set_article_data(md_name, data, colData):
     columns = []

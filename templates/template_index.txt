@@ -235,9 +235,18 @@
     <ons-page>
       <ons-list>
         {% for page in data.pages %}
+          {% if page.icon != 'none' %}
+        <ons-list-item onclick="fn.load('{{page.title}}.html')" tappable>
+          <ons-icon icon="{{page.icon}}"></ons-icon>
+            {% if page.use_text %}
+              {{page.title}}
+            {% endif %}
+        </ons-list-item>
+          {% else %}
         <ons-list-item onclick="fn.load('{{page.title}}.html')" tappable>
           {{page.title}}
         </ons-list-item>
+          {% endif %}
         {% endfor %}
       </ons-list>
     </ons-page>
@@ -254,9 +263,25 @@
     <ons-tabbar swipeable position="auto">
       {% for page in data.pages %}
         {% if loop.index == 0 %}
-      <ons-tab page="{{page.title}}.html" label="{{page.title}}" icon="" active></ons-tab>
+          {% if page.icon != 'none' %}
+            {% if page.use_text %}
+      <ons-tab page="{{page.title}}.html" label="{{page.title}}" icon="{{page.icon}}" active></ons-tab>
+            {% else %}
+      <ons-tab page="{{page.title}}.html" icon="{{page.icon}}" active></ons-tab>
+            {% endif %}
+          {% else %}
+      <ons-tab page="{{page.title}}.html" label="{{page.title}}" active></ons-tab>    
+          {% endif %}
         {% else %}
-      <ons-tab page="{{page.title}}.html" label="{{page.title}}" icon=""></ons-tab>
+          {% if page.icon != 'none' %}
+              {% if page.use_text %}
+      <ons-tab page="{{page.title}}.html" label="{{page.title}}" icon="{{page.icon}}"></ons-tab>
+              {% else %}
+      <ons-tab page="{{page.title}}.html" icon="{{page.icon}}"></ons-tab>
+              {% endif %}
+          {% else %}
+      <ons-tab page="{{page.title}}.html" label="{{page.title}}"></ons-tab> 
+          {% endif %}
         {% endif %}
       {% endfor %}
     </ons-tabbar>
