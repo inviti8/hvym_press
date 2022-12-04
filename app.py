@@ -13,6 +13,7 @@ import ServerHandler
 import SiteDataHandler
 import PIL.Image
 import ColorPicker
+import IconPicker
 import io
 from io import BytesIO
 from PIL import Image, ImageDraw
@@ -27,7 +28,9 @@ NAME_SIZE = 15
 font = ('Ariel', 9)
 file_loader = FileSystemLoader('templates')
 env = Environment(loader=file_loader)
+ICON_PICKER = IconPicker.IconPicker()
 
+icon_none = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAKUlEQVRIie3NMQEAAAjDMMC/52ECvlRA00nqs3m9AwAAAAAAAAAAgMMWx/EDPUopmS0AAAAASUVORK5CYII='
 empty_px = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg=='
 folder_icon = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA3XAAAN1wFCKJt4AAAE7mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4yLWMwMDAgNzkuMWI2NWE3OSwgMjAyMi8wNi8xMy0xNzo0NjoxNCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjItMTAtMDZUMjE6NTY6MzctMDc6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpjNmU3YTA0ZC1jYzkzLTQ3NDQtYTY4MC1mNjg2YzlmYzk5MjciPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmM2ZTdhMDRkLWNjOTMtNDc0NC1hNjgwLWY2ODZjOWZjOTkyNyIgc3RFdnQ6d2hlbj0iMjAyMi0xMC0wNlQyMTo0NToyNy0wNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuxPXaQAAAFhSURBVFiF7de9itRQGMbx3znJREEHVNBiC7HyLpRBC6/AWhY/aq/C0htwi90LERRL72CttFywERk0cfJaZAZGGHGYjZwt5oFAzglv3v9585yPpIhQUrlo9osAUDtJ6+1nuIfL6EfOlfEDH3C06kxxvHwY3gqzv4aOq3d4iD5r0XohzFTLZKurQkKLxfJ+HM3wEmo3KiqPXa2oE+uzIi0zznvOOjpMMM7EuY/XtYPJU8kDPfogbaj3rZom8bkdnDFOJTqodfHqz/4Nw5sH04pp5ms/WPQ8SkgWAwDXtgpaBDdruo4udjdmMvipNV8BtGj+GdgFTeZOM0Ts+hkSfgXf+wOLUNvWUslQhbSGu6sZJ5kr+RGepHh/6RumO77qvDorvRRfLw3wszRAlAYovx3vAfYAe4DV4atY/mybrfj/qck4LQhwmnFYEOCwxkfcxXPcNubhe7MCX/AGn9L+57Q0wG/4oVYsu0eeMwAAAABJRU5ErkJggg=='
 folder_icon_off = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA3XAAAN1wFCKJt4AAACkElEQVRYhe2XT0gUURzHP+/tY92NNtyJlswlKsSDkcYGwkKJ/aGIqEMQBFEhWWfDU8qeVkQCy0snvXfbwLNeLPIQSHgQWiMiFMFghBbd1XbmdRgddilxRse2Q1+Yw/zen99nfu/3fu+N0FpTS8maev8XAETuzOnK927gAhAB7IB9SaAEvAXGtozKbdRMouncdmhwegDcAy4DtsSWYMsnaDqRm84qH+F0CzgenUAPgCIKSO6IOgUhAZW7QggA9LoNBcAWIAPbNR3ACyXq1SMEl9CArUH8Hm9xKARKoE0LNE5U9q6fAApLD1aZ/1QXNoCIhIgNpRDo8t5cC0BgOQBQ72mQBnFQoi0Lyuw+CgInn2y5tgWwAYR3HFjWoCTisMBh34MsjV63j6EdAG9ZJXByBCC0adttPiqJiMhrwEO1Y+cKtfRkAFiammBlZtq1x1NpGjquADA3kt15Isslf+4L4MCRBMn0eRrOtTN5/6ZrTz3tI9aYZGH6nZ/pAOK+atzscJaiaRJrTNLWPwRAW/8QscYkRdNkdtjD11drPXT35NFnQJ2X3lZxFfPzPCeu3iB+qgkZT9B03YnE+0wvq18++QbwXeVXZqbJj+cAaL51G4D8eK4qJ/xoV8fM3EiWcqkIQLlU9JZ4QQK09GRQkSgAKhJ1d8dfAYin0m7oP46+ApyliKfS+w8QNhK09w0Azrp/fT3m5kN73wBhI7G/AK29GaKGQWFxwV33uZEshcUFooZBa6//pfBciMJGgrXvy+THcyxNTVS1zbwcdCth2EiwYS57BhBvLp79AcQ8jwhWha2LV60kJV6O4v1TWAL5GgLkJdBVQ4AuBXwAmoHHwHGCunJuLw18A0aBefH/57TWAL8As2q+p/+gTSYAAAAASUVORK5CYII='
@@ -74,7 +77,7 @@ def baseFolder(f_path):
 
 def newFolderData(f, data):
     f_name = os.path.basename(f)
-    data.updatePageData(f, {'title':f_name, 'max_height':800, 'columns':"1", 'footer_height':200})
+    data.updatePageData(f, {'title':f_name, 'icon':'none', 'use_text':True, 'max_height':800, 'columns':"1", 'footer_height':200})
     data.updateColumnWidths(f, [])
 
 def newFileData(f_path, f, full_path, data):
@@ -304,14 +307,20 @@ def popup_set_column_widths(md_name, data, colData):
     return width_arr if event == '-SAVE-DATA-' else None 
 
 def popup_set_page_data(md_name, data):
+    icon = ICON_PICKER.icon_map[data['icon']]
+    
     columns = ['1', '2', '3', '4']
     
     col_layout_l = [[sg.Text("Title:", font=font)],
+                  [sg.Text("Use Text:", font=font)],
+                  [sg.Text("Icon:", font=font)],
                   [sg.Text("Max Height:", font=font)],
                   [sg.Text("Columns:", font=font)],
                   [sg.Text("Footer Height:", font=font)]]
     
     col_layout_r = [[sg.Input(data['title'], s=(27,22), k='TITLE')],
+                  [sg.Checkbox('yes', default=data['use_text'], k='USE-TEXT')],
+                  [sg.Input(key='ICON', default_text=data['icon'], visible=False), sg.Button('', image_data=icon)],
                   [sg.Spin([x+1 for x in range(1050)], initial_value=data['max_height'], s=(25,22), key='MAX-HEIGHT')],
                   [sg.Combo(columns, default_value=data['columns'], s=(25,22), readonly=True, k='COLUMNS')],
                   [sg.Spin([x+1 for x in range(10)], initial_value=data['footer_height'], s=(25,22), key='FOOTER-HEIGHT')]]
@@ -330,8 +339,16 @@ def popup_set_page_data(md_name, data):
     window.close()
     page_data = None
     if event == '-SAVE-DATA-':
-        page_data = {'title':values['TITLE'], 'max_height':values['MAX-HEIGHT'], 'columns':values['COLUMNS'], 'footer_height':values['FOOTER-HEIGHT']}
-    return page_data if event == '-SAVE-DATA-' else None            
+        page_data = {'title':values['TITLE'], 'icon':icon, 'use_text':values['USE-TEXT'], 'max_height':values['MAX-HEIGHT'], 'columns':values['COLUMNS'], 'footer_height':values['FOOTER-HEIGHT']}
+        
+    elif event == 'Icon Picker':
+        icon_chosen = ICON_PICKER.popup_icon_chooser()
+        page_data = None
+        
+        if icon_chosen != 'none':
+            page_data = {'title':values['TITLE'], 'icon':icon_chosen, 'use_text':values['USE-TEXT'], 'max_height':values['MAX-HEIGHT'], 'columns':values['COLUMNS'], 'footer_height':values['FOOTER-HEIGHT']}
+            
+    return page_data if event == '-SAVE-DATA-' or event == 'Icon Picker' else None            
             
 def popup_set_article_data(md_name, data, colData):
     columns = []

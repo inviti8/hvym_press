@@ -122,7 +122,7 @@ class SiteDataHandler:
        return result
            
    def generatePageData(self, page):
-       result = {'title':None, 'max_height':None, 'columns':None, 'footer_height':None, 'content':{'columns':[], 'widths':self.columnWidths[page]}}
+       result = {'title':None, 'icon':None, 'use_text':True, 'max_height':None, 'columns':None, 'footer_height':None, 'content':{'columns':[], 'widths':self.columnWidths[page]}}
        for k in self.pageData[page].keys():
            result[k] = self.pageData[page][k]
        
