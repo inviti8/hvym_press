@@ -306,6 +306,33 @@ def popup_set_column_widths(md_name, data, colData):
             
     return width_arr if event == '-SAVE-DATA-' else None 
 
+
+def do_open_set_page_data(f_name):
+    re_open = False
+    data = DATA.pageData[f_name]
+    colData = DATA.columnWidths[f_name]
+    d = popup_set_page_data(f_name, data)
+        
+    if(d != None):
+        if 're_open' in d.keys():
+            re_open = True
+            del d['re_open']
+            
+        columns = int(d['columns'])
+        if len(colData) < columns:
+            arr = []
+            val = round(100/columns, 2)
+            for num in range(0, columns):
+                arr.append(val)
+            DATA.updateColumnWidths(f_name, arr)
+                
+        DATA.updatePageData(f_name, d)
+        DATA.saveData()
+        
+        if re_open:
+            do_open_set_page_data(f_name)
+            
+
 def popup_set_page_data(md_name, data):
     icon = ICON_PICKER.icon_map[data['icon']]
     
@@ -347,9 +374,29 @@ def popup_set_page_data(md_name, data):
         page_data = None
         
         if icon_chosen != 'none':
-            page_data = {'title':values['TITLE'], 'icon':icon_chosen, 'use_text':values['USE-TEXT'], 'max_height':values['MAX-HEIGHT'], 'columns':values['COLUMNS'], 'footer_height':values['FOOTER-HEIGHT']}
+            page_data = {'re_open':True, 'title':values['TITLE'], 'icon':icon_chosen, 'use_text':values['USE-TEXT'], 'max_height':values['MAX-HEIGHT'], 'columns':values['COLUMNS'], 'footer_height':values['FOOTER-HEIGHT']}
             
-    return page_data if event == '-SAVE-DATA-' or event == '-SET-ICON-' else None            
+    return page_data if event == '-SAVE-DATA-' or event == '-SET-ICON-' else None
+
+
+def do_open_set_article_data(f_path, f_name):
+    re_open = False
+    data = DATA.getData(f_path, f_name, DATA.articleData)
+    colData = DATA.columnWidths[f_path]
+    d = popup_set_article_data(f_name, data, colData)
+    
+    if(d != None):
+        if 're_open' in d.keys():
+            re_open = True
+            del d['re_open']
+            
+        DATA.updateArticleData(f_path, f_name, d)
+        DATA.updateFile(f_path, f_name, d['type'], True)
+        DATA.saveData()
+        
+        if re_open:
+            do_open_set_article_data(f_path, f_name)
+            
             
 def popup_set_article_data(md_name, data, colData):
     columns = []
@@ -454,12 +501,12 @@ def popup_set_article_data(md_name, data, colData):
             delete_img = sg.PopupOKCancel("Delete Image?")
             page_data = None
             if delete_img == 'OK':
-                page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'max_width':values['MAX-WIDTH'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':empty_px, 'color':values['COLOR'], 'use_color':values['USE-COLOR']}
+                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'max_width':values['MAX-WIDTH'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':empty_px, 'color':values['COLOR'], 'use_color':values['USE-COLOR']}
         elif event == 'Color Picker':
             color_chosen = ColorPicker.popup_color_chooser()
             page_data = None
             if color_chosen != None:
-                page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'max_width':values['MAX-WIDTH'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'color':color_chosen, 'use_color':values['USE-COLOR']}    
+                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'max_width':values['MAX-WIDTH'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'color':color_chosen, 'use_color':values['USE-COLOR']}    
                 
         return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' or event == 'Color Picker' else None
             
@@ -653,12 +700,12 @@ treedata = sg.TreeData()
 add_files_in_folder('', starting_path, command, DATA)
 
 
-ui_settings_layout = [[sg.Frame('UI Settings', [[name('UI Framework'), sg.Combo(DATA.uiFramework, default_value=DATA.settings['uiFramework'], s=(15,22), enable_events=True, readonly=True, k='SETTING-uiFramework')],
+ui_settings_layout = [[sg.Frame('UI Settings', [
                                                 [name('Navigation'), sg.Combo(DATA.navigation, default_value=DATA.settings['pageType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-pageType')],
                                                 [name('Style'), sg.Combo(DATA.styles, default_value=DATA.settings['style'], s=(15,22), enable_events=True, readonly=True, k='SETTING-style')],
                                                 [name('Row Padding'), sg.Spin(values=[i for i in range(1, 100)], initial_value=DATA.settings['row_pad'], enable_events=True, s=(25,22), k='SETTING-row_pad')],
                [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='SETTING-theme')],
-               [name('Custom Theme'), sg.Input(default_text=DATA.settings['customTheme'], s=20, enable_events=True, k='SETTING-customTheme'), sg.FolderBrowse()],
+               [name('Custom CSS Theme'), sg.Input(default_text=DATA.settings['customTheme'], s=20, enable_events=True, k='SETTING-customTheme'), sg.FolderBrowse()],
                [name('Page Order'), sg.Listbox(DATA.pageList, expand_x=True, size=(10, 5), key="-ITEM-")],
                [name(''), sg.Button("Move item to top", key="-CHANGE-PAGE-ORDER-")]
                ], expand_y=True, expand_x=True)]]
@@ -710,29 +757,17 @@ while True:
         
         if event.endswith('DOUBLE'):
             if os.path.isdir(path_val):
-                data = DATA.pageData[f_name]
-                colData = DATA.columnWidths[f_name]
-                d = popup_set_page_data(f_name, data)
-                if(d != None):
-                    columns = int(d['columns'])
-                    if len(colData) < columns:
-                        arr = []
-                        val = round(100/columns, 2)
-                        for num in range(0, columns):
-                            arr.append(val)
-                        DATA.updateColumnWidths(f_name, arr)
-                            
-                    DATA.updatePageData(f_name, d)
-                    DATA.saveData()
-
+                do_open_set_page_data(f_name)
+     
             if os.path.isfile(path_val):
-                data = DATA.getData(f_path, f_name, DATA.articleData)
-                colData = DATA.columnWidths[f_path]
-                d = popup_set_article_data(f_name, data, colData)
-                if(d != None):
-                    DATA.updateArticleData(f_path, f_name, d)
-                    DATA.updateFile(f_path, f_name, d['type'], True)
-                    DATA.saveData()
+                do_open_set_article_data(f_path, f_name)
+                # data = DATA.getData(f_path, f_name, DATA.articleData)
+                # colData = DATA.columnWidths[f_path]
+                # d = popup_set_article_data(f_name, data, colData)
+                # if(d != None):
+                #     DATA.updateArticleData(f_path, f_name, d)
+                #     DATA.updateFile(f_path, f_name, d['type'], True)
+                #     DATA.saveData()
 
         elif event in command:
             
