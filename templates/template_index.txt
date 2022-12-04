@@ -173,6 +173,9 @@
       width: 100%    !important;
       height: auto   !important;
     }
+    .menu_icon{
+      padding-right: 10px;
+    }
     .author{
       padding-left: 10px;
     }
@@ -237,9 +240,9 @@
         {% for page in data.pages %}
           {% if page.icon != 'none' %}
         <ons-list-item onclick="fn.load('{{page.title}}.html')" tappable>
-          <ons-icon icon="{{page.icon}}"></ons-icon>
+          <ons-icon class='menu_icon' icon="{{page.icon}}"></ons-icon>
             {% if page.use_text %}
-              {{page.title}}
+              <p>{{page.title}}</p>
             {% endif %}
         </ons-list-item>
           {% else %}
