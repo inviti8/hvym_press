@@ -698,6 +698,27 @@ def popup_server_status(start=True):
         # update the animation in the window
         window['-IMAGE-'].update_animation(gif,  time_between_frames=100)
     window.close()
+    
+def DoDeploy(data, window, private=False):
+    print('private is: ')
+    print(private)
+    window.disappear()
+    media = data.gatherMedia()
+    media_cid = data.deployMedia(False, True, private)
+    if media_cid != None:
+        sg.popup_no_buttons("Media Deployed, Deploying Site", auto_close=True, auto_close_duration=1.5, non_blocking=False)
+        data.updateAllArticleHTML(data.filePath)
+        data.refereshDist()
+        data.refreshCss()
+        data.saveData()
+        
+    site_cid = data.deploySite(False, False, private)
+    
+    if site_cid != None:
+        sg.popup_no_buttons("Site Deployed", auto_close=True, auto_close_duration=1.5, non_blocking=False)
+        url = os.path.join('https://', data.settings['pinata_gateway'], 'ipfs' ,site_cid, 'index.html').replace('\\', '/')
+        webbrowser.open_new_tab(url)
+    window.reappear()
 
 def StartServer(path=SCRIPT_DIR, port=8000):
     '''
@@ -722,9 +743,15 @@ def LaunchStaticSite(route):
 def handleDeployUI(window, data):
     if data.settings['deployType'] == 'Pinata':
         window.Element('PINATA-GRP').Update(visible=True)
+        window.Element('SUBMARINE-GRP').Update(visible=False)
+        window.Element('ARWEAVE-GRP').Update(visible=False)
+    elif data.settings['deployType'] == 'Submarine':
+        window.Element('PINATA-GRP').Update(visible=False)
+        window.Element('SUBMARINE-GRP').Update(visible=True)
         window.Element('ARWEAVE-GRP').Update(visible=False)
     elif data.settings['deployType'] == 'Arweave':
         window.Element('PINATA-GRP').Update(visible=False)
+        window.Element('SUBMARINE-GRP').Update(visible=False)
         window.Element('ARWEAVE-GRP').Update(visible=True)
         
 
@@ -743,7 +770,6 @@ SERVER_STATUS = ServerHandler.ServerStatusHandler()
 
 command = ['__________','Set-Column-Widths', '__________','Set-Meta-Data', 'Set-Form-Data']
 author_dropdown = ['Add-Author', 'Update-Author', 'Delete-Author']
-deploy_dropdown = ['Pinata', 'Arweave']
 treedata = sg.TreeData()
 add_files_in_folder('', starting_path, command, DATA)
 
@@ -762,14 +788,21 @@ site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input
                [name('Description'), sg.Multiline(default_text=DATA.settings['description'],s=(20,8), enable_events=True, k='SETTING-description')],
                ], expand_y=True, expand_x=True)]]
 
-author_settings_layout = [[sg.Frame('Author Settings', [[name('Authors:'), sg.Listbox(DATA.authors.keys(), right_click_menu=['&Right', author_dropdown], expand_y=True, no_scrollbar=True,  s=(15,2), k='AUTHOR-LIST')]], expand_y=True, expand_x=True)]]
+author_settings_layout = [[sg.Frame('Author Settings', [
+    [sg.Frame('Authors', [
+        [sg.Listbox(DATA.authors.keys(), right_click_menu=['&Right', author_dropdown], no_scrollbar=True, expand_x=True, size=(15,8), k='AUTHOR-LIST')]
+        ], expand_x=True)],
+    ],  size=(15,10), expand_y=True, expand_x=True)]]
 
-deployment_settings_layout = [[sg.Frame('Deployment Settings', [[name('Deploy Type:'), sg.Combo(DATA.deployTypes, default_value=DATA.settings['deployType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-deployType')],
-               [sg.Frame('Pinata', [[name('Submarine Key'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_key')],
-                                    [name('JWT'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_jwt')],
+deployment_settings_layout = [[sg.Frame('Deployment Settings', [[name('Deploy Type:'), sg.Combo(DATA.deployTypes, default_value=DATA.settings['deployType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-deployType')],                                    
+               [sg.Frame('Pinata', [[name('JWT'), sg.Input(default_text=DATA.settings['pinata_jwt'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_jwt')],
                                     [name('Gateway URL'), sg.Input(default_text=DATA.settings['pinata_gateway'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_gateway')],
                                     [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['pinata_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-pinata_meta_data')]
                ], expand_y=True, expand_x=True, k='PINATA-GRP')],
+               [sg.Frame('Submarine', [[name('Submarine Key'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_key')],
+                                       [name('Timeout (seconds)'), sg.Spin(values=[i for i in range(1, 604800)], initial_value=DATA.settings['pinata_timeout'], enable_events=True, s=(25,22), k='SETTING-pinata_timeout')],
+                                    [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['pinata_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-pinata_meta_data')]
+               ], expand_y=True, expand_x=True, k='SUBMARINE-GRP')],
                [sg.Frame('Arweave Wallet', [[sg.Input(default_text=DATA.settings['arWallet'], expand_x=True, s=20, enable_events=True, k='SETTING-arWallet'), sg.FileBrowse(enable_events=True)]
                ], expand_y=True, expand_x=True,  k='ARWEAVE-GRP')],
                ], expand_y=True, expand_x=True)]]
@@ -785,9 +818,8 @@ tab2_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, elem
                [sg.Column(author_settings_layout, expand_x=True, expand_y=True, element_justification='left'),
                 sg.Column(deployment_settings_layout, expand_x=True, expand_y=True, element_justification='left')]]
 
-menu_def = [['&Debug', ['Start Localhost', 'Stop Localhost', 'Open Debug Site', 'Rebuild Site']],
-                ['!Disabled', ['Special', 'Normal',['Normal1', 'Normal2'], 'Undo']],
-                ['&Toolbar', ['---', 'Command &1::Command_Key', 'Command &2', '---', 'Command &3', 'Command &4']],
+menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site']],
+                ['& Deploy', ['---', 'Pinata IPFS', 'Pinata Submarine', '---', 'Command &3', 'Command &4']],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-')],
@@ -799,9 +831,11 @@ tree.bind("<Double-1>", '+DOUBLE')
 block_focus(window)
 handleDeployUI(window, DATA)
 
+#[name('Timeout (seconds)'), sg.Spin(values=[i for i in range(100, 31557600)], initial_value=DATA.settings['pinata_timeout'], enable_events=True, s=(25,22), k='SETTING-pinata_timeout')]
+
 while True:
     event, values = window.read()
-    print(event)
+    #print(event)
     
     # ------ Process menu choices ------ #
     if event == 'About...':
@@ -819,7 +853,7 @@ while True:
         print('should stop localhost')
         if SERVER_STATUS.server_running == True:
             threading.Thread(target=StopServer, args=(), daemon=True).start()
-            SERVER_STATUS.popup_server_status(False)
+            #SERVER_STATUS.popup_server_status(False)
         
     elif event == 'Open Debug Site':
         print('Open Debug page')
@@ -830,12 +864,22 @@ while True:
             DATA.openStaticPage('template_index.txt', site_data)
             sub_path = os.path.join('serve', 'debug')
             LaunchStaticSite(sub_path)
+        else:
+            sg.popup_ok('Start Localhost first')
         
     elif event == 'Rebuild Site':
         print('Rebuild Site')
         site_data = DATA.generateSiteData()
         DATA.refreshDebugMedia()
         DATA.openStaticPage('template_index.txt', site_data)
+        
+    elif event == 'Pinata IPFS':
+        print('Pinata IPFS')
+        DoDeploy(DATA, window)
+        
+    elif event == 'Pinata Submarine':
+        print('Pinata Submarine')
+        DoDeploy(DATA, window, True)
         
     elif event == 'Edit Me':
         sg.execute_editor(__file__)

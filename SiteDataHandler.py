@@ -46,13 +46,13 @@ class SiteDataHandler:
       self.articleData = {}
       self.formData = {}
       self.metaData = {}
-      self.settings = {'uiFramework':'onsen', 'pageType':'splitter', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'pinata_meta_data':'', 'arWallet':''}
+      self.settings = {'uiFramework':'onsen', 'pageType':'splitter', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'pinata_meta_data':'', 'pinata_timeout':100, 'arWallet':''}
       self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['splitter', 'tabs']
       self.themes = ['light', 'dark']
       self.styles = ['default', 'material']
-      self.deployTypes = ['Pinata', 'Arweave']
+      self.deployTypes = ['Pinata', 'Submarine', 'Arweave']
       self.dataFilePath = os.path.join(filePath, 'site.data')
       self.fileExists = False
       self.resourcesExist = False
@@ -430,18 +430,19 @@ class SiteDataHandler:
    def setDeployFolder(self, folder):
        self.deployHandler.deployFolderName = folder
    
-   def deployMedia(self, usefullPath=False, askPermission=True):
+   def deployMedia(self, usefullPath=False, askPermission=True, private=False):
        result = False
        
-       result = self.deployHandler.pinataDirectoryGUI(self.resourcePath, True, True, usefullPath, askPermission)
+       result = self.deployHandler.pinataDirectoryGUI(self.resourcePath, True, True, usefullPath, askPermission, private)
        self.deployHandler.saveData()
        
        return result
    
-   def deploySite(self, usefullPath=False, askPermission=True):
+   
+   def deploySite(self, usefullPath=False, askPermission=True, private=False):
         result = False
         
-        result = self.deployHandler.pinataDirectoryGUI(self.distPath, True, True, usefullPath, askPermission)
+        result = self.deployHandler.pinataDirectoryGUI(self.distPath, True, True, usefullPath, askPermission, private)
         self.deployHandler.saveData()
         
         return result

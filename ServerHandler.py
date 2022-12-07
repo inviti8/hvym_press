@@ -5,6 +5,7 @@ import http.server
 import socketserver
 import threading
 import requests
+import signal
 import socket
 import time
 import sys
@@ -50,13 +51,11 @@ class ServerStatusHandler:
             sys.exit()
             
     def _serverStopped(self, window):
-        print('GETS HERE TOO!!!')
+
         time.sleep(1)
         url = 'http://localhost:8000/serve/debug/'
         try:
-            print("get inside Try")
             response = requests.get(url)
-            print(response)
             if response.status_code == 200:
                 print("Everything is OK. Status code 200 ...")
                 self._serverStopped(window)
@@ -122,10 +121,10 @@ class ServerStatusHandler:
         window.close()
         
 
-
 class ServerHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=SCRIPT_DIR, **kwargs)
+        self.keep_serving = False
         
     def _set_headers(self):
         self.send_response(200)
@@ -144,13 +143,19 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         self._set_headers()
         if self.path.startswith('/shutdown'):
             print("server shutting down.")
+            #threading.Thread(target = self.server.socket.close, daemon=True).start()
             threading.Thread(target = self.server.shutdown, daemon=True).start()
+            #sys.exit()
+            #os.kill(os.getpid(), signal.SIGINT)
+            #self.__shutdown_request = True
+            #self.__is_shut_down.wait()
 
 class TCPServer(socketserver.TCPServer):
     def server_bind(self):
         import socket
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(self.server_address)
+
         
         
 class Server():
@@ -158,14 +163,22 @@ class Server():
         self.ServerHandler = handler
         self.httpd = TCPServer(server_address, handler)
         
-        threading.Thread(target=self.httpd.serve_forever, daemon=True).start()
+        
+        t = threading.Thread(target=self.httpd.serve_forever, args=(0.5,), daemon=True).start()
         print("Server started on localhost:{server_address}\n Ctrl+C to Stop")
         
-        while True:
+
+        
+        # try:
+        #     self.httpd.serve_forever()
+        # except KeyboardInterrupt:
+        #     print('interrupted!')
+        
+        # while True:
             
-            try:
-                time.sleep(0.5)
-            except KeyboardInterrupt:
-                break
-                print('interrupted!')
+        #     try:
+        #         time.sleep(0.5)
+        #     except KeyboardInterrupt:
+        #         break
+        #         print('interrupted!')
                 

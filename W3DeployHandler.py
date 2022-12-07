@@ -13,6 +13,7 @@ https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/bafybeiapx5hzywrsw76v7d
 import os
 import time
 import sys
+import json
 import pickle
 import requests
 import markdown
@@ -65,6 +66,39 @@ class pinata_payload:
     @property
     def json(self):
         return dumps(self.dictionary)
+    
+@dataclass_json
+@dataclass      
+class pinata_submarine_payload:
+    '''
+    Creates data object for rendering the static page route from template.
+    :param name: name of file'
+    :type name:  (str)
+    :param path: path of file'
+    :type path:  (str)
+    :param fileType: string for file type, as image/svg+xml:'
+    :type fileType:  (str)
+    :param wrapWithDirectory: if file is in directory or not.'
+    :type wrapWithDirectory:  (bool)
+    :param pinToIPFS: Pin file or dont.'
+    :type pinToIPFS:  (bool)
+    :param pinataMetadata: related metadata json string
+    :type pinataMetadata:  (str)
+    :return: (Object) Containing data elements
+    :rtype: (Object)
+    '''
+    name: str
+    wrapWithDirectory: str
+    pinToIPFS: str
+    metadata:str
+    
+    @property
+    def dictionary(self):
+        return asdict(self)
+
+    @property
+    def json(self):
+        return dumps(self.dictionary)
 
 
 class W3DeployHandler:
@@ -81,8 +115,10 @@ class W3DeployHandler:
        self.dataFilePath = os.path.join(filePath, 'deploy.data')
        self.manifest = {}
        self.pinataPinURL = 'https://api.pinata.cloud/pinning'
+       self.pinataSubmarineURL = 'https://managed.mypinata.cloud/api/v1/content'
        self.pinataDataURL = 'https://api.pinata.cloud/data'
        self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'jwt':settings['pinata_jwt'], 'api_key':settings['pinata_key'], 'gateway':settings['pinata_gateway'], 'meta_data':settings['pinata_meta_data']}
+       self.pinataToken = None
        self.deployFiles = []
        self.deployedStatuses = {}
        self.deployFolderName = ''
@@ -160,7 +196,7 @@ class W3DeployHandler:
             self.saveData()
             sys.exit()
        
-   def _folderArray(self, parentPath, filePath, basePath, window=None):
+   def _folderArray(self, key, parentPath, filePath, basePath, window=None):
        paths = os.listdir(filePath)
        data_size = len(paths)
        idx = 0
@@ -178,12 +214,52 @@ class W3DeployHandler:
            if os.path.isdir(full_path):
                self._folderArray(full_path, full_path, basePath)
            else:
-               self.deployFiles.append(('file',(f_name,open(full_path,'rb'),'application/octet-stream')))
+               self.deployFiles.append((key,(f_name,open(full_path,'rb'),'application/octet-stream')))
+               
+               
+   def generatePinataToken(self, contentId, timeOutSecs):
+       print('Generating Pinata Access Token')
+       url = "https://managed.mypinata.cloud/api/v1/auth/content/jwt"
+
+       payload = json.dumps({
+          "timeoutSeconds": timeOutSecs,
+          "contentIds": [
+            contentId
+          ]
+        })
+       headers = {
+          'x-api-key': self.pinata['pinata_key'],
+          'Content-Type': 'application/json'
+        }
+        
+       response = requests.request("POST", url, headers=headers, data=payload)
+        
+       print(response.text)
+       
+   def submarineFiles(self, files, payload, window=None):
+        url = self.pinataSubmarineURL
+        
+        headers = {
+          'x-api-key': self.pinata['api_key']
+        }
+       
+        if window != None:
+            threading.Thread(target=self._folderDeploymentChecker,
+                              args=(window, ),
+                              daemon=True).start()
+       
+        response = requests.request("POST", url, headers=headers, data=payload, files=files)
+        
+        print(response.text)
+       
+        self.folderCID = response.json().get('IpfsHash')
+       
+        return response
 
                    
    def pinataFiles(self, files, payload, window=None):
         url = os.path.join(self.pinataPinURL, 'pinFileToIPFS').replace('\\', '/')
-       
+        
         headers = {
           'Authorization': "Bearer "+self.pinata['jwt']
         }
@@ -202,7 +278,7 @@ class W3DeployHandler:
         return response
        
        
-   def pinataFile(self, fileName, filePath, fileType, payload):
+   def pinataFile(self, fileName, filePath, fileType, payload, headers):
        result = False
        if len(self.pinata['jwt'])>0 and len(self.pinata['gateway'])>0:
             url = os.path.join(self.pinataPinURL, 'pinFileToIPFS').replace('\\', '/')
@@ -210,9 +286,6 @@ class W3DeployHandler:
             files=[
               ('file',(fileName,open(filePath,'rb'),fileType))
             ]
-            headers = {
-              'Authorization': "Bearer "+self.pinata['jwt']
-            }
            
             response = requests.request("POST", url, headers=headers, data=payload, files=files)
            
@@ -246,7 +319,7 @@ class W3DeployHandler:
             
        return result
        
-   def pinataDirectoryGUI(self, filePath, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False, askPermission=True):
+   def pinataDirectoryGUI(self, filePath, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False, askPermission=True, private=False):
        result = None
        popup = 'OK'
        if askPermission == True:
@@ -288,10 +361,18 @@ class W3DeployHandler:
                        grab_anywhere=False,
                        keep_on_top=True,
                        #background_color='white',
-                       # transparent_color='white' if sg.running_windows() else None,
+                       transparent_color='white' if sg.running_windows() else None,
                        alpha_channel=.8,
                        margins=(0,0))
-               self._folderArray('', filePath, base_path)
+               
+               key = 'file'
+
+               if private == True:
+                   key = 'files'
+                   payload = pinata_submarine_payload(root_folder, 'true', 'false', metadata)
+                   
+               self._folderArray(key, '', filePath, base_path)
+                   
         
                threading.Thread(target=self.pinataFiles,
                                  args=(self.deployFiles, payload.dictionary, window),
@@ -319,8 +400,12 @@ class W3DeployHandler:
        self.pinataDirectoryGUI(self.resourcePath, wrapWithDirectory, pinToIPFS, useParentDirs)
        
    def newFileData(self, filePath):
-       f_type = None
-       return {'time_stamp':'', 'type':f_type, 'path':filePath, 'url':None}
+       return {'time_stamp':'', 'type':None, 'path':filePath, 'url':None, 'items':[]}
+   
+   def updateFileDataPinataID(self, filePath, i_d):
+       f_name = os.path.basename(filePath)
+       if f_name in self.manifest.keys():
+           self.manifest[f_name]['id'] = i_d 
    
    def updateFileDataPinataURL(self, filePath, url):
        f_name = os.path.basename(filePath)
@@ -345,7 +430,7 @@ class W3DeployHandler:
        for k in self.manifest.keys():
              if k not in files:
                  prune_data.append(k)
-       print(prune_data)       
+      
        self.saveData()
            
    def updateSettings(self, settings):
