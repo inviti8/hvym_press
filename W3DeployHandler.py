@@ -55,8 +55,8 @@ class pinata_payload:
     pinataOptions: str
     name: str
     path: str
-    wrapWithDirectory: False
-    pinToIPFS: False
+    wrapWithDirectory: str
+    pinToIPFS: str
     pinataMetadata:str
     
     @property
@@ -117,7 +117,7 @@ class W3DeployHandler:
        self.pinataPinURL = 'https://api.pinata.cloud/pinning'
        self.pinataSubmarineURL = 'https://managed.mypinata.cloud/api/v1/content'
        self.pinataDataURL = 'https://api.pinata.cloud/data'
-       self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'jwt':settings['pinata_jwt'], 'api_key':settings['pinata_key'], 'gateway':settings['pinata_gateway'], 'meta_data':settings['pinata_meta_data']}
+       self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'jwt':settings['pinata_jwt'], 'api_key':settings['pinata_key'], 'gateway':settings['pinata_gateway'], 'timeout':settings['pinata_timeout'], 'meta_data':settings['pinata_meta_data']}
        self.pinataToken = None
        self.deployFiles = []
        self.deployedStatuses = {}
@@ -125,6 +125,7 @@ class W3DeployHandler:
        self.maxCalls = 5
        self.usedCalls = self.maxCalls
        self.folderCID = None
+       self.folderID = None
        
        if os.path.isfile(self.dataFilePath):
            dataFile = open(self.dataFilePath, 'rb')
@@ -138,10 +139,13 @@ class W3DeployHandler:
        #print(self.manifest)
        # print(self.pinata)
        
-   def _folderDeploymentChecker(self, window):
+   def _folderDeploymentChecker(self, window, private=False):
         result = False
         responses = []
-       
+        
+        if private and self.pinataToken == None:
+            self.pinataToken = self.generatePinataToken(self.FolderID, 10000)
+            
         while self.folderCID == None:
             time.sleep(1)
             if self.usedCalls > 0:
@@ -154,6 +158,8 @@ class W3DeployHandler:
             f_key = os.path.basename(f_name)
             if 'index.html' in f and f_key not in self.deployedStatuses.keys():
                 url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, f_name).replace('\\', '/')
+                if private:
+                    url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, 'index.html', '?accessToken=', self.pinataToken).replace('\\', '/')
                 response = requests.get(url)
                 self.usedCalls -= 1
                 responses.append(response.status_code)
@@ -165,6 +171,8 @@ class W3DeployHandler:
             f_name = f_name = "/".join(f_name.strip("/").split('/')[1:])
             f_key = os.path.basename(f_name)
             url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, f_name).replace('\\', '/')
+            if private:
+                url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, 'index.html', '?accessToken=', self.pinataToken).replace('\\', '/')
             
             self.updateFileDataPinataURL(f_key, url)
             
@@ -212,7 +220,7 @@ class W3DeployHandler:
                f_name = f_name.replace(folder, self.deployFolderName)
            
            if os.path.isdir(full_path):
-               self._folderArray(full_path, full_path, basePath)
+               self._folderArray(key, full_path, full_path, basePath, window)
            else:
                self.deployFiles.append((key,(f_name,open(full_path,'rb'),'application/octet-stream')))
                
@@ -233,6 +241,7 @@ class W3DeployHandler:
         }
         
        response = requests.request("POST", url, headers=headers, data=payload)
+       
         
        print(response.text)
        
@@ -251,8 +260,11 @@ class W3DeployHandler:
         response = requests.request("POST", url, headers=headers, data=payload, files=files)
         
         print(response.text)
-       
-        self.folderCID = response.json().get('IpfsHash')
+        
+        data = json.loads(response.text)
+        
+        self.folderCID = data['items']['cid']
+        self.folderID = data['items']['id']
        
         return response
 
@@ -334,7 +346,7 @@ class W3DeployHandler:
                    base_path = drive_tail[0].replace('\\', '/')
                    
                metadata = self.pinata['meta_data']
-               payload = pinata_payload('{"cidVersion": 1}', root_folder, filePath, wrapWithDirectory, pinToIPFS, metadata)
+               payload = pinata_payload('{"cidVersion": 1}', root_folder, filePath, str(wrapWithDirectory).lower(), str(pinToIPFS).lower, metadata)
                
                layout = [[sg.Text('Deploying Files:')],
                           [sg.ProgressBar(max_value=10, orientation='h', size=(20, 20), key='progress_1')]]
@@ -386,8 +398,11 @@ class W3DeployHandler:
                        break
                    # update the animation in the window
                    window['-IMAGE-'].update_animation(gif,  time_between_frames=100)
-               result = self.folderCID
+               result = (self.folderCID, self.pinataToken)
+               
                self.folderCID = None
+               self.FolderID = None
+               self.pinataToken = None
                self.deployFolderName = ''
                self.deployFiles.clear() 
                window.close()

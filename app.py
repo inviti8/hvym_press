@@ -700,11 +700,10 @@ def popup_server_status(start=True):
     window.close()
     
 def DoDeploy(data, window, private=False):
-    print('private is: ')
-    print(private)
     window.disappear()
     media = data.gatherMedia()
-    media_cid = data.deployMedia(False, True, private)
+    tup = data.deployMedia(False, True, private)
+    media_cid = tup[0]
     if media_cid != None:
         sg.popup_no_buttons("Media Deployed, Deploying Site", auto_close=True, auto_close_duration=1.5, non_blocking=False)
         data.updateAllArticleHTML(data.filePath)
@@ -712,11 +711,16 @@ def DoDeploy(data, window, private=False):
         data.refreshCss()
         data.saveData()
         
-    site_cid = data.deploySite(False, False, private)
+    tup = data.deploySite(False, False, private)
+    site_cid = tup[0]
     
     if site_cid != None:
         sg.popup_no_buttons("Site Deployed", auto_close=True, auto_close_duration=1.5, non_blocking=False)
-        url = os.path.join('https://', data.settings['pinata_gateway'], 'ipfs' ,site_cid, 'index.html').replace('\\', '/')
+        url = os.path.join('https://', data.settings['pinata_gateway'], 'ipfs' , site_cid, 'index.html').replace('\\', '/')
+        
+        # if private:
+        #     url = os.path.join('https://', data.settings['pinata_gateway'], 'ipfs', site_cid, 'index.html', '?accessToken=', tup[1]).replace('\\', '/')
+            
         webbrowser.open_new_tab(url)
     window.reappear()
 
