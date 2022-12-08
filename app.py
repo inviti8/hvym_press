@@ -718,13 +718,16 @@ def DoDeploy(data, window, private=False):
         
     tup = data.deploySite(False, False, private)
     site_cid = tup[0]
+    site_dir = 'dist'
+    if data.settings['siteName'] != '':
+        site_dir = data.settings['siteName']
     
     if site_cid != None:
         sg.popup_no_buttons("Site Deployed", auto_close=True, auto_close_duration=1.5, non_blocking=False)
         url = os.path.join('https://', data.settings['pinata_gateway'], 'ipfs' , site_cid, 'index.html').replace('\\', '/')
         
         if private:
-            url = os.path.join('https://', data.settings['pinata_gateway'], 'ipfs', site_cid, 'index.html', '?accessToken=', tup[1]).replace('\\', '/')
+            url = os.path.join('https://', data.settings['pinata_gateway'], 'ipfs', site_cid, site_dir, 'index.html?accessToken=', tup[1].strip('"')).replace('\\', '/')
         
         print(url)
             

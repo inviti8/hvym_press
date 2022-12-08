@@ -140,6 +140,7 @@ class W3DeployHandler:
        # print(self.pinata)
        
    def _privateFolderDeploymentChecker(self, window):
+        print('_privateFolderDeploymentChecker')
         result = False
         responses = []
         
@@ -147,11 +148,8 @@ class W3DeployHandler:
             time.sleep(1)
             if self.usedCalls > 0:
                 self._privateFolderDeploymentChecker(window)
-                
-        if self.pinataToken == None:
-            self.pinataToken = self.generatePinataToken(self.folderID, 10000)
             
-        list_url = os.path.joind(self.pinataSubmarineURL, self.folderID, 'list').replace('\\', '/')
+        list_url = os.path.join(self.pinataSubmarineURL, self.folderID, 'list').replace('\\', '/')
         
         payload = {}
         
@@ -160,8 +158,29 @@ class W3DeployHandler:
         }
         
         response = requests.request("GET", list_url, headers=headers, data=payload)
-
-        print(response.text)
+        
+        if response.status_code == 200:
+            items = response.json().get('items')
+  
+            for f in self.deployFiles:
+                f_name = f[1][0]
+                f_name = f_name = "/".join(f_name.strip("/").split('/')[1:])
+                f_key = os.path.basename(f_name)
+                url = None
+                
+                for item in items:
+                    if f_name in item['originalname']:
+                        time.sleep(1)
+                        token = self.generatePinataToken([item['id']], 10000).strip('"')
+                        gateway = 'https://'+self.pinata['gateway']
+                        print('WTF')
+                        url = os.path.join(gateway, (item['uri']+'?accessToken=')).replace('\\', '/')
+                        url = url+token
+                        print(url)
+                        print('WTF')
+                        self.updateFileDataPinataURL(f_key, url)
+                        self.folderCID = url
+                        self.pinataToken = token
         
         if window != None and window.write_event_value != None:
             window.write_event_value('Exit', '')
@@ -178,7 +197,7 @@ class W3DeployHandler:
                 self._folderDeploymentChecker(window, private)
                 
         if private and self.pinataToken == None:
-            self.pinataToken = self.generatePinataToken(self.folderID, 10000)
+            self.pinataToken = self.generatePinataToken([self.folderID], 10000)
             
         
         #Deploy index first, if it's there
@@ -202,13 +221,7 @@ class W3DeployHandler:
             f_key = os.path.basename(f_name)
             url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, f_name).replace('\\', '/')
             if private:
-                print('self.pinata[gateway]')
-                print(self.pinata['gateway'])
-                print('self.folderCID')
-                print(self.folderCID)
-                print('self.pinataToken')
-                print(self.pinataToken)
-                url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, 'index.html', '?accessToken=', str(self.pinataToken)).replace('\\', '/')
+                url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, 'index.html', '?accessToken=', self.pinataToken.strip(' " " ')).replace('\\', '/')
             
             self.updateFileDataPinataURL(f_key, url)
             
@@ -263,15 +276,13 @@ class W3DeployHandler:
                self.deployFiles.append((key,(f_name,open(full_path,'rb'),'application/octet-stream')))
                
                
-   def generatePinataToken(self, contentId, timeOutSecs):
+   def generatePinataToken(self, contentIdArr, timeOutSecs):
        print('Generating Pinata Access Token')
-       url = "https://managed.mypinata.cloud/api/v1/auth/content/jwt"
+       url = os.path.join("https://managed.mypinata.cloud/api/v1/auth/content/jwt")
 
        payload = json.dumps({
           "timeoutSeconds": timeOutSecs,
-          "contentIds": [
-            contentId
-          ]
+          "contentIds": contentIdArr
         })
        headers = {
           'x-api-key': self.pinata['api_key'],
@@ -280,28 +291,32 @@ class W3DeployHandler:
         
        response = requests.request("POST", url, headers=headers, data=payload)
        
-       print('PINATA TOKEN IS:') 
-       print(response.text)
-       print('---------------------------') 
+       print('Token gen response code:')
+       print(response.status_code)
+       
        return response.text
        
    def submarineFiles(self, files, payload, window=None):
+        print('submarineFiles')
         url = self.pinataSubmarineURL
-        
+        print('submarineFiles_1')
         headers = {
           'x-api-key': self.pinata['api_key']
         }
+        print('submarineFiles_2')
        
         if window != None:
+            print('start method in thread')
             threading.Thread(target=self._privateFolderDeploymentChecker,
-                              args=(window),
+                              args=(window, ),
                               daemon=True).start()
-       
+        print('submarineFiles_3')
         response = requests.request("POST", url, headers=headers, data=payload, files=files)
         
         print(response.text)
         
         if response.status_code == 200:
+            print('submarineFiles_4')
             data = json.loads(response.text).get('items')[0]
             
             print('THis is the data: ')
