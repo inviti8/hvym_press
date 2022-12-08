@@ -139,17 +139,47 @@ class W3DeployHandler:
        #print(self.manifest)
        # print(self.pinata)
        
-   def _folderDeploymentChecker(self, window, private=False):
+   def _privateFolderDeploymentChecker(self, window):
         result = False
         responses = []
         
-        if private and self.pinataToken == None:
-            self.pinataToken = self.generatePinataToken(self.FolderID, 10000)
+        while self.folderCID == None:
+            time.sleep(1)
+            if self.usedCalls > 0:
+                self._privateFolderDeploymentChecker(window)
+                
+        if self.pinataToken == None:
+            self.pinataToken = self.generatePinataToken(self.folderID, 10000)
+            
+        list_url = os.path.joind(self.pinataSubmarineURL, self.folderID, 'list').replace('\\', '/')
+        
+        payload = {}
+        
+        headers = {
+          'x-api-key': self.pinata['api_key']
+        }
+        
+        response = requests.request("GET", list_url, headers=headers, data=payload)
+
+        print(response.text)
+        
+        if window != None and window.write_event_value != None:
+            window.write_event_value('Exit', '')
+            self.saveData()
+            sys.exit()
+       
+   def _folderDeploymentChecker(self, window, private=False):
+        result = False
+        responses = []
             
         while self.folderCID == None:
             time.sleep(1)
             if self.usedCalls > 0:
-                self._folderDeploymentChecker(window)
+                self._folderDeploymentChecker(window, private)
+                
+        if private and self.pinataToken == None:
+            self.pinataToken = self.generatePinataToken(self.folderID, 10000)
+            
         
         #Deploy index first, if it's there
         for f in self.deployFiles:
@@ -172,11 +202,19 @@ class W3DeployHandler:
             f_key = os.path.basename(f_name)
             url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, f_name).replace('\\', '/')
             if private:
-                url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, 'index.html', '?accessToken=', self.pinataToken).replace('\\', '/')
+                print('self.pinata[gateway]')
+                print(self.pinata['gateway'])
+                print('self.folderCID')
+                print(self.folderCID)
+                print('self.pinataToken')
+                print(self.pinataToken)
+                url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, 'index.html', '?accessToken=', str(self.pinataToken)).replace('\\', '/')
             
             self.updateFileDataPinataURL(f_key, url)
             
-            if self.usedCalls > 0:
+            print(url)
+            
+            if self.usedCalls > 0 and 'index.html' not in f :
                 if f_key not in self.deployedStatuses.keys():
                     response = requests.get(url)
                     self.usedCalls -= 1
@@ -193,7 +231,7 @@ class W3DeployHandler:
   
         for r in responses:
             if r != 200 and self.usedCalls > 0:
-                self._folderDeploymentChecker(window)
+                self._folderDeploymentChecker(window, private)
                
         self.deployFiles.clear()
         self.deployedStatuses.clear()
@@ -236,14 +274,16 @@ class W3DeployHandler:
           ]
         })
        headers = {
-          'x-api-key': self.pinata['pinata_key'],
+          'x-api-key': self.pinata['api_key'],
           'Content-Type': 'application/json'
         }
         
        response = requests.request("POST", url, headers=headers, data=payload)
        
-        
+       print('PINATA TOKEN IS:') 
        print(response.text)
+       print('---------------------------') 
+       return response.text
        
    def submarineFiles(self, files, payload, window=None):
         url = self.pinataSubmarineURL
@@ -253,18 +293,22 @@ class W3DeployHandler:
         }
        
         if window != None:
-            threading.Thread(target=self._folderDeploymentChecker,
-                              args=(window, ),
+            threading.Thread(target=self._privateFolderDeploymentChecker,
+                              args=(window),
                               daemon=True).start()
        
         response = requests.request("POST", url, headers=headers, data=payload, files=files)
         
         print(response.text)
         
-        data = json.loads(response.text)
-        
-        self.folderCID = data['items']['cid']
-        self.folderID = data['items']['id']
+        if response.status_code == 200:
+            data = json.loads(response.text).get('items')[0]
+            
+            print('THis is the data: ')
+            print(data)
+            
+            self.folderCID = data['cid']
+            self.folderID = data['id']
        
         return response
 
@@ -377,16 +421,19 @@ class W3DeployHandler:
                        alpha_channel=.8,
                        margins=(0,0))
                
+               deploy_method = self.pinataFiles
                key = 'file'
 
                if private == True:
+                   print("this is a submarine call")
+                   deploy_method = self.submarineFiles
                    key = 'files'
                    payload = pinata_submarine_payload(root_folder, 'true', 'false', metadata)
                    
                self._folderArray(key, '', filePath, base_path)
                    
         
-               threading.Thread(target=self.pinataFiles,
+               threading.Thread(target=deploy_method,
                                  args=(self.deployFiles, payload.dictionary, window),
                                  daemon=True).start()
                
@@ -401,7 +448,7 @@ class W3DeployHandler:
                result = (self.folderCID, self.pinataToken)
                
                self.folderCID = None
-               self.FolderID = None
+               self.folderID = None
                self.pinataToken = None
                self.deployFolderName = ''
                self.deployFiles.clear() 
