@@ -126,6 +126,7 @@ class W3DeployHandler:
        self.usedCalls = self.maxCalls
        self.folderCID = None
        self.folderID = None
+       self.deployedUrl = None
        
        if os.path.isfile(self.dataFilePath):
            dataFile = open(self.dataFilePath, 'rb')
@@ -169,18 +170,24 @@ class W3DeployHandler:
                 url = None
                 
                 for item in items:
-                    if f_name in item['originalname']:
+                    print('f_key')
+                    print(f_key)
+                    print('item[originalname]')
+                    print(item['originalname'])
+                    if f_key in item['originalname']:
                         time.sleep(1)
                         token = self.generatePinataToken([item['id']], 10000).strip('"')
                         gateway = 'https://'+self.pinata['gateway']
                         print('WTF')
-                        url = os.path.join(gateway, (item['uri']+'?accessToken=')).replace('\\', '/')
-                        url = url+token
+                        url = os.path.join((item['uri']+'?accessToken=')).replace('\\', '/')
+                        url = gateway+url+token
                         print(url)
                         print('WTF')
                         self.updateFileDataPinataURL(f_key, url)
                         self.folderCID = url
                         self.pinataToken = token
+                        if 'index.html' in f_key:
+                            self.deployedUrl = url
         
         if window != None and window.write_event_value != None:
             window.write_event_value('Exit', '')
@@ -213,6 +220,7 @@ class W3DeployHandler:
                 self.usedCalls -= 1
                 responses.append(response.status_code)
                 self.deployedStatuses[f_key] = response.status_code
+                self.deployedUrl = url
        
         for f in self.deployFiles:
             time.sleep(1)
@@ -225,7 +233,6 @@ class W3DeployHandler:
             
             self.updateFileDataPinataURL(f_key, url)
             
-            print(url)
             
             if self.usedCalls > 0 and 'index.html' not in f :
                 if f_key not in self.deployedStatuses.keys():
@@ -460,11 +467,12 @@ class W3DeployHandler:
                        break
                    # update the animation in the window
                    window['-IMAGE-'].update_animation(gif,  time_between_frames=100)
-               result = (self.folderCID, self.pinataToken)
+               result = (self.folderCID, self.deployedUrl)
                
                self.folderCID = None
                self.folderID = None
                self.pinataToken = None
+               self.deployedUrl = None
                self.deployFolderName = ''
                self.deployFiles.clear() 
                window.close()
