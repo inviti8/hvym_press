@@ -104,7 +104,7 @@ def add_files_in_folder(parent, dirname, command, data):
             
             if os.path.isdir(fullname):
                 folderFiles = os.listdir(fullname)
-                data.pruneFiles(f_name, folderFiles)
+                #data.pruneFiles(f_name, folderFiles)
                 treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
                 if data.hasNoFolder(f):
                     newFolderData(f, data)
@@ -144,7 +144,7 @@ def add_files_in_folder(parent, dirname, command, data):
                     elif fileIsNew(fullname, data_t):
                         data.updateArticleHTML(f_path, f_name, fullname)
                         
-            data.deleteOldFiles()
+            #data.deleteOldFiles()
     else:
         for f in files:
             fullname = os.path.join(dirname, f)
@@ -169,12 +169,12 @@ def add_files_in_folder(parent, dirname, command, data):
                     newFileData(f_path, f, fullname, data)
                     data.addAuthor('anonymous', anon)
                     
-    data.pruneFolders(files)
-    data.deleteOldFiles()          
+    #data.pruneFolders(files)
+    #data.deleteOldFiles()          
     data.saveData()
     
-    print('ARTICLE DATA:')
-    print(data.articleData)
+    # print('ARTICLE DATA:')
+    # print(data.articleData)
                 
 def get_file_icon(uiType):
     result = file_icon

@@ -129,9 +129,14 @@ class SiteDataHandler:
        columns = int(self.pageData[page]['columns'])
        for idx in range(0, columns):
            result['content']['columns'].append([])
+           
+           print('self.articleData[page].keys()')
+           print('page:')
+           print(page)
        
        for k in self.articleData[page].keys():
            article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'max_width':None, 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':"", 'images':[], 'videos':[]}
+           
            props = self.articleData[page][k].keys()
            
            for prop in props:
@@ -254,6 +259,12 @@ class SiteDataHandler:
                    if selfData[folder] not in self.oldData:
                        self.oldDataFolders.append(folder)
                        self.oldDataKeys.append(k)
+       print('SOMething is pucked up with pruning files:')
+       print('self.oldDataFolders:')
+       print(self.oldDataFolders)
+       print('self.oldDataKeys:')
+       print(self.oldDataKeys)
+       
     
    def pruneFolders(self, arr):
        self.pruneFolder(arr, self.folders)
