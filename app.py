@@ -90,6 +90,7 @@ def newFileData(f_path, f, full_path, data):
     data.updateArticleHTML(f_path, f, full_path)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':"", 'btn_txt':"SUBMIT", 'response':"Form Submitted", 'form_id':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
+    
 
 def add_files_in_folder(parent, dirname, command, data):
     files = os.listdir(dirname)
@@ -171,6 +172,9 @@ def add_files_in_folder(parent, dirname, command, data):
     data.pruneFolders(files)
     data.deleteOldFiles()          
     data.saveData()
+    
+    print('ARTICLE DATA:')
+    print(data.articleData)
                 
 def get_file_icon(uiType):
     result = file_icon
@@ -699,6 +703,7 @@ def popup_server_status(start=True):
         window['-IMAGE-'].update_animation(gif,  time_between_frames=100)
     window.close()
     
+    
 def DoDeploy(data, window, private=False):
     window.disappear()
     media = data.gatherMedia()
@@ -718,11 +723,14 @@ def DoDeploy(data, window, private=False):
         sg.popup_no_buttons("Site Deployed", auto_close=True, auto_close_duration=1.5, non_blocking=False)
         url = os.path.join('https://', data.settings['pinata_gateway'], 'ipfs' , site_cid, 'index.html').replace('\\', '/')
         
-        # if private:
-        #     url = os.path.join('https://', data.settings['pinata_gateway'], 'ipfs', site_cid, 'index.html', '?accessToken=', tup[1]).replace('\\', '/')
+        if private:
+            url = os.path.join('https://', data.settings['pinata_gateway'], 'ipfs', site_cid, 'index.html', '?accessToken=', tup[1]).replace('\\', '/')
+        
+        print(url)
             
         webbrowser.open_new_tab(url)
     window.reappear()
+    
 
 def StartServer(path=SCRIPT_DIR, port=8000):
     '''
