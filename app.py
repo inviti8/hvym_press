@@ -625,7 +625,13 @@ def popup_author():
         author_data = None
         img = None
         with open(values['AUTHOR-IMG'], "rb") as img_file:
-            img = base64.b64encode(img_file.read()).decode('utf-8')
+            buffer = io.BytesIO()
+            image = Image.open(values['AUTHOR-IMG'])
+            new_img = image.resize((64, 64))  # x, y
+            new_img.save(buffer, format="PNG")
+            buffer.seek(0)
+            img = base64.b64encode(buffer.read()).decode('utf-8')
+            #img = base64.b64encode(img_file.read()).decode('utf-8')
         if event == '-SAVE-DATA-':
             author_data = {'name':values['AUTHOR-NAME'], 'image':'data:image/png;base64,'+img}
         return author_data if event == '-SAVE-DATA-' else None
@@ -721,14 +727,14 @@ def DoDeploy(data, window, private=False):
     DATA.openStaticPage('template_index.txt', site_data)
         
     tup = data.deploySite(False, False, private)
-    site_cid = tup[0]
-    url = tup[1]
+    # site_cid = tup[0]
+    # url = tup[1]
     
-    if url != None:
-        print(url)
-        webbrowser.open_new_tab(url)
+    # if url != None:
+    #     print(url)
+    #     webbrowser.open_new_tab(url)
         
-    window.reappear()
+    # window.reappear()
     
 
 def StartServer(path=SCRIPT_DIR, port=8000):
@@ -781,6 +787,7 @@ SERVER_STATUS = ServerHandler.ServerStatusHandler()
 
 command = ['__________','Set-Column-Widths', '__________','Set-Meta-Data', 'Set-Form-Data']
 author_dropdown = ['Add-Author', 'Update-Author', 'Delete-Author']
+css_input_dropdown = ['Reset-Css']
 treedata = sg.TreeData()
 add_files_in_folder('', starting_path, command, DATA)
 
@@ -790,7 +797,7 @@ ui_settings_layout = [[sg.Frame('UI Settings', [
                                                 [name('Style'), sg.Combo(DATA.styles, default_value=DATA.settings['style'], s=(15,22), enable_events=True, readonly=True, k='SETTING-style')],
                                                 [name('Row Padding'), sg.Spin(values=[i for i in range(1, 100)], initial_value=DATA.settings['row_pad'], enable_events=True, s=(25,22), k='SETTING-row_pad')],
                [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='SETTING-theme')],
-               [name('Custom CSS Theme'), sg.Input(default_text=DATA.settings['customTheme'], s=20, enable_events=True, k='SETTING-customTheme'), sg.FolderBrowse()],
+               [name('Custom CSS'), sg.Input(default_text=DATA.settings['customTheme'], s=20, right_click_menu=['&Right', css_input_dropdown], enable_events=True, k='SETTING-customTheme'), sg.FolderBrowse()],
                [name('Page Order'), sg.Listbox(DATA.pageList, expand_x=True, size=(10, 5), key="-ITEM-")],
                [name(''), sg.Button("Move item to top", key="-CHANGE-PAGE-ORDER-")]
                ], expand_y=True, expand_x=True)]]
@@ -882,6 +889,7 @@ while True:
         print('Rebuild Site')
         site_data = DATA.generateSiteData()
         DATA.refreshDebugMedia()
+        DATA.refreshCss()
         DATA.openStaticPage('template_index.txt', site_data)
         
     elif event == 'Pinata IPFS':
@@ -981,6 +989,10 @@ while True:
                 window['AUTHOR-LIST'].Update(DATA.authors.keys())
                 DATA.deleteAuthor(key)
                 DATA.saveData()
+                
+    if(event == 'Reset-Css'):
+        DATA.resetCss()
+        window.Element('SETTING-theme').Update(text='')
                 
     if(event == '-CHANGE-PAGE-ORDER-'):
         listbox = window['-ITEM-'].Widget

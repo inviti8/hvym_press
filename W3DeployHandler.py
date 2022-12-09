@@ -170,24 +170,49 @@ class W3DeployHandler:
                 url = None
                 
                 for item in items:
-                    print('f_key')
-                    print(f_key)
-                    print('item[originalname]')
-                    print(item['originalname'])
                     if f_key in item['originalname']:
                         time.sleep(1)
                         token = self.generatePinataToken([item['id']], 10000).strip('"')
                         gateway = 'https://'+self.pinata['gateway']
-                        print('WTF')
                         url = os.path.join((item['uri']+'?accessToken=')).replace('\\', '/')
                         url = gateway+url+token
-                        print(url)
-                        print('WTF')
                         self.updateFileDataPinataURL(f_key, url)
                         self.folderCID = url
                         self.pinataToken = token
                         if 'index.html' in f_key:
                             self.deployedUrl = url
+        
+        if window != None and window.write_event_value != None:
+            window.write_event_value('Exit', '')
+            self.saveData()
+            sys.exit()
+            
+   def _folderDeploymentCheckerNew(self, window):
+        result = False
+        responses = []
+        
+        print('_folderDeploymentCheckerNew is called')
+             
+        while self.folderCID == None:
+             time.sleep(1)
+             if self.usedCalls > 0:
+                 self._folderDeploymentCheckerNew(window)
+                 
+        url = "https://api.pinata.cloud/data/pinList?status=pinned&pinSizeMin=100"
+
+        payload={}
+        headers = {
+          'Authorization': "Bearer "+self.pinata['jwt']
+        }
+        
+        response = requests.request("GET", url, headers=headers, data=payload)
+        
+        print(response.text)
+        
+        # if response.json().get('count') == 0:
+        #     time.sleep(2)
+        #     self._folderDeploymentCheckerNew(window)
+        #     return
         
         if window != None and window.write_event_value != None:
             window.write_event_value('Exit', '')
@@ -206,21 +231,21 @@ class W3DeployHandler:
         if private and self.pinataToken == None:
             self.pinataToken = self.generatePinataToken([self.folderID], 10000)
             
-        
         #Deploy index first, if it's there
-        for f in self.deployFiles:
-            f_name = f[1][0]
-            f_name = f_name = "/".join(f_name.strip("/").split('/')[1:])
-            f_key = os.path.basename(f_name)
-            if 'index.html' in f and f_key not in self.deployedStatuses.keys():
-                url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, f_name).replace('\\', '/')
-                if private:
-                    url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, 'index.html', '?accessToken=', self.pinataToken).replace('\\', '/')
-                response = requests.get(url)
-                self.usedCalls -= 1
-                responses.append(response.status_code)
-                self.deployedStatuses[f_key] = response.status_code
-                self.deployedUrl = url
+        if self.deployedUrl() == None:
+            for f in self.deployFiles:
+                f_name = f[1][0]
+                f_name = f_name = "/".join(f_name.strip("/").split('/')[1:])
+                f_key = os.path.basename(f_name)
+                if 'index.html' in f and f_key not in self.deployedStatuses.keys():
+                    url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, f_name).replace('\\', '/')
+                    if private:
+                        url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, 'index.html', '?accessToken=', self.pinataToken).replace('\\', '/')
+                    response = requests.get(url)
+                    self.usedCalls -= 1
+                    responses.append(response.status_code)
+                    self.deployedStatuses[f_key] = response.status_code
+                    self.deployedUrl = url
        
         for f in self.deployFiles:
             time.sleep(1)
@@ -304,30 +329,23 @@ class W3DeployHandler:
        return response.text
        
    def submarineFiles(self, files, payload, window=None):
-        print('submarineFiles')
         url = self.pinataSubmarineURL
-        print('submarineFiles_1')
+
         headers = {
           'x-api-key': self.pinata['api_key']
         }
-        print('submarineFiles_2')
        
         if window != None:
             print('start method in thread')
             threading.Thread(target=self._privateFolderDeploymentChecker,
                               args=(window, ),
                               daemon=True).start()
-        print('submarineFiles_3')
         response = requests.request("POST", url, headers=headers, data=payload, files=files)
         
         print(response.text)
         
         if response.status_code == 200:
-            print('submarineFiles_4')
             data = json.loads(response.text).get('items')[0]
-            
-            print('THis is the data: ')
-            print(data)
             
             self.folderCID = data['cid']
             self.folderID = data['id']
@@ -343,7 +361,7 @@ class W3DeployHandler:
         }
        
         if window != None:
-            threading.Thread(target=self._folderDeploymentChecker,
+            threading.Thread(target=self._folderDeploymentCheckerNew,
                               args=(window, ),
                               daemon=True).start()
        
@@ -356,23 +374,46 @@ class W3DeployHandler:
         return response
        
        
-   def pinataFile(self, fileName, filePath, fileType, payload, headers):
+   def pinataFile(self, filePath, payload):
        result = False
+       f_name = os.path.basename(filePath)
+       arr = filePath.split('/')
+       parent_folder = arr[len(arr)-2]
+       fileName = os.path.join(parent_folder, f_name).replace('\\', '/')
+       
        if len(self.pinata['jwt'])>0 and len(self.pinata['gateway'])>0:
             url = os.path.join(self.pinataPinURL, 'pinFileToIPFS').replace('\\', '/')
+            
+            headers = {
+              'Authorization': "Bearer "+self.pinata['jwt']
+            }
     
             files=[
-              ('file',(fileName,open(filePath,'rb'),fileType))
+              ('file',(fileName,open(filePath,'rb'), 'application/octet-stream'))
             ]
            
-            response = requests.request("POST", url, headers=headers, data=payload, files=files)
+            response = requests.request("POST", url, headers=headers, data=payload.dictionary, files=files)
            
             if response.status_code == 200:
-                result = True
+                cid = response.json().get('IpfsHash')
+                url = os.path.join('https://', self.pinata['gateway'], 'ipfs', cid, f_name).replace('\\', '/')
+                result = url
        else:
              print('Pinata Credentials Not Set!')
              
        return result
+   
+   def pinataCss(self, filePath):
+       metadata = self.pinata['meta_data']
+       f_name = os.path.basename(filePath)
+       arr = filePath.split('/')
+       parent_folder = arr[len(arr)-2]
+       fileName = os.path.join(parent_folder, f_name).replace('\\', '/')
+
+       payload = pinata_payload('{"cidVersion": 1}', fileName, filePath, 'true', 'true', metadata)
+       
+       return self.pinataFile(filePath, payload)  
+       
    
    def pinataDirectory(self, filePath, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False):
        result = False

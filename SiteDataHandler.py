@@ -46,7 +46,8 @@ class SiteDataHandler:
       self.articleData = {}
       self.formData = {}
       self.metaData = {}
-      self.settings = {'uiFramework':'onsen', 'pageType':'splitter', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'pinata_meta_data':'', 'pinata_timeout':100, 'arWallet':''}
+      self.css_components = 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsen-css-components.min.css'
+      self.settings = {'css_components':self.css_components, 'uiFramework':'onsen', 'pageType':'splitter', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'pinata_meta_data':'', 'pinata_timeout':100, 'arWallet':''}
       self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['splitter', 'tabs']
@@ -88,6 +89,7 @@ class SiteDataHandler:
           self.metaData = data['metaData']
           self.settings = data['settings']
           self.authors = data['authors']
+          self.css_components = data['css_components']
           self.fileExists = True
           self.deployHandler = W3DeployHandler.W3DeployHandler(self.filePath, self.debugPath, self.resourcePath, self.settings)
           self.images = data['media']['images']
@@ -301,24 +303,27 @@ class SiteDataHandler:
             dst_path = os.path.join(target, f)
             shutil.copy(src_path, dst_path)
             
+            
+   def resetCss(self):
+       self.settings['css_components'] = self.css_components
+       self.saveData()
+       
+            
    def refreshCss(self):
        if os.path.isdir(self.settings['customTheme']):
            dist_css = os.path.join(self.distPath,'css', 'onsen-css-components.min.css')
            dist_theme_css = os.path.join(self.distPath,'css', 'theme.css')
-           new_css = os.path.join(self.settings['customTheme'], 'onsen-css-components.min.css')
-           theme_css = os.path.join(self.settings['customTheme'], 'theme.css')
+               
+           f_name = 'onsen-css-components.min.css'
+           css_components = os.path.join(self.settings['customTheme'], f_name).replace('\\', '/')
            
-           if os.path.isfile(dist_css):
-               os.remove(dist_css)
-               
-           if os.path.isfile(dist_theme_css):
-               os.remove(dist_theme_css)
-               
-           if os.path.isfile(new_css):    
-               shutil.copy(new_css, dist_css)
-               
-           if os.path.isfile(theme_css):    
-               shutil.copy(theme_css, dist_theme_css)
+           url = self.deployHandler.pinataCss(css_components)
+           
+           if url != None:
+               self.settings['css_components'] = url
+               self.saveData()
+           else:
+               print('Some issue uploading css.  Custom them not loaded.')     
             
    def refereshDist(self):
        siteName = self.settings['siteName']
@@ -583,7 +588,7 @@ class SiteDataHandler:
            
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
-       data = {'pageList':self.pageList, 'folders':self.folders, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors, 'media':self.gatherMedia()}
+       data = {'pageList':self.pageList, 'folders':self.folders, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors, 'css_components':self.css_components, 'media':self.gatherMedia()}
        pickle.dump(data, file)
        file.close()
              

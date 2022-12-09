@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <link rel="shortcut icon" type="image/x-icon" href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmcJLBGNFb2UKFy3jspNfHk8wFCjhSsBDaQ2tWrASQBSYE" />
   <title>{{data.settings.site_name}}</title>
-  <link rel="stylesheet" href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsenui.css">
-  <link rel="stylesheet" href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsen-css-components.min.css">
+  <link rel="stylesheet" href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsenui.min.css">
+  <link rel="stylesheet" href="{{data.settings.css_components}}">
   <script src="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/js/onsenui.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/approvejs/3.1.2/approve.min.js" integrity="sha512-TmhOO3rUu5WfsLdsw9H1pB/p5/A/KnhydCuLNGlZoukfUUopMmA2sq6DWR9E+acuLB1DBk2A8cq63f7JMwHgVQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script type="module">
@@ -490,7 +490,7 @@
 </template>
 
 <!-- partial -->
-<script  src="./script.js"></script>
+<!-- <script  src="./script.js"></script> -->
 
 </body>
 </html>
