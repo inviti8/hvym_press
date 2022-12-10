@@ -136,9 +136,6 @@ class W3DeployHandler:
 
        self.updateManifestData(filePath)
        
-       # print(self.files)
-       #print(self.manifest)
-       # print(self.pinata)
        
    def _privateFolderDeploymentChecker(self, window):
         print('_privateFolderDeploymentChecker')

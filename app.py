@@ -631,7 +631,6 @@ def popup_author():
             new_img.save(buffer, format="PNG")
             buffer.seek(0)
             img = base64.b64encode(buffer.read()).decode('utf-8')
-            #img = base64.b64encode(img_file.read()).decode('utf-8')
         if event == '-SAVE-DATA-':
             author_data = {'name':values['AUTHOR-NAME'], 'image':'data:image/png;base64,'+img}
         return author_data if event == '-SAVE-DATA-' else None
@@ -756,21 +755,7 @@ def StopServer():
 def LaunchStaticSite(route):
     url = os.path.join('http://localhost:8000', route)
     webbrowser.open_new_tab(url)
-    
-def handleDeployUI(window, data):
-    if data.settings['deployType'] == 'Pinata':
-        window.Element('PINATA-GRP').Update(visible=True)
-        window.Element('SUBMARINE-GRP').Update(visible=False)
-        window.Element('ARWEAVE-GRP').Update(visible=False)
-    elif data.settings['deployType'] == 'Submarine':
-        window.Element('PINATA-GRP').Update(visible=False)
-        window.Element('SUBMARINE-GRP').Update(visible=True)
-        window.Element('ARWEAVE-GRP').Update(visible=False)
-    elif data.settings['deployType'] == 'Arweave':
-        window.Element('PINATA-GRP').Update(visible=False)
-        window.Element('SUBMARINE-GRP').Update(visible=False)
-        window.Element('ARWEAVE-GRP').Update(visible=True)
-        
+           
 
 dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
 
@@ -812,14 +797,13 @@ author_settings_layout = [[sg.Frame('Author Settings', [
         ], expand_x=True)],
     ],  size=(15,10), expand_y=True, expand_x=True)]]
 
-deployment_settings_layout = [[sg.Frame('Deployment Settings', [[name('Deploy Type:'), sg.Combo(DATA.deployTypes, default_value=DATA.settings['deployType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-deployType')],                                    
-               [sg.Frame('Pinata', [[name('JWT'), sg.Input(default_text=DATA.settings['pinata_jwt'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_jwt')],
+deployment_settings_layout = [[sg.Frame('Deployment Settings', [                                  
+               [sg.Frame('Pinata IPFS', [[name('JWT'), sg.Input(default_text=DATA.settings['pinata_jwt'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_jwt')],
                                     [name('Gateway URL'), sg.Input(default_text=DATA.settings['pinata_gateway'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_gateway')],
                                     [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['pinata_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-pinata_meta_data')]
                ], expand_y=True, expand_x=True, k='PINATA-GRP')],
-               [sg.Frame('Submarine', [[name('Submarine Key'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_key')],
+               [sg.Frame('Pinata Submarine', [[name('Submarine Key'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_key')],
                                        [name('Timeout (seconds)'), sg.Spin(values=[i for i in range(1, 604800)], initial_value=DATA.settings['pinata_timeout'], enable_events=True, s=(25,22), k='SETTING-pinata_timeout')],
-                                    [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['pinata_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-pinata_meta_data')]
                ], expand_y=True, expand_x=True, k='SUBMARINE-GRP')],
                [sg.Frame('Arweave Wallet', [[sg.Input(default_text=DATA.settings['arWallet'], expand_x=True, s=20, enable_events=True, k='SETTING-arWallet'), sg.FileBrowse(enable_events=True)]
                ], expand_y=True, expand_x=True,  k='ARWEAVE-GRP')],
@@ -847,7 +831,6 @@ window = sg.Window('Weeeb3', layout, use_default_focus=False, finalize=True)
 tree = window['-TREE-']         # type: sg.Tree
 tree.bind("<Double-1>", '+DOUBLE')
 block_focus(window)
-handleDeployUI(window, DATA)
 
 #[name('Timeout (seconds)'), sg.Spin(values=[i for i in range(100, 31557600)], initial_value=DATA.settings['pinata_timeout'], enable_events=True, s=(25,22), k='SETTING-pinata_timeout')]
 
@@ -959,10 +942,6 @@ while True:
         val = values[event]
         
         DATA.updateSetting(setting, val)
-        
-        if setting == 'deployType':
-            handleDeployUI(window, DATA)
-            
         DATA.saveData()
         DATA.deployHandler.updateSettings(DATA.settings)
             
