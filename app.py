@@ -104,8 +104,9 @@ def add_files_in_folder(parent, dirname, command, data):
             
             if os.path.isdir(fullname):
                 folderFiles = os.listdir(fullname)
-                #data.pruneFiles(f_name, folderFiles)
-                treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
+                data.pruneFiles(f_name, folderFiles)
+                if '_resources' not in fullname:
+                    treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
                 if data.hasNoFolder(f):
                     newFolderData(f, data)
                 add_files_in_folder(fullname, fullname, command, data)
@@ -136,7 +137,8 @@ def add_files_in_folder(parent, dirname, command, data):
                 if file_extension == '.md':
                     data_t = data.articleData[f_path][f_name]['time_stamp']
                     
-                    treedata.Insert(parent, fullname, f, values=[
+                    if '_resources' not in fullname:
+                        treedata.Insert(parent, fullname, f, values=[
                                     os.stat(fullname).st_size, 0], icon=f_icon)
                     
                     if data.hasNoFileFolder(f_path) or data.hasNoFile(f_path, f):
@@ -169,8 +171,8 @@ def add_files_in_folder(parent, dirname, command, data):
                     newFileData(f_path, f, fullname, data)
                     data.addAuthor('anonymous', anon)
                     
-    #data.pruneFolders(files)
-    #data.deleteOldFiles()          
+    data.pruneFolders(files)
+    data.deleteOldFiles()          
     data.saveData()
     
     # print('ARTICLE DATA:')
@@ -685,18 +687,9 @@ def popup_server_status(start=True):
             grab_anywhere=False,
             keep_on_top=True,
             #background_color='white',
-            # transparent_color='white' if sg.running_windows() else None,
+            transparent_color='white' if sg.running_windows() else None,
             alpha_channel=.8,
             margins=(0,0))
-    
-    # if start:
-    #     threading.Thread(target=self._serverRunning,
-    #                       args=(window,),
-    #                       daemon=True).start()
-    # else:
-    #     threading.Thread(target=self._serverStopped,
-    #                       args=(window,),
-    #                       daemon=True).start()
     
     while True:                                     # Event Loop
         event, values = window.read(timeout=10)    # loop every 10 ms to show that the 100 ms value below is used for animation
@@ -713,6 +706,10 @@ def DoDeploy(data, window, private=False):
     window.disappear()
     media = data.gatherMedia()
     tup = data.deployMedia(False, True, private)
+    if tup == None:
+        window.reappear()
+        return
+    
     media_cid = tup[0]
     if media_cid != None:
         sg.popup_no_buttons("Media Deployed, Deploying Site", auto_close=True, auto_close_duration=1.5, non_blocking=False)
@@ -722,18 +719,19 @@ def DoDeploy(data, window, private=False):
         data.saveData()
         
     site_data = DATA.generateSiteData()
-    DATA.refreshDebugMedia()
-    DATA.openStaticPage('template_index.txt', site_data)
+    data.refreshDebugMedia()
+    data.openStaticPage('template_index.txt', site_data)
         
     tup = data.deploySite(False, False, private)
-    # site_cid = tup[0]
-    # url = tup[1]
+    site_cid = tup[0]
+    url = tup[1]
     
-    # if url != None:
-    #     print(url)
-    #     webbrowser.open_new_tab(url)
-        
-    # window.reappear()
+    if url != None:
+        print(url)
+        webbrowser.open_new_tab(url)
+    
+    data.deleteDist()
+    window.reappear()
     
 
 def StartServer(path=SCRIPT_DIR, port=8000):
@@ -803,7 +801,7 @@ deployment_settings_layout = [[sg.Frame('Deployment Settings', [
                                     [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['pinata_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-pinata_meta_data')]
                ], expand_y=True, expand_x=True, k='PINATA-GRP')],
                [sg.Frame('Pinata Submarine', [[name('Submarine Key'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_key')],
-                                       [name('Timeout (seconds)'), sg.Spin(values=[i for i in range(1, 604800)], initial_value=DATA.settings['pinata_timeout'], enable_events=True, s=(25,22), k='SETTING-pinata_timeout')],
+                                       [name('Timeout (seconds)'), sg.Spin(values=[i for i in range(1, 604800)], initial_value=DATA.settings['pinata_timeout'], change_submits=True, enable_events=True, s=(25,22), k='SETTING-pinata_timeout')],
                ], expand_y=True, expand_x=True, k='SUBMARINE-GRP')],
                [sg.Frame('Arweave Wallet', [[sg.Input(default_text=DATA.settings['arWallet'], expand_x=True, s=20, enable_events=True, k='SETTING-arWallet'), sg.FileBrowse(enable_events=True)]
                ], expand_y=True, expand_x=True,  k='ARWEAVE-GRP')],
@@ -811,9 +809,7 @@ deployment_settings_layout = [[sg.Frame('Deployment Settings', [
 
 tab1_layout =  [[sg.Tree(data=treedata, headings=[], auto_size_columns=True,
                    num_rows=10, col0_width=40, key='-TREE-', font=font,
-                   row_height=48, show_expanded=False, expand_x=True, expand_y=True, enable_events=True, right_click_menu=['&Right', command])],
-          [sg.Button('Debug Site', font=font, tooltip=tt_debug_btn, k='-DEBUG-'), sg.Button('Cancel', font=font, k='-CANCEL-'),
-           sg.Button('Deploy', font=font, k='-DEPLOY-')]]    
+                   row_height=48, show_expanded=False, expand_x=True, expand_y=True, enable_events=True, right_click_menu=['&Right', command])]]    
 
 tab2_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, element_justification='left'), 
                 sg.Column(site_settings_layout, expand_x=True, expand_y=True, element_justification='left')],
@@ -821,7 +817,7 @@ tab2_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, elem
                 sg.Column(deployment_settings_layout, expand_x=True, expand_y=True, element_justification='left')]]
 
 menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site']],
-                ['& Deploy', ['---', 'Pinata IPFS', 'Pinata Submarine', '---', 'Command &3', 'Command &4']],
+                ['& Deploy', ['---', 'Pinata IPFS', 'Pinata Submarine', '---', 'Arweave(Coming Soon)']],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-')],
@@ -860,8 +856,8 @@ while True:
         print('Open Debug page')
         if SERVER_STATUS.server_running == True:
             site_data = DATA.generateSiteData()
-            #print(site_data)
             DATA.refreshDebugMedia()
+            DATA.refreshCss()
             DATA.openStaticPage('template_index.txt', site_data)
             sub_path = os.path.join('serve', 'debug')
             LaunchStaticSite(sub_path)
@@ -887,7 +883,7 @@ while True:
         sg.execute_editor(__file__)
     elif event == 'Version':
         sg.popup_scrolled(__file__, sg.get_versions(), keep_on_top=True, non_blocking=True)
-    elif event.startswith('Open'):
+    elif event != None and event.startswith('Open'):
         filename = sg.popup_get_file('file to open', no_window=True)
         print(filename)
         

@@ -131,10 +131,6 @@ class SiteDataHandler:
        columns = int(self.pageData[page]['columns'])
        for idx in range(0, columns):
            result['content']['columns'].append([])
-           
-           print('self.articleData[page].keys()')
-           print('page:')
-           print(page)
        
        for k in self.articleData[page].keys():
            article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'max_width':None, 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':"", 'images':[], 'videos':[]}
@@ -261,11 +257,6 @@ class SiteDataHandler:
                    if selfData[folder] not in self.oldData:
                        self.oldDataFolders.append(folder)
                        self.oldDataKeys.append(k)
-       print('SOMething is pucked up with pruning files:')
-       print('self.oldDataFolders:')
-       print(self.oldDataFolders)
-       print('self.oldDataKeys:')
-       print(self.oldDataKeys)
        
     
    def pruneFolders(self, arr):
@@ -323,13 +314,14 @@ class SiteDataHandler:
                self.settings['css_components'] = url
                self.saveData()
            else:
-               print('Some issue uploading css.  Custom them not loaded.')     
-            
-   def refereshDist(self):
+               print('Some issue uploading css.  Custom them not loaded.')
+               
+   def deleteDist(self):
        siteName = self.settings['siteName']
+       dist = os.path.basename(os.path.normpath(self.distPath))
        
-       if siteName !=  '' and siteName not in self.distPath:
-           self.distPath = self.distPath.replace('dist', self.settings['siteName'])
+       if (siteName !=  '' and siteName not in self.distPath) or dist != siteName:
+           self.distPath = self.distPath.replace(dist, self.settings['siteName'])
        
        if os.path.isdir(self.distPath):
            target_files = os.listdir(self.distPath)
@@ -340,10 +332,10 @@ class SiteDataHandler:
                    os.remove(f_path)
                
            shutil.rmtree(self.distPath)
-           
-           
+            
+   def refereshDist(self):
+       self.deleteDist()
        shutil.copytree(self.debugPath, self.distPath)
-       #self.cloneDirectory(self.debugPath, self.distPath)
    
    def refreshDebugMedia(self):
        self.cloneDirectory(self.resourcePath, self.debugResourcePath)
@@ -449,6 +441,9 @@ class SiteDataHandler:
    def deployMedia(self, usefullPath=False, askPermission=True, private=False):
        result = False
        
+       if self.deployHandler.manifest != None:
+           self.markdownHandler.deployerManifest = self.deployHandler.manifest
+           
        result = self.deployHandler.pinataDirectoryGUI(self.resourcePath, True, True, usefullPath, askPermission, private)
        self.deployHandler.saveData()
        
@@ -458,6 +453,9 @@ class SiteDataHandler:
    def deploySite(self, usefullPath=False, askPermission=True, private=False):
         result = False
         
+        if self.deployHandler.manifest != None:
+            self.markdownHandler.deployerManifest = self.deployHandler.manifest
+            
         result = self.deployHandler.pinataDirectoryGUI(self.distPath, True, True, usefullPath, askPermission, private)
         self.deployHandler.saveData()
         
