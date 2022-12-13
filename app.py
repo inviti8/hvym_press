@@ -727,7 +727,6 @@ def DoDeploy(data, window, private=False):
     url = tup[1]
     
     if url != None:
-        print(url)
         webbrowser.open_new_tab(url)
     
     data.deleteDist()

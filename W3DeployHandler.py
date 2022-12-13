@@ -173,9 +173,6 @@ class W3DeployHandler:
                         gateway = 'https://'+self.pinata['gateway']
                         url = os.path.join((item['uri']+'?accessToken=')).replace('\\', '/')
                         url = gateway+url+token
-                        print('----------------------------')
-                        print(url)
-                        print('----------------------------')
                         #self.updateFileDataPinataURL(f_key, url)
                         self.pinataFileDataURL(f_key, url)
                         self.folderCID = url
@@ -195,15 +192,16 @@ class W3DeployHandler:
         while self.folderCID == None:
             time.sleep(1)
             if self.usedCalls > 0:
-                self._folderDeploymentChecker(window)
+                self._folderDeploymentChecker(window,)
             
         #Deploy index first, if it's there
-        if self.deployedUrl() == None:
+        if self.deployedUrl == None:
             for f in self.deployFiles:
                 f_name = f[1][0]
                 f_name = f_name = "/".join(f_name.strip("/").split('/')[1:])
                 f_key = os.path.basename(f_name)
-                if 'index.html' in f and f_key not in self.deployedStatuses.keys():
+
+                if 'index.html' in f_key and f_key not in self.deployedStatuses.keys():
                     url = os.path.join('https://', self.pinata['gateway'], 'ipfs', self.folderCID, f_name).replace('\\', '/')
                     response = requests.get(url)
                     self.usedCalls -= 1
@@ -234,7 +232,7 @@ class W3DeployHandler:
   
         for key, value in self.deployedStatuses.items():
             if value != 200 and self.usedCalls > 0:
-                self._folderDeploymentChecker(window)
+                self._folderDeploymentChecker(window,)
                
         self.deployFiles.clear()
         self.deployedStatuses.clear()
@@ -399,8 +397,12 @@ class W3DeployHandler:
    def pinataDirectoryGUI(self, filePath, wrapWithDirectory=True, pinToIPFS=True, useParentDirs=False, askPermission=True, private=False):
        result = None
        popup = 'OK'
+       message = 'Deploy Site to ipfs?'
+       if private:
+           message = 'Submarine Site?'
+           
        if askPermission == True:
-           popup = sg.popup_ok_cancel('Deploy Files?')
+           popup = sg.popup_ok_cancel(message)
            
        if popup == 'OK':
            if len(self.pinata['jwt'])>0 and len(self.pinata['gateway'])>0:
@@ -455,6 +457,7 @@ class W3DeployHandler:
                        break
                    # update the animation in the window
                    window['-IMAGE-'].update_animation(gif,  time_between_frames=100)
+                   
                result = (self.folderCID, self.deployedUrl)
                
                self.folderCID = None
