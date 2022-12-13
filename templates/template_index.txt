@@ -145,6 +145,18 @@
         }
       }
 
+      {% if data.settings.pageType == 'carousel' %}
+      window.fn.prev = function() {
+        var carousel = document.getElementById('carousel');
+        carousel.prev();
+      };
+
+      window.fn.next = function() {
+        var carousel = document.getElementById('carousel');
+        carousel.next();
+      };
+      {% endif %}
+
     });
 
   </script>
@@ -292,6 +304,152 @@
 </ons-navigator>
 {% endif %}
 
+{% if data.settings.pageType == 'carousel' %}
+<ons-splitter>
+  <ons-splitter-content>
+    <ons-navigator id="myNavigator" page="{{data.pages[0].title}}.html"></ons-navigator>
+  </ons-splitter-content>
+</ons-splitter>
+
+<template id="{{data.pages[0].title}}.html">
+<ons-page>
+  <ons-toolbar>
+    <div class="left">
+      <ons-toolbar-button onclick="fn.prev()">
+          <ons-icon icon="md-chevron-left"></ons-icon>
+      </ons-toolbar-button>
+      </div>
+      <div class="center"></div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.next()">
+           <ons-icon icon="md-chevron-right"></ons-icon>
+      </ons-toolbar-button>
+    </div>
+  </ons-toolbar>
+  <ons-carousel fullscreen swipeable auto-scroll overscrollable id="carousel">
+    {% for page in data.pages %}
+    <ons-carousel-item>
+      <div style="text-align: center">
+      <ons-row>
+        {% for column in page.content.columns %}
+           <ons-col width="{{page.content.widths[loop.index0]}}%">
+                {% for card in column %}
+                {% if card.type == 'Form' %}
+                  {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
+                    {% if card.use_color%}
+                    <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}" style="background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                    {% else %}
+                    <ons-card modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                    {% endif %}
+                  {% else %}
+                <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}">
+                  {% endif %}
+                    <div class="title">
+                      {{card.name}}
+                    </div>
+                      <div>
+                        {% if card.use_color%}
+                        <ons-list style="background-color: {{card.color}};" modifier="{{card.border}}">
+                        {% else %}
+                        <ons-list modifier="{{card.border}}">
+                        {% endif %}
+                          <ons-list-item>
+                              <div class="form_container">
+                                <br />
+                                {{card.html}}
+                              {% if card.form_id != ""%}
+                              <form class="gform" id="form_{{card.name}}" method="post" action="https://script.google.com/macros/s/{{card.form_id}}/exec">
+                                {% if card.use_color%}
+                                <ons-list style="background-color: {{card.color}};">
+                                {% else %}
+                                  <ons-list class="form_list">
+                                {% endif %}
+                                  {% for input in card.form_data %}
+                                  <ons-list-item class="form_list_item">
+                                    <ons-input class="form_input" id="{{input}}" name="{{input}}" modifier="underbar" placeholder="{{input}}" float></ons-input>
+                                  </ons-list-item>
+                                  {% endfor %}
+                                </ons-list>
+                                <button class="form_list button--large button" id="submit" type="submit">{{card.form_btn_txt}}</button>
+                                </form>
+                                {{card.form_html}}
+                              {% else %}
+                              <p>FORM ID IS NOT SET!!!</p>
+                              {% endif %}
+                              </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                {% else %}
+                {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
+                    {% if card.use_color%}
+                    <ons-card modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                    {% else %}
+                    <ons-card modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                    {% endif %}
+                  {% else %}
+                    {% if card.use_color%}
+                    <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}};" modifier="{{data.settings.style}}">
+                    {% else %}
+                    <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;" modifier="{{data.settings.style}}">
+                    {% endif %}
+                  {% endif %}
+                    <div class="title">
+                      {{card.name}}
+                    </div>
+                      <div class="content">
+                        {% if card.use_color%}
+                        <ons-list style="background-color: {{card.color}};" modifier="{{card.border}}">
+                        {% else %}
+                        <ons-list modifier="{{card.border}}">
+                        {% endif %}
+                          {% if card.type == 'Expandable' %}
+                          <ons-list-item expandable>
+                          {% else %}
+                          <ons-list-item expandable expanded class="list-item list-item--expandable expanded ">
+                          {% endif %}
+                          {% if card.use_thumb %}
+                            {% if card.author_img != '' %}
+                            <div class="left">
+                              <img class="list-item__thumbnail" src="{{card.author_img}}">
+                              <p class="list-item__subtitle author">{{card.author}}</p>
+                            </div>
+                              {% endif %}
+                            {% endif %}
+                            <div class="expandable-content">
+                              <div class="article">
+                                <br />
+                                {{card.html}}
+                                  {% if card.use_color%}
+                                  <ons-list style="background-color: {{card.color}};">
+                                  {% else %}
+                                  <ons-list>
+                                  {% endif %}
+                                </ons-list>
+                                {{card.form_html}}
+                              </div>
+                              <ons-fab onclick="myNavigator.pushPage('nav_{{card.name}}.html')" modifier="{{data.settings.style}}">
+                                <ons-icon icon="fa-chevron-left"></ons-icon>
+                              </ons-fab>
+                            </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                {% endif %}
+                {% endfor %}
+           </ons-col>
+        {% endfor %}
+       </ons-row>
+    </div>
+    </ons-carousel-item>
+    {% endfor %}
+  </ons-carousel>
+</ons-page>
+</template>
+
+{% else %}
 {% for page in data.pages %}
 <template id="{{page.title}}.html">
   <ons-page>
@@ -424,6 +582,7 @@
   </ons-page>
 </template>
 {% endfor %}
+{% endif %}
 
 {% for page in data.pages %}
 {% for column in page.content.columns %}
