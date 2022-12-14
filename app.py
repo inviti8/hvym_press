@@ -459,7 +459,7 @@ def popup_set_article_data(md_name, data, colData):
     col_layout1 = [[sg.Column(col_layout_color, expand_x=True, element_justification='left'), sg.Column(col_layout_colorr, expand_x=True, element_justification='right')]]
     col_layout2 = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
     
-    col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
+    col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font), sg.Button("Save As Default", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DEFAULT-')]]
     layout = [
         [sg.Text(f"File: {md_name}")],
         [sg.Column(col_layout0, expand_x=True, element_justification='left')],
