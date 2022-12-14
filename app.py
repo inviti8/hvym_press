@@ -16,7 +16,7 @@ import ColorPicker
 import IconPicker
 import io
 from io import BytesIO
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageColor
 from jinja2 import Environment, FileSystemLoader
 import PySimpleGUI as sg
 import W3DeployHandler
@@ -86,7 +86,7 @@ def newFileData(f_path, f, full_path, data):
     t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(full_path)))
 
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'max_width':100, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'use_color':False, 'images':[], 'videos':[]})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.5, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[]})
     data.updateArticleHTML(f_path, f, full_path)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':"", 'btn_txt':"SUBMIT", 'response':"Form Submitted", 'form_id':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
@@ -425,9 +425,11 @@ def popup_set_article_data(md_name, data, colData):
         columns.append(str(n+1))
         
     col_layout_img = [[sg.Text("Background Image:", visible=img_vis, font=font)],
-                    [sg.Text("", font=font)]]
+                    [sg.Text("", font=font)],
+                    [sg.Text("BG Image Opacity:", font=font, visible=img_vis)]]
     col_layout_imgr = [[sg.Image(img_b64, visible=img_vis, size=(50,50))],
                      [sg.Button("Delete Image", visible=img_vis,)],
+                     [sg.Slider(range=(0, 1), resolution=.01,  default_value=data['bg_img_opacity'], orientation='horizontal', s=(10,10), k='IMG-OPACITY', font=font, visible=img_vis)],
                      ]
     
     col_layout_color = [[sg.Text("Color:", font=font)],
@@ -439,20 +441,18 @@ def popup_set_article_data(md_name, data, colData):
                   [sg.Text("Column:", font=font)],
                   [sg.Text("Article Type:", font=font)],
                   [sg.Text("Border Type:", font=font)],
-                  [sg.Text("Max Width:", font=font)],
                   [sg.Text("Author:", font=font)],
                   [sg.Text("Background Image:", font=font)],
                   [sg.Text("Use Author Name & Thumbnail:", font=font)],
                   ]
     
-    col_layout_r = [[sg.Input(data['name'], s=(27,22), k='NAME')],
-                  [sg.Combo(columns, default_value=data['column'], s=(25,22), readonly=True, k='COLUMN')],
+    col_layout_r = [[sg.Input(data['name'], s=(27,10), k='NAME', font=font)],
+                  [sg.Combo(columns, default_value=data['column'], s=(25,22), readonly=True, k='COLUMN', font=font)],
                   [sg.Combo(article_types, default_value=article_type, s=(25,22), readonly=True, k='TYPE')],
-                  [sg.Combo(border_types, default_value=data['border'], s=(25,22), readonly=True, k='BORDER-TYPE')],
-                  [sg.Spin(values=[i for i in range(25, 100)], initial_value=data['max_width'], s=(25,22), k='MAX-WIDTH')],
-                  [sg.Combo(list(DATA.authors.keys()), default_value=data['author'], s=(25,22), readonly=True, k='AUTHOR')],
-                  [sg.Input(default_text="", s=20, k='BG-IMG'), sg.FileBrowse(file_types=(("PNG", "*.png"),))],
-                  [sg.Checkbox('yes', default=data['use_thumb'], k='USE-THUMB')],
+                  [sg.Combo(border_types, default_value=data['border'], s=(25,22), readonly=True, k='BORDER-TYPE', font=font)],
+                  [sg.Combo(list(DATA.authors.keys()), default_value=data['author'], s=(25,22), readonly=True, k='AUTHOR', font=font)],
+                  [sg.Input(default_text="", s=20, k='BG-IMG', font=font), sg.FileBrowse(file_types=(("PNG", "*.png"),))],
+                  [sg.Checkbox('yes', default=data['use_thumb'], s=(25,22), k='USE-THUMB')],
                   ]
     
     col_layout0 = [[sg.Column(col_layout_img, expand_x=True, element_justification='left'), sg.Column(col_layout_imgr, expand_x=True, element_justification='right')]]
@@ -500,19 +500,21 @@ def popup_set_article_data(md_name, data, colData):
         type_arr = [type_concat, inset_concat, thumb_concat]
         type_string = concat_array(type_arr)
         set_file_icon(type_string)
+        rgb = ImageColor.getcolor(values['COLOR'], 'RGB')
         
         if event == '-SAVE-DATA-':
-            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'max_width':values['MAX-WIDTH'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'use_color':values['USE-COLOR']}
+            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR']}
         elif event == 'Delete Image':
             delete_img = sg.PopupOKCancel("Delete Image?")
             page_data = None
             if delete_img == 'OK':
-                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'max_width':values['MAX-WIDTH'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':empty_px, 'color':values['COLOR'], 'use_color':values['USE-COLOR']}
+                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':empty_px, 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR']}
         elif event == 'Color Picker':
             color_chosen = ColorPicker.popup_color_chooser()
             page_data = None
             if color_chosen != None:
-                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'max_width':values['MAX-WIDTH'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':img, 'color':color_chosen, 'use_color':values['USE-COLOR']}    
+                rgb = ImageColor.getcolor(color_chosen, 'RGB')
+                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':img, 'color':color_chosen, 'rgb':rgb, 'use_color':values['USE-COLOR']}    
                 
         return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' or event == 'Color Picker' else None
             

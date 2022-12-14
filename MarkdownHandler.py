@@ -53,9 +53,11 @@ class MarkdownHandler:
             if '.png' in link['src']:
                 src = handleHREF(link['src'])
                 f_name = os.path.basename(src)
+                st = "width:100%;"
                    
-                new_tag = soup.new_tag('img',alt=f_name, src=src)
-                link.parent['class'] = 'deployed_img'
+                new_tag = soup.new_tag('img', alt=f_name, src=src, style=st)
+                link['class'] = 'deployed_img'
+                link.parent['class'] = 'deployed_img_p'
                 link.replaceWith(new_tag)
                 
         return soup.decode(formatter='html')
