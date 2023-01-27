@@ -22,13 +22,18 @@ import PySimpleGUI as sg
 import W3DeployHandler
 
 sg.theme("DarkGrey13")
-CONTRACT_TEMPLATE = 'hvy_erc721_template.txt'
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
 NAME_SIZE = 15
 font = ('Ariel', 9)
 file_loader = FileSystemLoader('templates')
 env = Environment(loader=file_loader)
 ICON_PICKER = IconPicker.IconPicker()
+serve_dir = os.path.join(SCRIPT_DIR, 'serve')
+debug_dir = os.path.join(serve_dir, 'debug')
+
+if os.path.isdir(serve_dir) == False:
+    os.makedirs(serve_dir)
+    os.makedirs(debug_dir)
 
 icon_none = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAKUlEQVRIie3NMQEAAAjDMMC/52ECvlRA00nqs3m9AwAAAAAAAAAAgMMWx/EDPUopmS0AAAAASUVORK5CYII='
 empty_px = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg=='
