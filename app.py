@@ -30,11 +30,13 @@ env = Environment(loader=file_loader)
 ICON_PICKER = IconPicker.IconPicker()
 serve_dir = os.path.join(SCRIPT_DIR, 'serve')
 debug_dir = os.path.join(serve_dir, 'debug')
+resource_dir = os.path.join(serve_dir, '_resources')
 dist_dir = os.path.join(SCRIPT_DIR, 'dist')
 
 if os.path.isdir(serve_dir) == False:
     os.makedirs(serve_dir)
     os.makedirs(debug_dir)
+    os.makedirs(resource_dir)
     os.makedirs(dist_dir)
 
 icon_none = b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAKUlEQVRIie3NMQEAAAjDMMC/52ECvlRA00nqs3m9AwAAAAAAAAAAgMMWx/EDPUopmS0AAAAASUVORK5CYII='
