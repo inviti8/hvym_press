@@ -462,11 +462,16 @@ class SiteDataHandler:
    
    def deployMedia(self, usefullPath=False, askPermission=True, private=False):
        result = False
+       deployFolder = self.resourcePath
+       self.refreshDebugMedia()
+       
+       if os.path.isdir(self.debugResourcePath) and len(os.listdir(self.debugResourcePath) > 0):
+           deployFolder = self.debugResourcePath
        
        if self.deployHandler.manifest != None:
            self.markdownHandler.deployerManifest = self.deployHandler.manifest
            
-       result = self.deployHandler.pinataDirectoryGUI(self.resourcePath, True, True, usefullPath, askPermission, private)
+       result = self.deployHandler.pinataDirectoryGUI(deployFolder, True, True, usefullPath, askPermission, private)
        self.deployHandler.saveData()
        
        return result
