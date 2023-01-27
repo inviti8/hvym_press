@@ -111,7 +111,7 @@ class W3DeployHandler:
    def __init__(self, filePath, sitePath, resourcePath, settings):
        self.resourcePath = resourcePath
        self.sitePath = sitePath
-       self.files = os.listdir(self.resourcePath)
+       self.files = None
        self.dataFilePath = os.path.join(filePath, 'deploy.data')
        self.manifest = {}
        self.pinataPinURL = 'https://api.pinata.cloud/pinning'
@@ -127,6 +127,9 @@ class W3DeployHandler:
        self.folderCID = None
        self.folderID = None
        self.deployedUrl = None
+       
+       if os.path.isdir(self.resourcePath):
+           self.files = os.listdir(self.resourcePath)
        
        if os.path.isfile(self.dataFilePath):
            dataFile = open(self.dataFilePath, 'rb')

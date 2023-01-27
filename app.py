@@ -761,7 +761,6 @@ dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
 check = [icon(0), icon(1), icon(2)]
 
 starting_path = sg.popup_get_folder('Site Directory')
-resource_path = os.path.join(starting_path, '_resources')
 
 if not starting_path:
     sys.exit(0)

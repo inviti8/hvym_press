@@ -12,7 +12,6 @@ from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
-HOME_PATH = str(Path.home())
 file_loader = FileSystemLoader('templates')
 env = Environment(loader=file_loader)
 

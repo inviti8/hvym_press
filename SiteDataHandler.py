@@ -17,6 +17,7 @@ import os
 import time
 import pickle
 import shutil
+import ffmpy
 import markdown
 import jsonpickle
 import MarkdownHandler
@@ -294,6 +295,26 @@ class SiteDataHandler:
             dst_path = os.path.join(target, f)
             shutil.copy(src_path, dst_path)
             
+   def convertVideos(self, folder):
+       if shutil.which('ffmpeg') == False:
+           return
+       
+       files = os.listdir(folder)
+       
+       for f in files:
+           if '.mp4' in f:
+               print(f)
+               in_file = os.path.join(folder, f)
+               out_file = in_file.replace('.mp4', '_$$$.mp4')
+               if os.path.isfile(in_file):
+                   ff = ffmpy.FFmpeg(
+                       inputs={in_file: None},
+                       outputs={out_file: '-brand mp42 -pix_fmt yuv420p -y'}
+                   )
+                   ff.run()
+                   os.remove(in_file)
+                   os.rename(out_file, in_file)
+            
             
    def resetCss(self):
        self.settings['css_components'] = self.css_components
@@ -339,6 +360,7 @@ class SiteDataHandler:
    
    def refreshDebugMedia(self):
        self.cloneDirectory(self.resourcePath, self.debugResourcePath)
+       self.convertVideos(self.debugResourcePath)
         
    def deleteOldFiles(self):
        idx = 0
