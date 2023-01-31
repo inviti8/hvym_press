@@ -338,7 +338,7 @@ class SiteDataHandler:
                print('Some issue uploading css.  Custom them not loaded.')
                
    def deleteDist(self):
-       print('deteDist')
+       print('deleteDist')
        siteName = self.settings['siteName']
        dist = os.path.basename(os.path.normpath(self.distPath))
        
@@ -350,7 +350,7 @@ class SiteDataHandler:
            
            for f in target_files:
                f_path = os.path.join(self.distPath, f)
-               if os.path.isfile(f_path):
+               if os.path.isfile(f_path) and self.distPath != SCRIPT_DIR:
                    os.remove(f_path)
                
            shutil.rmtree(self.distPath)

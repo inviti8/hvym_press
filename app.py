@@ -853,6 +853,7 @@ while True:
         sg.popup('About this program', 'Weeeb3 by HEAVYMETA',
                  'Version', '0.0.1',  grab_anywhere=True, keep_on_top=True)
         window.reappear()
+        
     elif event == 'Start Localhost':
         print('should start localhost')
         if SERVER_STATUS.server_running == False:
