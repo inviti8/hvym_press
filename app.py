@@ -725,9 +725,13 @@ def DoDeploy(data, window, private=False):
     if media_cid != None:
         sg.popup_no_buttons("Media Deployed, Deploying Site", auto_close=True, auto_close_duration=1.5, non_blocking=False)
         data.updateAllArticleHTML(data.filePath)
+        print('data.updateAllArticleHTML(data.filePath)')
         data.refereshDist()
+        print('data.refereshDist()')
         data.refreshCss()
+        print('data.refreshCss()')
         data.saveData()
+        print('data.saveData()')
         
     site_data = DATA.generateSiteData()
     data.refreshDebugMedia()

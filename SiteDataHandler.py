@@ -338,13 +338,14 @@ class SiteDataHandler:
                print('Some issue uploading css.  Custom them not loaded.')
                
    def deleteDist(self):
+       print('deteDist')
        siteName = self.settings['siteName']
        dist = os.path.basename(os.path.normpath(self.distPath))
        
        if (siteName !=  '' and siteName not in self.distPath) or dist != siteName:
            self.distPath = self.distPath.replace(dist, self.settings['siteName'])
        
-       if os.path.isdir(self.distPath):
+       if self.distPath != SCRIPT_DIR and os.path.isdir(self.distPath):
            target_files = os.listdir(self.distPath)
            
            for f in target_files:
@@ -465,7 +466,7 @@ class SiteDataHandler:
        deployFolder = self.resourcePath
        self.refreshDebugMedia()
        
-       if os.path.isdir(self.debugResourcePath) and len(os.listdir(self.debugResourcePath) > 0):
+       if os.path.isdir(self.debugResourcePath) and len(os.listdir(self.debugResourcePath)) > 0:
            deployFolder = self.debugResourcePath
        
        if self.deployHandler.manifest != None:
