@@ -48,7 +48,7 @@ class SiteDataHandler:
       self.formData = {}
       self.metaData = {}
       self.css_components = 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsen-css-components.min.css'
-      self.settings = {'css_components':self.css_components, 'uiFramework':'onsen', 'pageType':'splitter', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'', 'description':'', 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'pinata_meta_data':'', 'pinata_timeout':100, 'arWallet':''}
+      self.settings = {'css_components':self.css_components, 'uiFramework':'onsen', 'pageType':'splitter', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'dist', 'description':'', 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'pinata_meta_data':'', 'pinata_timeout':100, 'arWallet':''}
       self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['splitter', 'tabs', 'carousel']
@@ -78,7 +78,7 @@ class SiteDataHandler:
       if os.path.isfile(self.dataFilePath):
           dataFile = open(self.dataFilePath, 'rb')
           data = pickle.load(dataFile)
-          if self.settings['siteName'] != '':
+          if self.settings['siteName'] != '' or self.settings['siteName'] != 'dist':
               self.distPath = self.distPath.replace('dist', self.settings['siteName'])
               
           self.pageList = data['pageList']
@@ -354,6 +354,7 @@ class SiteDataHandler:
                    os.remove(f_path)
                
            shutil.rmtree(self.distPath)
+
             
    def refereshDist(self):
        self.deleteDist()

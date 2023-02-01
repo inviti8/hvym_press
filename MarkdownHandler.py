@@ -81,6 +81,7 @@ class MarkdownHandler:
                href = handleHREF(link['href'])
                   
                new_tag = soup.new_tag('video', controls=None, muted=None, autoplay=None, width="320", height="240", src=href, type="video/mp4")
+               new_tag['src'] = href
                link.parent['class'] = 'vid_container'
                link.replaceWith(new_tag)
                
