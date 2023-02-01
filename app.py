@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import uuid
 import shutil
 import pickle
 from datetime import datetime
@@ -797,6 +798,7 @@ ui_settings_layout = [[sg.Frame('UI Settings', [
 
 site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input(default_text=DATA.settings['siteName'], s=20, enable_events=True, k='SETTING-siteName')],
                [name('Description'), sg.Multiline(default_text=DATA.settings['description'],s=(20,8), enable_events=True, k='SETTING-description')],
+               [name('Site ID'), sg.Input(default_text=DATA.settings['siteID'], s=20, enable_events=True, k='SETTING-siteID')],
                ], expand_y=True, expand_x=True)]]
 
 author_settings_layout = [[sg.Frame('Author Settings', [

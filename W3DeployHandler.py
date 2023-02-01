@@ -110,6 +110,8 @@ class W3DeployHandler:
    
    def __init__(self, filePath, sitePath, resourcePath, settings):
        self.resourcePath = resourcePath
+       self.siteName = settings['siteName']
+       self.siteID = settings['siteID']
        self.sitePath = sitePath
        self.files = None
        self.dataFilePath = os.path.join(filePath, 'deploy.data')
@@ -190,7 +192,6 @@ class W3DeployHandler:
             
        
    def _folderDeploymentChecker(self, window):
-        result = False
             
         while self.folderCID == None:
             time.sleep(1)
@@ -249,16 +250,14 @@ class W3DeployHandler:
        
    def _folderArray(self, key, parentPath, filePath, basePath, window=None):
        paths = os.listdir(filePath)
-       data_size = len(paths)
-       idx = 0
        
        for f in paths:
            full_path = os.path.join(filePath, f).replace('\\', '/')
            f_name = full_path.replace(basePath, '').replace('\\', '/')
+           f_name = os.path.join(self.siteID+'_'+f_name, f_name).replace('\\', '/')
            
            if self.deployFolderName != '':
                arr = f_name.split('/')
-               name = arr[len(arr)-1]
                folder = arr[len(arr)-2]
                f_name = f_name.replace(folder, self.deployFolderName)
            
