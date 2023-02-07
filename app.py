@@ -150,8 +150,6 @@ def add_files_in_folder(parent, dirname, command, data):
                         data_t = data.articleData[f_path][f_name]['time_stamp']
                     
                     if '_resources' not in fullname:
-                        print('Tree Data is updated!!')
-                        print(fullname)
                         treedata.Insert(parent, fullname, f, values=[
                                     os.stat(fullname).st_size, 0], icon=f_icon)
                     
@@ -814,20 +812,29 @@ deployment_settings_layout = [[sg.Frame('Deployment Settings', [
                ], expand_y=True, expand_x=True)]]
 
 tab1_layout =  [[TreeData.Tree(treedata, [], True,
-                   10, 40, '-TREE-', font, 48, False, True, True, True, ['&Right', command])]]    
+                   10, 40, '-TREE-', font, 48, False, True, True, True, ['&Right', command])]]
 
-tab2_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, element_justification='left'), 
+tab2_layout = [[sg.Button("B", key='-MD-BOLD-'), sg.Button("I", key='-MD-ITALIC-'), sg.Button("H1", key='-MD-HEADING1-'),
+                sg.Button("H2", key='-MD-HEADING2-'), sg.Button("H3", key='-MD-HEADING3-'), sg.Button("H4", key='-MD-HEADING4-'),
+                sg.Button("H5", key='-MD-HEADING5-'), sg.Button("H6", key='-MD-HEADING6-'),
+                sg.Button("S", key='-MD-STRIKETHRU-'), sg.Button("UL", key='-MD-U-LIST-'), sg.Button("OL", key='-MD-O-LIST-'),
+                sg.Button("Q", key='-MD-BLOCK-QUOTE-'), sg.Button("<>", key='-MD-CODE-'), sg.Button("T", key='-MD-TABLE-'),
+                sg.Button("@", key='-MD-LINK-'), sg.Button("IMG", key='-MD-IMG-')],
+    [sg.Multiline(s=(15,30), expand_x=True, key='-MD-INPUT-', enable_events=True )],
+    [sg.Button("Open HTML", key='-OPEN-HTML-')]]    
+
+tab3_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, element_justification='left'), 
                 sg.Column(site_settings_layout, expand_x=True, expand_y=True, element_justification='left')],
                [sg.Column(author_settings_layout, expand_x=True, expand_y=True, element_justification='left'),
                 sg.Column(deployment_settings_layout, expand_x=True, expand_y=True, element_justification='left')]]
 
 menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site']],
                 ['& Deploy', ['---', 'Pinata IPFS', 'Pinata Submarine', '---', 'Arweave(Coming Soon)']],
-                ['& Markdown', ['---', 'Launch Editor']],
+                ['& Markdown', ['---', 'Refresh Files', 'Launch Editor']],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-')],
-    [sg.TabGroup([[sg.Tab(starting_path, tab1_layout, font=font,), sg.Tab('Settings', tab2_layout, font=font,)]])]]
+    [sg.TabGroup([[sg.Tab(starting_path, tab1_layout, font=font,), sg.Tab('Editor', tab2_layout, font=font,), sg.Tab('Settings', tab3_layout, font=font,)]])]]
 
 window = sg.Window('Weeeb3', layout, use_default_focus=False, finalize=True)
 tree = window['-TREE-']         # type: sg.Tree
@@ -890,12 +897,14 @@ while True:
         sg.execute_editor(__file__)
     elif event == 'Version':
         sg.popup_scrolled(__file__, sg.get_versions(), keep_on_top=True, non_blocking=True)
-    elif event == 'Launch Editor':
-        print("Launch Editor")
+    elif event == 'Refresh Files':
         treedata.delete_tree()
         add_files_in_folder('', starting_path, command, DATA)
         window['-TREE-'].Update(values=treedata)
         window.Refresh()
+    elif event == 'Launch Editor':
+        print('Mardown Editor')
+        
     elif event != None and event.startswith('Open'):
         filename = sg.popup_get_file('file to open', no_window=True)
         print(filename)
@@ -943,6 +952,35 @@ while True:
                         if(d != None):
                             DATA.updateColumnWidths(f_name, d)
                             DATA.saveData()
+                            
+    if event == '-MD-BOLD-' or event == '-MD-ITALIC-' or event == '-MD-STRIKETHRU-' or '-MD-HEADING' in event:
+        mline = window["-MD-INPUT-"]
+        try:
+            start, end = mline.Widget.index("sel.first"), mline.Widget.index("sel.last")
+        except:
+            # no text selected, do nothing
+            continue
+        selected_text = mline.Widget.get(start, end)
+        mline.Widget.delete(start, end)
+        if 'BOLD' in event:
+            mline.Widget.insert(start, "**" + selected_text + "**")
+        elif 'ITALIC' in event:
+            mline.Widget.insert(start, "*" + selected_text + "*")
+        elif 'STRIKETHRU' in event:
+            mline.Widget.insert(start, "~~" + selected_text + "~~")
+        elif 'HEADING1' in event:
+            mline.Widget.insert(start, "# " + selected_text)
+        elif 'HEADING2' in event:
+            mline.Widget.insert(start, "## " + selected_text)
+        elif 'HEADING3' in event:
+            mline.Widget.insert(start, "### " + selected_text)
+        elif 'HEADING4' in event:
+            mline.Widget.insert(start, "#### " + selected_text)
+        elif 'HEADING5' in event:
+            mline.Widget.insert(start, "##### " + selected_text)
+        elif 'HEADING6' in event:
+            mline.Widget.insert(start, "###### " + selected_text)
+            
 
 
     if 'SETTING-' in event:
