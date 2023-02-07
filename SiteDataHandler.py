@@ -256,7 +256,7 @@ class SiteDataHandler:
        if folder in selfData.keys():
            for k in selfData[folder]:
                if k not in fileArr and '.md' in k:
-                   if selfData[folder] not in self.oldData:
+                   if selfData[folder] not in self.oldDataFolders:
                        self.oldDataFolders.append(folder)
                        self.oldDataKeys.append(k)
        

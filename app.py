@@ -21,6 +21,7 @@ from PIL import Image, ImageDraw, ImageColor
 from jinja2 import Environment, FileSystemLoader
 import PySimpleGUI as sg
 import W3DeployHandler
+import TreeData
 
 sg.theme("DarkGrey13")
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
@@ -145,9 +146,12 @@ def add_files_in_folder(parent, dirname, command, data):
 
                                 
                 if file_extension == '.md':
-                    data_t = data.articleData[f_path][f_name]['time_stamp']
+                    if f_name in data.articleData[f_path].keys():
+                        data_t = data.articleData[f_path][f_name]['time_stamp']
                     
                     if '_resources' not in fullname:
+                        print('Tree Data is updated!!')
+                        print(fullname)
                         treedata.Insert(parent, fullname, f, values=[
                                     os.stat(fullname).st_size, 0], icon=f_icon)
                     
@@ -156,7 +160,6 @@ def add_files_in_folder(parent, dirname, command, data):
                     elif fileIsNew(fullname, data_t):
                         data.updateArticleHTML(f_path, f_name, fullname)
                         
-            #data.deleteOldFiles()
     else:
         for f in files:
             fullname = os.path.join(dirname, f)
@@ -185,8 +188,6 @@ def add_files_in_folder(parent, dirname, command, data):
     data.deleteOldFiles()          
     data.saveData()
     
-    # print('ARTICLE DATA:')
-    # print(data.articleData)
                 
 def get_file_icon(uiType):
     result = file_icon
@@ -664,14 +665,6 @@ def popup_uploader():
     event, values = window.read()
     window.close()
     
-    # if values != None and os.path.isfile(values['AUTHOR-IMG']):
-    #     author_data = None
-    #     img = None
-    #     with open(values['AUTHOR-IMG'], "rb") as img_file:
-    #         img = base64.b64encode(img_file.read()).decode('utf-8')
-    #     if event == '-SAVE-DATA-':
-    #         author_data = {'name':values['AUTHOR-NAME'], 'image':'data:image/png;base64,'+img}
-    #     return author_data if event == '-SAVE-DATA-' else None
 
 def popup_server_status(start=True):
     layout = [[sg.Text('Server:')],
@@ -782,7 +775,8 @@ SERVER_STATUS = ServerHandler.ServerStatusHandler()
 command = ['__________','Set-Column-Widths', '__________','Set-Meta-Data', 'Set-Form-Data']
 author_dropdown = ['Add-Author', 'Update-Author', 'Delete-Author']
 css_input_dropdown = ['Reset-Css']
-treedata = sg.TreeData()
+#treedata = sg.TreeData()
+treedata = TreeData.TreeData()
 add_files_in_folder('', starting_path, command, DATA)
 
 
@@ -819,9 +813,8 @@ deployment_settings_layout = [[sg.Frame('Deployment Settings', [
                ], expand_y=True, expand_x=True,  k='ARWEAVE-GRP')],
                ], expand_y=True, expand_x=True)]]
 
-tab1_layout =  [[sg.Tree(data=treedata, headings=[], auto_size_columns=True,
-                   num_rows=10, col0_width=40, key='-TREE-', font=font,
-                   row_height=48, show_expanded=False, expand_x=True, expand_y=True, enable_events=True, right_click_menu=['&Right', command])]]    
+tab1_layout =  [[TreeData.Tree(treedata, [], True,
+                   10, 40, '-TREE-', font, 48, False, True, True, True, ['&Right', command])]]    
 
 tab2_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, element_justification='left'), 
                 sg.Column(site_settings_layout, expand_x=True, expand_y=True, element_justification='left')],
@@ -830,6 +823,7 @@ tab2_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, elem
 
 menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site']],
                 ['& Deploy', ['---', 'Pinata IPFS', 'Pinata Submarine', '---', 'Arweave(Coming Soon)']],
+                ['& Markdown', ['---', 'Launch Editor']],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-')],
@@ -896,6 +890,12 @@ while True:
         sg.execute_editor(__file__)
     elif event == 'Version':
         sg.popup_scrolled(__file__, sg.get_versions(), keep_on_top=True, non_blocking=True)
+    elif event == 'Launch Editor':
+        print("Launch Editor")
+        treedata.delete_tree()
+        add_files_in_folder('', starting_path, command, DATA)
+        window['-TREE-'].Update(values=treedata)
+        window.Refresh()
     elif event != None and event.startswith('Open'):
         filename = sg.popup_get_file('file to open', no_window=True)
         print(filename)
@@ -999,9 +999,6 @@ while True:
         #print(site_data)
         DATA.refreshDebugMedia()
         DATA.openStaticPage('template_index.txt', site_data)
-            
-        
-        #print(DATA.getJsonData())
         
     if event == '-CANCEL-':
         threading.Thread(target=StopServer, args=(), daemon=True).start()
