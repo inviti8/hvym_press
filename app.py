@@ -704,6 +704,20 @@ def popup_server_status(start=True):
         window['-IMAGE-'].update_animation(gif,  time_between_frames=100)
     window.close()
     
+def popup_md_link():
+    popup_layout = [
+        [sg.Text("URL:", size=(15,1)), sg.InputText(key='url')],
+        [sg.Text("Display Text:", size=(15,1)), sg.InputText(key='display')],
+        [sg.Button("Submit"), sg.Button("Cancel")]
+    ]
+    popup_window = sg.Window("Popup Window", popup_layout)
+    event, values = popup_window.read()
+    popup_window.close()
+    if event == "Submit":
+        return values['url'], values['display']
+    else:
+        return None, None
+    
     
 def DoDeploy(data, window, private=False):
     window.disappear()
@@ -819,7 +833,7 @@ tab2_layout = [[sg.Button("B", key='-MD-BOLD-'), sg.Button("I", key='-MD-ITALIC-
                 sg.Button("H5", key='-MD-HEADING5-'), sg.Button("H6", key='-MD-HEADING6-'),
                 sg.Button("S", key='-MD-STRIKETHRU-'), sg.Button("UL", key='-MD-U-LIST-'), sg.Button("OL", key='-MD-O-LIST-'),
                 sg.Button("Q", key='-MD-BLOCK-QUOTE-'), sg.Button("<>", key='-MD-CODE-'), sg.Button("T", key='-MD-TABLE-'),
-                sg.Button("@", key='-MD-LINK-'), sg.Button("IMG", key='-MD-IMG-')],
+                sg.Button("@", key='-MD-LINK-'), sg.Button("IMG", key='-MD-IMG-'), sg.Button("VID", key='-MD-VID-')],
     [sg.Multiline(s=(15,30), expand_x=True, key='-MD-INPUT-', enable_events=True )],
     [sg.Button("Open HTML", key='-OPEN-HTML-')]]    
 
@@ -953,7 +967,7 @@ while True:
                             DATA.updateColumnWidths(f_name, d)
                             DATA.saveData()
                             
-    if event == '-MD-BOLD-' or event == '-MD-ITALIC-' or event == '-MD-STRIKETHRU-' or '-MD-HEADING' in event:
+    if event == '-MD-BOLD-' or event == '-MD-ITALIC-' or event == '-MD-STRIKETHRU-' or event == '-MD-STRIKETHRU-' or '-MD-HEADING' in event:
         mline = window["-MD-INPUT-"]
         try:
             start, end = mline.Widget.index("sel.first"), mline.Widget.index("sel.last")
@@ -981,7 +995,90 @@ while True:
         elif 'HEADING6' in event:
             mline.Widget.insert(start, "###### " + selected_text)
             
-
+    if event == '-MD-BLOCK-QUOTE-' or event == '-MD-CODE-':
+        mline = window["-MD-INPUT-"]
+        try:
+            start, end = mline.Widget.index("sel.first"), mline.Widget.index("sel.last")
+        except:
+            # no text selected, do nothing
+            continue
+        selected_text = mline.Widget.get(start, end)
+        lines = selected_text.split("\n")
+        if 'QUOTE' in event:
+            quote_lines = [f"> {line}" for line in lines if line.strip() != ""]
+            quote_text = "\n".join(quote_lines)
+            mline.Widget.delete(start, end)
+            mline.Widget.insert(start, quote_text)
+        elif 'CODE' in event:
+            code_lines = [f"    {line}" for line in lines if line.strip() != ""]
+            code_text = "```\n" + "\n".join(code_lines) + "\n```"
+            mline.Widget.delete(start, end)
+            mline.Widget.insert(start, code_text)
+                  
+    if event == '-MD-U-LIST-':
+        mline = window["-MD-INPUT-"]
+        try:
+            start, end = mline.Widget.index("sel.first"), mline.Widget.index("sel.last")
+        except:
+            # no text selected, do nothing
+            continue
+        selected_text = mline.Widget.get(start, end)
+        lines = selected_text.split("\n")
+        ul_lines = ["- " + line for line in lines if line.strip() != ""]
+        ul_text = "\n".join(ul_lines)
+        mline.Widget.delete(start, end)
+        mline.Widget.insert(start, ul_text)
+        
+    if event == '-MD-O-LIST-':
+        mline = window["-MD-INPUT-"]
+        try:
+            start, end = mline.Widget.index("sel.first"), mline.Widget.index("sel.last")
+        except:
+            # no text selected, do nothing
+            continue
+        selected_text = mline.Widget.get(start, end)
+        lines = selected_text.split("\n")
+        ol_lines = [f"{i}. {line}" for i, line in enumerate(lines, 1) if line.strip() != ""]
+        ol_text = "\n".join(ol_lines)
+        mline.Widget.delete(start, end)
+        mline.Widget.insert(start, ol_text)
+        
+    if event == '-MD-TABLE-':
+        mline = window["-MD-INPUT-"]
+        try:
+            start, end = mline.Widget.index("sel.first"), mline.Widget.index("sel.last")
+        except:
+            # no text selected, do nothing
+            continue
+        selected_text = mline.Widget.get(start, end)
+        lines = selected_text.split("\n")
+        columns = [line.split() for line in lines if line.strip() != ""]
+        max_columns = max([len(cols) for cols in columns])
+        table = []
+        for row in columns:
+            table.append(" | ".join([col if i < len(row) else "" for i, col in enumerate(row)]))
+        header = " | ".join(["---" for i in range(max_columns)])
+        table_text = "| " + header + " |\n" + "\n".join(["| " + row + " |" for row in table])
+        mline.Widget.delete(start, end)
+        mline.Widget.insert(start, table_text)
+        
+    if event == '-MD-LINK-' or event == '-MD-IMG-' or event == '-MD-VID-':
+        mline = window["-MD-INPUT-"]
+        url = None
+        text = None
+        url, text = popup_md_link()
+        
+        insert_text = values[0]
+        index = mline.Widget.index("insert")
+        if url != None:
+            if text == None:
+                text = url
+            if 'LINK' in event:    
+                mline.Widget.insert(index, f"[{text}]({url})")
+            elif 'IMG' in event:
+                mline.Widget.insert(index, f"![{text}]({url})")
+            elif 'VID' in event:
+                mline.Widget.insert(index, f'<video src="{url}" alt="{text}">{text}</video>')
 
     if 'SETTING-' in event:
         arr = event.split('-')
