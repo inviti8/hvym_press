@@ -9,16 +9,12 @@ import sys
 import json
 import requests
 import hashlib
-import threading
 import cryptography
-from pathlib import Path
-from jinja2 import Environment, FileSystemLoader
-import PySimpleGUI as sg
+from cryptography.fernet import Fernet
 import LoadingWindow
 
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
-file_loader = FileSystemLoader('templates')
-env = Environment(loader=file_loader)
+
 
 
 class KeyHandler:
@@ -30,6 +26,9 @@ class KeyHandler:
        self.appID = appID
        self.key = key
        self.deviceID = deviceID
+       self.bananaAPI = None
+       self.diffusionModel = None
+       self.gptjModel = None
        self.api_url = 'https://notable-excellent-skill.anvil.app/'
        sha = hashlib.sha1(self.deviceID.encode(encoding = 'UTF-8'))
        device_hex = sha.hexdigest()
@@ -45,4 +44,14 @@ class KeyHandler:
            }
                
        response = requests.request("POST", self.url, headers=headers)
-       print(response.text)
+       data = response.json()
+       print(data)
+       f = Fernet(self.key)
+       self.bananaAPI = f.decrypt(data['banana'].encode(encoding = 'UTF-8'))
+       self.diffusionModel = f.decrypt(data['diffusion'].encode(encoding = 'UTF-8'))
+       self.gptjModel = f.decrypt(data['gptj'].encode(encoding = 'UTF-8'))
+       self.bananaAPI = self.bananaAPI.decode(encoding = 'UTF-8')
+       self.diffusionModel = self.diffusionModel.decode(encoding = 'UTF-8')
+       self.gptjModel = self.gptjModel.decode(encoding = 'UTF-8')
+       print(self.bananaAPI)
+       

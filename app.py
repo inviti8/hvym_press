@@ -878,21 +878,6 @@ device_id = get_device_id()
 
 key_handler = KeyHandler.KeyHandler(APP_ID, KEY, device_id)
 
-# device_id = device_id.replace(' ', '')
-# print(device_id)
-# sha = hashlib.sha1(device_id.encode(encoding = 'UTF-8'))
-# device_hex = sha.hexdigest()
-# sha = hashlib.sha1(KEY.encode(encoding = 'UTF-8'))
-# key_hex = sha.hexdigest()
-# url = api_url+'_/api/authenticate/'+device_hex+'&'+key_hex+'&'+APP_ID
-# print(url)
-# headers = {
-# }
-       
-# response = requests.request("POST", url, headers=headers)
-# print(response.text)
-
-#[name('Timeout (seconds)'), sg.Spin(values=[i for i in range(100, 31557600)], initial_value=DATA.settings['pinata_timeout'], enable_events=True, s=(25,22), k='SETTING-pinata_timeout')]
 
 while True:
     event, values = window.read()
