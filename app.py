@@ -17,11 +17,18 @@ import ColorPicker
 import IconPicker
 import io
 from io import BytesIO
+from wmi import WMI
+from sys import platform
 from PIL import Image, ImageDraw, ImageColor
 from jinja2 import Environment, FileSystemLoader
 import PySimpleGUI as sg
 import W3DeployHandler
 import TreeData
+import KeyHandler
+import hashlib
+
+APP_ID = "WEEEBX52m4JHXA"
+KEY = 'v0PVScmCcHNOBzLJRiqU3kSnRwoWPd4YXE-x1UVp0is='
 
 sg.theme("DarkGrey13")
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
@@ -34,6 +41,8 @@ serve_dir = os.path.join(SCRIPT_DIR, 'serve')
 debug_dir = os.path.join(serve_dir, 'debug')
 resource_dir = os.path.join(serve_dir, '_resources')
 dist_dir = os.path.join(SCRIPT_DIR, 'dist')
+api_url = 'https://notable-excellent-skill.anvil.app/'
+
 
 if os.path.isdir(serve_dir) == False:
     os.makedirs(serve_dir)
@@ -61,6 +70,17 @@ anon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACX
 
 #TOOL-TIPS:
 tt_debug_btn = "Renders site, and launches at localhost:8080."
+
+def get_device_id():
+  if platform == "linux" or platform == "linux2":
+      my_system = platform.uname().replace(' ', '')
+      return '{}-{}'.format(my_system.system, my_system.node)
+  elif platform == "darwin":
+      my_system = platform.uname().replace(' ', '')
+      return '{}-{}'.format(my_system.system, my_system.node)
+  elif platform == "win32":
+      a = WMI().Win32_ComputerSystemProduct()[0]
+      return '{}-{}'.format(a.UUID, a.Name).replace(' ', '')
 
 def load_save_data(file_dir):
     result = None
@@ -828,7 +848,8 @@ deployment_settings_layout = [[sg.Frame('Deployment Settings', [
 tab1_layout =  [[TreeData.Tree(treedata, [], True,
                    10, 40, '-TREE-', font, 48, False, True, True, True, ['&Right', command])]]
 
-tab2_layout = [[sg.Button("B", key='-MD-BOLD-'), sg.Button("I", key='-MD-ITALIC-'), sg.Button("H1", key='-MD-HEADING1-'),
+tab2_layout = [[sg.Frame('AI', [[sg.Button("L2P", key='-AI-LIST2P-'), sg.Button("L2P", key='-AI-P2LIST-'), sg.Button("IMG", key='-AI-IMG-'), sg.Button("IMG2IMG", key='-AI-IMG2IMG-') ]])],
+    [sg.Button("B", key='-MD-BOLD-'), sg.Button("I", key='-MD-ITALIC-'), sg.Button("H1", key='-MD-HEADING1-'),
                 sg.Button("H2", key='-MD-HEADING2-'), sg.Button("H3", key='-MD-HEADING3-'), sg.Button("H4", key='-MD-HEADING4-'),
                 sg.Button("H5", key='-MD-HEADING5-'), sg.Button("H6", key='-MD-HEADING6-'),
                 sg.Button("S", key='-MD-STRIKETHRU-'), sg.Button("UL", key='-MD-U-LIST-'), sg.Button("OL", key='-MD-O-LIST-'),
@@ -844,7 +865,6 @@ tab3_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, elem
 
 menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site']],
                 ['& Deploy', ['---', 'Pinata IPFS', 'Pinata Submarine', '---', 'Arweave(Coming Soon)']],
-                ['& Markdown', ['---', 'Refresh Files', 'Launch Editor']],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-')],
@@ -854,6 +874,23 @@ window = sg.Window('Weeeb3', layout, use_default_focus=False, finalize=True)
 tree = window['-TREE-']         # type: sg.Tree
 tree.bind("<Double-1>", '+DOUBLE')
 block_focus(window)
+device_id = get_device_id()
+
+key_handler = KeyHandler.KeyHandler(APP_ID, KEY, device_id)
+
+# device_id = device_id.replace(' ', '')
+# print(device_id)
+# sha = hashlib.sha1(device_id.encode(encoding = 'UTF-8'))
+# device_hex = sha.hexdigest()
+# sha = hashlib.sha1(KEY.encode(encoding = 'UTF-8'))
+# key_hex = sha.hexdigest()
+# url = api_url+'_/api/authenticate/'+device_hex+'&'+key_hex+'&'+APP_ID
+# print(url)
+# headers = {
+# }
+       
+# response = requests.request("POST", url, headers=headers)
+# print(response.text)
 
 #[name('Timeout (seconds)'), sg.Spin(values=[i for i in range(100, 31557600)], initial_value=DATA.settings['pinata_timeout'], enable_events=True, s=(25,22), k='SETTING-pinata_timeout')]
 
