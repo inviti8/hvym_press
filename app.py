@@ -435,6 +435,7 @@ def do_open_set_article_data(f_path, f_name):
             do_open_set_article_data(f_path, f_name)
             
             
+            
 def popup_set_article_data(md_name, data, colData):
     columns = []
     article_types = ['Block', 'Expandable', 'Form']
@@ -740,25 +741,59 @@ def popup_md_link():
     else:
         return None, None
     
-def popup_ai_img(prompt='', seed=-1):
+def popup_ai_img(prompt='', seed=-1, width=512, height=512, inference=50, guidance=9):
     def get_img():
         print('image')
     popup_layout = [
         [sg.Text("Prompt:", size=(15,1))],
         [sg.Multiline( s=(20,10), default_text=prompt, expand_x=True, key='prompt')],
-        [sg.Text("Seed:", size=(15,1)), sg.Spin(values=[i for i in range(1, 999999)], initial_value=seed, k='seed'), sg.Button("R", k='random-seed')],
+        [sg.Text("Seed:", size=(5,1)), sg.Spin(values=[i for i in range(1, 999999)], initial_value=seed, k='seed'), sg.Button("Random", k='random-seed')],
+        [sg.Text("Width:", size=(5,1)), sg.Spin(values=[i for i in range(1, 9999)], initial_value=width, k='img-width'), sg.Text("Height:", size=(5,1)), sg.Spin(values=[i for i in range(1, 9999)], initial_value=height, k='img-height')],
+        [sg.Text("Inference Steps:", size=(12,1)), sg.Spin(values=[i for i in range(1, 999)], initial_value=inference, k='inference-steps'), sg.Text("Guidance Scale:", size=(12,1)), sg.Spin(values=[i for i in range(1, 99)], initial_value=guidance, k='guidance-scale')],
         [sg.Button("Submit"), sg.Button("Save"), sg.Button("Cancel")]
     ]
-    popup_window = sg.Window("Stable Diffusion Image Prompt", popup_layout, size=(300,300))
+    popup_window = sg.Window("Stable Diffusion Image Prompt", popup_layout, size=(350,350))
     event, values = popup_window.read()
     popup_window.close()
     if event == "Save":
         return None, None
     if event == "random-seed":
-        popup_ai_img(values['prompt'], random.randint(0, 2**32 - 1))
+        popup_ai_img(values['prompt'], random.randint(0, 2**32 - 1), values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'])
     if event == "Submit":
-        get_img()
-        popup_ai_img()
+        png_b64 = [base64.b64encode(open("1.png", "rb").read()).decode(),
+                   base64.b64encode(open("2.png", "rb").read()).decode(),
+                   base64.b64encode(open("3.png", "rb").read()).decode()]
+        create_image_grid_popup(png_b64, 2)
+        #popup_ai_img()
+    else:
+        return None, None
+    
+def create_image_grid_popup(image_array, num_cols):
+    """
+    Create a popup with a grid of images displayed as buttons.
+    :param image_array: List of base64 encoded PNGs
+    :param num_cols: Number of columns in the grid
+    :return: None
+    """
+    buttons = []
+    for i, image in enumerate(image_array):
+        imgdata = base64.b64decode(image)
+        image = Image.open(io.BytesIO(imgdata))
+        new_img = image.resize((100, 100))
+        buffer = io.BytesIO()
+        new_img.save(buffer, format="PNG")
+        img_b64 = base64.b64encode(buffer.getvalue()).decode()
+        buttons.append(sg.Button('', image_data=img_b64, size=(100, 100), key=f'Image {i}'))
+    layout = [buttons[i:i+num_cols] for i in range(0, len(buttons), num_cols)]
+    layout.append([sg.Button("Refresh", expand_x=True, key="Refresh")])
+
+    # Create the window and show it
+    popup_window = sg.Window('Image Grid', layout, default_button_element_size=(12, 1), auto_size_buttons=False)
+    event, values = popup_window.read()
+    popup_window.close()
+    
+    if event == "Refresh":
+        return None, None
     else:
         return None, None
     

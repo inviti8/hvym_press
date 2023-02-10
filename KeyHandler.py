@@ -40,13 +40,11 @@ class KeyHandler:
        # self.loadingWindow.launchMethod(self.getKeys, ())
        
    def getKeys(self, *args):
-       print('GetKeys')
        headers = {
            }
                
        response = requests.request("POST", self.url, headers=headers)
        data = response.json()
-       print(data)
        f = Fernet(self.key)
        self.bananaAPI = f.decrypt(data['banana'].encode(encoding = 'UTF-8'))
        self.diffusionModel = f.decrypt(data['diffusion'].encode(encoding = 'UTF-8'))
@@ -54,5 +52,5 @@ class KeyHandler:
        self.bananaAPI = self.bananaAPI.decode(encoding = 'UTF-8')
        self.diffusionModel = self.diffusionModel.decode(encoding = 'UTF-8')
        self.gptjModel = self.gptjModel.decode(encoding = 'UTF-8')
-       print(self.bananaAPI)
+
        

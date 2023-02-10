@@ -26,11 +26,11 @@ class BananaAIHandler:
        self.diffusionModel = diffusionModel
        self.gptjModel = gptjModel
        
-       def get_img(self, prompt, width, height, seed):
+       def get_img(self, prompt, width, height, seed, inference, guidance):
             model_inputs = {
             	"prompt": prompt,
-            	"num_inference_steps":50,
-            	"guidance_scale":9,
+            	"num_inference_steps":inference,
+            	"guidance_scale":guidance,
             	"height":height,
             	"width":width,
             	"seed":seed
