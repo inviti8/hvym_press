@@ -35,8 +35,9 @@ class KeyHandler:
        sha = hashlib.sha1(self.key.encode(encoding = 'UTF-8'))
        key_hex = sha.hexdigest()
        self.url = self.api_url+'_/api/authenticate/'+device_hex+'&'+key_hex+'&'+appID
-       self.loadingWindow = LoadingWindow.LoadingWindow()
-       self.loadingWindow.launchMethod(self.getKeys, ())
+       self.getKeys()
+       # self.loadingWindow = LoadingWindow.LoadingWindow()
+       # self.loadingWindow.launchMethod(self.getKeys, ())
        
    def getKeys(self, *args):
        print('GetKeys')

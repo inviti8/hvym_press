@@ -23,9 +23,11 @@ from PIL import Image, ImageDraw, ImageColor
 from jinja2 import Environment, FileSystemLoader
 import PySimpleGUI as sg
 import W3DeployHandler
+import BananaAIHandler
 import TreeData
 import KeyHandler
 import hashlib
+import random
 
 APP_ID = "WEEEBX52m4JHXA"
 KEY = 'v0PVScmCcHNOBzLJRiqU3kSnRwoWPd4YXE-x1UVp0is='
@@ -730,11 +732,33 @@ def popup_md_link():
         [sg.Text("Display Text:", size=(15,1)), sg.InputText(key='display')],
         [sg.Button("Submit"), sg.Button("Cancel")]
     ]
-    popup_window = sg.Window("Popup Window", popup_layout)
+    popup_window = sg.Window("Link Input", popup_layout)
     event, values = popup_window.read()
     popup_window.close()
     if event == "Submit":
         return values['url'], values['display']
+    else:
+        return None, None
+    
+def popup_ai_img(prompt='', seed=-1):
+    def get_img():
+        print('image')
+    popup_layout = [
+        [sg.Text("Prompt:", size=(15,1))],
+        [sg.Multiline( s=(20,10), default_text=prompt, expand_x=True, key='prompt')],
+        [sg.Text("Seed:", size=(15,1)), sg.Spin(values=[i for i in range(1, 999999)], initial_value=seed, k='seed'), sg.Button("R", k='random-seed')],
+        [sg.Button("Submit"), sg.Button("Save"), sg.Button("Cancel")]
+    ]
+    popup_window = sg.Window("Stable Diffusion Image Prompt", popup_layout, size=(300,300))
+    event, values = popup_window.read()
+    popup_window.close()
+    if event == "Save":
+        return None, None
+    if event == "random-seed":
+        popup_ai_img(values['prompt'], random.randint(0, 2**32 - 1))
+    if event == "Submit":
+        get_img()
+        popup_ai_img()
     else:
         return None, None
     
@@ -877,6 +901,7 @@ block_focus(window)
 device_id = get_device_id()
 
 key_handler = KeyHandler.KeyHandler(APP_ID, KEY, device_id)
+banana_ai = BananaAIHandler.BananaAIHandler(key_handler.bananaAPI, key_handler.diffusionModel, key_handler.diffusionModel, resource_dir )
 
 
 while True:
@@ -990,6 +1015,7 @@ while True:
                             DATA.saveData()
                             
     if event == '-MD-BOLD-' or event == '-MD-ITALIC-' or event == '-MD-STRIKETHRU-' or event == '-MD-STRIKETHRU-' or '-MD-HEADING' in event:
+        print("What broke??")
         mline = window["-MD-INPUT-"]
         try:
             start, end = mline.Widget.index("sel.first"), mline.Widget.index("sel.last")
@@ -1101,6 +1127,9 @@ while True:
                 mline.Widget.insert(index, f"![{text}]({url})")
             elif 'VID' in event:
                 mline.Widget.insert(index, f'<video src="{url}" alt="{text}">{text}</video>')
+                
+    if event == '-AI-IMG-':
+        name, img = popup_ai_img()
 
     if 'SETTING-' in event:
         arr = event.split('-')
