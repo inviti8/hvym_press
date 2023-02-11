@@ -4,15 +4,7 @@ Created on Thu Feb  9 17:48:08 2023
 
 @author: pc
 """
-import os
-from pathlib import Path
 import banana_dev as banana
-import base64
-from io import BytesIO
-from PIL import Image
-
-
-SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
 
 
 
@@ -24,27 +16,27 @@ class BananaAIHandler:
    def __init__(self, apiKey, diffusionModel, gptjModel, resourcePath):
        self.apiKey = apiKey
        self.diffusionModel = diffusionModel
+       self.diffusion_inputs = {}
        self.gptjModel = gptjModel
        
-       def get_img(self, prompt, width, height, seed, inference, guidance):
-            model_inputs = {
-            	"prompt": prompt,
-            	"num_inference_steps":inference,
-            	"guidance_scale":guidance,
-            	"height":height,
-            	"width":width,
-            	"seed":seed
-            }
-            
-            api_key = self.apiKey
-            model_key = self.diffusionModel
-            
-            # Run the model
-            out = banana.run(api_key, model_key, model_inputs)
-            
-            # Extract the image and save to output.jpg
-            image_byte_string = out["modelOutputs"][0]["image_base64"]
-            image_encoded = image_byte_string.encode('utf-8')
-            image_bytes = BytesIO(base64.b64decode(image_encoded))
-            image = Image.open(image_bytes)
-            image.save("output.jpg")
+       
+   def get_img(self, prompt, width, height, seed, inference, guidance):
+       print(self.apiKey)
+       print(self.diffusionModel)
+       
+       self.diffusion_inputs = {
+         "prompt": prompt,
+         "num_inference_steps":inference,
+         "guidance_scale":guidance,
+         "height":height,
+         "width":width,
+         "seed":seed
+        }
+
+         
+       # Run the model
+       out = banana.run(self.apiKey, self.diffusionModel, self.diffusion_inputs)
+        
+
+       return out["modelOutputs"][0]["image_base64"]
+

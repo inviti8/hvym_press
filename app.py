@@ -741,13 +741,12 @@ def popup_md_link():
     else:
         return None, None
     
-def popup_ai_img(prompt='', seed=-1, width=512, height=512, inference=50, guidance=9):
-    def get_img():
-        print('image')
+def popup_ai_img(prompt='', seed=-1, width=512, height=512, inference=50, guidance=9, seeds=[], result=(None, None)):
+
     popup_layout = [
         [sg.Text("Prompt:", size=(15,1))],
         [sg.Multiline( s=(20,10), default_text=prompt, expand_x=True, key='prompt')],
-        [sg.Text("Seed:", size=(5,1)), sg.Spin(values=[i for i in range(1, 999999)], initial_value=seed, k='seed'), sg.Button("Random", k='random-seed')],
+        [sg.Text("Seed:", size=(5,1)), sg.Spin(values=[i for i in range(-1, 999999)], initial_value=seed, k='seed'), sg.Button("Random", k='random-seed'), sg.Checkbox("Randomize Variations", k='randomize-vars')],
         [sg.Text("Width:", size=(5,1)), sg.Spin(values=[i for i in range(1, 9999)], initial_value=width, k='img-width'), sg.Text("Height:", size=(5,1)), sg.Spin(values=[i for i in range(1, 9999)], initial_value=height, k='img-height')],
         [sg.Text("Inference Steps:", size=(12,1)), sg.Spin(values=[i for i in range(1, 999)], initial_value=inference, k='inference-steps'), sg.Text("Guidance Scale:", size=(12,1)), sg.Spin(values=[i for i in range(1, 99)], initial_value=guidance, k='guidance-scale')],
         [sg.Button("Submit"), sg.Button("Save"), sg.Button("Cancel")]
@@ -756,15 +755,38 @@ def popup_ai_img(prompt='', seed=-1, width=512, height=512, inference=50, guidan
     event, values = popup_window.read()
     popup_window.close()
     if event == "Save":
+        image_byte_string = result[0]
+        img_name = None
+        out_path = None
+        
+        if image_byte_string != None:
+            idx = result[1]
+            image_encoded = image_byte_string.encode('utf-8')
+            image_bytes = BytesIO(base64.b64decode(image_encoded))
+            image = Image.open(image_bytes)
+            img_name = values['prompt']+'_'+str(seeds[idx])+'.jpg'
+            out_path = os.path.join(base_resource_dir, img_name)
+            image.save(out_path)
+            ai_imgs[img_name] = out_path.replace('\\', '/')
+            
         return None, None
+    
     if event == "random-seed":
         popup_ai_img(values['prompt'], random.randint(0, 2**32 - 1), values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'])
     if event == "Submit":
-        png_b64 = [base64.b64encode(open("1.png", "rb").read()).decode(),
-                   base64.b64encode(open("2.png", "rb").read()).decode(),
-                   base64.b64encode(open("3.png", "rb").read()).decode()]
-        create_image_grid_popup(png_b64, 2)
-        #popup_ai_img()
+        img_seed = values['seed']
+        png_b64 = []
+        
+        for i in range(4):
+            if values['randomize-vars'] == True:
+                img_seed = int(random.randint(0, 2**32 - 1))
+            img_str = banana_ai.get_img(values['prompt'], values['img-width'], values['img-height'], img_seed, values['inference-steps'], values['guidance-scale'])
+            seeds.append(img_seed)
+            png_b64.append(img_str)
+            
+        img_str, idx = create_image_grid_popup(png_b64, 2)
+        result = (img_str, idx)
+        popup_ai_img(values['prompt'], seeds[idx], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, result)
     else:
         return None, None
     
@@ -776,6 +798,7 @@ def create_image_grid_popup(image_array, num_cols):
     :return: None
     """
     buttons = []
+    imgs = {}
     for i, image in enumerate(image_array):
         imgdata = base64.b64decode(image)
         image = Image.open(io.BytesIO(imgdata))
@@ -783,7 +806,8 @@ def create_image_grid_popup(image_array, num_cols):
         buffer = io.BytesIO()
         new_img.save(buffer, format="PNG")
         img_b64 = base64.b64encode(buffer.getvalue()).decode()
-        buttons.append(sg.Button('', image_data=img_b64, size=(100, 100), key=f'Image {i}'))
+        buttons.append(sg.Button('', image_data=img_b64, size=(100, 100), key=f'Image_{i}', enable_events=True))
+        imgs[f'Image_{i}'] = image_array[i]
     layout = [buttons[i:i+num_cols] for i in range(0, len(buttons), num_cols)]
     layout.append([sg.Button("Refresh", expand_x=True, key="Refresh")])
 
@@ -793,9 +817,13 @@ def create_image_grid_popup(image_array, num_cols):
     popup_window.close()
     
     if event == "Refresh":
-        return None, None
+        return None
+    if 'Image_' in event:
+        idx = event.split('_')[1]
+        img = imgs[event]
+        return imgs[event], int(idx)
     else:
-        return None, None
+        return None
     
     
 def DoDeploy(data, window, private=False):
@@ -856,6 +884,7 @@ dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
 check = [icon(0), icon(1), icon(2)]
 
 starting_path = sg.popup_get_folder('Site Directory')
+base_resource_dir = os.path.join(starting_path, '_resources')
 
 if not starting_path:
     sys.exit(0)
@@ -937,7 +966,7 @@ device_id = get_device_id()
 
 key_handler = KeyHandler.KeyHandler(APP_ID, KEY, device_id)
 banana_ai = BananaAIHandler.BananaAIHandler(key_handler.bananaAPI, key_handler.diffusionModel, key_handler.diffusionModel, resource_dir )
-
+ai_imgs = {}
 
 while True:
     event, values = window.read()
@@ -1164,7 +1193,16 @@ while True:
                 mline.Widget.insert(index, f'<video src="{url}" alt="{text}">{text}</video>')
                 
     if event == '-AI-IMG-':
-        name, img = popup_ai_img()
+        mline = window["-MD-INPUT-"]
+        index = mline.Widget.index("insert")
+        path = popup_ai_img()
+        if len(ai_imgs) > 0:
+            for k in ai_imgs:
+                url = ai_imgs[k]
+                sg.popup_ok(f"image: {k} has been saved to: {url}")
+                mline.Widget.insert(index, f"![{k}]({url})\n")
+        
+        ai_imgs.clear()
 
     if 'SETTING-' in event:
         arr = event.split('-')
