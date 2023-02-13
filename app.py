@@ -1,5 +1,7 @@
 import os
 import sys
+import io
+import json
 import time
 import uuid
 import shutil
@@ -44,6 +46,12 @@ debug_dir = os.path.join(serve_dir, 'debug')
 resource_dir = os.path.join(serve_dir, '_resources')
 dist_dir = os.path.join(SCRIPT_DIR, 'dist')
 api_url = 'https://notable-excellent-skill.anvil.app/'
+ai_mods_json = os.path.join(SCRIPT_DIR, 'Stable_Diffusion_Prompt_Modifiers.json')
+ai_mods = None
+
+with io.open(ai_mods_json, mode="r", encoding="utf-8") as f:
+    ai_mods = json.load(f)
+    
 
 
 if os.path.isdir(serve_dir) == False:
@@ -741,17 +749,23 @@ def popup_md_link():
     else:
         return None, None
     
-def popup_ai_img(prompt='', seed=-1, width=512, height=512, inference=50, guidance=9, seeds=[], result=(None, None)):
+def popup_ai_img(prompt='', seed=-1, variations=4, width=512, height=512, inference=50, guidance=9, seeds=[], artist='None', modifier='None', tag='None', artistTxt='', modifierTxt='', tagTxt='', result=(None, None)):
 
     popup_layout = [
         [sg.Text("Prompt:", size=(15,1))],
         [sg.Multiline( s=(20,10), default_text=prompt, expand_x=True, key='prompt')],
+        [sg.Text("Modifier Text:", size=(10,1)), sg.Multiline( s=(8,2), default_text=modifierTxt, expand_x=True, key='modifier-text')],
+        [sg.Text("Tags Text:", size=(10,1)), sg.Multiline( s=(8,2), default_text=tagTxt, expand_x=True, key='tag-text')],
+        [sg.Text("Artists Text:", size=(10,1)), sg.Multiline( s=(8,2), default_text=artistTxt, expand_x=True, key='artist-text')],
         [sg.Text("Seed:", size=(5,1)), sg.Spin(values=[i for i in range(-1, 999999)], initial_value=seed, k='seed'), sg.Button("Random", k='random-seed'), sg.Checkbox("Randomize Variations", k='randomize-vars')],
-        [sg.Text("Width:", size=(5,1)), sg.Spin(values=[i for i in range(1, 9999)], initial_value=width, k='img-width'), sg.Text("Height:", size=(5,1)), sg.Spin(values=[i for i in range(1, 9999)], initial_value=height, k='img-height')],
+        [sg.Text("Variations:", size=(7,1)), sg.Spin(values=[i for i in range(1, 9)], initial_value=variations, k='img-variations'), sg.Text("Width:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=width, k='img-width'), sg.Text("Height:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=height, k='img-height')],
         [sg.Text("Inference Steps:", size=(12,1)), sg.Spin(values=[i for i in range(1, 999)], initial_value=inference, k='inference-steps'), sg.Text("Guidance Scale:", size=(12,1)), sg.Spin(values=[i for i in range(1, 99)], initial_value=guidance, k='guidance-scale')],
+        [sg.Text("Artists:", size=(7,1)), sg.Combo(ai_mods['artists'], default_value=artist, s=(15,22), readonly=True, k='mod-artist'), sg.Button("Add", k='mod-add-artist')],
+        [sg.Text("Modifiers:", size=(7,1)), sg.Combo(ai_mods['modifiers'], default_value=modifier, s=(15,22), readonly=True, k='mod-modifier'), sg.Button("Add", k='mod-add-modifier')],
+        [sg.Text("Tags:", size=(7,1)), sg.Combo(ai_mods['tags'], default_value=tag, s=(15,22), readonly=True, k='mod-tag'), sg.Button("Add", k='mod-add-tag')],
         [sg.Button("Submit"), sg.Button("Save"), sg.Button("Cancel")]
     ]
-    popup_window = sg.Window("Stable Diffusion Image Prompt", popup_layout, size=(350,350))
+    popup_window = sg.Window("Stable Diffusion Image Prompt", popup_layout, size=(350,550))
     event, values = popup_window.read()
     popup_window.close()
     if event == "Save":
@@ -772,21 +786,43 @@ def popup_ai_img(prompt='', seed=-1, width=512, height=512, inference=50, guidan
         return None, None
     
     if event == "random-seed":
-        popup_ai_img(values['prompt'], random.randint(0, 2**32 - 1), values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'])
+        popup_ai_img(values['prompt'], random.randint(0, 2**32 - 1), values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'])
+    if event == "mod-add-artist":
+        vals = values['artist-text'] 
+        if values['mod-artist'] != 'None':
+            vals = values['artist-text'] +', '+values['mod-artist']
+        popup_ai_img(values['prompt'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], vals, values['modifier-text'], values['tag-text'])
+    if event == "mod-add-modifier":
+        vals = values['modifier-text'] 
+        if values['mod-modifier'] != 'None':
+            vals = values['modifier-text'] +', '+values['mod-modifier']
+        popup_ai_img(values['prompt'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], vals, values['tag-text'])
+    if event == "mod-add-tag":
+        vals = values['tag-text'] 
+        if values['mod-tag'] != 'None':
+            vals = values['tag-text'] +', '+values['mod-tag']
+        popup_ai_img(values['prompt'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], vals)
     if event == "Submit":
         img_seed = values['seed']
         png_b64 = []
         
-        for i in range(4):
-            if values['randomize-vars'] == True:
-                img_seed = int(random.randint(0, 2**32 - 1))
-            img_str = banana_ai.get_img(values['prompt'], values['img-width'], values['img-height'], img_seed, values['inference-steps'], values['guidance-scale'])
-            seeds.append(img_seed)
-            png_b64.append(img_str)
-            
-        img_str, idx = create_image_grid_popup(png_b64, 2)
-        result = (img_str, idx)
-        popup_ai_img(values['prompt'], seeds[idx], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, result)
+        if len(values['prompt']) > 10:
+        
+            for i in range(values['img-variations']):
+                if values['randomize-vars'] == True:
+                    img_seed = int(random.randint(0, 2**32 - 1))
+                    
+                prompt = values['prompt'] + values['modifier-text'] + values['tag-text'] + values['artist-text']
+                img_str = banana_ai.get_img(prompt, values['img-width'], values['img-height'], img_seed, values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'])
+                seeds.append(img_seed)
+                png_b64.append(img_str)
+                
+            img_str, idx = create_image_grid_popup(png_b64, 2)
+            result = (img_str, idx)
+            popup_ai_img(values['prompt'], seeds[idx], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'], result)
+        else:
+            sg.popup_ok('Prompt is too short.')
+            popup_ai_img(values['prompt'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'])
     else:
         return None, None
     
