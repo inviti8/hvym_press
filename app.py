@@ -749,6 +749,89 @@ def popup_md_link():
     else:
         return None, None
     
+def popup_ai_img_2_img(ai_img_in='', prompt='', seed=-1, variations=4, width=512, height=512, inference=50, guidance=9, seeds=[], artist='None', modifier='None', tag='None', artistTxt='', modifierTxt='', tagTxt='', result=(None, None)):
+
+    popup_layout = [
+        [sg.Text("Image File:", size=(15,1))],
+        [sg.Input( s=(20,1), default_text=ai_img_in, expand_x=True, key='ai-img-in'), sg.Button("Load", k='ai-load-img')],
+        [sg.Text("Prompt:", size=(15,1))],
+        [sg.Multiline( s=(20,5), default_text=prompt, expand_x=True, key='prompt')],
+        [sg.Text("Modifier Text:", size=(10,1)), sg.Multiline( s=(8,2), default_text=modifierTxt, expand_x=True, key='modifier-text')],
+        [sg.Text("Tags Text:", size=(10,1)), sg.Multiline( s=(8,2), default_text=tagTxt, expand_x=True, key='tag-text')],
+        [sg.Text("Artists Text:", size=(10,1)), sg.Multiline( s=(8,2), default_text=artistTxt, expand_x=True, key='artist-text')],
+        [sg.Text("Seed:", size=(5,1)), sg.Spin(values=[i for i in range(-1, 999999)], initial_value=seed, k='seed'), sg.Button("Random", k='random-seed'), sg.Checkbox("Randomize Variations", k='randomize-vars')],
+        [sg.Text("Variations:", size=(7,1)), sg.Spin(values=[i for i in range(1, 9)], initial_value=variations, k='img-variations'), sg.Text("Width:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=width, k='img-width'), sg.Text("Height:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=height, k='img-height')],
+        [sg.Text("Inference Steps:", size=(12,1)), sg.Spin(values=[i for i in range(1, 999)], initial_value=inference, k='inference-steps'), sg.Text("Guidance Scale:", size=(12,1)), sg.Spin(values=[i for i in range(1, 99)], initial_value=guidance, k='guidance-scale')],
+        [sg.Text("Modifiers:", size=(7,1)), sg.Combo(ai_mods['modifiers'], default_value=modifier, s=(15,22), readonly=True, k='mod-modifier'), sg.Button("Add", k='mod-add-modifier')],
+        [sg.Text("Tags:", size=(7,1)), sg.Combo(ai_mods['tags'], default_value=tag, s=(15,22), readonly=True, k='mod-tag'), sg.Button("Add", k='mod-add-tag')],
+        [sg.Text("Artists:", size=(7,1)), sg.Combo(ai_mods['artists'], default_value=artist, s=(15,22), readonly=True, k='mod-artist'), sg.Button("Add", k='mod-add-artist')],
+        [sg.Button("Submit"), sg.Button("Save"), sg.Button("Cancel")]
+    ]
+    popup_window = sg.Window("Stable Diffusion Image Prompt", popup_layout, size=(350,550))
+    event, values = popup_window.read()
+    popup_window.close()
+    if event == "Save":
+        image_byte_string = result[0]
+        img_name = None
+        out_path = None
+        
+        if image_byte_string != None:
+            idx = result[1]
+            image_encoded = image_byte_string.encode('utf-8')
+            image_bytes = BytesIO(base64.b64decode(image_encoded))
+            image = Image.open(image_bytes)
+            img_name = values['prompt']+'_'+str(seeds[idx])+'.jpg'
+            out_path = os.path.join(base_resource_dir, img_name)
+            image.save(out_path)
+            ai_imgs[img_name] = out_path.replace('\\', '/')
+            
+        return None, None
+    
+    if event == "random-seed":
+        popup_ai_img(values['ai-img-in'], values['prompt'], random.randint(0, 2**32 - 1), values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'])
+    if event == "mod-add-artist":
+        vals = values['artist-text'] 
+        if values['mod-artist'] != 'None':
+            vals = values['artist-text'] +', '+values['mod-artist']
+        popup_ai_img(values['ai-img-in'], values['prompt'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], vals, values['modifier-text'], values['tag-text'])
+    if event == "mod-add-modifier":
+        vals = values['modifier-text'] 
+        if values['mod-modifier'] != 'None':
+            vals = values['modifier-text'] +', '+values['mod-modifier']
+        popup_ai_img(values['ai-img-in'], values['prompt'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], vals, values['tag-text'])
+    if event == "mod-add-tag":
+        vals = values['tag-text'] 
+        if values['mod-tag'] != 'None':
+            vals = values['tag-text'] +', '+values['mod-tag']
+        popup_ai_img(values['ai-img-in'], values['prompt'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], vals)
+    if event == "Submit":
+        img_seed = values['seed']
+        png_b64 = []
+        
+        if os.path.isfile(values['a-img-in']) and len(values['prompt']):
+        
+            for i in range(values['img-variations']):
+                if values['randomize-vars'] == True:
+                    img_seed = int(random.randint(0, 2**32 - 1))
+                    
+                image_file = open(values['ai-img-in'], "rb")
+                bs64_str = base64.b64encode(image_file.read())
+                print(bs64_str)
+                    
+                prompt = values['prompt'] + values['modifier-text'] + values['tag-text'] + values['artist-text']
+                img_str = banana_ai.img2img(bs64_str, prompt, values['img-width'], values['img-height'], img_seed, values['inference-steps'], values['guidance-scale'])
+                seeds.append(img_seed)
+                png_b64.append(img_str)
+                
+            img_str, idx = create_image_grid_popup(png_b64, 2)
+            result = (img_str, idx)
+            popup_ai_img(values['a-img-in'], seeds[idx], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'], result)
+        else:
+            sg.popup_ok('Prompt is too short.')
+            popup_ai_img(values['a-img-in'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'])
+    else:
+        return None, None
+    
 def popup_ai_img(prompt='', seed=-1, variations=4, width=512, height=512, inference=50, guidance=9, seeds=[], artist='None', modifier='None', tag='None', artistTxt='', modifierTxt='', tagTxt='', result=(None, None)):
 
     popup_layout = [
@@ -760,9 +843,9 @@ def popup_ai_img(prompt='', seed=-1, variations=4, width=512, height=512, infere
         [sg.Text("Seed:", size=(5,1)), sg.Spin(values=[i for i in range(-1, 999999)], initial_value=seed, k='seed'), sg.Button("Random", k='random-seed'), sg.Checkbox("Randomize Variations", k='randomize-vars')],
         [sg.Text("Variations:", size=(7,1)), sg.Spin(values=[i for i in range(1, 9)], initial_value=variations, k='img-variations'), sg.Text("Width:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=width, k='img-width'), sg.Text("Height:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=height, k='img-height')],
         [sg.Text("Inference Steps:", size=(12,1)), sg.Spin(values=[i for i in range(1, 999)], initial_value=inference, k='inference-steps'), sg.Text("Guidance Scale:", size=(12,1)), sg.Spin(values=[i for i in range(1, 99)], initial_value=guidance, k='guidance-scale')],
-        [sg.Text("Artists:", size=(7,1)), sg.Combo(ai_mods['artists'], default_value=artist, s=(15,22), readonly=True, k='mod-artist'), sg.Button("Add", k='mod-add-artist')],
         [sg.Text("Modifiers:", size=(7,1)), sg.Combo(ai_mods['modifiers'], default_value=modifier, s=(15,22), readonly=True, k='mod-modifier'), sg.Button("Add", k='mod-add-modifier')],
         [sg.Text("Tags:", size=(7,1)), sg.Combo(ai_mods['tags'], default_value=tag, s=(15,22), readonly=True, k='mod-tag'), sg.Button("Add", k='mod-add-tag')],
+        [sg.Text("Artists:", size=(7,1)), sg.Combo(ai_mods['artists'], default_value=artist, s=(15,22), readonly=True, k='mod-artist'), sg.Button("Add", k='mod-add-artist')],
         [sg.Button("Submit"), sg.Button("Save"), sg.Button("Cancel")]
     ]
     popup_window = sg.Window("Stable Diffusion Image Prompt", popup_layout, size=(350,550))
@@ -813,7 +896,7 @@ def popup_ai_img(prompt='', seed=-1, variations=4, width=512, height=512, infere
                     img_seed = int(random.randint(0, 2**32 - 1))
                     
                 prompt = values['prompt'] + values['modifier-text'] + values['tag-text'] + values['artist-text']
-                img_str = banana_ai.get_img(prompt, values['img-width'], values['img-height'], img_seed, values['inference-steps'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'])
+                img_str = banana_ai.txt2img(prompt, values['img-width'], values['img-height'], img_seed, values['inference-steps'], values['guidance-scale'])
                 seeds.append(img_seed)
                 png_b64.append(img_str)
                 
@@ -1001,7 +1084,7 @@ block_focus(window)
 device_id = get_device_id()
 
 key_handler = KeyHandler.KeyHandler(APP_ID, KEY, device_id)
-banana_ai = BananaAIHandler.BananaAIHandler(key_handler.bananaAPI, key_handler.diffusionModel, key_handler.diffusionModel, resource_dir )
+banana_ai = BananaAIHandler.BananaAIHandler(key_handler.bananaAPI, key_handler.diffusionModel, key_handler.autoDiffusionModel, key_handler.gptjModel, resource_dir )
 ai_imgs = {}
 
 while True:
@@ -1228,10 +1311,14 @@ while True:
             elif 'VID' in event:
                 mline.Widget.insert(index, f'<video src="{url}" alt="{text}">{text}</video>')
                 
-    if event == '-AI-IMG-':
+    if event == '-AI-IMG-' or event == '-AI-IMG2IMG-':
         mline = window["-MD-INPUT-"]
         index = mline.Widget.index("insert")
-        path = popup_ai_img()
+        if 'IMG2IMG' not in event:
+            popup_ai_img()
+        else:
+            popup_ai_img_2_img()
+            
         if len(ai_imgs) > 0:
             for k in ai_imgs:
                 url = ai_imgs[k]

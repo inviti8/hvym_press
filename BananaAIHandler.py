@@ -14,11 +14,65 @@ class BananaAIHandler:
    Class for handling Banana AI calls
    
    """
-   def __init__(self, apiKey, diffusionModel, gptjModel, resourcePath):
+   def __init__(self, apiKey, diffusionModel, autoDiffusionModel, gptjModel, resourcePath):
        self.apiKey = apiKey
        self.diffusionModel = diffusionModel
+       self.autoDiffusionModel = autoDiffusionModel
        self.diffusion_inputs = {}
        self.gptjModel = gptjModel
+       
+   def txt2img(self, prompt, width, height, seed, inference, guidance):
+       print(self.apiKey)
+       print(self.autoDiffusionModel)
+       
+       self.diffusion_inputs = {
+           "endpoint": "txt2img",
+           "params": {
+               "prompt": prompt,
+               "steps":inference,
+               "cfg_scale":guidance,
+               "height":height,
+               "width":width,
+               "seed":seed
+               }
+        }
+
+         
+       # Run the model
+       out = banana.run(self.apiKey, self.autoDiffusionModel, self.diffusion_inputs)
+       
+       print(out)
+        
+
+       return out["modelOutputs"][0]["images"][0]
+   
+   def img2img(self, img, prompt, width, height, seed, inference, guidance):
+       print(self.apiKey)
+       print(self.autoDiffusionModel)
+       
+       self.diffusion_inputs = {
+           "endpoint": "txt2img",
+           "params": {
+               "prompt": prompt,
+               "steps":inference,
+               "cfg_scale":guidance,
+               "height":height,
+               "width":width,
+               "seed":seed,
+               "init_images": [
+                    img
+                ]
+               }
+        }
+
+         
+       # Run the model
+       out = banana.run(self.apiKey, self.autoDiffusionModel, self.diffusion_inputs)
+       
+       print(out)
+        
+
+       return out["modelOutputs"][0]["images"][0]
        
        
    def get_img(self, prompt, width, height, seed, inference, guidance):
@@ -40,4 +94,5 @@ class BananaAIHandler:
         
 
        return out["modelOutputs"][0]["image_base64"]
+   
 

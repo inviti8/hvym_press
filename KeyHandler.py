@@ -28,6 +28,7 @@ class KeyHandler:
        self.deviceID = deviceID
        self.bananaAPI = None
        self.diffusionModel = None
+       self.autoDiffusionModel = None
        self.gptjModel = None
        self.api_url = 'https://notable-excellent-skill.anvil.app/'
        sha = hashlib.sha1(self.deviceID.encode(encoding = 'UTF-8'))
@@ -48,9 +49,11 @@ class KeyHandler:
        f = Fernet(self.key)
        self.bananaAPI = f.decrypt(data['banana'].encode(encoding = 'UTF-8'))
        self.diffusionModel = f.decrypt(data['diffusion'].encode(encoding = 'UTF-8'))
+       self.autoDiffusionModel = f.decrypt(data['auto-diffusion'].encode(encoding = 'UTF-8'))
        self.gptjModel = f.decrypt(data['gptj'].encode(encoding = 'UTF-8'))
        self.bananaAPI = self.bananaAPI.decode(encoding = 'UTF-8')
        self.diffusionModel = self.diffusionModel.decode(encoding = 'UTF-8')
+       self.autoDiffusionModel = self.autoDiffusionModel.decode(encoding = 'UTF-8')
        self.gptjModel = self.gptjModel.decode(encoding = 'UTF-8')
 
        
