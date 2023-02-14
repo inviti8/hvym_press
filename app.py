@@ -763,9 +763,9 @@ def popup_ai_img_2_img(ai_img_in='', prompt='', seed=-1, variations=4, width=512
         [sg.Text("Variations:", size=(7,1)), sg.Spin(values=[i for i in range(1, 9)], initial_value=variations, k='img-variations'), sg.Text("Width:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=width, k='img-width'), sg.Text("Height:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=height, k='img-height')],
         [sg.Text("Inference Steps:", size=(12,1)), sg.Spin(values=[i for i in range(1, 999)], initial_value=inference, k='inference-steps'), sg.Text("Guidance Scale:", size=(12,1)), sg.Spin(values=[i for i in range(1, 99)], initial_value=guidance, k='guidance-scale')],
         [sg.Text("Sampling Method:", size=(15,1)), sg.Combo(ai_mods['sampling'], default_value=sampling, s=(20,22), readonly=True, k='mod-sampling')],
-        [sg.Text("Modifiers:", size=(7,1)), sg.Combo(ai_mods['modifiers'], default_value=modifier, s=(15,22), readonly=True, k='mod-modifier'), sg.Button("Add", k='mod-add-modifier')],
-        [sg.Text("Tags:", size=(7,1)), sg.Combo(ai_mods['tags'], default_value=tag, s=(15,22), readonly=True, k='mod-tag'), sg.Button("Add", k='mod-add-tag')],
-        [sg.Text("Artists:", size=(7,1)), sg.Combo(ai_mods['artists'], default_value=artist, s=(15,22), readonly=True, k='mod-artist'), sg.Button("Add", k='mod-add-artist')],
+        [sg.Text("Modifiers:", size=(15,1)), sg.Combo(ai_mods['modifiers'], default_value=modifier, s=(15,22), readonly=True, k='mod-modifier'), sg.Button("Add", k='mod-add-modifier')],
+        [sg.Text("Tags:", size=(15,1)), sg.Combo(ai_mods['tags'], default_value=tag, s=(15,22), readonly=True, k='mod-tag'), sg.Button("Add", k='mod-add-tag')],
+        [sg.Text("Artists:", size=(15,1)), sg.Combo(ai_mods['artists'], default_value=artist, s=(15,22), readonly=True, k='mod-artist'), sg.Button("Add", k='mod-add-artist')],
         [sg.Button("Submit"), sg.Button("Save"), sg.Button("Cancel")]
     ]
     popup_window = sg.Window("Stable Diffusion Image Prompt", popup_layout, size=(350,570))
@@ -789,7 +789,7 @@ def popup_ai_img_2_img(ai_img_in='', prompt='', seed=-1, variations=4, width=512
         return None, None
     if event == "ai-load-img":
         path = sg.popup_get_file("Load an image", title="Image 2 Image", default_extension='.png')
-        if os.path.isfile(path):
+        if path != None and os.path.isfile(path):
             popup_ai_img_2_img(path, values['prompt'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['mod-sampling'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'])
         else:
             popup_ai_img_2_img(values['ai-img-in'], values['prompt'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['mod-sampling'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'])
@@ -850,9 +850,9 @@ def popup_ai_img(prompt='', seed=-1, variations=4, width=512, height=512, infere
         [sg.Text("Variations:", size=(7,1)), sg.Spin(values=[i for i in range(1, 9)], initial_value=variations, k='img-variations'), sg.Text("Width:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=width, k='img-width'), sg.Text("Height:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=height, k='img-height')],
         [sg.Text("Inference Steps:", size=(12,1)), sg.Spin(values=[i for i in range(1, 999)], initial_value=inference, k='inference-steps'), sg.Text("Guidance Scale:", size=(12,1)), sg.Spin(values=[i for i in range(1, 99)], initial_value=guidance, k='guidance-scale')],
         [sg.Text("Sampling Method:", size=(15,1)), sg.Combo(ai_mods['sampling'], default_value=sampling, s=(20,22), readonly=True, k='mod-sampling')],
-        [sg.Text("Modifiers:", size=(10,1)), sg.Combo(ai_mods['modifiers'], default_value=modifier, s=(20,22), readonly=True, k='mod-modifier'), sg.Button("Add", k='mod-add-modifier')],
-        [sg.Text("Tags:", size=(10,1)), sg.Combo(ai_mods['tags'], default_value=tag, s=(20,22), readonly=True, k='mod-tag'), sg.Button("Add", k='mod-add-tag')],
-        [sg.Text("Artists:", size=(10,1)), sg.Combo(ai_mods['artists'], default_value=artist, s=(20,22), readonly=True, k='mod-artist'), sg.Button("Add", k='mod-add-artist')],
+        [sg.Text("Modifiers:", size=(15,1)), sg.Combo(ai_mods['modifiers'], default_value=modifier, s=(20,22), readonly=True, k='mod-modifier'), sg.Button("Add", k='mod-add-modifier')],
+        [sg.Text("Tags:", size=(15,1)), sg.Combo(ai_mods['tags'], default_value=tag, s=(20,22), readonly=True, k='mod-tag'), sg.Button("Add", k='mod-add-tag')],
+        [sg.Text("Artists:", size=(15,1)), sg.Combo(ai_mods['artists'], default_value=artist, s=(20,22), readonly=True, k='mod-artist'), sg.Button("Add", k='mod-add-artist')],
         [sg.Button("Submit"), sg.Button("Save"), sg.Button("Cancel")]
     ]
     popup_window = sg.Window("Stable Diffusion Image Prompt", popup_layout, size=(350,580))
