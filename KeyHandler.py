@@ -22,7 +22,9 @@ class KeyHandler:
    Class for handling Banana AI
    
    """
-   def __init__(self, appID, key, deviceID):
+   def __init__(self, appID, key, deviceID, window):
+       
+       self.window = window
        self.appID = appID
        self.key = key
        self.deviceID = deviceID
@@ -31,14 +33,15 @@ class KeyHandler:
        self.autoDiffusionModel = None
        self.gptjModel = None
        self.api_url = 'https://notable-excellent-skill.anvil.app/'
+       self.window.disappear()
        sha = hashlib.sha1(self.deviceID.encode(encoding = 'UTF-8'))
        device_hex = sha.hexdigest()
        sha = hashlib.sha1(self.key.encode(encoding = 'UTF-8'))
        key_hex = sha.hexdigest()
        self.url = self.api_url+'_/api/authenticate/'+device_hex+'&'+key_hex+'&'+appID
-       self.getKeys()
-       # self.loadingWindow = LoadingWindow.LoadingWindow()
-       # self.loadingWindow.launchMethod(self.getKeys, ())
+       #self.getKeys()
+       self.loadingWindow = LoadingWindow.LoadingWindow()
+       self.loadingWindow.launchMethod(self.getKeys, ())
        
    def getKeys(self, *args):
        headers = {
@@ -55,5 +58,7 @@ class KeyHandler:
        self.diffusionModel = self.diffusionModel.decode(encoding = 'UTF-8')
        self.autoDiffusionModel = self.autoDiffusionModel.decode(encoding = 'UTF-8')
        self.gptjModel = self.gptjModel.decode(encoding = 'UTF-8')
+       #self.loadingWindow.running = False
+       self.window.reappear()
 
        

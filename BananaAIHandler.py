@@ -6,6 +6,8 @@ Created on Thu Feb  9 17:48:08 2023
 """
 import banana_dev as banana
 import PySimpleGUI as sg
+import LoadingWindow
+import random
 
 
 
@@ -20,6 +22,28 @@ class BananaAIHandler:
        self.autoDiffusionModel = autoDiffusionModel
        self.diffusion_inputs = {}
        self.gptjModel = gptjModel
+       self.seeds = []
+       self.png_b64 = []
+       self.loadingWindow = LoadingWindow.LoadingWindow()
+       
+   def launch_txt2img(self, values):
+       self.seeds.clear()
+       self.png_b64.clear()
+       self.loadingWindow.launchMethod(self.txt2img_process, values)
+       self.loadingWindow.running = False
+       
+   def txt2img_process(self, values):
+       img_seed = int(values['seed'])
+       
+       if len(values['prompt']) > 10:
+           for i in range(values['img-variations']):
+               if values['randomize-vars'] == True:
+                   img_seed = int(random.randint(0, 2**32 - 1))
+                   
+               prompt = values['prompt'] + values['modifier-text'] + values['tag-text'] + values['artist-text']
+               img_str = self.txt2img(prompt, values['img-width'], values['img-height'], img_seed, values['inference-steps'], values['mod-sampling'], values['guidance-scale'])
+               self.seeds.append(img_seed)
+               self.png_b64.append(img_str)
        
    def txt2img(self, prompt, width, height, seed, inference, sampling, guidance):
        print(self.apiKey)

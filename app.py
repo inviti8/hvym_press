@@ -26,6 +26,7 @@ from jinja2 import Environment, FileSystemLoader
 import PySimpleGUI as sg
 import W3DeployHandler
 import BananaAIHandler
+import LoadingWindow
 import TreeData
 import KeyHandler
 import hashlib
@@ -750,6 +751,7 @@ def popup_md_link():
         return None, None
     
 def popup_ai_img_2_img(ai_img_in='', prompt='', seed=-1, variations=4, width=512, height=512, inference=50, sampling='Euler',  guidance=9, seeds=[], artist='None', modifier='None', tag='None', artistTxt='', modifierTxt='', tagTxt='', result=(None, None)):
+    window.disappear()
 
     popup_layout = [
         [sg.Text("Image File:", size=(15,1))],
@@ -839,6 +841,7 @@ def popup_ai_img_2_img(ai_img_in='', prompt='', seed=-1, variations=4, width=512
         return None, None
     
 def popup_ai_img(prompt='', seed=-1, variations=4, width=512, height=512, inference=50, sampling='Euler', guidance=9, seeds=[], artist='None', modifier='None', tag='None', artistTxt='', modifierTxt='', tagTxt='', result=(None, None)):
+    window.disappear()
 
     popup_layout = [
         [sg.Text("Prompt:", size=(15,1))],
@@ -893,28 +896,64 @@ def popup_ai_img(prompt='', seed=-1, variations=4, width=512, height=512, infere
             vals = values['tag-text'] +', '+values['mod-tag']
         popup_ai_img(values['prompt'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['mod-sampling'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], vals)
     if event == "Submit":
-        img_seed = values['seed']
-        png_b64 = []
+        png_b64.clear()
+        seeds.clear()
+        
+
+        # img_seed = values['seed']
+        # png_b64 = []
         
         if len(values['prompt']) > 10:
-        
-            for i in range(values['img-variations']):
-                if values['randomize-vars'] == True:
-                    img_seed = int(random.randint(0, 2**32 - 1))
-                    
-                prompt = values['prompt'] + values['modifier-text'] + values['tag-text'] + values['artist-text']
-                img_str = banana_ai.txt2img(prompt, values['img-width'], values['img-height'], img_seed, values['inference-steps'], values['mod-sampling'], values['guidance-scale'])
-                seeds.append(img_seed)
-                png_b64.append(img_str)
-                
-            img_str, idx = create_image_grid_popup(png_b64, 2)
-            result = (img_str, idx)
-            popup_ai_img(values['prompt'], seeds[idx], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['mod-sampling'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'], result)
+            banana_ai.launch_txt2img(values)
+            # loading = LoadingWindow.LoadingWindow()
+            # loading.launchMethod(ai_img_process, (values))
+            # loading.running = False
+            img_str, idx = create_image_grid_popup(banana_ai.png_b64, 2)
+            if img_str == None:
+                popup_ai_img(values['prompt'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['mod-sampling'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'])
+            else:
+                result = (img_str, idx)
+                popup_ai_img(values['prompt'], banana_ai.seeds[idx], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['mod-sampling'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'], result)
         else:
             sg.popup_ok('Prompt is too short.')
             popup_ai_img(values['prompt'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['mod-sampling'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'])
+        
+        # if len(values['prompt']) > 10:
+        #     for i in range(values['img-variations']):
+        #         if values['randomize-vars'] == True:
+        #             img_seed = int(random.randint(0, 2**32 - 1))
+                    
+        #         prompt = values['prompt'] + values['modifier-text'] + values['tag-text'] + values['artist-text']
+        #         img_str = banana_ai.txt2img(prompt, values['img-width'], values['img-height'], img_seed, values['inference-steps'], values['mod-sampling'], values['guidance-scale'])
+        #         seeds.append(img_seed)
+        #         png_b64.append(img_str)
+                
+        #     img_str, idx = create_image_grid_popup(png_b64, 2)
+        #     result = (img_str, idx)
+        #     popup_ai_img(values['prompt'], seeds[idx], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['mod-sampling'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'], result)
+        # else:
+        #     sg.popup_ok('Prompt is too short.')
+        #     popup_ai_img(values['prompt'], values['seed'], values['img-variations'], values['img-width'], values['img-height'], values['inference-steps'], values['mod-sampling'], values['guidance-scale'], seeds, values['mod-artist'], values['mod-modifier'], values['mod-tag'], values['artist-text'], values['modifier-text'], values['tag-text'])
+        
     else:
         return None, None
+    
+    
+def ai_img_process(values):
+    img_seed = int(values['seed'])
+    
+    if len(values['prompt']) > 10:
+        for i in range(values['img-variations']):
+            if values['randomize-vars'] == True:
+                img_seed = int(random.randint(0, 2**32 - 1))
+                
+            prompt = values['prompt'] + values['modifier-text'] + values['tag-text'] + values['artist-text']
+            img_str = banana_ai.txt2img(prompt, values['img-width'], values['img-height'], img_seed, values['inference-steps'], values['mod-sampling'], values['guidance-scale'])
+            seeds.append(img_seed)
+            png_b64.append(img_str)
+
+        
+    
     
 def create_image_grid_popup(image_array, num_cols):
     """
@@ -1090,9 +1129,11 @@ tree.bind("<Double-1>", '+DOUBLE')
 block_focus(window)
 device_id = get_device_id()
 
-key_handler = KeyHandler.KeyHandler(APP_ID, KEY, device_id)
+key_handler = KeyHandler.KeyHandler(APP_ID, KEY, device_id, window)
 banana_ai = BananaAIHandler.BananaAIHandler(key_handler.bananaAPI, key_handler.diffusionModel, key_handler.autoDiffusionModel, key_handler.gptjModel, resource_dir )
 ai_imgs = {}
+png_b64 = []
+seeds = []
 
 while True:
     event, values = window.read()
@@ -1331,7 +1372,8 @@ while True:
                 url = ai_imgs[k]
                 sg.popup_ok(f"image: {k} has been saved to: {url}")
                 mline.Widget.insert(index, f"![{k}]({url})\n")
-        
+                
+        window.reappear()
         ai_imgs.clear()
 
     if 'SETTING-' in event:
