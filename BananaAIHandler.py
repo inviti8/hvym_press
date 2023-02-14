@@ -21,7 +21,7 @@ class BananaAIHandler:
        self.diffusion_inputs = {}
        self.gptjModel = gptjModel
        
-   def txt2img(self, prompt, width, height, seed, inference, guidance):
+   def txt2img(self, prompt, width, height, seed, inference, sampling, guidance):
        print(self.apiKey)
        print(self.autoDiffusionModel)
        
@@ -30,6 +30,7 @@ class BananaAIHandler:
            "params": {
                "prompt": prompt,
                "steps":inference,
+               "sampler_name": sampling,
                "cfg_scale":guidance,
                "height":height,
                "width":width,
@@ -46,15 +47,19 @@ class BananaAIHandler:
 
        return out["modelOutputs"][0]["images"][0]
    
-   def img2img(self, img, prompt, width, height, seed, inference, guidance):
+   def img2img(self, img, prompt, width, height, seed, inference, sampling, guidance):
        print(self.apiKey)
        print(self.autoDiffusionModel)
+       print('------------------------------------------------------')
+       print(img)
+       print('------------------------------------------------------')
        
        self.diffusion_inputs = {
-           "endpoint": "txt2img",
+           "endpoint": "img2img",
            "params": {
                "prompt": prompt,
                "steps":inference,
+               "sampler_name": sampling,
                "cfg_scale":guidance,
                "height":height,
                "width":width,
