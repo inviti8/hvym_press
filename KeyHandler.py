@@ -48,17 +48,18 @@ class KeyHandler:
            }
                
        response = requests.request("POST", self.url, headers=headers)
-       data = response.json()
-       f = Fernet(self.key)
-       self.bananaAPI = f.decrypt(data['banana'].encode(encoding = 'UTF-8'))
-       self.diffusionModel = f.decrypt(data['diffusion'].encode(encoding = 'UTF-8'))
-       self.autoDiffusionModel = f.decrypt(data['auto-diffusion'].encode(encoding = 'UTF-8'))
-       self.gptjModel = f.decrypt(data['gptj'].encode(encoding = 'UTF-8'))
-       self.bananaAPI = self.bananaAPI.decode(encoding = 'UTF-8')
-       self.diffusionModel = self.diffusionModel.decode(encoding = 'UTF-8')
-       self.autoDiffusionModel = self.autoDiffusionModel.decode(encoding = 'UTF-8')
-       self.gptjModel = self.gptjModel.decode(encoding = 'UTF-8')
-       #self.loadingWindow.running = False
+       if response.status_code == 200:
+           data = response.json()
+           f = Fernet(self.key)
+           self.bananaAPI = f.decrypt(data['banana'].encode(encoding = 'UTF-8'))
+           self.diffusionModel = f.decrypt(data['diffusion'].encode(encoding = 'UTF-8'))
+           self.autoDiffusionModel = f.decrypt(data['auto-diffusion'].encode(encoding = 'UTF-8'))
+           self.gptjModel = f.decrypt(data['gptj'].encode(encoding = 'UTF-8'))
+           self.bananaAPI = self.bananaAPI.decode(encoding = 'UTF-8')
+           self.diffusionModel = self.diffusionModel.decode(encoding = 'UTF-8')
+           self.autoDiffusionModel = self.autoDiffusionModel.decode(encoding = 'UTF-8')
+           self.gptjModel = self.gptjModel.decode(encoding = 'UTF-8')
+           self.loadingWindow.running = False
        self.window.reappear()
 
        

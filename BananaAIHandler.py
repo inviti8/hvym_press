@@ -8,6 +8,8 @@ import banana_dev as banana
 import PySimpleGUI as sg
 import LoadingWindow
 import random
+import base64
+import json
 
 
 
@@ -22,11 +24,13 @@ class BananaAIHandler:
        self.autoDiffusionModel = autoDiffusionModel
        self.diffusion_inputs = {}
        self.gptjModel = gptjModel
+       self.seed = None
        self.seeds = []
        self.png_b64 = []
        self.loadingWindow = LoadingWindow.LoadingWindow()
        
    def launch_txt2img(self, values):
+       self.seed = None
        self.seeds.clear()
        self.png_b64.clear()
        self.loadingWindow.launchMethod(self.txt2img_process, values)
@@ -36,16 +40,15 @@ class BananaAIHandler:
        img_seed = int(values['seed'])
        
        if len(values['prompt']) > 10:
-           for i in range(values['img-variations']):
-               if values['randomize-vars'] == True:
-                   img_seed = int(random.randint(0, 2**32 - 1))
-                   
-               prompt = values['prompt'] + values['modifier-text'] + values['tag-text'] + values['artist-text']
-               img_str = self.txt2img(prompt, values['img-width'], values['img-height'], img_seed, values['inference-steps'], values['mod-sampling'], values['guidance-scale'])
-               self.seeds.append(img_seed)
-               self.png_b64.append(img_str)
+           if values['randomize-vars'] == True:
+               img_seed = int(random.randint(0, 2**32 - 1))
+               
+           prompt = values['prompt'] + values['modifier-text'] + values['tag-text'] + values['artist-text']
+           self.png_b64 = self.txt2img(prompt, values['img-width'], values['img-height'], img_seed, values['img-variations'], values['inference-steps'], values['mod-sampling'], values['guidance-scale'])
+           
+               
        
-   def txt2img(self, prompt, width, height, seed, inference, sampling, guidance):
+   def txt2img(self, prompt, width, height, seed, batch_size, inference, sampling, guidance):
        print(self.apiKey)
        print(self.autoDiffusionModel)
        
@@ -58,7 +61,8 @@ class BananaAIHandler:
                "cfg_scale":guidance,
                "height":height,
                "width":width,
-               "seed":seed
+               "seed":seed,
+               "batch_size":batch_size
                }
         }
 
@@ -67,16 +71,38 @@ class BananaAIHandler:
        out = banana.run(self.apiKey, self.autoDiffusionModel, self.diffusion_inputs)
        
        print(out)
+       
+       info = json.loads(out["modelOutputs"][0]["info"])
+       self.seed = info["seed"]
+       self.seeds = info["all_seeds"]
         
 
-       return out["modelOutputs"][0]["images"][0]
+       return out["modelOutputs"][0]["images"]
    
-   def img2img(self, img, prompt, width, height, seed, inference, sampling, guidance):
+   def launch_img2img(self, values):
+        self.seed = None
+        self.seeds.clear()
+        self.png_b64.clear()
+        self.loadingWindow.launchMethod(self.img2img_process, values)
+        self.loadingWindow.running = False
+   
+    
+   def img2img_process(self, values):
+       image_file = open(values['ai-img-in'], "rb")
+       bs64_str = base64.b64encode(image_file.read())
+       bs64_str = str(bs64_str.decode(encoding = 'UTF-8'))
+       img_seed = int(values['seed'])
+       
+       if len(values['prompt']) > 10:
+           if values['randomize-vars'] == True:
+               img_seed = int(random.randint(0, 2**32 - 1))
+               
+           prompt = values['prompt'] + values['modifier-text'] + values['tag-text'] + values['artist-text']
+           self.png_b64 = self.img2img(bs64_str, prompt, values['img-width'], values['img-height'], img_seed, values['img-variations'], values['inference-steps'], values['mod-sampling'], values['guidance-scale'])
+   
+   def img2img(self, img, prompt, width, height, seed, batch_size, inference, sampling, guidance):
        print(self.apiKey)
        print(self.autoDiffusionModel)
-       print('------------------------------------------------------')
-       print(img)
-       print('------------------------------------------------------')
        
        self.diffusion_inputs = {
            "endpoint": "img2img",
@@ -88,6 +114,7 @@ class BananaAIHandler:
                "height":height,
                "width":width,
                "seed":seed,
+               "batch_size":batch_size,
                "init_images": [
                     img
                 ]
@@ -99,9 +126,13 @@ class BananaAIHandler:
        out = banana.run(self.apiKey, self.autoDiffusionModel, self.diffusion_inputs)
        
        print(out)
+       
+       info = json.loads(out["modelOutputs"][0]["info"])
+       self.seed = info["seed"]
+       self.seeds = info["all_seeds"]
         
 
-       return out["modelOutputs"][0]["images"][0]
+       return out["modelOutputs"][0]["images"]
        
        
    def get_img(self, prompt, width, height, seed, inference, guidance):
