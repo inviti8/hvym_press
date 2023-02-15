@@ -5,11 +5,8 @@ Created on Wed Feb  8 21:32:36 2023
 @author: pc
 """
 import os
-import sys
-import json
 import requests
 import hashlib
-import cryptography
 from cryptography.fernet import Fernet
 import LoadingWindow
 
@@ -24,6 +21,7 @@ class KeyHandler:
    """
    def __init__(self, appID, key, deviceID, window):
        
+       self.initialized = False
        self.window = window
        self.appID = appID
        self.key = key
@@ -39,7 +37,6 @@ class KeyHandler:
        sha = hashlib.sha1(self.key.encode(encoding = 'UTF-8'))
        key_hex = sha.hexdigest()
        self.url = self.api_url+'_/api/authenticate/'+device_hex+'&'+key_hex+'&'+appID
-       #self.getKeys()
        self.loadingWindow = LoadingWindow.LoadingWindow()
        self.loadingWindow.launchMethod(self.getKeys, ())
        
@@ -60,6 +57,7 @@ class KeyHandler:
            self.autoDiffusionModel = self.autoDiffusionModel.decode(encoding = 'UTF-8')
            self.gptjModel = self.gptjModel.decode(encoding = 'UTF-8')
            self.loadingWindow.running = False
+           self.initialized = True
        self.window.reappear()
 
        

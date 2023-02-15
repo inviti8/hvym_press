@@ -28,6 +28,7 @@ class BananaAIHandler:
        self.seeds = []
        self.png_b64 = []
        self.loadingWindow = LoadingWindow.LoadingWindow()
+       self.completion = None
        
    def launch_txt2img(self, values):
        self.seed = None
@@ -69,8 +70,6 @@ class BananaAIHandler:
          
        # Run the model
        out = banana.run(self.apiKey, self.autoDiffusionModel, self.diffusion_inputs)
-       
-       print(out)
        
        info = json.loads(out["modelOutputs"][0]["info"])
        self.seed = info["seed"]
@@ -125,8 +124,6 @@ class BananaAIHandler:
        # Run the model
        out = banana.run(self.apiKey, self.autoDiffusionModel, self.diffusion_inputs)
        
-       print(out)
-       
        info = json.loads(out["modelOutputs"][0]["info"])
        self.seed = info["seed"]
        self.seeds = info["all_seeds"]
@@ -154,5 +151,27 @@ class BananaAIHandler:
         
 
        return out["modelOutputs"][0]["image_base64"]
+   
+   def launch_gptj(self, values):
+        self.seed = None
+        self.seeds.clear()
+        self.completion.clear()
+        self.loadingWindow.launchMethod(self.gptj_process, values)
+        self.loadingWindow.running = False
+        
+   def gptj_process(self, values):
+       if len(values['prompt']) > 10:
+           self.completion = self.gptj_complete(values['prompt'])
+   
+   def gptj_complete(self, prompt):
+        model_inputs = {
+          "max_new_tokens": 128,
+          "prompt": prompt
+        }
+        
+        # Run the model
+        out = banana.run(self.apiKey, self.gptjModel, self.diffusion_inputs)
+        
+        print(out)
    
 

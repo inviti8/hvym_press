@@ -1050,7 +1050,7 @@ deployment_settings_layout = [[sg.Frame('Deployment Settings', [
 tab1_layout =  [[TreeData.Tree(treedata, [], True,
                    10, 40, '-TREE-', font, 48, False, True, True, True, ['&Right', command])]]
 
-tab2_layout = [[sg.Frame('AI', [[sg.Button("L2P", key='-AI-LIST2P-'), sg.Button("L2P", key='-AI-P2LIST-'), sg.Button("IMG", key='-AI-IMG-'), sg.Button("IMG2IMG", key='-AI-IMG2IMG-') ]])],
+tab2_layout = [[sg.Frame('AI', [[sg.Button("L2P", key='-AI-LIST2P-'), sg.Button("P2L", key='-AI-P2LIST-'), sg.Button("IMG", key='-AI-IMG-'), sg.Button("IMG2IMG", key='-AI-IMG2IMG-') ]])],
     [sg.Button("B", key='-MD-BOLD-'), sg.Button("I", key='-MD-ITALIC-'), sg.Button("H1", key='-MD-HEADING1-'),
                 sg.Button("H2", key='-MD-HEADING2-'), sg.Button("H3", key='-MD-HEADING3-'), sg.Button("H4", key='-MD-HEADING4-'),
                 sg.Button("H5", key='-MD-HEADING5-'), sg.Button("H6", key='-MD-HEADING6-'),
@@ -1079,6 +1079,11 @@ block_focus(window)
 device_id = get_device_id()
 
 key_handler = KeyHandler.KeyHandler(APP_ID, KEY, device_id, window)
+if key_handler.initialized == False:
+    sg.popup_error("Unable to initialize, please make sure you're connected to the internet, and try to start the program again.")
+    window.close()
+    sys.exit()
+    
 banana_ai = BananaAIHandler.BananaAIHandler(key_handler.bananaAPI, key_handler.diffusionModel, key_handler.autoDiffusionModel, key_handler.gptjModel, resource_dir )
 ai_imgs = {}
 png_b64 = []
@@ -1324,6 +1329,11 @@ while True:
                 
         window.reappear()
         ai_imgs.clear()
+        
+    if event == '-AI-LIST2P-':
+        mline = window["-MD-INPUT-"]
+        index = mline.Widget.index("insert")
+        
 
     if 'SETTING-' in event:
         arr = event.split('-')

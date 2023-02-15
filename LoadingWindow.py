@@ -18,6 +18,8 @@ class LoadingWindow:
       self.layout = [[sg.Image(data=self.gif, enable_events=True, background_color='white', key='-START-IMAGE-', right_click_menu=['UNUSED', ['Exit']], pad=0)],]
       self.running = True
       self.window = None
+      self.threaded = False
+      self.thread = None
       
       
    def launchMethod(self, method=None, *args):
@@ -31,7 +33,7 @@ class LoadingWindow:
                margins=(0,0))
          
          if method != None:
-             threading.Thread(target=self.callback,
+             self.thread = threading.Thread(target=self.callback,
                                 args=(method, args),
                                 daemon=True).start()
          while self.running:                                     # Event Loop
@@ -40,20 +42,18 @@ class LoadingWindow:
                        break
              if event in (sg.WIN_CLOSED, 'Exit', 'Cancel'):
                  break
+             if self.threaded and self.thread.is_alive() == False:
+                 break
              # update the animation in the window
              self.window['-START-IMAGE-'].update_animation(self.gif,  time_between_frames=100)
          
    def callback(self, method, *args):
-       print('---------------------------------------')
-       print(*(args[-1]))
-       print('---------------------------------------')
+       #method(*(args[-1]))
        
-       method(*(args[-1]))
-       
-       # try:
-       #     method(*(args[-1]))
-       # except:
-       #     print("passed method failed")
+       try:
+           method(*(args[-1]))
+       except:
+           print("passed method failed")
            
        self.running = False
        self.window.close()
