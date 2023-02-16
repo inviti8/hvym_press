@@ -152,26 +152,36 @@ class BananaAIHandler:
 
        return out["modelOutputs"][0]["image_base64"]
    
-   def launch_gptj(self, values):
+   def launch_gptj(self, prompt, tokens):
         self.seed = None
         self.seeds.clear()
-        self.completion.clear()
-        self.loadingWindow.launchMethod(self.gptj_process, values)
+        self.completion = None
+        print(prompt)
+        self.loadingWindow.launchMethod(self.gptj_process, prompt, tokens)
         self.loadingWindow.running = False
         
-   def gptj_process(self, values):
-       if len(values['prompt']) > 10:
-           self.completion = self.gptj_complete(values['prompt'])
+   def gptj_process(self, *args):
+       if len(args[0]) > 10:
+           self.gptj_complete(args[0], args[1])
    
-   def gptj_complete(self, prompt):
-        model_inputs = {
-          "max_new_tokens": 128,
+   def gptj_complete(self, prompt, tokens):
+       print(self.apiKey)
+       print(self.gptjModel)
+       
+       model_inputs = {
+          "max_new_tokens": tokens,
           "prompt": prompt
         }
         
-        # Run the model
-        out = banana.run(self.apiKey, self.gptjModel, self.diffusion_inputs)
+       # Run the model
+       out = banana.run(self.apiKey, self.gptjModel, model_inputs)
         
-        print(out)
+       print(out)
+       if "output" in out["modelOutputs"][0].keys():
+           self.completion = out["modelOutputs"][0]["output"]
+       elif "message" in out["modelOutputs"][0].keys():
+           self.completion = out["modelOutputs"][0]["message"]
+       
+       return self.completion
    
 
