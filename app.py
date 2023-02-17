@@ -938,7 +938,27 @@ def create_image_grid_popup(image_array, num_cols):
         return imgs[event], int(idx)
     else:
         return None, None
+       
     
+def popup_L2P(txt='', output=''):
+    
+    layout = [[sg.Text("Source Text:", font=font)],
+                  [sg.Multiline(s=(30,8), expand_x=True, expand_y=True, default_text=txt, k='SOURCE-TEXT')],
+                  [sg.Text("Summarized Text:", font=font)],
+                  [sg.Multiline(s=(30,8), expand_x=True, expand_y=True, default_text=output, k='OUT-TEXT')],
+                  [sg.Button("Submit", font=font, k='-SUMMARIZE-'), sg.Button('Cancel', font=font)]]
+    
+
+    window = sg.Window("Summarize Content", layout, use_default_focus=False, finalize=True, modal=True, size=(500,500))
+    block_focus(window)
+    event, values = window.read()
+    window.close()
+
+    if event == '-SUMMARIZE-':
+        print('Summarize')
+        out = banana_ai.get_summary(values['SOURCE-TEXT'])
+        popup_L2P(values['SOURCE-TEXT'], out)
+
     
 def DoDeploy(data, window, private=False):
     window.disappear()
@@ -1050,9 +1070,9 @@ deployment_settings_layout = [[sg.Frame('Deployment Settings', [
 tab1_layout =  [[TreeData.Tree(treedata, [], True,
                    10, 40, '-TREE-', font, 48, False, True, True, True, ['&Right', command])]]
 
-tab2_layout = [[sg.Frame('AI', [[sg.Button("COMPLETION", key='-AI-COMPLETE-'), sg.Button("L2P", key='-AI-LIST2P-'), sg.Button("P2L", key='-AI-P2LIST-'), sg.Button("IMG", key='-AI-IMG-'), sg.Button("IMG2IMG", key='-AI-IMG2IMG-') ]])],
-               [name('Completion Prefix'), sg.Input("GPTJ:", s=10, k='-GPTJ-PREFIX-'),
-                name('Max Tokens'), sg.Spin(values=[i for i in range(1, 1024)], initial_value=128, enable_events=True, s=(25,10), k='-GPTJ-MAX-TOKENS-')],
+tab2_layout = [[sg.Frame('AI', [[sg.Button("COMPLETION", key='-AI-COMPLETE-'), sg.Button("SUMMARY", key='-AI-SUMMARY-'), sg.Button("L2P", key='-AI-LIST2P-'), sg.Button("P2L", key='-AI-P2LIST-'), sg.Button("IMG", key='-AI-IMG-'), sg.Button("IMG2IMG", key='-AI-IMG2IMG-') ],
+                                [name('Completion Prefix:'), sg.Input("GPTJ:", s=10, k='-GPTJ-PREFIX-'),
+                                 name('Max Tokens:'), sg.Spin(values=[i for i in range(1, 1024)], initial_value=128, enable_events=True, s=(8,8), k='-GPTJ-MAX-TOKENS-')]])],
     [sg.Button("B", key='-MD-BOLD-'), sg.Button("I", key='-MD-ITALIC-'), sg.Button("H1", key='-MD-HEADING1-'),
                 sg.Button("H2", key='-MD-HEADING2-'), sg.Button("H3", key='-MD-HEADING3-'), sg.Button("H4", key='-MD-HEADING4-'),
                 sg.Button("H5", key='-MD-HEADING5-'), sg.Button("H6", key='-MD-HEADING6-'),
@@ -1349,6 +1369,11 @@ while True:
             prefix = values['-GPTJ-PREFIX-']
             mline.Widget.insert(end, "\n")
             mline.Widget.insert(end, f"\n{prefix} {banana_ai.completion}")
+            
+    if event == '-AI-SUMMARY-':
+        mline = window["-MD-INPUT-"]
+        
+        popup_L2P()
         
 
     if 'SETTING-' in event:

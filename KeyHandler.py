@@ -38,7 +38,7 @@ class KeyHandler:
        key_hex = sha.hexdigest()
        self.url = self.api_url+'_/api/authenticate/'+device_hex+'&'+key_hex+'&'+appID
        self.loadingWindow = LoadingWindow.LoadingWindow()
-       self.loadingWindow.launchMethod(self.getKeys, ())
+       self.loadingWindow.launchWheel(self.getKeys, ())
        
    def getKeys(self, *args):
        headers = {

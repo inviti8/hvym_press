@@ -28,13 +28,43 @@ class BananaAIHandler:
        self.seeds = []
        self.png_b64 = []
        self.loadingWindow = LoadingWindow.LoadingWindow()
-       self.completion = None
+       self.completion = ""
+       
+   def _add_summary_prompts(self, chunks):
+       idx = 1
+       length = len(chunks)
+       new_chunks = []
+       
+       for chunk in chunks:
+           new_chunk = f"For the following Text, Return a summary point {idx} of {length} for an article outline. Text:{chunk}."
+           new_chunks.append(new_chunk)
+           idx += 1
+           
+       return new_chunks
+       
+   def _chunk_text(self, text, size):
+       words = text.split()
+       chunks = []
+       current_chunk = ""
+
+       for word in words:
+           if len(current_chunk) + len(word) > size:
+               chunks.append(current_chunk)
+               current_chunk = ""
+     
+           current_chunk += word + " "
+             
+       current_chunk = current_chunk
+       chunks.append(current_chunk)
+     
+       return chunks
        
    def launch_txt2img(self, values):
        self.seed = None
        self.seeds.clear()
        self.png_b64.clear()
-       self.loadingWindow.launchMethod(self.txt2img_process, values)
+       self.loadingWindow.running = True
+       self.loadingWindow.launchWheel(self.txt2img_process, values)
        self.loadingWindow.running = False
        
    def txt2img_process(self, values):
@@ -82,7 +112,8 @@ class BananaAIHandler:
         self.seed = None
         self.seeds.clear()
         self.png_b64.clear()
-        self.loadingWindow.launchMethod(self.img2img_process, values)
+        self.loadingWindow.running = True
+        self.loadingWindow.launchWheel(self.img2img_process, values)
         self.loadingWindow.running = False
    
     
@@ -156,11 +187,14 @@ class BananaAIHandler:
         self.seed = None
         self.seeds.clear()
         self.completion = None
+        self.loadingWindow.running = True
         print(prompt)
-        self.loadingWindow.launchMethod(self.gptj_process, prompt, tokens)
+        self.loadingWindow.launchWheel(self.gptj_process, prompt, tokens)
         self.loadingWindow.running = False
         
    def gptj_process(self, *args):
+       print(args)
+       print('[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[')
        if len(args[0]) > 10:
            self.gptj_complete(args[0], args[1])
    
@@ -178,10 +212,32 @@ class BananaAIHandler:
         
        print(out)
        if "output" in out["modelOutputs"][0].keys():
-           self.completion = out["modelOutputs"][0]["output"]
+           self.completion += out["modelOutputs"][0]["output"]
        elif "message" in out["modelOutputs"][0].keys():
            self.completion = out["modelOutputs"][0]["message"]
        
        return self.completion
+   
+   def get_summary(self, text):
+       chunks = self._chunk_text(text, 500)
+       chunks = self._add_summary_prompts(chunks)
+       methods = []
+       args = []
+       
+       for i in range(len(chunks)):
+           methods.append(self.gptj_process)
+           args.append((chunks[i], 128))
+           
+       self.loadingWindow.running = True
+       self.loadingWindow.launchBar(methods, args)
+       self.loadingWindow.running = False
+       
+       print('DONE')
+       print(self.completion)
+       print('-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-')
+       
+       return self.completion
+           
+       
    
 
