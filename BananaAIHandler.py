@@ -186,7 +186,7 @@ class BananaAIHandler:
    def launch_gptj(self, prompt, tokens):
         self.seed = None
         self.seeds.clear()
-        self.completion = None
+        self.completion = ""
         self.loadingWindow.running = True
         print(prompt)
         self.loadingWindow.launchWheel(self.gptj_process, prompt, tokens)
