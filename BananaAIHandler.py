@@ -29,6 +29,35 @@ class BananaAIHandler:
        self.png_b64 = []
        self.loadingWindow = LoadingWindow.LoadingWindow()
        self.completion = ""
+       self.prompts = []
+       self.summaryExample = """"[Original]: America has changed dramatically during recent years. Not only has the number of graduates in traditional engineering disciplines such as mechanical, civil, electrical, chemical, and aeronautical engineering declined, but in most of the premier American universities engineering curricula now concentrate on and encourage largely the study of engineering science.  As a result, there are declining offerings in engineering subjects dealing with infrastructure, the environment, and related issues, and greater concentration on high technology subjects, largely supporting increasingly complex scientific developments. While the latter is important, it should not be at the expense of more traditional engineering.
+       Rapidly developing economies such as China and India, as well as other industrial countries in Europe and Asia, continue to encourage and advance the teaching of engineering. Both China and India, respectively, graduate six and eight times as many traditional engineers as does the United States. Other industrial countries at minimum maintain their output, while America suffers an increasingly serious decline in the number of engineering graduates and a lack of well-educated engineers. 
+       (Source:  Excerpted from Frankel, E.G. (2008, May/June) Change in education: The cost of sacrificing fundamentals. MIT Faculty 
+       [Summary]: MIT Professor Emeritus Ernst G. Frankel (2008) has called for a return to a course of study that emphasizes the traditional skills of engineering, noting that the number of American engineering graduates with these skills has fallen sharply when compared to the number coming from other countries. 
+       ###
+       [Original]: So how do you go about identifying your strengths and weaknesses, and analyzing the opportunities and threats that flow from them? SWOT Analysis is a useful technique that helps you to do this.
+       What makes SWOT especially powerful is that, with a little thought, it can help you to uncover opportunities that you would not otherwise have spotted. And by understanding your weaknesses, you can manage and eliminate threats that might otherwise hurt your ability to move forward in your role.
+       If you look at yourself using the SWOT framework, you can start to separate yourself from your peers, and further develop the specialized talents and abilities that you need in order to advance your career and to help you achieve your personal goals.
+       [Summary]: SWOT Analysis is a technique that helps you identify strengths, weakness, opportunities, and threats. Understanding and managing these factors helps you to develop the abilities you need to achieve your goals and progress in your career.
+       ###
+       [Original]: Jupiter is the fifth planet from the Sun and the largest in the Solar System. It is a gas giant with a mass one-thousandth that of the Sun, but two-and-a-half times that of all the other planets in the Solar System combined. Jupiter is one of the brightest objects visible to the naked eye in the night sky, and has been known to ancient civilizations since before recorded history. It is named after the Roman god Jupiter.[19] When viewed from Earth, Jupiter can be bright enough for its reflected light to cast visible shadows,[20] and is on average the third-brightest natural object in the night sky after the Moon and Venus.
+       Jupiter is primarily composed of hydrogen with a quarter of its mass being helium, though helium comprises only about a tenth of the number of molecules. It may also have a rocky core of heavier elements,[21] but like the other giant planets, Jupiter lacks a well-defined solid surface. Because of its rapid rotation, the planet's shape is that of an oblate spheroid (it has a slight but noticeable bulge around the equator).
+       [Summary]: Jupiter is the largest planet in the solar system. It is a gas giant, and is the fifth planet from the sun.
+       ###
+       [Original]: """
+       self.summaryExampleClose = """
+       ###
+       [Summary]:
+       """
+    
+   def _optimize_chunks(self, chunks):
+       idx = 0
+       for chunk in chunks:
+           if len(chunk.split()) < 250:
+               del chunks[idx]
+           idx += 1
+           
+       return chunks
        
    def _add_summary_prompts(self, chunks):
        idx = 1
@@ -36,7 +65,7 @@ class BananaAIHandler:
        new_chunks = []
        
        for chunk in chunks:
-           new_chunk = f"For the following Text, Return a summary point {idx} of {length} for an article outline. Text:{chunk}."
+           new_chunk = self.summaryExample + f" {chunk}\n" + self.summaryExampleClose
            new_chunks.append(new_chunk)
            idx += 1
            
@@ -183,54 +212,69 @@ class BananaAIHandler:
 
        return out["modelOutputs"][0]["image_base64"]
    
-   def launch_gptj(self, prompt, tokens):
+   def launch_gptj(self, prompt, tokens, temp, rep):
         self.seed = None
         self.seeds.clear()
         self.completion = ""
         self.loadingWindow.running = True
-        print(prompt)
-        self.loadingWindow.launchWheel(self.gptj_process, prompt, tokens)
+        self.loadingWindow.launchWheel(self.gptj_process, prompt, tokens, temp, rep)
         self.loadingWindow.running = False
         
    def gptj_process(self, *args):
-       print(args)
-       print('[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[')
        if len(args[0]) > 10:
-           self.gptj_complete(args[0], args[1])
+           self.gptj_complete(args[0], args[1], args[2], args[3])
    
-   def gptj_complete(self, prompt, tokens):
+   def gptj_complete(self, prompt, tokens, temp, rep):
        print(self.apiKey)
        print(self.gptjModel)
        
        model_inputs = {
           "max_new_tokens": tokens,
+          "temperature": temp,
+          "top_probability":1.0,
+          "repetition":rep,
           "prompt": prompt
         }
         
        # Run the model
        out = banana.run(self.apiKey, self.gptjModel, model_inputs)
-        
+       
        print(out)
+        
+       #print(out)
        if "output" in out["modelOutputs"][0].keys():
            self.completion += out["modelOutputs"][0]["output"]
        elif "message" in out["modelOutputs"][0].keys():
            self.completion = out["modelOutputs"][0]["message"]
+           self.completion = self.completion.replace(prompt, '')
        
        return self.completion
    
-   def get_summary(self, text):
-       chunks = self._chunk_text(text, 500)
+   def get_summary(self, text, tokens, temp, rep):
+       self.completion = ""
+       chunks = self._chunk_text(text, 1000)
        chunks = self._add_summary_prompts(chunks)
+       chunks = self._optimize_chunks(chunks)
        methods = []
        args = []
        
        for i in range(len(chunks)):
            methods.append(self.gptj_process)
-           args.append((chunks[i], 128))
+           args.append((chunks[i], tokens, temp, rep))
            
        self.loadingWindow.running = True
        self.loadingWindow.launchBar(methods, args)
        self.loadingWindow.running = False
+       
+       for chunk in chunks:
+           self.completion = self.completion.replace(chunk, "")
+           
+       self.completion = self.completion.replace(text, "")
+       self.completion = self.completion.replace(self.summaryExample, "")
+       self.completion = self.completion.replace(self.summaryExampleClose, "")
+       self.completion = self.completion.replace('###', "")
+       self.completion = self.completion.replace('[Original]:', "")
+       self.completion = self.completion.replace('[Summary]:', "")
        
        print('DONE')
        print(self.completion)

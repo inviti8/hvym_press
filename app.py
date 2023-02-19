@@ -940,9 +940,12 @@ def create_image_grid_popup(image_array, num_cols):
         return None, None
        
     
-def popup_L2P(txt='', output=''):
+def popup_Summary(txt='', output='', tokens=16, temp=0.75, rep=0.25):
     
-    layout = [[sg.Text("Source Text:", font=font)],
+    layout = [[sg.Text("Tokens:", size=(5,1)), sg.Spin(values=[i for i in range(2, 4097)], initial_value=tokens, k='SUMMARY-TOKENS'),
+               sg.Text("Temperature:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=temp, size=(10,5), resolution=0.01, orientation='h', key='SUMMARY-TEMP'),
+               sg.Text("Repetition:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=rep, size=(10,5), resolution=0.01, orientation='h', key='SUMMARY-REP')],
+        [sg.Text("Source Text:", font=font)],
                   [sg.Multiline(s=(30,8), expand_x=True, expand_y=True, default_text=txt, k='SOURCE-TEXT')],
                   [sg.Text("Summarized Text:", font=font)],
                   [sg.Multiline(s=(30,8), expand_x=True, expand_y=True, default_text=output, k='OUT-TEXT')],
@@ -956,8 +959,10 @@ def popup_L2P(txt='', output=''):
 
     if event == '-SUMMARIZE-':
         print('Summarize')
-        out = banana_ai.get_summary(values['SOURCE-TEXT'])
-        popup_L2P(values['SOURCE-TEXT'], out)
+        out = banana_ai.get_summary(values['SOURCE-TEXT'], values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-REP'])
+        print('SUmmary done out:')
+        print(out)
+        popup_Summary(values['SOURCE-TEXT'], out, values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-REP'])
 
     
 def DoDeploy(data, window, private=False):
@@ -1070,9 +1075,13 @@ deployment_settings_layout = [[sg.Frame('Deployment Settings', [
 tab1_layout =  [[TreeData.Tree(treedata, [], True,
                    10, 40, '-TREE-', font, 48, False, True, True, True, ['&Right', command])]]
 
-tab2_layout = [[sg.Frame('AI', [[sg.Button("COMPLETION", key='-AI-COMPLETE-'), sg.Button("SUMMARY", key='-AI-SUMMARY-'), sg.Button("L2P", key='-AI-LIST2P-'), sg.Button("P2L", key='-AI-P2LIST-'), sg.Button("IMG", key='-AI-IMG-'), sg.Button("IMG2IMG", key='-AI-IMG2IMG-') ],
-                                [name('Completion Prefix:'), sg.Input("GPTJ:", s=10, k='-GPTJ-PREFIX-'),
-                                 name('Max Tokens:'), sg.Spin(values=[i for i in range(1, 1024)], initial_value=128, enable_events=True, s=(8,8), k='-GPTJ-MAX-TOKENS-')]])],
+tab2_layout = [[sg.Frame('AI', [[sg.Button("COMPLETION", key='-AI-COMPLETE-'), sg.Button("SUMMARY", key='-AI-SUMMARY-'),
+                                 sg.Button("L2P", key='-AI-LIST2P-'), sg.Button("P2L", key='-AI-P2LIST-'),
+                                 sg.Button("IMG", key='-AI-IMG-'), sg.Button("IMG2IMG", key='-AI-IMG2IMG-'),
+                                 name('Completion Prefix:'), sg.Input("GPTJ:", s=10, k='-GPTJ-PREFIX-')],
+                                [name('Tokens:'), sg.Spin(values=[i for i in range(1, 1024)], initial_value=64, enable_events=True, s=(8,8), k='-GPTJ-MAX-TOKENS-'),
+                                 sg.Text("Temperature:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=0.75, size=(10,5), resolution=0.01, orientation='h', key='-GPTJ-TEMP-'),
+                                 sg.Text("Repetition:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=0.25, size=(10,5), resolution=0.01, orientation='h', key='-GPTJ-REP-')]])],
     [sg.Button("B", key='-MD-BOLD-'), sg.Button("I", key='-MD-ITALIC-'), sg.Button("H1", key='-MD-HEADING1-'),
                 sg.Button("H2", key='-MD-HEADING2-'), sg.Button("H3", key='-MD-HEADING3-'), sg.Button("H4", key='-MD-HEADING4-'),
                 sg.Button("H5", key='-MD-HEADING5-'), sg.Button("H6", key='-MD-HEADING6-'),
@@ -1353,7 +1362,7 @@ while True:
         window.reappear()
         ai_imgs.clear()
         
-    if event == '-AI-COMPLETE-':
+    if event == '-AI-COMPLETE-' or event == '-AI-SUMMARY-':
         mline = window["-MD-INPUT-"]
         try:
             start, end = mline.Widget.index("sel.first"), mline.Widget.index("sel.last")
@@ -1362,18 +1371,29 @@ while True:
             continue
         selected_text = mline.Widget.get(start, end)
         tokens = values['-GPTJ-MAX-TOKENS-']
+        temp  = values['-GPTJ-TEMP-']
+        rep  = values['-GPTJ-REP-']
         #mline.Widget.delete(start, end)
-        banana_ai.launch_gptj(selected_text, tokens)
+        if 'COMPLETE' in event:
+            banana_ai.launch_gptj(selected_text, tokens, temp, rep)
+            
+            if banana_ai.completion != "":
+                prefix = values['-GPTJ-PREFIX-']
+                mline.Widget.insert(end, "\n\n")
+                mline.Widget.insert(end, f"\n{prefix} {banana_ai.completion}")
+        elif 'SUMMARY' in event:
+            banana_ai.get_summary(selected_text, tokens, temp, rep)
+            
+            if banana_ai.completion != "":
+                mline.Widget.insert(end, "\n\n")
+                mline.Widget.insert(end, f"\n{banana_ai.completion}")
         
-        if banana_ai.completion != None:
-            prefix = values['-GPTJ-PREFIX-']
-            mline.Widget.insert(end, "\n")
-            mline.Widget.insert(end, f"\n{prefix} {banana_ai.completion}")
+        
             
     if event == '-AI-SUMMARY-':
         mline = window["-MD-INPUT-"]
         
-        popup_L2P()
+        #popup_Summary()
         
 
     if 'SETTING-' in event:
