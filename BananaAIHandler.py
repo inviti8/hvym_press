@@ -7,10 +7,11 @@ Created on Thu Feb  9 17:48:08 2023
 import banana_dev as banana
 import PySimpleGUI as sg
 import LoadingWindow
+import TextUtils
 import random
 import base64
 import json
-
+from youtube_transcript_api import YouTubeTranscriptApi
 
 
 class BananaAIHandler:
@@ -71,22 +72,6 @@ class BananaAIHandler:
            
        return new_chunks
        
-   def _chunk_text(self, text, size):
-       words = text.split()
-       chunks = []
-       current_chunk = ""
-
-       for word in words:
-           if len(current_chunk) + len(word) > size:
-               chunks.append(current_chunk)
-               current_chunk = ""
-     
-           current_chunk += word + " "
-             
-       current_chunk = current_chunk
-       chunks.append(current_chunk)
-     
-       return chunks
        
    def launch_txt2img(self, values):
        self.seed = None
@@ -252,17 +237,11 @@ class BananaAIHandler:
    
    def get_summary(self, text, tokens, temp, rep):
        self.completion = ""
-       chunks = self._chunk_text(text, 1000)
+       chunks = TextUtils._chunk_text(text, 1000)
        chunks = self._add_summary_prompts(chunks)
        chunks = self._optimize_chunks(chunks)
-       methods = []
-       args = []
        
        prompt = self.summaryExample + f" {text}\n" + self.summaryExampleClose
-       
-       # for i in range(len(chunks)):
-       #     methods.append(self.gptj_process)
-       #     args.append((chunks[i], tokens, temp, rep))
            
        self.loadingWindow.running = True
        #self.loadingWindow.launchBar(methods, args)

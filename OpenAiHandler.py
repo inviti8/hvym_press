@@ -9,6 +9,8 @@ import os
 import openai
 import re
 import LoadingWindow
+import TextUtils
+from youtube_transcript_api import YouTubeTranscriptApi
 
 class OpenAIHandler:
    """
@@ -25,28 +27,19 @@ class OpenAIHandler:
        openai.api_key = self.apiKey
        openai.Model.retrieve(self.model)
        
-   def _separate_paragraphs(self, text_block):
-        # Split the text_block into individual paragraphs
-        paragraphs = text_block.split("\n\n")
-    
-        # Remove any leading or trailing whitespace from each paragraph
-        paragraphs = [p.strip() for p in paragraphs]
-    
-        # Remove any empty paragraphs
-        paragraphs = [p for p in paragraphs if p]
-    
-        # Return the list of paragraphs
-        return paragraphs
-       
-   def _optimize_prompt(self, prompt):
-       # Remove unnecessary words
-       prompt = re.sub(r'\b(the|a|an|is|are|do|does|did|will|would|should)\b', '', prompt)
-      
-       # Remove unnecessary punctuation
-       prompt = re.sub(r'[^\w\s]', '', prompt)
-        
-       return prompt
    
+   def _get_youtube_transcript(self, url):
+       vid_id = url.replace('https://www.youtube.com/watch?v=', '')
+       ts = YouTubeTranscriptApi.get_transcript(vid_id)
+       text = ""
+            
+       for ob in ts:
+          if '[Music]' not in ob['text'] and '[Applause]' not in ob['text']:
+             text=text+' '+ob['text']+'. '
+             
+       chunks = TextUtils._chunk_text(text, 500)
+       
+       return chunks
    
    def launch_completion(self, prompt, tokens, temp):
         self.completion = ""
@@ -82,7 +75,7 @@ class OpenAIHandler:
     
    def launch_get_large_summary(self, text, tokens, temp, num_sentences, tone, agreement):
         self.completion = ""
-        paragraphs = self._separate_paragraphs(text)
+        paragraphs = TextUtils._separate_paragraphs(text)
         methods = []
         args = []
         
