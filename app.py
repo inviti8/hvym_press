@@ -966,24 +966,21 @@ def popup_summary(txt='', output='', tokens=32, temp=0.75, rep=0.25, num_sentenc
         out = open_ai.launch_get_large_summary(values['SOURCE-TEXT'], values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
         popup_summary(values['SOURCE-TEXT'], out, values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-REP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
     if event == 'Copy':
-        mline = window["OUT-TEXT"]
         do_copy = sg.popup_ok_cancel("Do you want copy the output to the clipboard?")
-        print(do_copy)
         if do_copy == 'OK':
             pyperclip.copy(values["OUT-TEXT"])
         else:
             popup_summary(values['SOURCE-TEXT'], out, values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-REP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
             
-def popup_youtube_summary(url='', output='', tokens=32, temp=0.75, rep=0.25, num_sentences='2 or 3', tone='Neutral', agreement='Nonpartisan'):
-    
+def popup_youtube_summary(url='', output='', tokens=32, temp=0.75, rep=0.25, num_sentences='2 or 3', tone='Neutral', agreement='Nonpartisan'): 
     layout = [[name('Num Sentences'), sg.Combo(['1', '2', '3', '1 or 2', '3 or 4'], default_value=num_sentences, s=(15,22), readonly=True, k='SUMMARY-SENTENCES')],
               [name('Tone'), sg.Combo(['Neutral', 'Happy', 'Critical'], default_value=tone, s=(15,22), readonly=True, k='SUMMARY-TONE')],
               [name('Agreement'), sg.Combo(['Agrees', 'Disagrees', 'Nonpartisan'], default_value=agreement, s=(15,22), readonly=True, k='SUMMARY-AGREE')],
         [sg.Text("Tokens:", size=(5,1)), sg.Spin(values=[i for i in range(2, 4097)], initial_value=tokens, k='SUMMARY-TOKENS'),
                sg.Text("Temperature:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=temp, size=(10,5), resolution=0.01, orientation='h', key='SUMMARY-TEMP'),
                sg.Text("Repetition:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=rep, size=(10,5), resolution=0.01, orientation='h', key='SUMMARY-REP')],
-        [sg.Text("Source Text:", font=font)],
-                  [sg.Input(s=(30,8), expand_x=True, expand_y=True, default_text=url, k='YOUTUBE-URL')],
+        [sg.Text("Youtube URL:", font=font)],
+                  [sg.Input(s=20, expand_x=True, k='YOUTUBE-URL')],
                   [sg.Text("Summarized Text:", font=font)],
                   [sg.Multiline(s=(30,8), expand_x=True, expand_y=True, default_text=output, k='OUT-TEXT')],
                   [sg.Button("Submit", font=font, k='-SUMMARIZE-'), sg.Button('Copy', font=font), sg.Button('Cancel', font=font)]]
@@ -995,18 +992,14 @@ def popup_youtube_summary(url='', output='', tokens=32, temp=0.75, rep=0.25, num
     window.close()
 
     if event == '-SUMMARIZE-':
-        out = open_ai.launch_get_large_summary(values['YOUTUBE-URL'], values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
-        popup_Summary(values['YOUTUBE-URL'], out, values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-REP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
+        out = open_ai.launch_youtube_summary(values['YOUTUBE-URL'], values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
+        popup_youtube_summary(values['YOUTUBE-URL'], out, values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-REP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
     if event == 'Copy':
-        mline = window["OUT-TEXT"]
         do_copy = sg.popup_ok_cancel("Do you want copy the output to the clipboard?")
-        print(do_copy)
         if do_copy == 'OK':
             pyperclip.copy(values["OUT-TEXT"])
         else:
-            popup_Summary(values['YOUTUBE-URL'], out, values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-REP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
-            
-        
+            popup_youtube_summary(values['YOUTUBE-URL'], out, values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-REP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
 
     
 def DoDeploy(data, window, private=False):

@@ -57,13 +57,33 @@ class OpenAIHandler:
         temperature=temp
       )
     
-      cost = completion['usage']['total_tokens']
+      #cost = completion['usage']['total_tokens']
     
       summary = completion['choices'][0]['text']
       
       self.completion += summary
       
       return summary
+  
+   def launch_youtube_summary(self, url, tokens, temp, num_sentences, tone, agreement):
+       self.completion = ""
+       chunks = self._get_youtube_transcript(url)
+       methods = []
+       args = []
+       
+       print(chunks)
+       
+       for i in range(len(chunks)):
+           methods.append(self.get_text_summary)
+           args.append((chunks[i], tokens, temp, num_sentences, tone, agreement))
+
+       
+       self.loadingWindow.running = True
+       self.loadingWindow.launchBar(methods, args)
+       #self.loadingWindow.launchWheel(self.get_text_summary, prompt, tokens, temp)
+       self.loadingWindow.running = False
+       
+       return self.completion
    
     
    def launch_get_summary(self, prompt, tokens, temp):
