@@ -26,6 +26,7 @@ from jinja2 import Environment, FileSystemLoader
 import PySimpleGUI as sg
 import W3DeployHandler
 import BananaAIHandler
+import OpenAiHandler
 import LoadingWindow
 import TreeData
 import KeyHandler
@@ -1117,6 +1118,8 @@ if key_handler.initialized == False:
     sys.exit()
     
 banana_ai = BananaAIHandler.BananaAIHandler(key_handler.bananaAPI, key_handler.diffusionModel, key_handler.autoDiffusionModel, key_handler.gptjModel, resource_dir )
+open_ai = OpenAiHandler.OpenAIHandler(key_handler.openAI, resource_dir)
+
 ai_imgs = {}
 png_b64 = []
 seeds = []
@@ -1382,11 +1385,16 @@ while True:
                 mline.Widget.insert(end, "\n\n")
                 mline.Widget.insert(end, f"\n{prefix} {banana_ai.completion}")
         elif 'SUMMARY' in event:
-            banana_ai.get_summary(selected_text, tokens, temp, rep)
+            #banana_ai.get_summary(selected_text, tokens, temp, rep)
+            open_ai.launch_get_summary(selected_text, tokens, temp)
             
-            if banana_ai.completion != "":
+            if open_ai.completion != "":
                 mline.Widget.insert(end, "\n\n")
-                mline.Widget.insert(end, f"\n{banana_ai.completion}")
+                mline.Widget.insert(end, f"\n{open_ai.completion}")
+            
+            # if banana_ai.completion != "":
+            #     mline.Widget.insert(end, "\n\n")
+            #     mline.Widget.insert(end, f"\n{banana_ai.completion}")
         
         
             
