@@ -32,6 +32,7 @@ import TreeData
 import KeyHandler
 import hashlib
 import random
+import pyperclip
 
 APP_ID = "WEEEBX52m4JHXA"
 KEY = 'v0PVScmCcHNOBzLJRiqU3kSnRwoWPd4YXE-x1UVp0is='
@@ -941,16 +942,19 @@ def create_image_grid_popup(image_array, num_cols):
         return None, None
        
     
-def popup_Summary(txt='', output='', tokens=16, temp=0.75, rep=0.25):
+def popup_Summary(txt='', output='', tokens=32, temp=0.75, rep=0.25, num_sentences='2 or 3', tone='Neutral', agreement='Nonpartisan'):
     
-    layout = [[sg.Text("Tokens:", size=(5,1)), sg.Spin(values=[i for i in range(2, 4097)], initial_value=tokens, k='SUMMARY-TOKENS'),
+    layout = [[name('Num Sentences'), sg.Combo(['1', '2', '3', '1 or 2', '3 or 4'], default_value=num_sentences, s=(15,22), readonly=True, k='SUMMARY-SENTENCES')],
+              [name('Tone'), sg.Combo(['Neutral', 'Happy', 'Critical'], default_value=tone, s=(15,22), readonly=True, k='SUMMARY-TONE')],
+              [name('Agreement'), sg.Combo(['Agrees', 'Disagrees', 'Nonpartisan'], default_value=agreement, s=(15,22), readonly=True, k='SUMMARY-AGREE')],
+        [sg.Text("Tokens:", size=(5,1)), sg.Spin(values=[i for i in range(2, 4097)], initial_value=tokens, k='SUMMARY-TOKENS'),
                sg.Text("Temperature:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=temp, size=(10,5), resolution=0.01, orientation='h', key='SUMMARY-TEMP'),
                sg.Text("Repetition:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=rep, size=(10,5), resolution=0.01, orientation='h', key='SUMMARY-REP')],
         [sg.Text("Source Text:", font=font)],
                   [sg.Multiline(s=(30,8), expand_x=True, expand_y=True, default_text=txt, k='SOURCE-TEXT')],
                   [sg.Text("Summarized Text:", font=font)],
                   [sg.Multiline(s=(30,8), expand_x=True, expand_y=True, default_text=output, k='OUT-TEXT')],
-                  [sg.Button("Submit", font=font, k='-SUMMARIZE-'), sg.Button('Cancel', font=font)]]
+                  [sg.Button("Submit", font=font, k='-SUMMARIZE-'), sg.Button('Copy', font=font), sg.Button('Cancel', font=font)]]
     
 
     window = sg.Window("Summarize Content", layout, use_default_focus=False, finalize=True, modal=True, size=(500,500))
@@ -959,11 +963,18 @@ def popup_Summary(txt='', output='', tokens=16, temp=0.75, rep=0.25):
     window.close()
 
     if event == '-SUMMARIZE-':
-        print('Summarize')
-        out = open_ai.launch_get_large_summary(values['SOURCE-TEXT'], values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'])
-        print('SUmmary done out:')
-        print(out)
-        popup_Summary(values['SOURCE-TEXT'], out, values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-REP'])
+        out = open_ai.launch_get_large_summary(values['SOURCE-TEXT'], values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
+        popup_Summary(values['SOURCE-TEXT'], out, values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-REP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
+    if event == 'Copy':
+        mline = window["OUT-TEXT"]
+        do_copy = sg.popup_ok_cancel("Do you want copy the output to the clipboard?")
+        print(do_copy)
+        if do_copy == 'OK':
+            pyperclip.copy(values["OUT-TEXT"])
+        else:
+            popup_Summary(values['SOURCE-TEXT'], out, values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-REP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
+            
+        
 
     
 def DoDeploy(data, window, private=False):
@@ -1077,9 +1088,9 @@ tab1_layout =  [[TreeData.Tree(treedata, [], True,
                    10, 40, '-TREE-', font, 48, False, True, True, True, ['&Right', command])]]
 
 tab2_layout = [[sg.Frame('AI', [[sg.Text('Text AI'), sg.Combo(['Open AI', 'GPTJ'], default_value='Open AI', s=(9,9), enable_events=True, readonly=True, k='TEXT-AI')],
-    [sg.Button("COMPLETION", key='-AI-COMPLETE-'), sg.Button("SUMMARY", key='-AI-SUMMARY-'),
-                                 sg.Button("LARGE SUMMARY", key='-AI-LARGE-SUMMARY-'), sg.Button("IMG", key='-AI-IMG-'), sg.Button("IMG2IMG", key='-AI-IMG2IMG-'),
-                                 name('Completion Prefix:'), sg.Input("GPTJ:", s=10, k='-GPTJ-PREFIX-')],
+    [sg.Button("COMPLETION", key='-AI-COMPLETE-'), sg.Button("SUMMARY", key='-AI-SUMMARY-'), sg.Button("LARGE SUMMARY", key='-AI-LARGE-SUMMARY-'),
+                                  sg.Button("YOUTUBE SUMMARY", key='-AI-YOUTUBE-SUMMARY-'), sg.Button("IMG", key='-AI-IMG-'), 
+                                 sg.Button("IMG", key='-AI-IMG-'), sg.Button("IMG2IMG", key='-AI-IMG2IMG-')],
                                 [name('Tokens:'), sg.Spin(values=[i for i in range(1, 1024)], initial_value=32, enable_events=True, s=(8,8), k='-GPTJ-MAX-TOKENS-'),
                                  sg.Text("Temperature:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=0.75, size=(10,5), resolution=0.01, orientation='h', key='-GPTJ-TEMP-'),
                                  sg.Text("Repetition:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=0.25, size=(10,5), resolution=0.01, orientation='h', key='-GPTJ-REP-')]])],
@@ -1382,16 +1393,14 @@ while True:
                 open_ai.launch_completion(selected_text, tokens, temp)
                 
                 if open_ai.completion != "":
-                    prefix = values['-GPTJ-PREFIX-']
                     mline.Widget.insert(end, "\n\n")
-                    mline.Widget.insert(end, f"\n{prefix} {open_ai.completion}")
+                    mline.Widget.insert(end, f"\n{open_ai.completion}")
             else:
                 banana_ai.launch_gptj(selected_text, tokens, temp, rep)
                 
                 if banana_ai.completion != "":
-                    prefix = values['-GPTJ-PREFIX-']
                     mline.Widget.insert(end, "\n\n")
-                    mline.Widget.insert(end, f"\n{prefix} {banana_ai.completion}")
+                    mline.Widget.insert(end, f"\n{banana_ai.completion}")
                     
         elif 'SUMMARY' in event:
             #banana_ai.get_summary(selected_text, tokens, temp, rep)
