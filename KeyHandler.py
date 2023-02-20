@@ -30,6 +30,7 @@ class KeyHandler:
        self.diffusionModel = None
        self.autoDiffusionModel = None
        self.gptjModel = None
+       self.openAI = None
        self.api_url = 'https://notable-excellent-skill.anvil.app/'
        self.window.disappear()
        sha = hashlib.sha1(self.deviceID.encode(encoding = 'UTF-8'))
@@ -52,10 +53,12 @@ class KeyHandler:
            self.diffusionModel = f.decrypt(data['diffusion'].encode(encoding = 'UTF-8'))
            self.autoDiffusionModel = f.decrypt(data['auto-diffusion'].encode(encoding = 'UTF-8'))
            self.gptjModel = f.decrypt(data['gptj'].encode(encoding = 'UTF-8'))
+           self.openAI =  f.decrypt(data['open-ai'].encode(encoding = 'UTF-8'))
            self.bananaAPI = self.bananaAPI.decode(encoding = 'UTF-8')
            self.diffusionModel = self.diffusionModel.decode(encoding = 'UTF-8')
            self.autoDiffusionModel = self.autoDiffusionModel.decode(encoding = 'UTF-8')
            self.gptjModel = self.gptjModel.decode(encoding = 'UTF-8')
+           self.openAI = self.openAI.decode(encoding = 'UTF-8')
            self.loadingWindow.running = False
            self.initialized = True
        self.window.reappear()

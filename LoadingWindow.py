@@ -105,10 +105,12 @@ class LoadingWindow:
        idx = 0
        for method in methods:
            print('Gets to bar callback')
-           try:
-               method(*(args[-1][idx]))
-           except:
-               print("FAILLLLLLLLL")
+           print(*(args[-1][idx]))
+           method(*(args[-1][idx]))
+           # try:
+           #     method(*(args[-1][idx]))
+           # except:
+           #     print("FAILLLLLLLLL")
            print('Completes to bar callback')
            self.updateBar()
            idx+=1

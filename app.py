@@ -1079,7 +1079,7 @@ tab2_layout = [[sg.Frame('AI', [[sg.Button("COMPLETION", key='-AI-COMPLETE-'), s
                                  sg.Button("L2P", key='-AI-LIST2P-'), sg.Button("P2L", key='-AI-P2LIST-'),
                                  sg.Button("IMG", key='-AI-IMG-'), sg.Button("IMG2IMG", key='-AI-IMG2IMG-'),
                                  name('Completion Prefix:'), sg.Input("GPTJ:", s=10, k='-GPTJ-PREFIX-')],
-                                [name('Tokens:'), sg.Spin(values=[i for i in range(1, 1024)], initial_value=64, enable_events=True, s=(8,8), k='-GPTJ-MAX-TOKENS-'),
+                                [name('Tokens:'), sg.Spin(values=[i for i in range(1, 1024)], initial_value=32, enable_events=True, s=(8,8), k='-GPTJ-MAX-TOKENS-'),
                                  sg.Text("Temperature:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=0.75, size=(10,5), resolution=0.01, orientation='h', key='-GPTJ-TEMP-'),
                                  sg.Text("Repetition:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=0.25, size=(10,5), resolution=0.01, orientation='h', key='-GPTJ-REP-')]])],
     [sg.Button("B", key='-MD-BOLD-'), sg.Button("I", key='-MD-ITALIC-'), sg.Button("H1", key='-MD-HEADING1-'),

@@ -40,10 +40,10 @@ class BananaAIHandler:
        If you look at yourself using the SWOT framework, you can start to separate yourself from your peers, and further develop the specialized talents and abilities that you need in order to advance your career and to help you achieve your personal goals.
        [Summary]: SWOT Analysis is a technique that helps you identify strengths, weakness, opportunities, and threats. Understanding and managing these factors helps you to develop the abilities you need to achieve your goals and progress in your career.
        ###
-       [Original]: Jupiter is the fifth planet from the Sun and the largest in the Solar System. It is a gas giant with a mass one-thousandth that of the Sun, but two-and-a-half times that of all the other planets in the Solar System combined. Jupiter is one of the brightest objects visible to the naked eye in the night sky, and has been known to ancient civilizations since before recorded history. It is named after the Roman god Jupiter.[19] When viewed from Earth, Jupiter can be bright enough for its reflected light to cast visible shadows,[20] and is on average the third-brightest natural object in the night sky after the Moon and Venus.
-       Jupiter is primarily composed of hydrogen with a quarter of its mass being helium, though helium comprises only about a tenth of the number of molecules. It may also have a rocky core of heavier elements,[21] but like the other giant planets, Jupiter lacks a well-defined solid surface. Because of its rapid rotation, the planet's shape is that of an oblate spheroid (it has a slight but noticeable bulge around the equator).
-       [Summary]: Jupiter is the largest planet in the solar system. It is a gas giant, and is the fifth planet from the sun.
-       ###
+       [Original]: A jack-o'-lantern (or jack o'lantern) is a carved lantern, most commonly made from a pumpkin or a root vegetable such as a rutabaga or turnip.[1] Jack-o'-lanterns are associated with the Halloween holiday. Its name comes from the reported phenomenon of strange lights flickering over peat bogs, called will-o'-the-wisps or jack-o'-lanterns. The name is also tied to the Irish legend of Stingy Jack, a drunkard who bargains with Satan and is doomed to roam the Earth with only a hollowed turnip to light his way. 
+       Jack-o'-lanterns carved from pumpkins are a yearly Halloween tradition that developed in the United States when Celtic Americans brought their root vegetable carving tradition with them.[2] It is common to see jack-o'-lanterns used as external and internal decorations prior to and on Halloween.
+       [Summary]: A jack-o'-lantern is a carved lantern, usually made from a pumpkin or root vegetable like a turnip, associated with Halloween. The tradition originated from Celtic Americans who brought their root vegetable carving tradition to the US. The name comes from strange lights over peat bogs and an Irish legend of Stingy Jack. It is a common decoration for Halloween both inside and outside.
+       ####
        [Original]: """
        self.summaryExampleClose = """
        ###
@@ -258,12 +258,15 @@ class BananaAIHandler:
        methods = []
        args = []
        
-       for i in range(len(chunks)):
-           methods.append(self.gptj_process)
-           args.append((chunks[i], tokens, temp, rep))
+       prompt = self.summaryExample + f" {text}\n" + self.summaryExampleClose
+       
+       # for i in range(len(chunks)):
+       #     methods.append(self.gptj_process)
+       #     args.append((chunks[i], tokens, temp, rep))
            
        self.loadingWindow.running = True
-       self.loadingWindow.launchBar(methods, args)
+       #self.loadingWindow.launchBar(methods, args)
+       self.loadingWindow.launchWheel(self.gptj_process, prompt, tokens, temp, rep)
        self.loadingWindow.running = False
        
        for chunk in chunks:
