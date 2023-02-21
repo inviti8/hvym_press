@@ -108,6 +108,7 @@ icon_ai_img2img = b'iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsT
 #TOOL-TIPS:
 tt_debug_btn = "Renders site, and launches at localhost:8080."
 tt_completion = "Make a completion."
+#-----EDITOR---------
 tt_summary = "Make a summary of selected area."
 tt_summary_large = "Make summary of a of large text."
 tt_youtube_summary = "Make a summary of youtube video."
@@ -119,8 +120,6 @@ tt_completion = "AI Completion"
 tt_sel_summary = "Selected Summary"
 tt_large_summary = "Large Summary"
 tt_youtube_summary = "Youtube Summary"
-tt_ai_image = "AI Image"
-tt_ai_img2img = "AI Image to Image"
 tt_h1 = "H1"
 tt_h2 = "H2"
 tt_h3 = "H3"
@@ -136,6 +135,38 @@ tt_table = "Table"
 tt_link = "Link"
 tt_img = "Image"
 tt_vid = "Video"
+tt_text_ai = "Use either Open AI of GPTJ, Open AI is much faster."
+tt_tokens = "Determines length of completion by AI."
+tt_temp = "Higher Temperature, is more randomness in completion."
+tt_rep = "Higher less repitition in completion."
+tt_btn_html = "Open Debug window to view rendered page."
+#-------AI IMAGE-----------
+tt_img_in = "Select a source image for AI completion."
+tt_prompt = "Prompt for AI completion."
+tt_modifier_txt = "text used to modify style of completion."
+tt_tags_txt = "text used to define styles, mood, lighting , and more."
+tt_artist_text = "Style of particular artist is emulated."
+tt_seed = "-1 for random comletion, or specific seed will give consistent results."
+tt_ran_seed_btn = "Generate a random seed."
+tt_check = "When checked, each variation is randomized."
+tt_variations = "The number of image variations to create."
+tt_img_w = "Image width"
+tt_img_h = "Image height"
+tt_inference = ""
+tt_guidance = ""
+tt_modifier = "text used to modify style of completion."
+tt_tags = "text used to define styles, mood, lighting , and more."
+tt_artist = "Style of particular artist is emulated."
+tt_create_images = "Create ai images."
+tt_save_ai_images = "Save last chosen image."
+#----------SETTINGS--------------
+tt_nav_dropdown = "Style of navigation between sections."
+tt_site_tyle = "Default style of Material style."
+tt_theme = "Use a basic light or dark css theme."
+tt_custom_theme = "Load a custom css them file."
+tt_page_order = "Adjusts the order in which each site section is displayed."
+tt_authors = "Right click to add, modifiy, or delete an author for the site."
+
 
 def get_device_id():
   if platform == "linux" or platform == "linux2":
@@ -810,22 +841,22 @@ def popup_ai_img_2_img(ai_img_in='', prompt='', seed=-1, variations=4, width=512
 
     popup_layout = [
         [sg.Text("Image File:", size=(15,1))],
-        [sg.Input( s=(20,1), default_text=ai_img_in, expand_x=True, key='ai-img-in'), sg.Button("Load", k='ai-load-img')],
+        [sg.Input( s=(20,1), default_text=ai_img_in, tooltip=tt_img_in, expand_x=True, key='ai-img-in'), sg.Button("Load", k='ai-load-img')],
         [sg.Text("Prompt:", size=(15,1))],
-        [sg.Multiline( s=(20,5), default_text=prompt, expand_x=True, key='prompt')],
-        [sg.Text("Modifier Text:", size=(10,1)), sg.Multiline( s=(8,2), default_text=modifierTxt, expand_x=True, key='modifier-text')],
-        [sg.Text("Tags Text:", size=(10,1)), sg.Multiline( s=(8,2), default_text=tagTxt, expand_x=True, key='tag-text')],
-        [sg.Text("Artists Text:", size=(10,1)), sg.Multiline( s=(8,2), default_text=artistTxt, expand_x=True, key='artist-text')],
-        [sg.Text("Seed:", size=(5,1)), sg.Spin(values=[i for i in range(-1, 999999)], initial_value=seed, k='seed'), sg.Button("Random", k='random-seed'), sg.Checkbox("Randomize Variations", k='randomize-vars')],
-        [sg.Text("Variations:", size=(7,1)), sg.Spin(values=[i for i in range(1, 9)], initial_value=variations, k='img-variations'), sg.Text("Width:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=width, k='img-width'), sg.Text("Height:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=height, k='img-height')],
-        [sg.Text("Inference Steps:", size=(12,1)), sg.Spin(values=[i for i in range(1, 999)], initial_value=inference, k='inference-steps'), sg.Text("Guidance Scale:", size=(12,1)), sg.Spin(values=[i for i in range(1, 99)], initial_value=guidance, k='guidance-scale')],
+        [sg.Multiline( s=(20,10), default_text=prompt, tooltip=tt_prompt, expand_x=True, key='prompt')],
+        [sg.Text("Modifier Text:", size=(10,1)), sg.Multiline( s=(8,2), tooltip=tt_modifier_txt, default_text=modifierTxt, expand_x=True, key='modifier-text')],
+        [sg.Text("Tags Text:", size=(10,1)), sg.Multiline( s=(8,2), tooltip=tt_tags, default_text=tagTxt, expand_x=True, key='tag-text')],
+        [sg.Text("Artists Text:", size=(10,1)), sg.Multiline( s=(8,2), tooltip=tt_artist_text, default_text=artistTxt, expand_x=True, key='artist-text')],
+        [sg.Text("Seed:", size=(5,1)), sg.Spin(values=[i for i in range(-1, 999999)], tooltip=tt_seed, initial_value=seed, k='seed'), sg.Button("Random", tooltip=tt_ran_seed_btn, k='random-seed'), sg.Checkbox("Randomize Variations", tooltip=tt_check, k='randomize-vars')],
+        [sg.Text("Variations:", size=(7,1)), sg.Spin(values=[i for i in range(1, 9)], tooltip=tt_variations, initial_value=variations, k='img-variations'), sg.Text("Width:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], tooltip=tt_img_w, initial_value=width, k='img-width'), sg.Text("Height:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], tooltip=tt_img_h, initial_value=height, k='img-height')],
+        [sg.Text("Inference Steps:", size=(12,1)), sg.Spin(values=[i for i in range(1, 999)], tooltip=tt_inference, initial_value=inference, k='inference-steps'), sg.Text("Guidance Scale:", size=(12,1)), sg.Spin(values=[i for i in range(1, 99)], tooltip=tt_guidance, initial_value=guidance, k='guidance-scale')],
         [sg.Text("Sampling Method:", size=(15,1)), sg.Combo(ai_mods['sampling'], default_value=sampling, s=(20,22), readonly=True, k='mod-sampling')],
-        [sg.Text("Modifiers:", size=(10,1)), sg.Combo(ai_mods['modifiers'], default_value=modifier, s=(15,22), readonly=True, k='mod-modifier'), sg.Button("Add", k='mod-add-modifier')],
-        [sg.Text("Tags:", size=(10,1)), sg.Combo(ai_mods['tags'], default_value=tag, s=(15,22), readonly=True, k='mod-tag'), sg.Button("Add", k='mod-add-tag')],
-        [sg.Text("Artists:", size=(10,1)), sg.Combo(ai_mods['artists'], default_value=artist, s=(15,22), readonly=True, k='mod-artist'), sg.Button("Add", k='mod-add-artist')],
+        [sg.Text("Modifiers:", size=(10,1)), sg.Combo(ai_mods['modifiers'], tooltip=tt_modifier, default_value=modifier, s=(20,22), readonly=True, k='mod-modifier'), sg.Button("Add", k='mod-add-modifier')],
+        [sg.Text("Tags:", size=(10,1)), sg.Combo(ai_mods['tags'], tooltip=tt_tags, default_value=tag, s=(20,22), readonly=True, k='mod-tag'), sg.Button("Add", k='mod-add-tag')],
+        [sg.Text("Artists:", size=(10,1)), sg.Combo(ai_mods['artists'], tooltip=tt_artist, default_value=artist, s=(20,22), readonly=True, k='mod-artist'), sg.Button("Add", k='mod-add-artist')],
         [sg.Button("Submit"), sg.Button("Save"), sg.Button("Cancel")]
     ]
-    popup_window = sg.Window("Stable Diffusion Image Prompt", popup_layout, size=(350,570))
+    popup_window = sg.Window("Stable Diffusion Image Prompt", popup_layout, size=(350,650))
     event, values = popup_window.read()
     popup_window.close()
     if event == "Save":
@@ -889,17 +920,17 @@ def popup_ai_img(prompt='', seed=-1, variations=4, width=512, height=512, infere
 
     popup_layout = [
         [sg.Text("Prompt:", size=(15,1))],
-        [sg.Multiline( s=(20,10), default_text=prompt, expand_x=True, key='prompt')],
-        [sg.Text("Modifier Text:", size=(10,1)), sg.Multiline( s=(8,2), default_text=modifierTxt, expand_x=True, key='modifier-text')],
-        [sg.Text("Tags Text:", size=(10,1)), sg.Multiline( s=(8,2), default_text=tagTxt, expand_x=True, key='tag-text')],
-        [sg.Text("Artists Text:", size=(10,1)), sg.Multiline( s=(8,2), default_text=artistTxt, expand_x=True, key='artist-text')],
-        [sg.Text("Seed:", size=(5,1)), sg.Spin(values=[i for i in range(-1, 999999)], initial_value=seed, k='seed'), sg.Button("Random", k='random-seed'), sg.Checkbox("Randomize Variations", k='randomize-vars')],
-        [sg.Text("Variations:", size=(7,1)), sg.Spin(values=[i for i in range(1, 9)], initial_value=variations, k='img-variations'), sg.Text("Width:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=width, k='img-width'), sg.Text("Height:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], initial_value=height, k='img-height')],
-        [sg.Text("Inference Steps:", size=(12,1)), sg.Spin(values=[i for i in range(1, 999)], initial_value=inference, k='inference-steps'), sg.Text("Guidance Scale:", size=(12,1)), sg.Spin(values=[i for i in range(1, 99)], initial_value=guidance, k='guidance-scale')],
+        [sg.Multiline( s=(20,10), default_text=prompt, tooltip=tt_prompt, expand_x=True, key='prompt')],
+        [sg.Text("Modifier Text:", size=(10,1)), sg.Multiline( s=(8,2), tooltip=tt_modifier_txt, default_text=modifierTxt, expand_x=True, key='modifier-text')],
+        [sg.Text("Tags Text:", size=(10,1)), sg.Multiline( s=(8,2), tooltip=tt_table, default_text=tagTxt, expand_x=True, key='tag-text')],
+        [sg.Text("Artists Text:", size=(10,1)), sg.Multiline( s=(8,2), tooltip=tt_artist_text, default_text=artistTxt, expand_x=True, key='artist-text')],
+        [sg.Text("Seed:", size=(5,1)), sg.Spin(values=[i for i in range(-1, 999999)], tooltip=tt_seed, initial_value=seed, k='seed'), sg.Button("Random", tooltip=tt_ran_seed_btn, k='random-seed'), sg.Checkbox("Randomize Variations", tooltip=tt_check, k='randomize-vars')],
+        [sg.Text("Variations:", size=(7,1)), sg.Spin(values=[i for i in range(1, 9)], tooltip=tt_variations, initial_value=variations, k='img-variations'), sg.Text("Width:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], tooltip=tt_img_w, initial_value=width, k='img-width'), sg.Text("Height:", size=(5,1)), sg.Spin(values=[i for i in range(1, 4096)], tooltip=tt_img_h, initial_value=height, k='img-height')],
+        [sg.Text("Inference Steps:", size=(12,1)), sg.Spin(values=[i for i in range(1, 999)], tooltip=tt_inference, initial_value=inference, k='inference-steps'), sg.Text("Guidance Scale:", size=(12,1)), sg.Spin(values=[i for i in range(1, 99)], tooltip=tt_guidance, initial_value=guidance, k='guidance-scale')],
         [sg.Text("Sampling Method:", size=(15,1)), sg.Combo(ai_mods['sampling'], default_value=sampling, s=(20,22), readonly=True, k='mod-sampling')],
-        [sg.Text("Modifiers:", size=(10,1)), sg.Combo(ai_mods['modifiers'], default_value=modifier, s=(20,22), readonly=True, k='mod-modifier'), sg.Button("Add", k='mod-add-modifier')],
-        [sg.Text("Tags:", size=(10,1)), sg.Combo(ai_mods['tags'], default_value=tag, s=(20,22), readonly=True, k='mod-tag'), sg.Button("Add", k='mod-add-tag')],
-        [sg.Text("Artists:", size=(10,1)), sg.Combo(ai_mods['artists'], default_value=artist, s=(20,22), readonly=True, k='mod-artist'), sg.Button("Add", k='mod-add-artist')],
+        [sg.Text("Modifiers:", size=(10,1)), sg.Combo(ai_mods['modifiers'], tooltip=tt_modifier, default_value=modifier, s=(20,22), readonly=True, k='mod-modifier'), sg.Button("Add", k='mod-add-modifier')],
+        [sg.Text("Tags:", size=(10,1)), sg.Combo(ai_mods['tags'], tooltip=tt_tags, default_value=tag, s=(20,22), readonly=True, k='mod-tag'), sg.Button("Add", k='mod-add-tag')],
+        [sg.Text("Artists:", size=(10,1)), sg.Combo(ai_mods['artists'], tooltip=tt_artist, default_value=artist, s=(20,22), readonly=True, k='mod-artist'), sg.Button("Add", k='mod-add-artist')],
         [sg.Button("Submit"), sg.Button("Save"), sg.Button("Cancel")]
     ]
     popup_window = sg.Window("Stable Diffusion Image Prompt", popup_layout, size=(350,580))
@@ -1168,10 +1199,10 @@ tab1_layout =  [[TreeData.Tree(treedata, [], True,
 tab2_layout = [[sg.Frame('AI', [[sg.Text('Text AI'), sg.Combo(['Open AI', 'GPTJ'], default_value='Open AI', s=(9,9), enable_events=True, readonly=True, k='TEXT-AI')],
     [sg.Button(image_data=icon_completion, tooltip=tt_completion, key='-AI-COMPLETE-'), sg.Button(image_data=icon_summary, tooltip=tt_summary, key='-AI-SUMMARY-'), sg.Button(image_data=icon_large_summary, tooltip=tt_large_summary, key='-AI-LARGE-SUMMARY-'),
                                   sg.Button(image_data=icon_youtube_summary, tooltip=tt_youtube_summary, key='-AI-YOUTUBE-SUMMARY-'),
-                                 sg.Button(image_data=icon_ai_img, tooltip=tt_ai_image, key='-AI-IMG-'), sg.Button(image_data=icon_ai_img2img, tooltip=tt_ai_img2image, key='-AI-IMG2IMG-')],
-                                [name('Tokens:'), sg.Spin(values=[i for i in range(1, 1024)], initial_value=32, enable_events=True, s=(8,8), k='-GPTJ-MAX-TOKENS-'),
-                                 sg.Text("Temperature:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=0.75, size=(10,5), resolution=0.01, orientation='h', key='-GPTJ-TEMP-'),
-                                 sg.Text("Repetition:", size=(9,1)), sg.Slider(range=(0, 1.0), default_value=0.25, size=(10,5), resolution=0.01, orientation='h', key='-GPTJ-REP-')]], expand_x=True)],
+                                 sg.Button(image_data=icon_ai_img, tooltip=tt_ai_img, key='-AI-IMG-'), sg.Button(image_data=icon_ai_img2img, tooltip=tt_ai_img2image, key='-AI-IMG2IMG-')],
+                                [name('Tokens:'), sg.Spin(values=[i for i in range(1, 1024)], tooltip=tt_tokens, initial_value=32, enable_events=True, s=(8,8), k='-GPTJ-MAX-TOKENS-'),
+                                 sg.Text("Temperature:", size=(9,1)), sg.Slider(range=(0, 1.0), tooltip=tt_temp, default_value=0.75, size=(10,5), resolution=0.01, orientation='h', key='-GPTJ-TEMP-'),
+                                 sg.Text("Repetition:", size=(9,1)), sg.Slider(range=(0, 1.0), tooltip=tt_rep, default_value=0.25, size=(10,5), resolution=0.01, orientation='h', key='-GPTJ-REP-')]], expand_x=True)],
     [sg.Button(image_data=icon_bold, tooltip=tt_bold, key='-MD-BOLD-'), sg.Button(image_data=icon_italic, tooltip=tt_italic, key='-MD-ITALIC-'), sg.Button(image_data=icon_h1, tooltip=tt_h1, key='-MD-HEADING1-'),
                 sg.Button(image_data=icon_h2, tooltip=tt_h2, key='-MD-HEADING2-'), sg.Button(image_data=icon_h3, tooltip=tt_h3, key='-MD-HEADING3-'), sg.Button(image_data=icon_h4, tooltip=tt_h4, key='-MD-HEADING4-'),
                 sg.Button(image_data=icon_h5, tooltip=tt_h5, key='-MD-HEADING5-'), sg.Button(image_data=icon_h6, tooltip=tt_h6, key='-MD-HEADING6-'),
@@ -1179,7 +1210,7 @@ tab2_layout = [[sg.Frame('AI', [[sg.Text('Text AI'), sg.Combo(['Open AI', 'GPTJ'
                 sg.Button(image_data=icon_quote, tooltip=tt_quote, key='-MD-BLOCK-QUOTE-'), sg.Button(image_data=icon_code, tooltip=tt_code, key='-MD-CODE-'), sg.Button(image_data=icon_table, tooltip=tt_table, key='-MD-TABLE-'),
                 sg.Button(image_data=icon_link, tooltip=tt_link, key='-MD-LINK-'), sg.Button(image_data=icon_img, tooltip=tt_img, key='-MD-IMG-'), sg.Button(image_data=icon_vid, tooltip=tt_vid, key='-MD-VID-')],
     [sg.Multiline(s=(15,30), expand_x=True, key='-MD-INPUT-', enable_events=True )],
-    [sg.Button("Open HTML", key='-OPEN-HTML-')]]    
+    [sg.Button("Open HTML", tooltip=tt_debug_btn, key='-OPEN-HTML-')]]    
 
 tab3_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, element_justification='left'), 
                 sg.Column(site_settings_layout, expand_x=True, expand_y=True, element_justification='left')],
