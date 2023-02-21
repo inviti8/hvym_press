@@ -94,8 +94,8 @@ class BananaAIHandler:
                
        
    def txt2img(self, prompt, width, height, seed, batch_size, inference, sampling, guidance):
-       print(self.apiKey)
-       print(self.autoDiffusionModel)
+       # print(self.apiKey)
+       # print(self.autoDiffusionModel)
        
        self.diffusion_inputs = {
            "endpoint": "txt2img",
@@ -145,8 +145,8 @@ class BananaAIHandler:
            self.png_b64 = self.img2img(bs64_str, prompt, values['img-width'], values['img-height'], img_seed, values['img-variations'], values['inference-steps'], values['mod-sampling'], values['guidance-scale'])
    
    def img2img(self, img, prompt, width, height, seed, batch_size, inference, sampling, guidance):
-       print(self.apiKey)
-       print(self.autoDiffusionModel)
+       # print(self.apiKey)
+       # print(self.autoDiffusionModel)
        
        self.diffusion_inputs = {
            "endpoint": "img2img",
@@ -178,8 +178,8 @@ class BananaAIHandler:
        
        
    def get_img(self, prompt, width, height, seed, inference, guidance):
-       print(self.apiKey)
-       print(self.diffusionModel)
+       # print(self.apiKey)
+       # print(self.diffusionModel)
        
        self.diffusion_inputs = {
          "prompt": prompt,
