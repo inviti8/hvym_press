@@ -828,7 +828,7 @@ def popup_md_link():
         [sg.Text("Display Text:", size=(15,1)), sg.InputText(key='display')],
         [sg.Button("Submit"), sg.Button("Cancel")]
     ]
-    popup_window = sg.Window("Link Input", popup_layout)
+    popup_window = sg.Window("Media Link", popup_layout)
     event, values = popup_window.read()
     popup_window.close()
     if event == "Submit":
@@ -1197,18 +1197,18 @@ tab1_layout =  [[TreeData.Tree(treedata, [], True,
                    10, 40, '-TREE-', font, 48, False, True, True, True, ['&Right', command])]]
 
 tab2_layout = [[sg.Frame('AI', [[sg.Text('Text AI'), sg.Combo(['Open AI', 'GPTJ'], default_value='Open AI', s=(9,9), enable_events=True, readonly=True, k='TEXT-AI')],
-    [sg.Button(image_data=icon_completion, tooltip=tt_completion, key='-AI-COMPLETE-'), sg.Button(image_data=icon_summary, tooltip=tt_summary, key='-AI-SUMMARY-'), sg.Button(image_data=icon_large_summary, tooltip=tt_large_summary, key='-AI-LARGE-SUMMARY-'),
-                                  sg.Button(image_data=icon_youtube_summary, tooltip=tt_youtube_summary, key='-AI-YOUTUBE-SUMMARY-'),
-                                 sg.Button(image_data=icon_ai_img, tooltip=tt_ai_img, key='-AI-IMG-'), sg.Button(image_data=icon_ai_img2img, tooltip=tt_ai_img2image, key='-AI-IMG2IMG-')],
+    [sg.Button(image_data=icon_completion, border_width=0, tooltip=tt_completion, key='-AI-COMPLETE-'), sg.Button(image_data=icon_summary, border_width=0, tooltip=tt_summary, key='-AI-SUMMARY-'), sg.Button(image_data=icon_large_summary, border_width=0, tooltip=tt_large_summary, key='-AI-LARGE-SUMMARY-'),
+                                  sg.Button(image_data=icon_youtube_summary, border_width=0, tooltip=tt_youtube_summary, key='-AI-YOUTUBE-SUMMARY-'),
+                                 sg.Button(image_data=icon_ai_img, border_width=0, tooltip=tt_ai_img, key='-AI-IMG-'), sg.Button(image_data=icon_ai_img2img, border_width=0, tooltip=tt_ai_img2image, key='-AI-IMG2IMG-')],
                                 [name('Tokens:'), sg.Spin(values=[i for i in range(1, 1024)], tooltip=tt_tokens, initial_value=32, enable_events=True, s=(8,8), k='-GPTJ-MAX-TOKENS-'),
                                  sg.Text("Temperature:", size=(9,1)), sg.Slider(range=(0, 1.0), tooltip=tt_temp, default_value=0.75, size=(10,5), resolution=0.01, orientation='h', key='-GPTJ-TEMP-'),
                                  sg.Text("Repetition:", size=(9,1)), sg.Slider(range=(0, 1.0), tooltip=tt_rep, default_value=0.25, size=(10,5), resolution=0.01, orientation='h', key='-GPTJ-REP-')]], expand_x=True)],
-    [sg.Button(image_data=icon_bold, tooltip=tt_bold, key='-MD-BOLD-'), sg.Button(image_data=icon_italic, tooltip=tt_italic, key='-MD-ITALIC-'), sg.Button(image_data=icon_h1, tooltip=tt_h1, key='-MD-HEADING1-'),
-                sg.Button(image_data=icon_h2, tooltip=tt_h2, key='-MD-HEADING2-'), sg.Button(image_data=icon_h3, tooltip=tt_h3, key='-MD-HEADING3-'), sg.Button(image_data=icon_h4, tooltip=tt_h4, key='-MD-HEADING4-'),
-                sg.Button(image_data=icon_h5, tooltip=tt_h5, key='-MD-HEADING5-'), sg.Button(image_data=icon_h6, tooltip=tt_h6, key='-MD-HEADING6-'),
-                sg.Button(image_data=icon_strikethru, tooltip=tt_strikethru, key='-MD-STRIKETHRU-'), sg.Button(image_data=icon_ul, tooltip=tt_ul, key='-MD-U-LIST-'), sg.Button(image_data=icon_ol, tooltip=tt_ol, key='-MD-O-LIST-'),
-                sg.Button(image_data=icon_quote, tooltip=tt_quote, key='-MD-BLOCK-QUOTE-'), sg.Button(image_data=icon_code, tooltip=tt_code, key='-MD-CODE-'), sg.Button(image_data=icon_table, tooltip=tt_table, key='-MD-TABLE-'),
-                sg.Button(image_data=icon_link, tooltip=tt_link, key='-MD-LINK-'), sg.Button(image_data=icon_img, tooltip=tt_img, key='-MD-IMG-'), sg.Button(image_data=icon_vid, tooltip=tt_vid, key='-MD-VID-')],
+    [sg.Button(image_data=icon_bold, border_width=0, tooltip=tt_bold, key='-MD-BOLD-'), sg.Button(image_data=icon_italic, border_width=0, tooltip=tt_italic, key='-MD-ITALIC-'), sg.Button(image_data=icon_h1, border_width=0, tooltip=tt_h1, key='-MD-HEADING1-'),
+                sg.Button(image_data=icon_h2, border_width=0, tooltip=tt_h2, key='-MD-HEADING2-'), sg.Button(image_data=icon_h3, border_width=0, tooltip=tt_h3, key='-MD-HEADING3-'), sg.Button(image_data=icon_h4, border_width=0, tooltip=tt_h4, key='-MD-HEADING4-'),
+                sg.Button(image_data=icon_h5, border_width=0, tooltip=tt_h5, key='-MD-HEADING5-'), sg.Button(image_data=icon_h6, border_width=0, tooltip=tt_h6, key='-MD-HEADING6-'),
+                sg.Button(image_data=icon_strikethru, border_width=0, tooltip=tt_strikethru, key='-MD-STRIKETHRU-'), sg.Button(image_data=icon_ul, border_width=0, tooltip=tt_ul, key='-MD-U-LIST-'), sg.Button(image_data=icon_ol, border_width=0, tooltip=tt_ol, key='-MD-O-LIST-'),
+                sg.Button(image_data=icon_quote, border_width=0, tooltip=tt_quote, key='-MD-BLOCK-QUOTE-'), sg.Button(image_data=icon_code, border_width=0, tooltip=tt_code, key='-MD-CODE-'), sg.Button(image_data=icon_table, border_width=0, tooltip=tt_table, key='-MD-TABLE-'),
+                sg.Button(image_data=icon_link, border_width=0, tooltip=tt_link, key='-MD-LINK-'), sg.Button(image_data=icon_img, border_width=0, tooltip=tt_img, key='-MD-IMG-'), sg.Button(image_data=icon_vid, border_width=0, tooltip=tt_vid, key='-MD-VID-')],
     [sg.Multiline(s=(15,30), expand_x=True, key='-MD-INPUT-', enable_events=True )],
     [sg.Button("Open HTML", tooltip=tt_debug_btn, key='-OPEN-HTML-')]]    
 
@@ -1222,7 +1222,7 @@ menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site']],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-')],
-    [sg.TabGroup([[sg.Tab(starting_path, tab1_layout, font=font,), sg.Tab('Editor', tab2_layout, font=font,), sg.Tab('Settings', tab3_layout, font=font,)]])]]
+    [sg.TabGroup([[sg.Tab(starting_path, tab1_layout, font=font, border_width=0), sg.Tab('Editor', tab2_layout, font=font, border_width=0), sg.Tab('Settings', tab3_layout, font=font, border_width=0)]], tab_border_width=0)]]
 
 window = sg.Window('Weeeb3', layout, use_default_focus=False, finalize=True)
 window.disappear()
@@ -1355,7 +1355,6 @@ while True:
                             DATA.saveData()
                             
     if event == '-MD-BOLD-' or event == '-MD-ITALIC-' or event == '-MD-STRIKETHRU-' or event == '-MD-STRIKETHRU-' or '-MD-HEADING' in event:
-        print("What broke??")
         mline = window["-MD-INPUT-"]
         try:
             start, end = mline.Widget.index("sel.first"), mline.Widget.index("sel.last")
