@@ -1,0 +1,26 @@
+{
+  "dero_latest_url": "https://github.com/deroproject/derohe/releases/download/Release116/",
+  "dero_zip": {
+    "linux": "dero_linux_amd64.tar.gz",
+    "linux2": "dero_linux_amd64.tar.gz",
+    "darwin": "dero_darwin_universal.tar.gz",
+    "win32": "dero_windows_amd64.zip"
+  },
+  "dero_executable": {
+    "linux": {
+
+    },
+    "linux2": {
+
+    },
+    "darwin": {
+
+    },
+    "win32": {
+      "node": "derod-windows-amd64.exe",
+      "miner": "dero-miner-windows-amd64.exe",
+      "wallet": "dero-wallet-cli-windows-amd64.exe"
+    }
+  },
+  "dero_checksum": "checksum.txt.asc"
+}
