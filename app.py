@@ -1235,7 +1235,7 @@ tab3_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, elem
 
 menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site']],
                 ['& Deploy', ['---', 'Pinata IPFS', 'Pinata Submarine', '---', 'Arweave(Coming Soon)']],
-                ['& Dero', ['---', 'Start Daemon', 'Wallet',['Open', 'Create', 'Seed'], 'NFT',['Create Settings', 'Deploy Settings']]],
+                ['& Dero', ['---', 'Daemon',['mainnet',['Start::DERO-DAEMON', 'Stop::DERO-DAEMON'], 'testnet',['Start::DERO-DAEMON-TEST', 'Stop::DERO-DAEMON-TEST']], 'Wallet',['Open::DERO-OPEN-WALLET'], 'NFT',['Create Settings::DERO-NFT-SETTINGS', 'Deploy Settings::DERO-DEPLOY-SETTINGS']]],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-')],
@@ -1268,8 +1268,10 @@ while True:
     event, values = window.read()
     #print(event)
     if event == 'DEBUG':
-        ImgToggle(window['ICON-LOCALHOST'])
-        dero.create_new_wallet()
+        print(dero.node)
+        print(dero.wallet)
+        #ImgToggle(window['ICON-LOCALHOST'])
+        #dero.create_new_wallet()
         
     
     # ------ Process menu choices ------ #
@@ -1330,9 +1332,22 @@ while True:
     elif event == 'Launch Editor':
         print('Mardown Editor')
         
-    elif event != None and event.startswith('Open'):
-        filename = sg.popup_get_file('file to open', no_window=True)
-        print(filename)
+    elif event == 'Start::DERO-DAEMON':
+        output = dero.start_daemon()
+        print(output)
+        
+    elif 'Start::DERO-DAEMON' in event:
+        if 'TEST' in event:
+            dero.start_daemon('testnet')
+        else:
+            dero.open_wallet()
+            
+    elif 'Stop::DERO-DAEMON' in event:
+        if dero.node_process != None:
+            dero.node_process.kill()
+        
+    elif event == 'Open::DERO-OPEN-WALLET':
+        dero.open_wallet()
         
     if event in (sg.WIN_CLOSED, 'Cancel'):
         break

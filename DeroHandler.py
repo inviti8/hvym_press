@@ -7,6 +7,7 @@ Created on Sat Feb 25 17:43:46 2023
 import os
 import io
 import json
+import random
 import subprocess
 from wmi import WMI
 from sys import platform
@@ -31,8 +32,12 @@ class DeroHandler:
        self.executable_path = None
        self.latest_url = None
        self.node = None
+       self.node_process = None
+       self.node_running = False
+       self.node_pool_cmd = None
        self.miner = None
        self.wallet = None
+       self.wallet_process = None
        self.loadingWindow.launchWheel(self.initialize, ())
        
        
@@ -46,29 +51,53 @@ class DeroHandler:
            self.executable_path = os.path.join(self.dero_path, self.zip_file)
            self.latest_url = os.path.join(self.config['dero_latest_url'], self.zip_file)
            self.node = os.path.join(self.dero_path, self.config['dero_executable'][platform]['node'])
+           self.node_pool_cmd = os.path.join(self.node, self.config['dero_node_pool_cmds'][platform])
            self.miner = os.path.join(self.dero_path, self.config['dero_executable'][platform]['miner'])
            self.wallet = os.path.join(self.dero_path, self.config['dero_executable'][platform]['wallet'])
+           
            
        if os.path.isfile(self.wallet) == False:
            dload.save_unzip(self.latest_url, self.path, True)
            
        self.window.reappear()
        
-   def create_new_wallet(self):
+   def start_daemon(self, domain='mainnet', pool=False):
+       if self.node_running == True:
+           return
+       
+       cmd = self.node
+       if pool == True:
+           cmd = self.node_pool_cmd
+           
+       commands = [cmd]
+       
+       if domain == 'testnet':
+            commands = [self.node+' --debug --fastsync']
+            
+       self.node_process = subprocess.Popen('start '+self.node, shell=True)
+       self.node_running = True
+       
+   def kill_daemon(self):
+       if self.node_process == None:
+           return
+       
+       self.node_process.kill()
+       self.node_running = False
+
+   
+   def get_words(self):
+       words_path = os.path.join(self.path, 'words.txt')
+       with open(words_path, 'r') as file:
+           words = file.read().split()
+           words = random.sample(words, 25)
+       return words
+       
+   def open_wallet(self):
        print(self.wallet)
-       # Launch the CLI program as a subprocess
-       # process = subprocess.Popen([self.wallet], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        
-       # # Send input to the subprocess to select option 2
-       # process.stdin.write("2\n")
-       # process.stdin.flush()
-        
-       # # Read the output from the subprocess
-       # output, errors = process.communicate()
-        
-       # # Print the output and errors (if any)
-       # print("Output: ", output)
-       # print("Errors: ", errors)
+       self.wallet_process = subprocess.Popen('start '+self.wallet, shell=True)
+       
+   def open_wallet_testnet(self):
+       self.wallet_process = subprocess.Popen('start '+self.wallet+' --testnet --debug --rpc-server --rpc-bind=127.0.0.1:10103', shell=True)
 
 
 

