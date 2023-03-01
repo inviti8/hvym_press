@@ -1235,7 +1235,7 @@ tab3_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, elem
 
 menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site']],
                 ['& Deploy', ['---', 'Pinata IPFS', 'Pinata Submarine', '---', 'Arweave(Coming Soon)']],
-                ['& Dero', ['---', 'Daemon',['mainnet',['Start::DERO-DAEMON', 'Stop::DERO-DAEMON'], 'testnet',['Start::DERO-DAEMON-TEST', 'Stop::DERO-DAEMON-TEST']], 'Wallet',['Open::DERO-OPEN-WALLET'], 'NFT',['Create Settings::DERO-NFT-SETTINGS', 'Deploy Settings::DERO-DEPLOY-SETTINGS']]],
+                ['& Dero', ['---', 'Daemon',['mainnet',['Start::DERO-DAEMON', 'Stop::DERO-DAEMON'], 'testnet',['Start::DERO-DAEMON-TEST', 'Stop::DERO-DAEMON-TEST'], 'fast sync::DERO-DAEMON-FASTSYNC'], 'Wallet',['Open::DERO-OPEN-WALLET'], 'NFT',['Create Settings::DERO-NFT-SETTINGS', 'Deploy Settings::DERO-DEPLOY-SETTINGS']]],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-')],
@@ -1341,6 +1341,9 @@ while True:
             dero.start_daemon('testnet')
         else:
             dero.open_wallet()
+            
+    elif event == 'fast sync::DERO-DAEMON-FASTSYNC':
+        dero.fastsync_daemon()
             
     elif 'Stop::DERO-DAEMON' in event:
         if dero.node_process != None:

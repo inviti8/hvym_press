@@ -38,6 +38,7 @@ class DeroHandler:
        self.miner = None
        self.wallet = None
        self.wallet_process = None
+       self.fast_sync = ' --fastsync --add-exclusive-node=minernode1.dero.live:11011'
        self.loadingWindow.launchWheel(self.initialize, ())
        
        
@@ -61,6 +62,12 @@ class DeroHandler:
            
        self.window.reappear()
        
+   def fastsync_daemon(self):
+       if self.node_running == True:
+           return
+       self.node_process = subprocess.Popen('start '+self.node+self.fast_sync, shell=True)
+       self.node_running = True
+       
    def start_daemon(self, domain='mainnet', pool=False):
        if self.node_running == True:
            return
@@ -72,7 +79,7 @@ class DeroHandler:
        commands = [cmd]
        
        if domain == 'testnet':
-            commands = [self.node+' --debug --fastsync']
+            commands = [self.node+' --debug --testnet --fastsync']
             
        self.node_process = subprocess.Popen('start '+self.node, shell=True)
        self.node_running = True
