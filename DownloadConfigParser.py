@@ -56,10 +56,12 @@ class DownloadConfigParser:
                self.miner = os.path.join(self.exe_path, self.config[f'{coin}_executable'][platform]['miner'])
                self.wallet = os.path.join(self.exe_path, self.config[f'{coin}_executable'][platform]['wallet'])
                self.node_pool_cmd = os.path.join(self.node, self.config[f'{coin}_node_pool_cmds'][platform])
+               print(self.wallet)
            if self.coin == 'beam':
                self.node = os.path.join(self.node_path, self.config[f'{coin}_executable'][platform]['node'])
                self.wallet = os.path.join(self.wallet_path, self.config[f'{coin}_executable'][platform]['wallet'])
                self.node_pool_cmd = os.path.join(self.node, self.config[f'{coin}_node_pool_cmds'][platform])
+               print(self.wallet)
            
            
    def file(self, app=''):
@@ -88,12 +90,12 @@ class DownloadConfigParser:
     
    def file_path(self, app=''):
        result = None
-       if self.path != None and self.executable_folder != None and self.zip_file != None:
-           result = os.path.join(self.path, self.zip_file)
-       if self.path != None and self.wallet_folder != None and self.wallet_zip_file != None and app == 'wallet':
-           result = os.path.join(self.path, self.wallet_zip_file)
-       if self.path != None and self.node_folder != None and self.node_zip_file != None and app == 'node':
-           result = os.path.join(self.path, self.node_zip_file)
+       if self.executable_folder != None and self.zip_file != None:
+           result = os.path.join(self.path, self.executable_folder)
+       if self.wallet_folder != None and self.wallet_zip_file != None and app == 'wallet':
+           result = os.path.join(self.path, self.wallet_folder)
+       if self.node_folder != None and self.node_zip_file != None and app == 'node':
+           result = os.path.join(self.path, self.node_folder)
 
        return result
      
