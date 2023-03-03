@@ -89,11 +89,11 @@ class DownloadConfigParser:
    def file_path(self, app=''):
        result = None
        if self.path != None and self.executable_folder != None and self.zip_file != None:
-           result = os.path.join(self.path, self.executable_folder , self.zip_file)
+           result = os.path.join(self.path, self.zip_file)
        if self.path != None and self.wallet_folder != None and self.wallet_zip_file != None and app == 'wallet':
-           result = os.path.join(self.path, self.wallet_folder, self.wallet_zip_file)
+           result = os.path.join(self.path, self.wallet_zip_file)
        if self.path != None and self.node_folder != None and self.node_zip_file != None and app == 'node':
-           result = os.path.join(self.path, self.node_folder, self.node_zip_file)
+           result = os.path.join(self.path, self.node_zip_file)
 
        return result
      
