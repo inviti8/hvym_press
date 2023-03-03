@@ -13,20 +13,49 @@
     "win32": " --wallet-address dero1qypj3sctlt7mefhvdhrvrygj55m40ugl7ml2dukzypxdtd2agpgsjqq2v3n6h --mining-threads 6 --daemon-rpc-address 45.82.66.55:10100"
   },
   "dero_executable": {
-    "linux": {
-
-    },
-    "linux2": {
-
-    },
-    "darwin": {
-
-    },
+    "linux": {},
+    "linux2": {},
+    "darwin": {},
     "win32": {
       "node": "derod-windows-amd64.exe",
       "miner": "dero-miner-windows-amd64.exe",
       "wallet": "dero-wallet-cli-windows-amd64.exe"
     }
   },
-  "dero_checksum": "checksum.txt.asc"
+  "dero_checksum": "checksum.txt.asc",
+  "beam_latest_url": "https://builds.beam.mw/mainnet/2022.12.09/Release/",
+  "beam_sub_urls": {
+    "linux": "/linux/",
+    "linux2": "/linux/",
+    "darwin": "/mac/",
+    "win32": "/win/signed/"
+  },
+  "beam_wallet_zip": {
+    "linux": "beam-wallet-cli-7.2.13686.zip",
+    "linux2": "beam-wallet-cli-7.2.13686.zip",
+    "darwin": "beam-wallet-cli-7.2.13686.zip",
+    "win32": "beam-wallet-cli-7.2.13686.zip"
+  },
+  "beam_node_pool_cmds": {
+    "linux": "null",
+    "linux2": "null",
+    "darwin": "null",
+    "win32": "null"
+  },
+  "beam_node_zip": {
+    "linux": "beam-node-7.2.13686.zip",
+    "linux2": "beam-node-7.2.13686.zip",
+    "darwin": "beam-node-7.2.13686.zip",
+    "win32": "beam-node-7.2.13686.zip"
+  },
+  "beam_executable": {
+    "linux": {},
+    "linux2": {},
+    "darwin": {},
+    "win32": {
+      "node": "beam-node.exe",
+      "miner": "beam-miner.exe",
+      "wallet": "beam-wallet.exe"
+    }
+  }
 }
