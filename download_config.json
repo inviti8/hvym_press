@@ -25,10 +25,10 @@
   "dero_checksum": "checksum.txt.asc",
   "beam_latest_url": "https://builds.beam.mw/mainnet/2022.12.09/Release/",
   "beam_sub_urls": {
-    "linux": "/linux/",
-    "linux2": "/linux/",
-    "darwin": "/mac/",
-    "win32": "/win/signed/"
+    "linux": "linux/",
+    "linux2": "linux/",
+    "darwin": "mac/",
+    "win32": "win/signed/"
   },
   "beam_wallet_zip": {
     "linux": "beam-wallet-cli-7.2.13686.zip",

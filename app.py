@@ -28,6 +28,7 @@ import W3DeployHandler
 import BananaAIHandler
 import OpenAiHandler
 import DeroHandler
+import BeamHandler
 import LoadingWindow
 import TreeData
 import KeyHandler
@@ -1259,6 +1260,7 @@ if key_handler.initialized == False:
 banana_ai = BananaAIHandler.BananaAIHandler(key_handler.bananaAPI, key_handler.diffusionModel, key_handler.autoDiffusionModel, key_handler.gptjModel, resource_dir )
 open_ai = OpenAiHandler.OpenAIHandler(key_handler.openAI, resource_dir)
 dero = DeroHandler.DeroHandler(SCRIPT_DIR, window)
+beam = BeamHandler.BeamHandler(SCRIPT_DIR, window)
 
 ai_imgs = {}
 png_b64 = []
