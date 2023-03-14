@@ -19,7 +19,8 @@
     "win32": {
       "node": "derod-windows-amd64.exe",
       "miner": "dero-miner-windows-amd64.exe",
-      "wallet": "dero-wallet-cli-windows-amd64.exe"
+      "wallet": "dero-wallet-cli-windows-amd64.exe",
+      "simulator":"simulator-windows-amd64.exe"
     }
   },
   "dero_checksum": "checksum.txt.asc",

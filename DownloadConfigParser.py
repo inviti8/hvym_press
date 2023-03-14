@@ -35,6 +35,7 @@ class DownloadConfigParser:
        self.node = None
        self.miner = None
        self.wallet = None
+       self.simulator = None
        
        with io.open(self.json, mode="r", encoding="utf-8") as f:
            self.config = json.load(f)
@@ -55,13 +56,13 @@ class DownloadConfigParser:
                self.node = os.path.join(self.exe_path, self.config[f'{coin}_executable'][platform]['node'])
                self.miner = os.path.join(self.exe_path, self.config[f'{coin}_executable'][platform]['miner'])
                self.wallet = os.path.join(self.exe_path, self.config[f'{coin}_executable'][platform]['wallet'])
+               self.simulator = os.path.join(self.exe_path, self.config[f'{coin}_executable'][platform]['simulator'])
                self.node_pool_cmd = os.path.join(self.node, self.config[f'{coin}_node_pool_cmds'][platform])
-               print(self.wallet)
+
            if self.coin == 'beam':
                self.node = os.path.join(self.node_path, self.config[f'{coin}_executable'][platform]['node'])
                self.wallet = os.path.join(self.wallet_path, self.config[f'{coin}_executable'][platform]['wallet'])
                self.node_pool_cmd = os.path.join(self.node, self.config[f'{coin}_node_pool_cmds'][platform])
-               print(self.wallet)
            
            
    def file(self, app=''):
@@ -128,5 +129,6 @@ class DownloadConfigParser:
             result = os.path.join(self.node_path, self.node_zip_file)
 
         return result
+      
    
 

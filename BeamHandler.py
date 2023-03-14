@@ -63,3 +63,19 @@ class BeamHandler:
                
                
        self.window.reappear()
+       
+   def start_daemon(self, domain='mainnet', pool=False):
+       if self.node_running == True:
+           return
+       
+   def kill_daemon(self):
+       if self.node_process == None:
+           return
+       
+       self.node_process.kill()
+       self.node_running = False
+
+       
+   def open_wallet(self):
+       print(self.wallet)
+       self.wallet_process = subprocess.Popen('start '+self.wallet, shell=True)

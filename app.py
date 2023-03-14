@@ -114,7 +114,7 @@ icon_localhost_on = b'iVBORw0KGgoAAAANSUhEUgAAADIAAAAZCAYAAABzVH1EAAAACXBIWXMAAA
 tt_debug_btn = "Renders site, and launches at localhost:8080."
 tt_completion = "Make a completion."
 #-----EDITOR---------
-tt_summary = "Make a summary of selected area."
+tt_summary = "Make a summary of selected text."
 tt_summary_large = "Make summary of a of large text."
 tt_youtube_summary = "Make a summary of youtube video."
 tt_ai_img = "Create a stable diffusion ai image."
@@ -1202,13 +1202,22 @@ deployment_settings_layout = [[sg.Frame('Deployment Settings', [
                [sg.Frame('Pinata IPFS', [[name('JWT'), sg.Input(default_text=DATA.settings['pinata_jwt'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_jwt')],
                                     [name('Gateway URL'), sg.Input(default_text=DATA.settings['pinata_gateway'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_gateway')],
                                     [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['pinata_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-pinata_meta_data')]
-               ], expand_y=True, expand_x=True, k='PINATA-GRP')],
+               ], expand_x=True, k='PINATA-GRP')],
                [sg.Frame('Pinata Submarine', [[name('Submarine Key'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_key')],
                                        [name('Timeout (seconds)'), sg.Spin(values=[i for i in range(1, 604800)], initial_value=DATA.settings['pinata_timeout'], change_submits=True, enable_events=True, s=(25,22), k='SETTING-pinata_timeout')],
-               ], expand_y=True, expand_x=True, k='SUBMARINE-GRP')],
+               ], expand_x=True, k='SUBMARINE-GRP')],
                [sg.Frame('Arweave Wallet', [[sg.Input(default_text=DATA.settings['arWallet'], expand_x=True, s=20, enable_events=True, k='SETTING-arWallet'), sg.FileBrowse(enable_events=True)]
-               ], expand_y=True, expand_x=True,  k='ARWEAVE-GRP')],
+               ], expand_x=True,  k='ARWEAVE-GRP')],
+               [sg.Frame('NFT Type:', [
+                   [sg.Combo(['None', 'NFT', 'Minter'], default_value='None', s=(15,22), enable_events=True, readonly=True, k='SETTING-nft-type')]
+                   ], expand_x=True)],
                ], expand_y=True, expand_x=True)]]
+
+nft_settings_layout = [[sg.Frame('NFT Settings', [
+    [sg.Frame('NFT Type:', [
+        [sg.Combo(['None', 'NFT', 'Minter'], default_value='None', s=(15,22), enable_events=True, readonly=True, k='SETTING-nft-type')]
+        ], expand_x=True)],
+    ],  size=(15,10), expand_y=True, expand_x=True)]]
 
 tab1_layout =  [[TreeData.Tree(treedata, [], True,
                    10, 40, '-TREE-', font, 48, False, True, True, True, ['&Right', command])]]
@@ -1232,12 +1241,12 @@ tab2_layout = [[sg.Frame('AI', [[sg.Text('Text AI'), sg.Combo(['Open AI', 'GPTJ'
 tab3_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, element_justification='left'), 
                 sg.Column(site_settings_layout, expand_x=True, expand_y=True, element_justification='left')],
                [sg.Column(author_settings_layout, expand_x=True, expand_y=True, element_justification='left'),
-                sg.Column(deployment_settings_layout, expand_x=True, expand_y=True, element_justification='left')]]
+                sg.Column(deployment_settings_layout, expand_x=True, expand_y=True, element_justification='left')],]
 
 menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site']],
                 ['& Deploy', ['---', 'Pinata IPFS', 'Pinata Submarine', '---', 'Arweave(Coming Soon)']],
                 ['& Dero', ['---', 'Daemon',['mainnet',['Start::DERO-DAEMON', 'Stop::DERO-DAEMON'], 'testnet',['Start::DERO-DAEMON-TEST', 'Stop::DERO-DAEMON-TEST'], 'fast sync::DERO-DAEMON-FASTSYNC'], 'Wallet',['Open::DERO-OPEN-WALLET'], 'NFT',['Create Settings::DERO-NFT-SETTINGS', 'Deploy Settings::DERO-DEPLOY-SETTINGS']]],
-                ['& Beam', ['---', 'Daemon',['mainnet',['Start::BEAM-DAEMON', 'Stop::BEAM-DAEMON'], 'testnet',['Start::BEAM-DAEMON-TEST', 'Stop::BEAM-DAEMON-TEST'], 'fast sync::BEAM-DAEMON-FASTSYNC'], 'Wallet',['Open::BEAM-OPEN-WALLET'], 'NFT',['Create Settings::BEAM-NFT-SETTINGS', 'Deploy Settings::BEAM-DEPLOY-SETTINGS']]],
+                ['& Beam', ['---', 'Daemon',['mainnet',['Start::BEAM-DAEMON', 'Stop::BEAM-DAEMON'], 'testnet',['Start::BEAM-DAEMON-TEST', 'Stop::BEAM-DAEMON-TEST']], 'Wallet',['Open::BEAM-OPEN-WALLET', 'Info::BEAM-WALLET-INFO'], 'NFT',['Create Settings::BEAM-NFT-SETTINGS', 'Deploy Settings::BEAM-DEPLOY-SETTINGS']]],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-')],
@@ -1342,6 +1351,7 @@ while True:
     elif 'Start::DERO-DAEMON' in event:
         if 'TEST' in event:
             dero.start_daemon('testnet')
+            window.BringToFront()
         else:
             dero.open_wallet()
             
@@ -1349,11 +1359,31 @@ while True:
         dero.fastsync_daemon()
             
     elif event == 'Stop::DERO-DAEMON':
-        if dero.node_process != None:
-            dero.node_process.kill()
+        if dero.node_running == True:
+            dero.kill_daemon()
         
     elif event == 'Open::DERO-OPEN-WALLET':
         dero.open_wallet()
+        
+    elif event == 'Start::BEAM-DAEMON':
+        output = beam.start_daemon()
+        print(output)
+        
+    elif 'Start::BEAM-DAEMON' in event:
+        if 'TEST' in event:
+            beam.start_daemon('testnet')
+        else:
+            beam.open_wallet()
+            
+    elif event == 'fast sync::BEAM-DAEMON-FASTSYNC':
+        beam.fastsync_daemon()
+            
+    elif event == 'Stop::BEAM-DAEMON':
+        if beam.node_process != None:
+            beam.node_process.kill()
+        
+    elif event == 'Open::BEAM-OPEN-WALLET':
+       beam.open_wallet()
         
     if event in (sg.WIN_CLOSED, 'Cancel'):
         break
