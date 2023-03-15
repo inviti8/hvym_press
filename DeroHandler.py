@@ -54,6 +54,7 @@ class DeroAsset:
    def json(self):
        return dumps(self.dictionary)
    
+
 @dataclass_json
 @dataclass
 class DeroAssetCollection:

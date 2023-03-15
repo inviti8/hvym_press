@@ -219,7 +219,7 @@ def newFileData(f_path, f, full_path, data):
     t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(full_path)))
 
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.5, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[]})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.5, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[], 'nft_type':"", 'contract':"", 'metadata':""})
     data.updateArticleHTML(f_path, f, full_path)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':"", 'btn_txt':"SUBMIT", 'response':"Form Submitted", 'form_id':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
@@ -516,6 +516,37 @@ def popup_set_page_data(md_name, data):
     return page_data if event == '-SAVE-DATA-' or event == '-SET-ICON-' else None
 
 
+def popup_nft_settings():
+    
+    col_layout_1 = [[sg.Text("Chain:", font=font)],
+                    [sg.Text("Type:", font=font)],
+                    [sg.Text("Start Supply:", font=font)],
+                  [sg.Text("Metadata:", font=font)]]
+    
+    col_layout_2 = [[sg.Combo(DATA.nftTypes, default_value=DATA.settings['nft_type'], s=(25,22), readonly=True, k='SETTING-nft_type', font=font)],
+                    [sg.Combo(DATA.nftSiteTypes, default_value=DATA.settings['nft_site_type'], s=(25,22), readonly=True, k='SETTING-nft_site_type', font=font)],
+                    [sg.Spin([x+1 for x in range(100000)], initial_value=DATA.settings['nft_start_supply'], s=(25,22), key='SETTING-nft_start_supply')],
+                  [sg.Input(default_text="", s=20, k='SETTING-metadata', font=font), sg.FileBrowse(file_types=(("JSON", "*.json"),))],]
+    
+    col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
+    
+    layout = [
+        [sg.Column(col_layout_1, expand_x=True, element_justification='center'), sg.Column(col_layout_2, expand_x=True, element_justification='center')],
+        [col_layout_btns]
+    ]
+    window = sg.Window("NFT Settings", layout, use_default_focus=False, finalize=True, modal=True)
+    block_focus(window)
+    event, values = window.read()
+    window.close()
+    
+    if event == '-SAVE-DATA-':
+        DATA.updateSetting('nft_site_type', values['SETTING-nft_site_type'])
+        DATA.updateSetting('nft_type', values['SETTING-nft_type'])
+        DATA.updateSetting('metadata', values['SETTING-metadata'])
+        DATA.saveData()
+        DATA.deployHandler.updateSettings(DATA.settings)
+        
+
 def do_open_set_article_data(f_path, f_name):
     re_open = False
     data = DATA.getData(f_path, f_name, DATA.articleData)
@@ -532,8 +563,7 @@ def do_open_set_article_data(f_path, f_name):
         DATA.saveData()
         
         if re_open:
-            do_open_set_article_data(f_path, f_name)
-            
+            do_open_set_article_data(f_path, f_name)          
             
             
 def popup_set_article_data(md_name, data, colData):
@@ -549,6 +579,10 @@ def popup_set_article_data(md_name, data, colData):
     new_img.save(buffer, format="PNG")
     img_b64 = base64.b64encode(buffer.getvalue())
     img_vis = False
+    nft_data_vis = False
+    
+    if DATA.settings['nft_type'] != 'None':
+        nft_data_vis = True
     
     if data['bg_img'] != empty_px:
         img_vis = True
@@ -575,7 +609,7 @@ def popup_set_article_data(md_name, data, colData):
                   [sg.Text("Border Type:", font=font)],
                   [sg.Text("Author:", font=font)],
                   [sg.Text("Background Image:", font=font)],
-                  [sg.Text("Use Author Name & Thumbnail:", font=font)],
+                  [sg.Text("Use Author Name & Thumbnail:", font=font)]
                   ]
     
     col_layout_r = [[sg.Input(data['name'], s=(27,10), k='NAME', font=font)],
@@ -587,9 +621,17 @@ def popup_set_article_data(md_name, data, colData):
                   [sg.Checkbox('yes', default=data['use_thumb'], s=(25,22), k='USE-THUMB')],
                   ]
     
+    col_nft_layout = [
+                  [sg.Text("Start Supply:", font=font), sg.Spin([x+1 for x in range(100000)], initial_value=data['nft_type'], s=(10,10), key='NFT-START-SUPPLY'),
+                   sg.Text("Metadata:", font=font), sg.Input(default_text=data['metadata'], s=20, k='METADATA', font=font), sg.FileBrowse(file_types=(("JSON", "*.json"),))]
+                  ]
+
+    
     col_layout0 = [[sg.Column(col_layout_img, expand_x=True, element_justification='left'), sg.Column(col_layout_imgr, expand_x=True, element_justification='right')]]
     col_layout1 = [[sg.Column(col_layout_color, expand_x=True, element_justification='left'), sg.Column(col_layout_colorr, expand_x=True, element_justification='right')]]
     col_layout2 = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
+    col_layout3 = [[sg.Frame('NFT', col_nft_layout, expand_x=True, visible=nft_data_vis)]]
+    
     
     col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font), sg.Button("Save As Default", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DEFAULT-')]]
     layout = [
@@ -597,6 +639,7 @@ def popup_set_article_data(md_name, data, colData):
         [sg.Column(col_layout0, expand_x=True, element_justification='left')],
         [sg.Column(col_layout1, expand_x=True, element_justification='left')],
         [sg.Column(col_layout2, expand_x=True, element_justification='left')],
+        [sg.Column(col_layout3, expand_x=True, element_justification='left')],
         [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
     ]
     window = sg.Window("Set Article Data", layout, use_default_focus=False, finalize=True, modal=True)
@@ -635,18 +678,18 @@ def popup_set_article_data(md_name, data, colData):
         rgb = ImageColor.getcolor(values['COLOR'], 'RGB')
         
         if event == '-SAVE-DATA-':
-            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR']}
+            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'metadata':values['METADATA']}
         elif event == 'Delete Image':
             delete_img = sg.PopupOKCancel("Delete Image?")
             page_data = None
             if delete_img == 'OK':
-                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':empty_px, 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR']}
+                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':empty_px, 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'metadata':values['METADATA']}
         elif event == 'Color Picker':
             color_chosen = ColorPicker.popup_color_chooser()
             page_data = None
             if color_chosen != None:
                 rgb = ImageColor.getcolor(color_chosen, 'RGB')
-                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':img, 'color':color_chosen, 'rgb':rgb, 'use_color':values['USE-COLOR']}    
+                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':img, 'color':color_chosen, 'rgb':rgb, 'use_color':values['USE-COLOR'],'metadata':values['METADATA']}    
                 
         return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' or event == 'Color Picker' else None
             
@@ -1245,8 +1288,8 @@ tab3_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, elem
 
 menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site']],
                 ['& Deploy', ['---', 'Pinata IPFS', 'Pinata Submarine', '---', 'Arweave(Coming Soon)']],
-                ['& Dero', ['---', 'Daemon',['mainnet',['Start::DERO-DAEMON', 'Stop::DERO-DAEMON'], 'testnet',['Start::DERO-DAEMON-TEST', 'Stop::DERO-DAEMON-TEST'], 'fast sync::DERO-DAEMON-FASTSYNC'], 'Wallet',['Open::DERO-OPEN-WALLET'], 'NFT',['Create Settings::DERO-NFT-SETTINGS', 'Deploy Settings::DERO-DEPLOY-SETTINGS']]],
-                ['& Beam', ['---', 'Daemon',['mainnet',['Start::BEAM-DAEMON', 'Stop::BEAM-DAEMON'], 'testnet',['Start::BEAM-DAEMON-TEST', 'Stop::BEAM-DAEMON-TEST']], 'Wallet',['Open::BEAM-OPEN-WALLET', 'Info::BEAM-WALLET-INFO'], 'NFT',['Create Settings::BEAM-NFT-SETTINGS', 'Deploy Settings::BEAM-DEPLOY-SETTINGS']]],
+                ['& Dero', ['---', 'Daemon',['mainnet',['Start::DERO-DAEMON', 'Stop::DERO-DAEMON'], 'testnet',['Start::DERO-DAEMON-TEST', 'Stop::DERO-DAEMON-TEST'], 'fast sync::DERO-DAEMON-FASTSYNC'], 'Wallet',['Open::DERO-OPEN-WALLET'], 'NFT',['Create Settings::DERO-NFT-SETTINGS']]],
+                ['& Beam', ['---', 'Daemon',['mainnet',['Start::BEAM-DAEMON', 'Stop::BEAM-DAEMON'], 'testnet',['Start::BEAM-DAEMON-TEST', 'Stop::BEAM-DAEMON-TEST']], 'Wallet',['Open::BEAM-OPEN-WALLET', 'Info::BEAM-WALLET-INFO'], 'NFT',['Create Settings::BEAM-NFT-SETTINGS']]],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-')],
@@ -1364,6 +1407,9 @@ while True:
         
     elif event == 'Open::DERO-OPEN-WALLET':
         dero.open_wallet()
+        
+    elif event == 'Create Settings::DERO-NFT-SETTINGS':
+        popup_nft_settings()
         
     elif event == 'Start::BEAM-DAEMON':
         output = beam.start_daemon()
@@ -1613,6 +1659,7 @@ while True:
         
 
     if 'SETTING-' in event:
+        print('This is called!!')
         arr = event.split('-')
         setting = arr[len(arr)-1]
         val = values[event]

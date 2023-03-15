@@ -49,13 +49,16 @@ class SiteDataHandler:
       self.formData = {}
       self.metaData = {}
       self.css_components = 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsen-css-components.min.css'
-      self.settings = {'css_components':self.css_components, 'uiFramework':'onsen', 'pageType':'splitter', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'dist', 'description':'', 'siteID': uuid.uuid4().hex, 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'pinata_meta_data':'', 'pinata_timeout':100, 'arWallet':''}
+      self.settings = {'css_components':self.css_components, 'uiFramework':'onsen', 'pageType':'splitter', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'dist', 'description':'', 'siteID': uuid.uuid4().hex, 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'pinata_meta_data':'', 'pinata_timeout':100, 'arWallet':'', 'nft_site_type':'None', 'nft_type':'None', 'nft_start_supply':1024, 'nft_contract':''}
       self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['splitter', 'tabs', 'carousel']
       self.themes = ['light', 'dark']
       self.styles = ['default', 'material']
       self.deployTypes = ['Pinata', 'Submarine', 'Arweave']
+      self.nftTypes = ['None', 'Dero', 'Beam']
+      self.nftSiteTypes = ['None', 'Site-NFT', 'Collection-Minter']
+      self.nftStartSupply = 1024
       self.dataFilePath = os.path.join(filePath, 'site.data')
       self.fileExists = False
       self.resourcesExist = False
@@ -135,7 +138,7 @@ class SiteDataHandler:
            result['content']['columns'].append([])
        
        for k in self.articleData[page].keys():
-           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'max_width':None, 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':"", 'images':[], 'videos':[]}
+           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'max_width':None, 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':"", 'images':[], 'videos':[], 'nft_type':"None", 'contract':"", 'metadata':""}
            
            props = self.articleData[page][k].keys()
            
