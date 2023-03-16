@@ -581,7 +581,7 @@ def popup_set_article_data(md_name, data, colData):
     img_vis = False
     nft_data_vis = False
     
-    if DATA.settings['nft_type'] != 'None':
+    if DATA.settings['nft_type'] != 'None' and DATA.settings['nft_site_type'] == 'Collection-Minter':
         nft_data_vis = True
     
     if data['bg_img'] != empty_px:
@@ -1288,8 +1288,8 @@ tab3_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, elem
 
 menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site']],
                 ['& Deploy', ['---', 'Pinata IPFS', 'Pinata Submarine', '---', 'Arweave(Coming Soon)']],
-                ['& Dero', ['---', 'Daemon',['mainnet',['Start::DERO-DAEMON', 'Stop::DERO-DAEMON'], 'testnet',['Start::DERO-DAEMON-TEST', 'Stop::DERO-DAEMON-TEST'], 'fast sync::DERO-DAEMON-FASTSYNC'], 'Wallet',['Open::DERO-OPEN-WALLET'], 'NFT',['Create Settings::DERO-NFT-SETTINGS']]],
-                ['& Beam', ['---', 'Daemon',['mainnet',['Start::BEAM-DAEMON', 'Stop::BEAM-DAEMON'], 'testnet',['Start::BEAM-DAEMON-TEST', 'Stop::BEAM-DAEMON-TEST']], 'Wallet',['Open::BEAM-OPEN-WALLET', 'Info::BEAM-WALLET-INFO'], 'NFT',['Create Settings::BEAM-NFT-SETTINGS']]],
+                ['& Dero', ['---', 'Daemon',['mainnet',['Start::DERO-DAEMON', 'Stop::DERO-DAEMON'], 'testnet',['Start::DERO-DAEMON-TEST', 'Stop::DERO-DAEMON-TEST'], 'fast sync::DERO-DAEMON-FASTSYNC'], 'Wallet',['Open::DERO-OPEN-WALLET'], 'NFT',['Settings::DERO-NFT-SETTINGS']]],
+                ['& Beam', ['---', 'Daemon',['mainnet',['Start::BEAM-DAEMON', 'Stop::BEAM-DAEMON'], 'testnet',['Start::BEAM-DAEMON-TEST', 'Stop::BEAM-DAEMON-TEST']], 'Wallet',['Open::BEAM-OPEN-WALLET', 'Info::BEAM-WALLET-INFO'], 'NFT',['Settings::BEAM-NFT-SETTINGS']]],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-')],
@@ -1408,7 +1408,7 @@ while True:
     elif event == 'Open::DERO-OPEN-WALLET':
         dero.open_wallet()
         
-    elif event == 'Create Settings::DERO-NFT-SETTINGS':
+    elif event == 'Settings::DERO-NFT-SETTINGS' or event == 'Settings::BEAM-NFT-SETTINGS':
         popup_nft_settings()
         
     elif event == 'Start::BEAM-DAEMON':

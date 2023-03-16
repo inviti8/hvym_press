@@ -7,6 +7,7 @@ Created on Sat Feb 25 17:43:46 2023
 import os
 import io
 import random
+import requests
 import subprocess
 from wmi import WMI
 from sys import platform
@@ -99,6 +100,10 @@ class DeroHandler:
        self.simulator = None
        self.fast_sync = ' --fastsync --add-exclusive-node=minernode1.dero.live:11011'
        self.loadingWindow.launchWheel(self.initialize, ())
+       self.nft_collection_template = os.path.join(path, 'dero-contracts', 'g45-c.bas')
+       self.nft_asset_template = os.path.join(path, 'dero-contracts', 'g45-at.bas')
+       self.nft_collection = None
+       self.nft_asset = None
        
        
    def initialize(self, *args):
@@ -109,6 +114,8 @@ class DeroHandler:
        self.miner = self.config.miner
        self.wallet = self.config.wallet
        self.simulator = self.config.simulator
+       self.nft_collection = os.path.join(self.config.exe_path, 'g45-c.bas')
+       self.nft_asset = os.path.join(self.config.exe_path, 'g45-at.bas')
            
        if os.path.isfile(self.wallet) == False:
            dload.save_unzip(self.latest_url, self.path, True)
@@ -141,12 +148,32 @@ class DeroHandler:
        
        self.node_process.kill()
        self.node_running = False
-
        
    def open_wallet(self):
-       print(self.wallet)
        self.wallet_process = subprocess.Popen('start '+self.wallet, shell=True)
        
    def open_wallet_testnet(self):
        self.wallet_process = subprocess.Popen('start '+self.wallet+' --testnet --debug --rpc-server --rpc-bind=127.0.0.1:10103', shell=True)
+   
+   def deploy_nft_asset(self):
+       self.deploy_nft(self, self.nft_asset, '10103')
+       
+   def deploy_nft_collection(self):
+       self.deploy_nft(self, self.nft_collection, '10103')
+       
+   def deploy_test_nft_asset(self):
+       self.deploy_nft(self, self.nft_asset, '30000')
+       
+   def deploy_test_nft_collection(self):
+       self.deploy_nft(self, self.nft_collection, '30000')
+   
+   def deploy_nft(self, nft_template, port):
+       url = f'http://127.0.0.1:{port}/install_sc'
+       headers = {'Content-Type': 'application/octet-stream'}
+       with open(nft_template, 'rb') as f:
+           data = f.read()
+        
+       response = requests.post(url, headers=headers, data=data)
+        
+       print(response.text)
 
