@@ -35,6 +35,7 @@ import KeyHandler
 import hashlib
 import random
 import pyperclip
+import jsoneditor
 
 APP_ID = "WEEEBX52m4JHXA"
 KEY = 'v0PVScmCcHNOBzLJRiqU3kSnRwoWPd4YXE-x1UVp0is='
@@ -219,7 +220,7 @@ def newFileData(f_path, f, full_path, data):
     t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(full_path)))
 
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.5, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[], 'nft_type':"", 'contract':"", 'metadata':""})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.5, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata':""})
     data.updateArticleHTML(f_path, f, full_path)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':"", 'btn_txt':"SUBMIT", 'response':"Form Submitted", 'form_id':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
@@ -518,6 +519,9 @@ def popup_set_page_data(md_name, data):
 
 def popup_nft_settings():
     
+    def update_site_data(d):
+        DATA.updateSetting('site_metadata', d)
+    
     col_layout_1 = [[sg.Text("Chain:", font=font)],
                     [sg.Text("Type:", font=font)],
                     [sg.Text("Start Supply:", font=font)],
@@ -525,8 +529,8 @@ def popup_nft_settings():
     
     col_layout_2 = [[sg.Combo(DATA.nftTypes, default_value=DATA.settings['nft_type'], s=(25,22), readonly=True, k='SETTING-nft_type', font=font)],
                     [sg.Combo(DATA.nftSiteTypes, default_value=DATA.settings['nft_site_type'], s=(25,22), readonly=True, k='SETTING-nft_site_type', font=font)],
-                    [sg.Spin([x+1 for x in range(100000)], initial_value=DATA.settings['nft_start_supply'], s=(25,22), key='SETTING-nft_start_supply')],
-                  [sg.Input(default_text="", s=20, k='SETTING-metadata', font=font), sg.FileBrowse(file_types=(("JSON", "*.json"),))],]
+                    [sg.Spin([x+1 for x in range(100000)], initial_value=DATA.settings['nft_start_supply'], s=(25,22), k='SETTING-nft_start_supply')],
+                  [sg.Input(default_text="", s=20, k='SETTING-metadata', font=font), sg.FileBrowse(file_types=(("JSON", "*.json"),)), sg.Button('Create', enable_events=True, k='-SET-SITE-METADATA-')],]
     
     col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
     
@@ -545,6 +549,9 @@ def popup_nft_settings():
         DATA.updateSetting('metadata', values['SETTING-metadata'])
         DATA.saveData()
         DATA.deployHandler.updateSettings(DATA.settings)
+    if event == '-SET-SITE-METADATA-':
+        jsoneditor.editjson(DATA.settings['site_metadata'], update_site_data)
+        popup_nft_settings()
         
 
 def do_open_set_article_data(f_path, f_name):
@@ -580,6 +587,9 @@ def popup_set_article_data(md_name, data, colData):
     img_b64 = base64.b64encode(buffer.getvalue())
     img_vis = False
     nft_data_vis = False
+    
+    def update_metadata(d):
+        DATA.updateSetting('site_metadata', d)
     
     if DATA.settings['nft_type'] != 'None' and DATA.settings['nft_site_type'] == 'Collection-Minter':
         nft_data_vis = True
@@ -622,10 +632,9 @@ def popup_set_article_data(md_name, data, colData):
                   ]
     
     col_nft_layout = [
-                  [sg.Text("Start Supply:", font=font), sg.Spin([x+1 for x in range(100000)], initial_value=data['nft_type'], s=(10,10), key='NFT-START-SUPPLY'),
-                   sg.Text("Metadata:", font=font), sg.Input(default_text=data['metadata'], s=20, k='METADATA', font=font), sg.FileBrowse(file_types=(("JSON", "*.json"),))]
+                  [sg.Text("Start Supply:", font=font), sg.Spin([x+1 for x in range(100000)], initial_value=data['nft_start_supply'], s=(10,10), key='NFT-START-SUPPLY'),
+                   sg.Text("Metadata:", font=font), sg.Input(default_text=data['metadata'], s=20, k='METADATA', font=font), sg.FileBrowse(file_types=(("JSON", "*.json"), sg.Button('Create', enable_events=True, k='-SET-SITE-METADATA-')))]
                   ]
-
     
     col_layout0 = [[sg.Column(col_layout_img, expand_x=True, element_justification='left'), sg.Column(col_layout_imgr, expand_x=True, element_justification='right')]]
     col_layout1 = [[sg.Column(col_layout_color, expand_x=True, element_justification='left'), sg.Column(col_layout_colorr, expand_x=True, element_justification='right')]]
@@ -642,6 +651,7 @@ def popup_set_article_data(md_name, data, colData):
         [sg.Column(col_layout3, expand_x=True, element_justification='left')],
         [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
     ]
+    
     window = sg.Window("Set Article Data", layout, use_default_focus=False, finalize=True, modal=True)
     block_focus(window)
     event, values = window.read()
@@ -678,18 +688,18 @@ def popup_set_article_data(md_name, data, colData):
         rgb = ImageColor.getcolor(values['COLOR'], 'RGB')
         
         if event == '-SAVE-DATA-':
-            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'metadata':values['METADATA']}
+            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata':values['METADATA'] }
         elif event == 'Delete Image':
             delete_img = sg.PopupOKCancel("Delete Image?")
             page_data = None
             if delete_img == 'OK':
-                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':empty_px, 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'metadata':values['METADATA']}
+                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':empty_px, 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata':values['METADATA']}
         elif event == 'Color Picker':
             color_chosen = ColorPicker.popup_color_chooser()
             page_data = None
             if color_chosen != None:
                 rgb = ImageColor.getcolor(color_chosen, 'RGB')
-                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':img, 'color':color_chosen, 'rgb':rgb, 'use_color':values['USE-COLOR'],'metadata':values['METADATA']}    
+                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':img, 'color':color_chosen, 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata':values['METADATA']}    
                 
         return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' or event == 'Color Picker' else None
             
@@ -1325,6 +1335,7 @@ while True:
     if event == 'DEBUG':
         print(dero.node)
         print(dero.wallet)
+        dero.ping('20000')
         #ImgToggle(window['ICON-LOCALHOST'])
         #dero.create_new_wallet()
         
@@ -1393,10 +1404,13 @@ while True:
         
     elif 'Start::DERO-DAEMON' in event:
         if 'TEST' in event:
-            dero.start_daemon('testnet')
-            window.BringToFront()
+            daemon_running = dero.ping('20000')
+            if daemon_running == False:
+                dero.sync_time()
+                dero.restart_time()
+                dero.start_daemon('testnet')
         else:
-            dero.open_wallet()
+            dero.start_daemon()
             
     elif event == 'fast sync::DERO-DAEMON-FASTSYNC':
         dero.fastsync_daemon()

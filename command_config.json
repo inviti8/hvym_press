@@ -1,0 +1,20 @@
+{
+  "time_sync_cmds": {
+    "linux": {
+      "sync_time": "chronyc -n sources pool.ntp.org",
+      "restart_time": "sudo chronyd -q 'pool pool.ntp.org iburst'"
+    },
+    "linux2": {
+      "sync_time": "chronyc -n sources pool.ntp.org",
+      "restart_time": "sudo chronyd -q 'pool pool.ntp.org iburst'"
+    },
+    "darwin": {
+      "sync_time": "sudo ntpdate -q pool.ntp.org",
+      "restart_time": "sudo ntpdate -u pool.ntp.org"
+    },
+    "win32": {
+      "sync_time": "w32tm /config /manualpeerlist:'pool.ntp.org',0x8 /syncfromflags:MANUAL /reliable:YES /update",
+      "restart_time": "net stop w32time && net start w32time"
+    }
+  }
+}
