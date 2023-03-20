@@ -54,6 +54,7 @@ dist_dir = os.path.join(SCRIPT_DIR, 'dist')
 api_url = 'https://notable-excellent-skill.anvil.app/'
 ai_mods_json = os.path.join(SCRIPT_DIR, 'Stable_Diffusion_Prompt_Modifiers.json')
 ai_mods = None
+article_metadata = ""
 
 with io.open(ai_mods_json, mode="r", encoding="utf-8") as f:
     ai_mods = json.load(f)
@@ -220,7 +221,7 @@ def newFileData(f_path, f, full_path, data):
     t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(full_path)))
 
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.5, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata':""})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.5, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"",  'metadata':'{}'})
     data.updateArticleHTML(f_path, f, full_path)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':"", 'btn_txt':"SUBMIT", 'response':"Form Submitted", 'form_id':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
@@ -558,7 +559,7 @@ def do_open_set_article_data(f_path, f_name):
     re_open = False
     data = DATA.getData(f_path, f_name, DATA.articleData)
     colData = DATA.columnWidths[f_path]
-    d = popup_set_article_data(f_name, data, colData)
+    d = popup_set_article_data(f_path, f_name, data, colData)
     
     if(d != None):
         if 're_open' in d.keys():
@@ -573,7 +574,7 @@ def do_open_set_article_data(f_path, f_name):
             do_open_set_article_data(f_path, f_name)          
             
             
-def popup_set_article_data(md_name, data, colData):
+def popup_set_article_data(md_path, md_name, data, colData):
     columns = []
     article_types = ['Block', 'Expandable', 'Form']
     article_type = data['type'].split('-')[0]
@@ -587,9 +588,7 @@ def popup_set_article_data(md_name, data, colData):
     img_b64 = base64.b64encode(buffer.getvalue())
     img_vis = False
     nft_data_vis = False
-    
-    def update_metadata(d):
-        DATA.updateSetting('site_metadata', d)
+
     
     if DATA.settings['nft_type'] != 'None' and DATA.settings['nft_site_type'] == 'Collection-Minter':
         nft_data_vis = True
@@ -632,8 +631,8 @@ def popup_set_article_data(md_name, data, colData):
                   ]
     
     col_nft_layout = [
-                  [sg.Text("Start Supply:", font=font), sg.Spin([x+1 for x in range(100000)], initial_value=data['nft_start_supply'], s=(10,10), key='NFT-START-SUPPLY'),
-                   sg.Text("Metadata:", font=font), sg.Input(default_text=data['metadata'], s=20, k='METADATA', font=font), sg.FileBrowse(file_types=(("JSON", "*.json"), sg.Button('Create', enable_events=True, k='-SET-SITE-METADATA-')))]
+                  [sg.Text("Start Supply:", font=font), sg.Spin([x+1 for x in range(100000)], initial_value=data['nft_start_supply'], s=(5,5), key='NFT-START-SUPPLY'),
+                   sg.Text("Metadata:", font=font), sg.Input(default_text=data['metadata_link'], s=20, k='METADATA-LINK', font=font), sg.FileBrowse(file_types=(('JSON', '*.json'),)), sg.Button('Create', enable_events=True, k='-SET-METADATA-')]
                   ]
     
     col_layout0 = [[sg.Column(col_layout_img, expand_x=True, element_justification='left'), sg.Column(col_layout_imgr, expand_x=True, element_justification='right')]]
@@ -652,6 +651,14 @@ def popup_set_article_data(md_name, data, colData):
         [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
     ]
     
+    def update_metadata(d):
+        colData = DATA.columnWidths[md_path]
+        page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata_link':values['METADATA-LINK'], 'metadata':json.dumps(d)}
+        DATA.updateArticleData(f_path, f_name, page_data)
+        DATA.updateFile(md_path, md_name, page_data['type'], True)
+        DATA.saveData()
+        return page_data
+
     window = sg.Window("Set Article Data", layout, use_default_focus=False, finalize=True, modal=True)
     block_focus(window)
     event, values = window.read()
@@ -688,18 +695,20 @@ def popup_set_article_data(md_name, data, colData):
         rgb = ImageColor.getcolor(values['COLOR'], 'RGB')
         
         if event == '-SAVE-DATA-':
-            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata':values['METADATA'] }
+            page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata_link':values['METADATA-LINK'], 'metadata':data['metadata'] }
+        elif event == '-SET-METADATA-':
+            jsoneditor.editjson(json.loads(data['metadata']), update_metadata)
         elif event == 'Delete Image':
             delete_img = sg.PopupOKCancel("Delete Image?")
             page_data = None
             if delete_img == 'OK':
-                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':empty_px, 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata':values['METADATA']}
+                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':empty_px, 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata_link':values['METADATA-LINK'], 'metadata':data['metadata']}
         elif event == 'Color Picker':
             color_chosen = ColorPicker.popup_color_chooser()
             page_data = None
             if color_chosen != None:
                 rgb = ImageColor.getcolor(color_chosen, 'RGB')
-                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':img, 'color':color_chosen, 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata':values['METADATA']}    
+                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':img, 'color':color_chosen, 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata_link':values['METADATA-LINK'], 'metadata':data['metadata']}    
                 
         return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' or event == 'Color Picker' else None
             
