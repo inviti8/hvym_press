@@ -221,7 +221,7 @@ def newFileData(f_path, f, full_path, data):
     t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(full_path)))
 
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.5, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"",  'metadata':'{}'})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.5, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"",  'metadata':json.dumps(DATA.opensea_metadata)})
     data.updateArticleHTML(f_path, f, full_path)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':"", 'btn_txt':"SUBMIT", 'response':"Form Submitted", 'form_id':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
@@ -520,9 +520,6 @@ def popup_set_page_data(md_name, data):
 
 def popup_nft_settings():
     
-    def update_site_data(d):
-        DATA.updateSetting('site_metadata', d)
-    
     col_layout_1 = [[sg.Text("Chain:", font=font)],
                     [sg.Text("Type:", font=font)],
                     [sg.Text("Start Supply:", font=font)],
@@ -531,7 +528,7 @@ def popup_nft_settings():
     col_layout_2 = [[sg.Combo(DATA.nftTypes, default_value=DATA.settings['nft_type'], s=(25,22), readonly=True, k='SETTING-nft_type', font=font)],
                     [sg.Combo(DATA.nftSiteTypes, default_value=DATA.settings['nft_site_type'], s=(25,22), readonly=True, k='SETTING-nft_site_type', font=font)],
                     [sg.Spin([x+1 for x in range(100000)], initial_value=DATA.settings['nft_start_supply'], s=(25,22), k='SETTING-nft_start_supply')],
-                  [sg.Input(default_text="", s=20, k='SETTING-metadata', font=font), sg.FileBrowse(file_types=(("JSON", "*.json"),)), sg.Button('Create', enable_events=True, k='-SET-SITE-METADATA-')],]
+                  [sg.Input(default_text="", s=20, k='SETTING-metadata', font=font), sg.FileBrowse(file_types=(("JSON", "*.json"),)), sg.Button('Edit', enable_events=True, k='-SET-SITE-METADATA-')],]
     
     col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
     
@@ -539,6 +536,14 @@ def popup_nft_settings():
         [sg.Column(col_layout_1, expand_x=True, element_justification='center'), sg.Column(col_layout_2, expand_x=True, element_justification='center')],
         [col_layout_btns]
     ]
+    
+    def update_site_data(d):
+        DATA.updateSetting('site_metadata', d)
+        if '.json' in values['SETTING-metadata'] and os.path.isfile(values['SETTING-metadata']):
+            with io.open(values['SETTING-metadata'], mode="r", encoding="utf-8") as f:
+                with open(values['METADATA-LINK'], 'w', encoding='utf-8') as f:
+                    json.dump(d, f, ensure_ascii=False, indent=4)
+            
     window = sg.Window("NFT Settings", layout, use_default_focus=False, finalize=True, modal=True)
     block_focus(window)
     event, values = window.read()
@@ -551,7 +556,7 @@ def popup_nft_settings():
         DATA.saveData()
         DATA.deployHandler.updateSettings(DATA.settings)
     if event == '-SET-SITE-METADATA-':
-        jsoneditor.editjson(DATA.settings['site_metadata'], update_site_data)
+        jsoneditor.editjson(DATA.settings['site_metadata'], update_site_data, None, None, False, True)
         popup_nft_settings()
         
 
@@ -632,7 +637,7 @@ def popup_set_article_data(md_path, md_name, data, colData):
     
     col_nft_layout = [
                   [sg.Text("Start Supply:", font=font), sg.Spin([x+1 for x in range(100000)], initial_value=data['nft_start_supply'], s=(5,5), key='NFT-START-SUPPLY'),
-                   sg.Text("Metadata:", font=font), sg.Input(default_text=data['metadata_link'], s=20, k='METADATA-LINK', font=font), sg.FileBrowse(file_types=(('JSON', '*.json'),)), sg.Button('Create', enable_events=True, k='-SET-METADATA-')]
+                   sg.Text("Metadata:", font=font), sg.Input(default_text=data['metadata_link'], s=20, k='METADATA-LINK', font=font), sg.FileBrowse(file_types=(('JSON', '*.json'),)), sg.Button('Edit', enable_events=True, k='-SET-METADATA-')]
                   ]
     
     col_layout0 = [[sg.Column(col_layout_img, expand_x=True, element_justification='left'), sg.Column(col_layout_imgr, expand_x=True, element_justification='right')]]
@@ -657,6 +662,9 @@ def popup_set_article_data(md_path, md_name, data, colData):
         DATA.updateArticleData(f_path, f_name, page_data)
         DATA.updateFile(md_path, md_name, page_data['type'], True)
         DATA.saveData()
+        if '.json' in values['METADATA-LINK'] and os.path.isfile(values['METADATA-LINK']):
+            with open(values['METADATA-LINK'], 'w', encoding='utf-8') as f:
+                json.dump(d, f, ensure_ascii=False, indent=4)
         return page_data
 
     window = sg.Window("Set Article Data", layout, use_default_focus=False, finalize=True, modal=True)
@@ -697,7 +705,11 @@ def popup_set_article_data(md_path, md_name, data, colData):
         if event == '-SAVE-DATA-':
             page_data = {'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata_link':values['METADATA-LINK'], 'metadata':data['metadata'] }
         elif event == '-SET-METADATA-':
-            jsoneditor.editjson(json.loads(data['metadata']), update_metadata)
+            if '.json' in values['METADATA-LINK'] and os.path.isfile(values['METADATA-LINK']):
+                with io.open(values['METADATA-LINK'], mode="r", encoding="utf-8") as f:
+                    jsoneditor.editjson(json.load(f), update_metadata, None, None, False, True)
+            else:
+                jsoneditor.editjson(json.loads(data['metadata']), update_metadata, None, None, False, True)
         elif event == 'Delete Image':
             delete_img = sg.PopupOKCancel("Delete Image?")
             page_data = None
