@@ -43,7 +43,7 @@ KEY = 'v0PVScmCcHNOBzLJRiqU3kSnRwoWPd4YXE-x1UVp0is='
 sg.theme("DarkGrey13")
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
 NAME_SIZE = 15
-font = ('Ariel', 9)
+font = ('Terminal', 9)
 file_loader = FileSystemLoader('templates')
 env = Environment(loader=file_loader)
 ICON_PICKER = IconPicker.IconPicker()
@@ -608,14 +608,14 @@ def popup_set_article_data(md_path, md_name, data, colData):
                     [sg.Text("", font=font)],
                     [sg.Text("BG Image Opacity:", font=font, visible=img_vis)]]
     col_layout_imgr = [[sg.Image(img_b64, visible=img_vis, size=(50,50))],
-                     [sg.Button("Delete Image", visible=img_vis,)],
+                     [sg.Button("Delete Image", visible=img_vis, font=font)],
                      [sg.Slider(range=(0, 1), resolution=.01,  default_value=data['bg_img_opacity'], orientation='horizontal', s=(10,10), k='IMG-OPACITY', font=font, visible=img_vis)],
                      ]
     
     col_layout_color = [[sg.Text("Color:", font=font)],
                     [sg.Text("Use Color:", font=font)]]
-    col_layout_colorr = [[sg.Input(key='COLOR', default_text=data['color'], visible=False), sg.Button('Color Picker', button_color=data['color'])],
-                     [sg.Checkbox('yes', default=data['use_color'], k='USE-COLOR')],]
+    col_layout_colorr = [[sg.Input(key='COLOR', default_text=data['color'], visible=False, font=font), sg.Button('Color Picker', button_color=data['color'], font=font)],
+                     [sg.Checkbox('yes', default=data['use_color'], k='USE-COLOR', font=font)],]
     
     col_layout_l = [[sg.Text("Name:", font=font)],
                   [sg.Text("Column:", font=font)],
@@ -628,22 +628,22 @@ def popup_set_article_data(md_path, md_name, data, colData):
     
     col_layout_r = [[sg.Input(data['name'], s=(27,10), k='NAME', font=font)],
                   [sg.Combo(columns, default_value=data['column'], s=(25,22), readonly=True, k='COLUMN', font=font)],
-                  [sg.Combo(article_types, default_value=article_type, s=(25,22), readonly=True, k='TYPE')],
+                  [sg.Combo(article_types, default_value=article_type, s=(25,22), readonly=True, k='TYPE', font=font)],
                   [sg.Combo(border_types, default_value=data['border'], s=(25,22), readonly=True, k='BORDER-TYPE', font=font)],
                   [sg.Combo(list(DATA.authors.keys()), default_value=data['author'], s=(25,22), readonly=True, k='AUTHOR', font=font)],
-                  [sg.Input(default_text="", s=20, k='BG-IMG', font=font), sg.FileBrowse(file_types=(("PNG", "*.png"),))],
-                  [sg.Checkbox('yes', default=data['use_thumb'], s=(25,22), k='USE-THUMB')],
+                  [sg.Input(default_text="", s=20, k='BG-IMG', font=font), sg.FileBrowse(file_types=(("PNG", "*.png"),), font=font)],
+                  [sg.Checkbox('yes', default=data['use_thumb'], s=(25,22), k='USE-THUMB', font=font)],
                   ]
     
     col_nft_layout = [
-                  [sg.Text("Start Supply:", font=font), sg.Spin([x+1 for x in range(100000)], initial_value=data['nft_start_supply'], s=(5,5), key='NFT-START-SUPPLY'),
-                   sg.Text("Metadata:", font=font), sg.Input(default_text=data['metadata_link'], s=20, k='METADATA-LINK', font=font), sg.FileBrowse(file_types=(('JSON', '*.json'),)), sg.Button('Edit', enable_events=True, k='-SET-METADATA-')]
+                  [sg.Text("Start Supply:", font=font), sg.Spin([x+1 for x in range(100000)], initial_value=data['nft_start_supply'], s=(5,5), key='NFT-START-SUPPLY', font=font),
+                   sg.Text("Metadata:", font=font), sg.Input(default_text=data['metadata_link'], s=20, k='METADATA-LINK', font=font), sg.FileBrowse(file_types=(('JSON', '*.json'),), font=font), sg.Button('Edit', enable_events=True, k='-SET-METADATA-', font=font)]
                   ]
     
     col_layout0 = [[sg.Column(col_layout_img, expand_x=True, element_justification='left'), sg.Column(col_layout_imgr, expand_x=True, element_justification='right')]]
     col_layout1 = [[sg.Column(col_layout_color, expand_x=True, element_justification='left'), sg.Column(col_layout_colorr, expand_x=True, element_justification='right')]]
     col_layout2 = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
-    col_layout3 = [[sg.Frame('NFT', col_nft_layout, expand_x=True, visible=nft_data_vis)]]
+    col_layout3 = [[sg.Frame('NFT', col_nft_layout, expand_x=True, visible=nft_data_vis, font=font)]]
     
     
     col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font), sg.Button("Save As Default", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DEFAULT-')]]
@@ -1234,7 +1234,7 @@ dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
 
 check = [icon(0), icon(1), icon(2)]
 
-starting_path = sg.popup_get_folder('Site Directory')
+starting_path = sg.popup_get_folder('Site Directory', font=font)
 base_resource_dir = os.path.join(starting_path, '_resources')
 
 if not starting_path:
@@ -1252,40 +1252,37 @@ add_files_in_folder('', starting_path, command, DATA)
 
 
 ui_settings_layout = [[sg.Frame('UI Settings', [
-                                                [name('Navigation'), sg.Combo(DATA.navigation, default_value=DATA.settings['pageType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-pageType')],
-                                                [name('Style'), sg.Combo(DATA.styles, default_value=DATA.settings['style'], s=(15,22), enable_events=True, readonly=True, k='SETTING-style')],
-                                                [name('Row Padding'), sg.Spin(values=[i for i in range(1, 100)], initial_value=DATA.settings['row_pad'], enable_events=True, s=(25,22), k='SETTING-row_pad')],
-               [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='SETTING-theme')],
-               [name('Custom CSS'), sg.Input(default_text=DATA.settings['customTheme'], s=20, right_click_menu=['&Right', css_input_dropdown], enable_events=True, k='SETTING-customTheme'), sg.FolderBrowse()],
-               [name('Page Order'), sg.Listbox(DATA.pageList, expand_x=True, size=(10, 5), key="-ITEM-")],
-               [name(''), sg.Button("Move item to top", key="-CHANGE-PAGE-ORDER-")]
-               ], expand_y=True, expand_x=True)]]
+                                                [name('Navigation'), sg.Combo(DATA.navigation, default_value=DATA.settings['pageType'], s=(15,22), enable_events=True, readonly=True, k='SETTING-pageType', font=font)],
+                                                [name('Style'), sg.Combo(DATA.styles, default_value=DATA.settings['style'], s=(15,22), enable_events=True, readonly=True, k='SETTING-style', font=font)],
+                                                [name('Row Padding'), sg.Spin(values=[i for i in range(1, 100)], initial_value=DATA.settings['row_pad'], enable_events=True, s=(25,22), k='SETTING-row_pad', font=font)],
+               [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='SETTING-theme', font=font)],
+               [name('Custom CSS'), sg.Input(default_text=DATA.settings['customTheme'], s=20, right_click_menu=['&Right', css_input_dropdown], enable_events=True, k='SETTING-customTheme', font=font), sg.FolderBrowse(font=font)],
+               [name('Page Order'), sg.Listbox(DATA.pageList, expand_x=True, size=(10, 5), key="-ITEM-", font=font)],
+               [name(''), sg.Button("Move item to top", key="-CHANGE-PAGE-ORDER-", font=font)]
+               ], expand_y=True, expand_x=True, font=font)]]
 
-site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input(default_text=DATA.settings['siteName'], s=20, enable_events=True, k='SETTING-siteName')],
-               [name('Description'), sg.Multiline(default_text=DATA.settings['description'],s=(20,8), enable_events=True, k='SETTING-description')],
-               [name('Site ID'), sg.Input(default_text=DATA.settings['siteID'], s=20, enable_events=True, k='SETTING-siteID')],
-               ], expand_y=True, expand_x=True)]]
+site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input(default_text=DATA.settings['siteName'], s=20, enable_events=True, k='SETTING-siteName', font=font)],
+               [name('Description'), sg.Multiline(default_text=DATA.settings['description'],s=(20,8), enable_events=True, k='SETTING-description', font=font)],
+               [name('Site ID'), sg.Input(default_text=DATA.settings['siteID'], s=20, enable_events=True, k='SETTING-siteID', font=font)],
+               ], expand_y=True, expand_x=True, font=font)]]
 
 author_settings_layout = [[sg.Frame('Author Settings', [
     [sg.Frame('Authors', [
-        [sg.Listbox(DATA.authors.keys(), right_click_menu=['&Right', author_dropdown], no_scrollbar=True, expand_x=True, size=(15,8), k='AUTHOR-LIST')]
-        ], expand_x=True)],
-    ],  size=(15,10), expand_y=True, expand_x=True)]]
+        [sg.Listbox(DATA.authors.keys(), right_click_menu=['&Right', author_dropdown], no_scrollbar=True, expand_x=True, size=(15,8), k='AUTHOR-LIST', font=font)]
+        ], expand_x=True, font=font)],
+    ],  size=(15,10), expand_y=True, expand_x=True, font=font)]]
 
 deployment_settings_layout = [[sg.Frame('Deployment Settings', [                                  
-               [sg.Frame('Pinata IPFS', [[name('JWT'), sg.Input(default_text=DATA.settings['pinata_jwt'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_jwt')],
-                                    [name('Gateway URL'), sg.Input(default_text=DATA.settings['pinata_gateway'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_gateway')],
-                                    [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['pinata_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-pinata_meta_data')]
-               ], expand_x=True, k='PINATA-GRP')],
-               [sg.Frame('Pinata Submarine', [[name('Submarine Key'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_key')],
-                                       [name('Timeout (seconds)'), sg.Spin(values=[i for i in range(1, 604800)], initial_value=DATA.settings['pinata_timeout'], change_submits=True, enable_events=True, s=(25,22), k='SETTING-pinata_timeout')],
-               ], expand_x=True, k='SUBMARINE-GRP')],
-               [sg.Frame('Arweave Wallet', [[sg.Input(default_text=DATA.settings['arWallet'], expand_x=True, s=20, enable_events=True, k='SETTING-arWallet'), sg.FileBrowse(enable_events=True)]
-               ], expand_x=True,  k='ARWEAVE-GRP')],
-               [sg.Frame('NFT Type:', [
-                   [sg.Combo(['None', 'NFT', 'Minter'], default_value='None', s=(15,22), enable_events=True, readonly=True, k='SETTING-nft-type')]
-                   ], expand_x=True)],
-               ], expand_y=True, expand_x=True)]]
+               [sg.Frame('Pinata IPFS', [[name('JWT'), sg.Input(default_text=DATA.settings['pinata_jwt'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_jwt', font=font)],
+                                    [name('Gateway URL'), sg.Input(default_text=DATA.settings['pinata_gateway'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_gateway', font=font)],
+                                    [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['pinata_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-pinata_meta_data', font=font)]
+               ], expand_x=True, k='PINATA-GRP', font=font)],
+               [sg.Frame('Pinata Submarine', [[name('Submarine Key'), sg.Input(default_text=DATA.settings['pinata_key'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_key', font=font)],
+                                       [name('Timeout (seconds)'), sg.Spin(values=[i for i in range(1, 604800)], initial_value=DATA.settings['pinata_timeout'], change_submits=True, enable_events=True, s=(25,22), k='SETTING-pinata_timeout', font=font)],
+               ], expand_x=True, k='SUBMARINE-GRP', font=font)],
+               [sg.Frame('Arweave Wallet', [[sg.Input(default_text=DATA.settings['arWallet'], expand_x=True, s=20, enable_events=True, k='SETTING-arWallet', font=font), sg.FileBrowse(enable_events=True, font=font)]
+               ], expand_x=True,  k='ARWEAVE-GRP', font=font)],
+               ], expand_y=True, expand_x=True, font=font)]]
 
 nft_settings_layout = [[sg.Frame('NFT Settings', [
     [sg.Frame('NFT Type:', [
@@ -1310,7 +1307,7 @@ tab2_layout = [[sg.Frame('AI', [[sg.Text('Text AI'), sg.Combo(['Open AI', 'GPTJ'
                 sg.Button(image_data=icon_quote, border_width=0, tooltip=tt_quote, key='-MD-BLOCK-QUOTE-'), sg.Button(image_data=icon_code, border_width=0, tooltip=tt_code, key='-MD-CODE-'), sg.Button(image_data=icon_table, border_width=0, tooltip=tt_table, key='-MD-TABLE-'),
                 sg.Button(image_data=icon_link, border_width=0, tooltip=tt_link, key='-MD-LINK-'), sg.Button(image_data=icon_img, border_width=0, tooltip=tt_img, key='-MD-IMG-'), sg.Button(image_data=icon_vid, border_width=0, tooltip=tt_vid, key='-MD-VID-')],
     [sg.Multiline(s=(15,30), expand_x=True, key='-MD-INPUT-', enable_events=True )],
-    [sg.Button("Open HTML", tooltip=tt_debug_btn, key='-OPEN-HTML-')]]    
+    [sg.Button("Open HTML", tooltip=tt_debug_btn, key='-OPEN-HTML-', font=font)]]    
 
 tab3_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, element_justification='left'), 
                 sg.Column(site_settings_layout, expand_x=True, expand_y=True, element_justification='left')],
@@ -1323,7 +1320,7 @@ menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site']],
                 ['& Beam', ['---', 'Daemon',['mainnet',['Start::BEAM-DAEMON', 'Stop::BEAM-DAEMON'], 'testnet',['Start::BEAM-DAEMON-TEST', 'Stop::BEAM-DAEMON-TEST']], 'Wallet',['Open::BEAM-OPEN-WALLET', 'Info::BEAM-WALLET-INFO'], 'NFT',['Settings::BEAM-NFT-SETTINGS']]],
                 ['&Help', ['&About...']], ]
 
-layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-')],
+layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-', font=font)],
     [sg.TabGroup([[sg.Tab(starting_path, tab1_layout, font=font, border_width=0), sg.Tab('Editor', tab2_layout, font=font, border_width=0), sg.Tab('Settings', tab3_layout, font=font, border_width=0)]], tab_border_width=0)],
     [sg.Push(), sg.Image(data=icon_localhost_off, k='ICON-LOCALHOST', metadata=False), sg.Image(data=icon_dero_off, k='ICON-DERO', metadata=False)],
     [sg.Button('DEBUG')]]
