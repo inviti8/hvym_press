@@ -484,22 +484,22 @@ def popup_set_page_data(md_name, data):
                   [sg.Text("Columns:", font=font)],
                   [sg.Text("Footer Height:", font=font)]]
     
-    col_layout_r = [[sg.Input(data['title'], s=(27,22), k='TITLE')],
-                  [sg.Checkbox('yes', default=data['use_text'], k='USE-TEXT')],
-                  [sg.Input(key='ICON', default_text=data['icon'], visible=False), sg.Button('', image_data=icon, k='-SET-ICON-')],
-                  [sg.Spin([x+1 for x in range(1050)], initial_value=data['max_height'], s=(25,22), key='MAX-HEIGHT')],
-                  [sg.Combo(columns, default_value=data['columns'], s=(25,22), readonly=True, k='COLUMNS')],
-                  [sg.Spin([x+1 for x in range(10)], initial_value=data['footer_height'], s=(25,22), key='FOOTER-HEIGHT')]]
+    col_layout_r = [[sg.Input(data['title'], s=(27,22), k='TITLE', font=font)],
+                  [sg.Checkbox('yes', default=data['use_text'], k='USE-TEXT', font=font)],
+                  [sg.Input(key='ICON', default_text=data['icon'], visible=False), sg.Button('', image_data=icon, k='-SET-ICON-', font=font)],
+                  [sg.Spin([x+1 for x in range(1050)], initial_value=data['max_height'], s=(25,22), key='MAX-HEIGHT', font=font)],
+                  [sg.Combo(columns, default_value=data['columns'], s=(25,22), readonly=True, k='COLUMNS', font=font)],
+                  [sg.Spin([x+1 for x in range(10)], initial_value=data['footer_height'], s=(25,22), key='FOOTER-HEIGHT', font=font)]]
     
     col_layout = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
     
     col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font)]]
     layout = [
-        [sg.Text(f"File: {md_name}")],
+        [sg.Text(f"File: {md_name}", font=font)],
         [sg.Column(col_layout, expand_x=True, element_justification='left')],
         [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
     ]
-    window = sg.Window("Set Page Data", layout, use_default_focus=False, finalize=True, modal=True)
+    window = sg.Window("Set Page Data", layout, use_default_focus=False, finalize=True, modal=True, font=font)
     block_focus(window)
     event, values = window.read()
     window.close()
@@ -667,7 +667,7 @@ def popup_set_article_data(md_path, md_name, data, colData):
                 json.dump(d, f, ensure_ascii=False, indent=4)
         return page_data
 
-    window = sg.Window("Set Article Data", layout, use_default_focus=False, finalize=True, modal=True)
+    window = sg.Window("Set Article Data", layout, use_default_focus=False, finalize=True, modal=True, font=font)
     block_focus(window)
     event, values = window.read()
     window.close()
