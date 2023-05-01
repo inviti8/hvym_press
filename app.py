@@ -229,6 +229,7 @@ def newFileData(f_path, f, full_path, data):
 
 def add_files_in_folder(parent, dirname, command, data):
     files = os.listdir(dirname)
+    first_run = False
     
     if(data.fileExists):
         
@@ -283,6 +284,7 @@ def add_files_in_folder(parent, dirname, command, data):
                         data.updateArticleHTML(f_path, f_name, fullname)
                         
     else:
+        first_run = True
         for f in files:
             fullname = os.path.join(dirname, f)
             f_name = os.path.basename(f)
@@ -293,6 +295,7 @@ def add_files_in_folder(parent, dirname, command, data):
                 add_files_in_folder(fullname, fullname, command, data)
                 if not f_name.startswith("_"):
                     data.pageList.append(f_name)
+                    print("Page: "+f_name+" is appended")
                 
             else:
                 file_extension = pathlib.Path(f).suffix
@@ -304,10 +307,11 @@ def add_files_in_folder(parent, dirname, command, data):
                     treedata.Insert(parent, fullname, f, values=[
                                     os.stat(fullname).st_size, 0], icon=f_icon)
                     newFileData(f_path, f, fullname, data)
+                    print("newFileData is added@: "" fullname: " +fullname+" f: "+ f+" and f_name: "+f_name+" is appended")
                     data.addAuthor('anonymous', anon)
-                    
-    data.pruneFolders(files)
-    data.deleteOldFiles()          
+    if first_run == False:               
+        data.pruneFolders(files)
+        data.deleteOldFiles()          
     data.saveData()
     
                 
@@ -677,9 +681,10 @@ def popup_set_article_data(md_path, md_name, data, colData):
     inset_concat = ""
     img = empty_px
     
+    
     if data['bg_img'] != empty_px:
         img = data['bg_img']
-    
+
     if values != None:
         if 'Form' not in values['TYPE']:
             if values['TYPE'] != None:

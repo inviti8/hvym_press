@@ -264,6 +264,7 @@ class SiteDataHandler:
                if '.data' not in k and '.md' not in k and '.png' not in k and k not in folderArr:
                    if k not in self.oldFolders:
                        self.oldFolders.append(k)
+                       print(k+" is added to old folders")
                
    def pruneFile(self, folder, fileArr, selfData):
        if folder in selfData.keys():
@@ -272,6 +273,8 @@ class SiteDataHandler:
                    if selfData[folder] not in self.oldDataFolders:
                        self.oldDataFolders.append(folder)
                        self.oldDataKeys.append(k)
+                       print(folder+" is added to old folders")
+                       print(k+" is added to old data keyss")
        
     
    def pruneFolders(self, arr):
@@ -291,9 +294,11 @@ class SiteDataHandler:
    def deleteFolder(self, folder, selfData):
        if folder in selfData.keys():
            selfData.pop(folder)
+           print("deleting folder: "+folder)
        
    def deleteFile(self, folder, path, selfData):
        if folder in selfData.keys() and path in selfData[folder].keys():
+           print("deleting: "+path+" from "+folder)
            selfData[folder].pop(path)
            
    def cloneDirectory(self, source, target):
