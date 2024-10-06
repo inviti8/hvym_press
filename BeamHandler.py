@@ -9,7 +9,6 @@ import os
 import io
 import random
 import subprocess
-from wmi import WMI
 from sys import platform
 import dload
 import LoadingWindow

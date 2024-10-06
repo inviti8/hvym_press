@@ -19,16 +19,12 @@ import ColorPicker
 import IconPicker
 import io
 from io import BytesIO
-from wmi import WMI
 from sys import platform
 from PIL import Image, ImageDraw, ImageColor
 from jinja2 import Environment, FileSystemLoader
 import PySimpleGUI as sg
 import W3DeployHandler
-import BananaAIHandler
 import OpenAiHandler
-import DeroHandler
-import BeamHandler
 import LoadingWindow
 import TreeData
 import KeyHandler
@@ -174,18 +170,6 @@ tt_custom_theme = "Load a custom css them file."
 tt_page_order = "Adjusts the order in which each site section is displayed."
 tt_authors = "Right click to add, modifiy, or delete an author for the site."
 
-
-def get_device_id():
-  if platform == "linux" or platform == "linux2":
-      my_system = platform.uname().replace(' ', '')
-      return '{}-{}'.format(my_system.system, my_system.node)
-  elif platform == "darwin":
-      my_system = platform.uname().replace(' ', '')
-      return '{}-{}'.format(my_system.system, my_system.node)
-  elif platform == "win32":
-      a = WMI().Win32_ComputerSystemProduct()[0]
-      return '{}-{}'.format(a.UUID, a.Name).replace(' ', '')
-
 def load_save_data(file_dir):
     result = None
     if os.path.isfile(file_dir) and os.path.basename(file_dir) == 'site.data':
@@ -225,29 +209,45 @@ def newFileData(f_path, f, full_path, data):
     data.updateArticleHTML(f_path, f, full_path)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':"", 'btn_txt':"SUBMIT", 'response':"Form Submitted", 'form_id':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
+
+def newMdFile(parent, file, filename, fullpath, icon, data):
+    basepath = fullpath.replace(filename, '')
+    f_path = baseFolder(basepath)
+    data.addMdPath(file, fullpath)
+    treedata.Insert(parent, fullpath, file, values=[
+                os.stat(fullpath).st_size, 0], icon=icon)
+    newFileData(f_path, file, fullpath, data)
+    print("newFileData is added@: "" fullpath: " +fullpath+" f: "+ file+" and f_name: "+filename+" is appended")
+    data.addAuthor('anonymous', anon)
     
 
 def add_files_in_folder(parent, dirname, command, data):
     files = os.listdir(dirname)
+    file_paths = []
+    new_folders = []
     first_run = False
     
     if(data.fileExists):
         
         for f in files:
-            fullname = os.path.join(dirname, f)
+            fullpath = os.path.join(dirname, f)
             f_name = os.path.basename(f)
-            f_path = baseFolder(fullname.replace(f_name, ''))
+            basepath = fullpath.replace(f_name, '')
+            f_path = baseFolder(basepath)
+
+            file_paths.append(fullpath)
             
-            if os.path.isdir(fullname):
-                folderFiles = os.listdir(fullname)
-                data.pruneFiles(f_name, folderFiles)
-                if '_resources' not in fullname:
-                    treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
+            if os.path.isdir(fullpath):
+                data.pruneFiles()
+                if '_resources' not in fullpath:
+                    data.addFolderPath(f, fullpath)
+                    treedata.Insert(parent, fullpath, f, values=[0], icon=folder_icon )
                 if data.hasNoFolder(f):
                     newFolderData(f, data)
-                add_files_in_folder(fullname, fullname, command, data)
+                add_files_in_folder(fullpath, fullpath, command, data)
                 if f_name not in data.pageList and not f_name.startswith("_"):
                     data.pageList.append(f_name)
+                    new_folders.append(f_name)
             else:
                 file_extension = pathlib.Path(f).suffix
                 f_icon = block
@@ -270,29 +270,45 @@ def add_files_in_folder(parent, dirname, command, data):
                                 f_icon = get_file_icon(dataObj['type'])
 
                                 
+                    if file_extension == '.md':
+                        data.addMdPath(f, fullpath)
+                        if f_name in data.articleData[f_path].keys():
+                            data_t = data.articleData[f_path][f_name]['time_stamp']
+                        
+                        if '_resources' not in fullpath:
+                            treedata.Insert(parent, fullpath, f, values=[
+                                        os.stat(fullpath).st_size, 0], icon=f_icon)
+                        
+                        if data.hasNoFileFolder(f_path) or data.hasNoFile(f_path, f):
+                            newFileData(f_path, f, fullpath, data)
+                        elif fileIsNew(fullpath, data_t):
+                            data.updateArticleHTML(f_path, f_name, fullpath)
+
+        for fd in new_folders:
+            fd_path = os.path.join(dirname, fd)
+            files = os.listdir(fd_path)
+            for f in files:
+                fullpath = os.path.join(fd_path, f)
+                f_name = os.path.basename(f)
+                basepath = fullpath.replace(f_name, '')
+                file_extension = pathlib.Path(f).suffix
+                f_icon = block
+                                
                 if file_extension == '.md':
-                    if f_name in data.articleData[f_path].keys():
-                        data_t = data.articleData[f_path][f_name]['time_stamp']
-                    
-                    if '_resources' not in fullname:
-                        treedata.Insert(parent, fullname, f, values=[
-                                    os.stat(fullname).st_size, 0], icon=f_icon)
-                    
-                    if data.hasNoFileFolder(f_path) or data.hasNoFile(f_path, f):
-                        newFileData(f_path, f, fullname, data)
-                    elif fileIsNew(fullname, data_t):
-                        data.updateArticleHTML(f_path, f_name, fullname)
+                    newMdFile(fd_path, f, f_name, fullpath, f_icon, data)  
                         
     else:
         first_run = True
         for f in files:
-            fullname = os.path.join(dirname, f)
+            fullpath = os.path.join(dirname, f)
             f_name = os.path.basename(f)
             
-            if os.path.isdir(fullname):
-                treedata.Insert(parent, fullname, f, values=[0], icon=folder_icon )
+            if os.path.isdir(fullpath):
+                if '_resources' not in fullpath:
+                    data.addFolderPath(f, fullpath)
+                    treedata.Insert(parent, fullpath, f, values=[0], icon=folder_icon )
                 newFolderData(f, data)
-                add_files_in_folder(fullname, fullname, command, data)
+                add_files_in_folder(fullpath, fullpath, command, data)
                 if not f_name.startswith("_"):
                     data.pageList.append(f_name)
                     print("Page: "+f_name+" is appended")
@@ -301,17 +317,14 @@ def add_files_in_folder(parent, dirname, command, data):
                 file_extension = pathlib.Path(f).suffix
                 f_icon = block
                 f_name = os.path.basename(f)
+                basepath = fullpath.replace(f_name, '')
                                 
                 if file_extension == '.md':
-                    f_path = baseFolder(fullname.replace(f_name, ''))
-                    treedata.Insert(parent, fullname, f, values=[
-                                    os.stat(fullname).st_size, 0], icon=f_icon)
-                    newFileData(f_path, f, fullname, data)
-                    print("newFileData is added@: "" fullname: " +fullname+" f: "+ f+" and f_name: "+f_name+" is appended")
-                    data.addAuthor('anonymous', anon)
-    if first_run == False:               
-        data.pruneFolders(files)
-        data.deleteOldFiles()          
+                    newMdFile(parent, f, f_name, fullpath, f_icon, data)
+
+    if first_run == False:             
+        data.deleteOldFiles()
+
     data.saveData()
     
                 
@@ -1131,7 +1144,7 @@ def popup_summary(txt='', output='', tokens=32, temp=0.75, rep=0.25, num_sentenc
     window.close()
 
     if event == '-SUMMARIZE-':
-        out = open_ai.launch_get_large_summary(values['SOURCE-TEXT'], values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
+        ##out = open_ai.launch_get_large_summary(values['SOURCE-TEXT'], values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
         popup_summary(values['SOURCE-TEXT'], out, values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-REP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
     if event == 'Copy':
         do_copy = sg.popup_ok_cancel("Do you want copy the output to the clipboard?")
@@ -1160,7 +1173,7 @@ def popup_youtube_summary(url='', output='', tokens=32, temp=0.75, rep=0.25, num
     window.close()
 
     if event == '-SUMMARIZE-':
-        out = open_ai.launch_youtube_summary(values['YOUTUBE-URL'], values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
+        ##out = open_ai.launch_youtube_summary(values['YOUTUBE-URL'], values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
         popup_youtube_summary(values['YOUTUBE-URL'], out, values['SUMMARY-TOKENS'], values['SUMMARY-TEMP'], values['SUMMARY-REP'], values['SUMMARY-SENTENCES'], values['SUMMARY-TONE'], values['SUMMARY-AGREE'])
     if event == 'Copy':
         do_copy = sg.popup_ok_cancel("Do you want copy the output to the clipboard?")
@@ -1331,22 +1344,18 @@ layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-', font=font)]
     [sg.Button('DEBUG')]]
 
 window = sg.Window('Weeeb3', layout, use_default_focus=False, finalize=True)
-window.disappear()
+# window.disappear()
 tree = window['-TREE-']         # type: sg.Tree
 tree.bind("<Double-1>", '+DOUBLE')
 block_focus(window)
-device_id = get_device_id()
 
-key_handler = KeyHandler.KeyHandler(APP_ID, KEY, device_id, window)
-if key_handler.initialized == False:
-    sg.popup_error("Unable to initialize, please make sure you're connected to the internet, and try to start the program again.")
-    window.close()
-    sys.exit()
+# key_handler = KeyHandler.KeyHandler(APP_ID, KEY, device_id, window)
+# if key_handler.initialized == False:
+#     sg.popup_error("Unable to initialize, please make sure you're connected to the internet, and try to start the program again.")
+#     window.close()
+#     sys.exit()
     
-banana_ai = BananaAIHandler.BananaAIHandler(key_handler.bananaAPI, key_handler.diffusionModel, key_handler.autoDiffusionModel, key_handler.gptjModel, resource_dir )
-open_ai = OpenAiHandler.OpenAIHandler(key_handler.openAI, resource_dir)
-dero = DeroHandler.DeroHandler(SCRIPT_DIR, window)
-beam = BeamHandler.BeamHandler(SCRIPT_DIR, window)
+# open_ai = OpenAiHandler.OpenAIHandler(key_handler.openAI, resource_dir)
 
 ai_imgs = {}
 png_b64 = []
@@ -1355,10 +1364,10 @@ seeds = []
 while True:
     event, values = window.read()
     #print(event)
-    if event == 'DEBUG':
-        print(dero.node)
-        print(dero.wallet)
-        dero.ping('20000')
+    # if event == 'DEBUG':
+    #     print(dero.node)
+    #     print(dero.wallet)
+    #     dero.ping('20000')
         #ImgToggle(window['ICON-LOCALHOST'])
         #dero.create_new_wallet()
         
@@ -1420,53 +1429,6 @@ while True:
         window.Refresh()
     elif event == 'Launch Editor':
         print('Mardown Editor')
-        
-    elif event == 'Start::DERO-DAEMON':
-        output = dero.start_daemon()
-        print(output)
-        
-    elif 'Start::DERO-DAEMON' in event:
-        if 'TEST' in event:
-            daemon_running = dero.ping('20000')
-            if daemon_running == False:
-                dero.sync_time()
-                dero.restart_time()
-                dero.start_daemon('testnet')
-        else:
-            dero.start_daemon()
-            
-    elif event == 'fast sync::DERO-DAEMON-FASTSYNC':
-        dero.fastsync_daemon()
-            
-    elif event == 'Stop::DERO-DAEMON':
-        if dero.node_running == True:
-            dero.kill_daemon()
-        
-    elif event == 'Open::DERO-OPEN-WALLET':
-        dero.open_wallet()
-        
-    elif event == 'Settings::DERO-NFT-SETTINGS' or event == 'Settings::BEAM-NFT-SETTINGS':
-        popup_nft_settings()
-        
-    elif event == 'Start::BEAM-DAEMON':
-        output = beam.start_daemon()
-        print(output)
-        
-    elif 'Start::BEAM-DAEMON' in event:
-        if 'TEST' in event:
-            beam.start_daemon('testnet')
-        else:
-            beam.open_wallet()
-            
-    elif event == 'fast sync::BEAM-DAEMON-FASTSYNC':
-        beam.fastsync_daemon()
-            
-    elif event == 'Stop::BEAM-DAEMON':
-        if beam.node_process != None:
-            beam.node_process.kill()
-        
-    elif event == 'Open::BEAM-OPEN-WALLET':
-       beam.open_wallet()
         
     if event in (sg.WIN_CLOSED, 'Cancel'):
         break
@@ -1656,11 +1618,12 @@ while True:
         #mline.Widget.delete(start, end)
         if 'COMPLETE' in event:
             if values['TEXT-AI'] == 'Open AI':
-                open_ai.launch_completion(selected_text, tokens, temp)
+                print('broken')
+                # open_ai.launch_completion(selected_text, tokens, temp)
                 
-                if open_ai.completion != "":
-                    mline.Widget.insert(end, "\n\n")
-                    mline.Widget.insert(end, f"\n{open_ai.completion}")
+                # if open_ai.completion != "":
+                #     mline.Widget.insert(end, "\n\n")
+                #     mline.Widget.insert(end, f"\n{open_ai.completion}")
             else:
                 banana_ai.launch_gptj(selected_text, tokens, temp, rep)
                 
@@ -1671,11 +1634,12 @@ while True:
         elif 'SUMMARY' in event:
             
             if values['TEXT-AI'] == 'Open AI':
-                open_ai.launch_get_summary(selected_text, tokens, temp)
+                print('broken')
+                # open_ai.launch_get_summary(selected_text, tokens, temp)
                 
-                if open_ai.completion != "":
-                    mline.Widget.insert(end, "\n\n")
-                    mline.Widget.insert(end, f"\n{open_ai.completion}")
+                # if open_ai.completion != "":
+                #     mline.Widget.insert(end, "\n\n")
+                #     mline.Widget.insert(end, f"\n{open_ai.completion}")
                     
             else:
                 banana_ai.get_summary(selected_text, tokens, temp, rep)
@@ -1775,4 +1739,5 @@ while True:
         
     #print(values[event])
     #print(event, values)
+DATA.onCloseData()
 window.close()

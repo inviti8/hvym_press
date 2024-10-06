@@ -26,6 +26,7 @@ import MarkdownHandler
 import W3DeployHandler
 from pathlib import Path
 from bs4 import BeautifulSoup
+from mrkdwn_analysis import MarkdownAnalyzer
 from jinja2 import Environment, FileSystemLoader
 
 
@@ -70,6 +71,7 @@ class SiteDataHandler:
       self.nftSiteTypes = ['None', 'Site-NFT', 'Collection-Minter']
       self.nftStartSupply = 1024
       self.dataFilePath = os.path.join(filePath, 'site.data')
+      self.dataBakFilePath = os.path.join(filePath, 'siteBak.data')
       self.fileExists = False
       self.resourcesExist = False
       self.oldFolders = []
@@ -84,6 +86,9 @@ class SiteDataHandler:
       self.videos = {}
       self.audio = {}
       self.gltf = {}
+      self.folderPathList = {}
+      self.mdPathList = {}
+      self.mdFileList = {}
       self.gatherMedia()
       
       if(os.path.isdir(self.resourcePath)):
@@ -111,8 +116,43 @@ class SiteDataHandler:
           self.videos = data['media']['videos']
           self.audio = data['media']['audio']
           self.gltf = data['media']['gltf']
+          self.folderPathList = data['folderPathList']
+          self.mdPathList = data['mdPathList']
+          self.mdFileList = data['mdFileList']
+          self.firstRun = True
+
+      if os.path.isfile(self.dataBakFilePath):
+          dataFile = open(self.dataBakFilePath, 'rb')
+          data = pickle.load(dataFile)
+          self.firstRun = False
+          self._old_pageList = data['pageList']
+          self._old_folders = data['folders']
+          self._old_pageData = data['pageData']
+          self._old_columnWidths = data['columnWidths']
+          self._old_articleData = data['articleData']
+          self._old_formData = data['formData']
+          self._old_metaData = data['metaData']
+          self._old_settings = data['settings']
+          self._old_authors = data['authors']
+          self._old_css_components = data['css_components']
+          self._old_fileExists = True
+          self._old_images = data['media']['images']
+          self._old_videos = data['media']['videos']
+          self._old_audio = data['media']['audio']
+          self._old_gltf = data['media']['gltf']
+          self._old_folderPathList = data['folderPathList']
+          self._old_mdPathList = data['mdPathList']
+          self._old_mdFileList = data['mdFileList']
  
-      self.saveData()  
+      self.saveData()
+      
+   def addFolderPath(self, folder, path):
+       self.folderPathList[folder] = path
+
+   def addMdPath(self, file, path):
+       analyzer = MarkdownAnalyzer(path)
+       self.mdPathList[file] = path
+       self.mdFileList[file] = analyzer.identify_links()
            
    def openStaticPage(self, template_file, data, route=0):
        '''
@@ -257,39 +297,22 @@ class SiteDataHandler:
                result = True
                
        return result
-           
-   def pruneFolder(self, folderArr, selfData):
-       if self.arrHasPartial(folderArr, ".md") == False and self.arrHasPartial(folderArr, ".png") == False:
-           for k in selfData:
-               if '.data' not in k and '.md' not in k and '.png' not in k and k not in folderArr:
-                   if k not in self.oldFolders:
-                       self.oldFolders.append(k)
-                       print(k+" is added to old folders")
+   
+       
+   def pruneFiles(self):
+       if not self.firstRun:
+        for k, path in self._old_mdPathList.items():
+           if not os.path.isfile(path):
+               f_name = os.path.basename(path)
+               basepath = path.replace(f_name, '')
+               f_path = self.baseFolder(basepath)
+               self.oldDataFolders.append(f_path)
+               self.oldDataKeys.append(f_name)
+               print(f_path+" is added to old folders")
+               print(f_name+" is added to old data keys")
                
-   def pruneFile(self, folder, fileArr, selfData):
-       if folder in selfData.keys():
-           for k in selfData[folder]:
-               if k not in fileArr and '.md' in k:
-                   if selfData[folder] not in self.oldDataFolders:
-                       self.oldDataFolders.append(folder)
-                       self.oldDataKeys.append(k)
-                       print(folder+" is added to old folders")
-                       print(k+" is added to old data keyss")
-       
-    
-   def pruneFolders(self, arr):
-       self.pruneFolder(arr, self.folders)
-       self.pruneFolder(arr, self.pageData)
-       self.pruneFolder(arr, self.columnWidths)
-       self.pruneFolder(arr, self.articleData)
-       self.pruneFolder(arr, self.formData)
-       self.pruneFolder(arr, self.metaData)
-       
-   def pruneFiles(self, folder, arr):
-       self.pruneFile(folder, arr, self.folders)
-       self.pruneFile(folder, arr, self.articleData)
-       self.pruneFile(folder, arr, self.formData)
-       self.pruneFile(folder, arr, self.metaData)
+               for f, obj in self._old_mdFileList[k].items():
+                   print(obj)
        
    def deleteFolder(self, folder, selfData):
        if folder in selfData.keys():
@@ -634,9 +657,13 @@ class SiteDataHandler:
            
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
-       data = {'pageList':self.pageList, 'folders':self.folders, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors, 'css_components':self.css_components, 'media':self.gatherMedia()}
+       data = {'pageList':self.pageList, 'folders':self.folders, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors, 'css_components':self.css_components, 'media':self.gatherMedia(), 'folderPathList': self.folderPathList, 'mdPathList': self.mdPathList, 'mdFileList': self.mdFileList}
        pickle.dump(data, file)
        file.close()
+
+   def onCloseData(self):
+       print('On Close')
+       shutil.copy(self.dataFilePath, self.dataBakFilePath)
              
        
 
