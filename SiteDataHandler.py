@@ -45,9 +45,11 @@ class SiteDataHandler:
       self.distPath = os.path.join(SCRIPT_DIR, 'dist')
       self.pageList = []
       self.folders = {}
+      self.folderOrder = {}
       self.pageData = {}
       self.columnWidths = {}
       self.articleData = {}
+      self.articleOrder= {}
       self.formData = {}
       self.metaData = {}
       self.opensea_metadata = '''{
@@ -102,9 +104,11 @@ class SiteDataHandler:
               
           self.pageList = data['pageList']
           self.folders = data['folders']
+          self.folderOrder = data['folderOrder']
           self.pageData = data['pageData']
           self.columnWidths = data['columnWidths']
           self.articleData = data['articleData']
+          self.articleOrder = data['articleOrder']
           self.formData = data['formData']
           self.metaData = data['metaData']
           self.settings = data['settings']
@@ -127,9 +131,11 @@ class SiteDataHandler:
           self.firstRun = False
           self._old_pageList = data['pageList']
           self._old_folders = data['folders']
+          self._old_folderOrder = data['folderOrder']
           self._old_pageData = data['pageData']
           self._old_columnWidths = data['columnWidths']
           self._old_articleData = data['articleData']
+          self._old_articleOrder = data['articleOrder']
           self._old_formData = data['formData']
           self._old_metaData = data['metaData']
           self._old_settings = data['settings']
@@ -145,6 +151,30 @@ class SiteDataHandler:
           self._old_mdFileList = data['mdFileList']
  
       self.saveData()
+
+   def reorder_dict(d, key, index):
+    if not isinstance(key, str) or not isinstance(index, int):
+        return d
+
+    if index == 1:
+        try:
+            temp = [d[key]]
+            for i in range(len(list(d.keys())) - 1):
+                del d[list(d.keys())[i]]
+            for i in range(1):
+                d[list(d.keys())[i]] = temp[0]
+        except KeyError:
+            pass
+    elif index == -1:
+        try:
+            temp = [d[key]]
+            for i in range(len(list(d.keys()))-1, 0, -1):
+                del d[list(d.keys())[i-1]]
+            d[list(d.keys())[0]] = temp[0]
+        except KeyError:
+            pass
+    return d
+   
       
    def addFolderPath(self, folder, path):
        self.folderPathList[folder] = path
@@ -657,12 +687,11 @@ class SiteDataHandler:
            
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
-       data = {'pageList':self.pageList, 'folders':self.folders, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors, 'css_components':self.css_components, 'media':self.gatherMedia(), 'folderPathList': self.folderPathList, 'mdPathList': self.mdPathList, 'mdFileList': self.mdFileList}
+       data = {'pageList':self.pageList, 'folders':self.folders, 'folderOrder':self.folderOrder, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'articleOrder':self.articleOrder, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors, 'css_components':self.css_components, 'media':self.gatherMedia(), 'folderPathList': self.folderPathList, 'mdPathList': self.mdPathList, 'mdFileList': self.mdFileList}
        pickle.dump(data, file)
        file.close()
 
    def onCloseData(self):
-       print('On Close')
        shutil.copy(self.dataFilePath, self.dataBakFilePath)
              
        

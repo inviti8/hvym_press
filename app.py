@@ -214,21 +214,33 @@ def newMdFile(parent, file, filename, fullpath, icon, data):
     basepath = fullpath.replace(filename, '')
     f_path = baseFolder(basepath)
     data.addMdPath(file, fullpath)
-    treedata.Insert(parent, fullpath, file, values=[
-                os.stat(fullpath).st_size, 0], icon=icon)
+    # treedata.Insert(parent, fullpath, file, values=[
+    #             os.stat(fullpath).st_size, 0], icon=icon)
     newFileData(f_path, file, fullpath, data)
     print("newFileData is added@: "" fullpath: " +fullpath+" f: "+ file+" and f_name: "+filename+" is appended")
-    data.addAuthor('anonymous', anon)
+    data.addAuthor('anonymous', anon)       
+
+def renderTreedata(data):
+    #clear the tree
+    treedata.delete_tree()
+
+    #render the data
+    for page, aData in data.articleData.items():
+        pagePath = data.folderPathList[page]
+        treedata.Insert('', pagePath, page, values=[0], icon=folder_icon )
+        for article, d in aData.items():
+            articlePath = os.path.join(pagePath, article)
+            icon = get_file_icon(d['type'])
+            treedata.Insert(pagePath, articlePath, article, values=[0], icon=icon )
     
 
-def add_files_in_folder(parent, dirname, command, data):
+def add_files_in_folder(parent, dirname, data):
     files = os.listdir(dirname)
     file_paths = []
     new_folders = []
     first_run = False
     
     if(data.fileExists):
-        
         for f in files:
             fullpath = os.path.join(dirname, f)
             f_name = os.path.basename(f)
@@ -241,48 +253,23 @@ def add_files_in_folder(parent, dirname, command, data):
                 data.pruneFiles()
                 if '_resources' not in fullpath:
                     data.addFolderPath(f, fullpath)
-                    treedata.Insert(parent, fullpath, f, values=[0], icon=folder_icon )
                 if data.hasNoFolder(f):
                     newFolderData(f, data)
-                add_files_in_folder(fullpath, fullpath, command, data)
+                add_files_in_folder(fullpath, fullpath, data)
                 if f_name not in data.pageList and not f_name.startswith("_"):
                     data.pageList.append(f_name)
                     new_folders.append(f_name)
             else:
-                file_extension = pathlib.Path(f).suffix
-                f_icon = block
-
-                dataObj = None
-                
-                if f_path in data.folders.keys():
-                
-                    for key in data.folders[f_path]:
-                        obj = data.folders[f_path][key]
-
-                        if(obj['path'] == f_name):
-                            dataObj = obj
-                            break
-                    if dataObj != None:
-                        if(dataObj['active'] == False):
-                            f_icon = ignore_file
-                        else:
-                            if(dataObj['type'] != 'Default'):
-                                f_icon = get_file_icon(dataObj['type'])
-
-                                
-                    if file_extension == '.md':
-                        data.addMdPath(f, fullpath)
-                        if f_name in data.articleData[f_path].keys():
-                            data_t = data.articleData[f_path][f_name]['time_stamp']
+                file_extension = pathlib.Path(f).suffix           
+                if file_extension == '.md':
+                    data.addMdPath(f, fullpath)
+                    if f_name in data.articleData[f_path].keys():
+                        data_t = data.articleData[f_path][f_name]['time_stamp']
                         
-                        if '_resources' not in fullpath:
-                            treedata.Insert(parent, fullpath, f, values=[
-                                        os.stat(fullpath).st_size, 0], icon=f_icon)
-                        
-                        if data.hasNoFileFolder(f_path) or data.hasNoFile(f_path, f):
-                            newFileData(f_path, f, fullpath, data)
-                        elif fileIsNew(fullpath, data_t):
-                            data.updateArticleHTML(f_path, f_name, fullpath)
+                    if data.hasNoFileFolder(f_path) or data.hasNoFile(f_path, f):
+                        newFileData(f_path, f, fullpath, data)
+                    elif fileIsNew(fullpath, data_t):
+                        data.updateArticleHTML(f_path, f_name, fullpath)
 
         for fd in new_folders:
             fd_path = os.path.join(dirname, fd)
@@ -306,9 +293,8 @@ def add_files_in_folder(parent, dirname, command, data):
             if os.path.isdir(fullpath):
                 if '_resources' not in fullpath:
                     data.addFolderPath(f, fullpath)
-                    treedata.Insert(parent, fullpath, f, values=[0], icon=folder_icon )
                 newFolderData(f, data)
-                add_files_in_folder(fullpath, fullpath, command, data)
+                add_files_in_folder(fullpath, fullpath, data)
                 if not f_name.startswith("_"):
                     data.pageList.append(f_name)
                     print("Page: "+f_name+" is appended")
@@ -326,6 +312,7 @@ def add_files_in_folder(parent, dirname, command, data):
         data.deleteOldFiles()
 
     data.saveData()
+    renderTreedata(data)
     
                 
 def get_file_icon(uiType):
@@ -662,7 +649,8 @@ def popup_set_article_data(md_path, md_name, data, colData):
     col_layout2 = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
     col_layout3 = [[sg.Frame('NFT', col_nft_layout, expand_x=True, visible=nft_data_vis, font=font)]]
     
-    
+    col_layout_order_btns = [[sg.Button("Move Up", font=font, enable_events=True, k='-MOVE-ARTICLE-UP-'), sg.Button('Move Down', font=font, enable_events=True, k='-MOVE-ARTICLE-DOWN-')]]
+
     col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font), sg.Button("Save As Default", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DEFAULT-')]]
     layout = [
         [sg.Text(f"File: {md_name}")],
@@ -670,6 +658,7 @@ def popup_set_article_data(md_path, md_name, data, colData):
         [sg.Column(col_layout1, expand_x=True, element_justification='left')],
         [sg.Column(col_layout2, expand_x=True, element_justification='left')],
         [sg.Column(col_layout3, expand_x=True, element_justification='left')],
+        [sg.Column(col_layout_order_btns, expand_x=True, element_justification='center')],
         [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
     ]
     
@@ -1266,7 +1255,7 @@ author_dropdown = ['Add-Author', 'Update-Author', 'Delete-Author']
 css_input_dropdown = ['Reset-Css']
 #treedata = sg.TreeData()
 treedata = TreeData.TreeData()
-add_files_in_folder('', starting_path, command, DATA)
+add_files_in_folder('', starting_path, DATA)
 
 
 ui_settings_layout = [[sg.Frame('UI Settings', [
@@ -1332,14 +1321,12 @@ tab3_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, elem
                [sg.Column(author_settings_layout, expand_x=True, expand_y=True, element_justification='left'),
                 sg.Column(deployment_settings_layout, expand_x=True, expand_y=True, element_justification='left')],]
 
-menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site']],
+menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site', 'Stop Localhost']],
                 ['& Deploy', ['---', 'Pinata IPFS', 'Pinata Submarine', '---', 'Arweave(Coming Soon)']],
-                ['& Dero', ['---', 'Daemon',['mainnet',['Start::DERO-DAEMON', 'Stop::DERO-DAEMON'], 'testnet',['Start::DERO-DAEMON-TEST', 'Stop::DERO-DAEMON-TEST'], 'fast sync::DERO-DAEMON-FASTSYNC'], 'Wallet',['Open::DERO-OPEN-WALLET'], 'NFT',['Settings::DERO-NFT-SETTINGS']]],
-                ['& Beam', ['---', 'Daemon',['mainnet',['Start::BEAM-DAEMON', 'Stop::BEAM-DAEMON'], 'testnet',['Start::BEAM-DAEMON-TEST', 'Stop::BEAM-DAEMON-TEST']], 'Wallet',['Open::BEAM-OPEN-WALLET', 'Info::BEAM-WALLET-INFO'], 'NFT',['Settings::BEAM-NFT-SETTINGS']]],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-', font=font)],
-    [sg.TabGroup([[sg.Tab(starting_path, tab1_layout, font=font, border_width=0), sg.Tab('Editor', tab2_layout, font=font, border_width=0), sg.Tab('Settings', tab3_layout, font=font, border_width=0)]], tab_border_width=0)],
+    [sg.TabGroup([[sg.Tab(starting_path, tab1_layout, font=font, border_width=0), sg.Tab('Settings', tab3_layout, font=font, border_width=0)]], tab_border_width=0)],
     [sg.Push(), sg.Image(data=icon_localhost_off, k='ICON-LOCALHOST', metadata=False), sg.Image(data=icon_dero_off, k='ICON-DERO', metadata=False)],
     [sg.Button('DEBUG')]]
 
@@ -1424,7 +1411,7 @@ while True:
         sg.popup_scrolled(__file__, sg.get_versions(), keep_on_top=True, non_blocking=True)
     elif event == 'Refresh Files':
         treedata.delete_tree()
-        add_files_in_folder('', starting_path, command, DATA)
+        add_files_in_folder('', starting_path, DATA)
         window['-TREE-'].Update(values=treedata)
         window.Refresh()
     elif event == 'Launch Editor':
