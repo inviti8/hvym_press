@@ -28,7 +28,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from mrkdwn_analysis import MarkdownAnalyzer
 from jinja2 import Environment, FileSystemLoader
-
+from collections import deque
 
 
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
@@ -45,7 +45,7 @@ class SiteDataHandler:
       self.distPath = os.path.join(SCRIPT_DIR, 'dist')
       self.pageList = []
       self.folders = {}
-      self.folderOrder = {}
+      self.folderData = {}
       self.pageData = {}
       self.columnWidths = {}
       self.articleData = {}
@@ -104,7 +104,7 @@ class SiteDataHandler:
               
           self.pageList = data['pageList']
           self.folders = data['folders']
-          self.folderOrder = data['folderOrder']
+          self.folderData = data['folderData']
           self.pageData = data['pageData']
           self.columnWidths = data['columnWidths']
           self.articleData = data['articleData']
@@ -131,7 +131,7 @@ class SiteDataHandler:
           self.firstRun = False
           self._old_pageList = data['pageList']
           self._old_folders = data['folders']
-          self._old_folderOrder = data['folderOrder']
+          self._old_folderData = data['folderData']
           self._old_pageData = data['pageData']
           self._old_columnWidths = data['columnWidths']
           self._old_articleData = data['articleData']
@@ -152,7 +152,7 @@ class SiteDataHandler:
  
       self.saveData()
 
-   def reorder_dict(d, key, index):
+   def _reorder_dict(self, d, key, index):
     if not isinstance(key, str) or not isinstance(index, int):
         return d
 
@@ -175,9 +175,37 @@ class SiteDataHandler:
             pass
     return d
    
+   def _reorder_list(self, l, list_element, index):
+      i = l.index(list_element)
+      tmp1 = []
+      tmp2 = []
+      for a in l:
+           tmp1.append(a)
+           tmp2.append(a)
+
+      items = deque(tmp1)
+      items.rotate(index)
+      tmp1 = list(items)
+      j = tmp1.index(list_element)
+
+      tmp2.insert(j, tmp2.pop(i))
+      return tmp2
+   
+   def movePageUp(self, page):
+       self.pageList = self._reorder_list(self.pageList, page, -1)
+
+   def movePageDown(self, page):
+       self.pageList = self._reorder_list(self.pageList, page, 1)
       
    def addFolderPath(self, folder, path):
        self.folderPathList[folder] = path
+
+   def updateFolderData(self, folder):
+       articleList = []
+       for a in self.articleData[folder].keys():
+           articleList.append(a)
+
+       self.folderData[folder] = {'articleList': articleList}
 
    def addMdPath(self, file, path):
        analyzer = MarkdownAnalyzer(path)
@@ -319,16 +347,7 @@ class SiteDataHandler:
             result = True
             
         return result
-
-   def arrHasPartial(self, lst, query):
-       result = False
-       for s in lst:
-           if query in s:
-               result = True
-               
-       return result
-   
-       
+     
    def pruneFiles(self):
        if not self.firstRun:
         for k, path in self._old_mdPathList.items():
@@ -550,7 +569,6 @@ class SiteDataHandler:
        
        return result
    
-   
    def deploySite(self, usefullPath=False, askPermission=True, private=False):
         result = False
         
@@ -598,6 +616,14 @@ class SiteDataHandler:
        else:
            self.addFolder(folder, self.columnWidths)
            self.updateColumnWidths(folder, data)
+
+   def moveArticleUp(self, page, article):
+       print(self.folderData[page])
+       self.folderData[page]['articleList'] = self._reorder_list(self.folderData[page]['articleList'], article, -1)
+
+   def moveArticleDown(self, page, article):
+       print(self.folderData[page])
+       self.folderData[page]['articleList'] = self._reorder_list(self.folderData[page]['articleList'], article, 1)
            
    def updateArticleData(self, folder, path, data):
        if(folder in self.articleData):
@@ -687,7 +713,7 @@ class SiteDataHandler:
            
    def saveData(self):
        file = open(self.dataFilePath, 'wb')
-       data = {'pageList':self.pageList, 'folders':self.folders, 'folderOrder':self.folderOrder, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'articleOrder':self.articleOrder, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors, 'css_components':self.css_components, 'media':self.gatherMedia(), 'folderPathList': self.folderPathList, 'mdPathList': self.mdPathList, 'mdFileList': self.mdFileList}
+       data = {'pageList':self.pageList, 'folders':self.folders, 'folderData':self.folderData, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'articleOrder':self.articleOrder, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors, 'css_components':self.css_components, 'media':self.gatherMedia(), 'folderPathList': self.folderPathList, 'mdPathList': self.mdPathList, 'mdFileList': self.mdFileList}
        pickle.dump(data, file)
        file.close()
 

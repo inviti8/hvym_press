@@ -214,13 +214,12 @@ def newMdFile(parent, file, filename, fullpath, icon, data):
     basepath = fullpath.replace(filename, '')
     f_path = baseFolder(basepath)
     data.addMdPath(file, fullpath)
-    # treedata.Insert(parent, fullpath, file, values=[
-    #             os.stat(fullpath).st_size, 0], icon=icon)
     newFileData(f_path, file, fullpath, data)
     print("newFileData is added@: "" fullpath: " +fullpath+" f: "+ file+" and f_name: "+filename+" is appended")
     data.addAuthor('anonymous', anon)       
 
 def renderTreedata(data):
+    print('RENDER TREE')
     #clear the tree
     treedata.delete_tree()
 
@@ -228,11 +227,18 @@ def renderTreedata(data):
     for page, aData in data.articleData.items():
         pagePath = data.folderPathList[page]
         treedata.Insert('', pagePath, page, values=[0], icon=folder_icon )
-        for article, d in aData.items():
+        for article in data.folderData[page]['articleList']:
+            d = aData[article]
             articlePath = os.path.join(pagePath, article)
             icon = get_file_icon(d['type'])
             treedata.Insert(pagePath, articlePath, article, values=[0], icon=icon )
+
+def updateFolderData(first_run, data):
+    if not first_run:
+        return
     
+    for page in data.articleData.keys():
+        DATA.updateFolderData(page)
 
 def add_files_in_folder(parent, dirname, data):
     files = os.listdir(dirname)
@@ -282,7 +288,9 @@ def add_files_in_folder(parent, dirname, data):
                 f_icon = block
                                 
                 if file_extension == '.md':
-                    newMdFile(fd_path, f, f_name, fullpath, f_icon, data)  
+                    newMdFile(fd_path, f, f_name, fullpath, f_icon, data)
+
+            data.updateFolderData(fd)
                         
     else:
         first_run = True
@@ -312,6 +320,7 @@ def add_files_in_folder(parent, dirname, data):
         data.deleteOldFiles()
 
     data.saveData()
+    updateFolderData(first_run, data)
     renderTreedata(data)
     
                 
@@ -365,7 +374,20 @@ def set_file_icon(event):
         
     tree.update(key=key, icon=f_icon)
         
-    
+def tree_key_to_id(key):
+    dictionary = {v:k for k, v in tree.IdToKey.items()}
+    return dictionary[key] if key in dictionary else None
+
+def tree_select(key):
+    id_ = tree_key_to_id(key)
+    if id_:
+        tree.Widget.see(id_)
+        tree.Widget.selection_set(id_)
+
+def tree_expand(key):
+    item = tree.Widget.selection()[0]
+    tree.item(key, open=True)
+   
 def double_click(method_arr):
     item = tree.Widget.selection()[0]
     key = tree.IdToKey[item]
@@ -564,11 +586,11 @@ def popup_nft_settings():
         popup_nft_settings()
         
 
-def do_open_set_article_data(f_path, f_name):
+def do_open_set_article_data(f_path, f_name, window):
     re_open = False
     data = DATA.getData(f_path, f_name, DATA.articleData)
     colData = DATA.columnWidths[f_path]
-    d = popup_set_article_data(f_path, f_name, data, colData)
+    d = popup_set_article_data(f_path, f_name, data, colData, window)
     
     if(d != None):
         if 're_open' in d.keys():
@@ -580,10 +602,10 @@ def do_open_set_article_data(f_path, f_name):
         DATA.saveData()
         
         if re_open:
-            do_open_set_article_data(f_path, f_name)          
+            do_open_set_article_data(f_path, f_name, window)          
             
             
-def popup_set_article_data(md_path, md_name, data, colData):
+def popup_set_article_data(md_path, md_name, data, colData, window):
     columns = []
     article_types = ['Block', 'Expandable', 'Form']
     article_type = data['type'].split('-')[0]
@@ -597,6 +619,8 @@ def popup_set_article_data(md_path, md_name, data, colData):
     img_b64 = base64.b64encode(buffer.getvalue())
     img_vis = False
     nft_data_vis = False
+    folder = DATA.folderPathList[md_path]
+    article_path = os.path.join(folder, md_name)
 
     
     if DATA.settings['nft_type'] != 'None' and DATA.settings['nft_site_type'] == 'Collection-Minter':
@@ -673,10 +697,10 @@ def popup_set_article_data(md_path, md_name, data, colData):
                 json.dump(d, f, ensure_ascii=False, indent=4)
         return page_data
 
-    window = sg.Window("Set Article Data", layout, use_default_focus=False, finalize=True, modal=True, font=font)
-    block_focus(window)
-    event, values = window.read()
-    window.close()
+    popup = sg.Window("Set Article Data", layout, use_default_focus=False, finalize=True, modal=True, font=font)
+    block_focus(popup)
+    event, values = popup.read()
+    popup.close()
     page_data = None
     type_concat = ""
     thumb_concat = ""
@@ -727,9 +751,25 @@ def popup_set_article_data(md_path, md_name, data, colData):
             page_data = None
             if color_chosen != None:
                 rgb = ImageColor.getcolor(color_chosen, 'RGB')
-                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':img, 'color':color_chosen, 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata_link':values['METADATA-LINK'], 'metadata':data['metadata']}    
+                page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':img, 'color':color_chosen, 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata_link':values['METADATA-LINK'], 'metadata':data['metadata']}
+
+        elif event == '-MOVE-ARTICLE-UP-':
+            page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata_link':values['METADATA-LINK'], 'metadata':data['metadata'] }
+            DATA.moveArticleUp(md_path, md_name)
+            renderTreedata(DATA)
+            window['-TREE-'].update(treedata)
+            tree_select(article_path)
+            DATA.saveData()
+
+        elif event == '-MOVE-ARTICLE-DOWN-':
+            page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata_link':values['METADATA-LINK'], 'metadata':data['metadata'] }
+            DATA.moveArticleDown(md_path, md_name)
+            renderTreedata(DATA)
+            window['-TREE-'].update(treedata)
+            tree_select(article_path)
+            DATA.saveData()
                 
-        return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' or event == 'Color Picker' else None
+        return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' or event == 'Color Picker'  or event == '-MOVE-ARTICLE-UP-' or event == '-MOVE-ARTICLE-DOWN-' else None
             
 def popup_set_meta_data(md_name, data):
     
@@ -1350,7 +1390,7 @@ seeds = []
 
 while True:
     event, values = window.read()
-    #print(event)
+    print(event)
     # if event == 'DEBUG':
     #     print(dero.node)
     #     print(dero.wallet)
@@ -1429,7 +1469,7 @@ while True:
                 do_open_set_page_data(f_name)
      
             if os.path.isfile(path_val):
-                do_open_set_article_data(f_path, f_name)
+                do_open_set_article_data(f_path, f_name, window)
 
         elif event in command:
             
@@ -1694,7 +1734,6 @@ while True:
             final_list = list(listbox.get(0, listbox.size()-1)) # Get final values in sg.litbox
             DATA.pageList.insert(0, DATA.pageList.pop(idx))
             DATA.saveData()
-        
         
     if event == '-DEBUG-':
         site_data = DATA.generateSiteData()
