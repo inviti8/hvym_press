@@ -151,29 +151,6 @@ class SiteDataHandler:
           self._old_mdFileList = data['mdFileList']
  
       self.saveData()
-
-   def _reorder_dict(self, d, key, index):
-    if not isinstance(key, str) or not isinstance(index, int):
-        return d
-
-    if index == 1:
-        try:
-            temp = [d[key]]
-            for i in range(len(list(d.keys())) - 1):
-                del d[list(d.keys())[i]]
-            for i in range(1):
-                d[list(d.keys())[i]] = temp[0]
-        except KeyError:
-            pass
-    elif index == -1:
-        try:
-            temp = [d[key]]
-            for i in range(len(list(d.keys()))-1, 0, -1):
-                del d[list(d.keys())[i-1]]
-            d[list(d.keys())[0]] = temp[0]
-        except KeyError:
-            pass
-    return d
    
    def _reorder_list(self, l, list_element, index):
       i = l.index(list_element)
@@ -201,6 +178,7 @@ class SiteDataHandler:
        self.folderPathList[folder] = path
 
    def updateFolderData(self, folder):
+       print(f'ADDING NEW FOLDER DATA!!!!: {folder}')
        articleList = []
        for a in self.articleData[folder].keys():
            articleList.append(a)
@@ -362,6 +340,13 @@ class SiteDataHandler:
                
                for f, obj in self._old_mdFileList[k].items():
                    print(obj)
+
+   def pruneFolders(self):
+       if not self.firstRun:
+        for k, path in self._old_folderPathList.items():
+           if not os.path.isdir(path):
+               self.oldFolders.append(k)
+               print(k+" is added to old folders")              
        
    def deleteFolder(self, folder, selfData):
        if folder in selfData.keys():
@@ -460,13 +445,14 @@ class SiteDataHandler:
 
        for folder in self.oldDataFolders:
            path = self.oldDataKeys[idx]
-           
            self.deleteFile(folder, path, self.folders)
            self.deleteFile(folder, path, self.articleData)
            self.deleteFile(folder, path, self.formData)
            self.deleteFile(folder, path, self.metaData)
            
        for folder in self.oldFolders:
+           print(f'OLD FOLDER: {folder}')
+           self.deleteFolder(folder, self.folderData)
            self.deleteFolder(folder, self.folders)
            self.deleteFolder(folder, self.pageData)
            self.deleteFolder(folder, self.columnWidths)

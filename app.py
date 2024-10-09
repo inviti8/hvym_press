@@ -219,19 +219,20 @@ def newMdFile(parent, file, filename, fullpath, icon, data):
     data.addAuthor('anonymous', anon)       
 
 def renderTreedata(data):
-    print('RENDER TREE')
     #clear the tree
     treedata.delete_tree()
 
     #render the data
-    for page, aData in data.articleData.items():
+    for page in data.pageList:
+        aData = data.articleData[page]
         pagePath = data.folderPathList[page]
         treedata.Insert('', pagePath, page, values=[0], icon=folder_icon )
-        for article in data.folderData[page]['articleList']:
-            d = aData[article]
-            articlePath = os.path.join(pagePath, article)
-            icon = get_file_icon(d['type'])
-            treedata.Insert(pagePath, articlePath, article, values=[0], icon=icon )
+        if page in data.folderData:
+            for article in data.folderData[page]['articleList']:
+                d = aData[article]
+                articlePath = os.path.join(pagePath, article)
+                icon = get_file_icon(d['type'])
+                treedata.Insert(pagePath, articlePath, article, values=[0], icon=icon )
 
 def updateFolderData(first_run, data):
     if not first_run:
@@ -246,7 +247,8 @@ def add_files_in_folder(parent, dirname, data):
     new_folders = []
     first_run = False
     
-    if(data.fileExists):
+    if(data.fileExists and not first_run):
+        data.pruneFolders()
         for f in files:
             fullpath = os.path.join(dirname, f)
             f_name = os.path.basename(f)
@@ -269,7 +271,7 @@ def add_files_in_folder(parent, dirname, data):
                 file_extension = pathlib.Path(f).suffix           
                 if file_extension == '.md':
                     data.addMdPath(f, fullpath)
-                    if f_name in data.articleData[f_path].keys():
+                    if f_path in data.articleData and f_name in data.articleData[f_path].keys():
                         data_t = data.articleData[f_path][f_name]['time_stamp']
                         
                     if data.hasNoFileFolder(f_path) or data.hasNoFile(f_path, f):
@@ -1282,10 +1284,11 @@ dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
 check = [icon(0), icon(1), icon(2)]
 
 starting_path = sg.popup_get_folder('Site Directory', font=font)
-base_resource_dir = os.path.join(starting_path, '_resources')
 
 if not starting_path:
     sys.exit(0)
+
+base_resource_dir = os.path.join(starting_path, '_resources')
     
 DATA = SiteDataHandler.SiteDataHandler(starting_path)
 SERVER_STATUS = ServerHandler.ServerStatusHandler()
