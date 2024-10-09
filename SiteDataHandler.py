@@ -604,11 +604,9 @@ class SiteDataHandler:
            self.updateColumnWidths(folder, data)
 
    def moveArticleUp(self, page, article):
-       print(self.folderData[page])
        self.folderData[page]['articleList'] = self._reorder_list(self.folderData[page]['articleList'], article, -1)
 
    def moveArticleDown(self, page, article):
-       print(self.folderData[page])
        self.folderData[page]['articleList'] = self._reorder_list(self.folderData[page]['articleList'], article, 1)
            
    def updateArticleData(self, folder, path, data):

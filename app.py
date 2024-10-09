@@ -216,7 +216,44 @@ def newMdFile(parent, file, filename, fullpath, icon, data):
     data.addMdPath(file, fullpath)
     newFileData(f_path, file, fullpath, data)
     print("newFileData is added@: "" fullpath: " +fullpath+" f: "+ file+" and f_name: "+filename+" is appended")
-    data.addAuthor('anonymous', anon)       
+    data.addAuthor('anonymous', anon)
+
+def moveTreeElement(path, name, move_method):
+    if '.md' in name:
+        move_method(path, name)
+    else:
+        move_method(name)
+
+def updateMovedTreeElement(window, data, path, name):
+    if '.md' in name:
+        folder = data.folderPathList[path]
+        article_path = os.path.join(folder, name)
+        renderTreedata(data)
+        window['-TREE-'].update(treedata)
+        tree_select(article_path)
+    else:
+        page_path = data.folderPathList[name]
+        renderTreedata(data)
+        window['-TREE-'].update(treedata)
+        tree_select(page_path)
+
+    data.saveData()
+
+def moveTreeElementUp(window, data, path, name):
+    if '.md' in name:
+        moveTreeElement(path, name, data.moveArticleUp)
+        updateMovedTreeElement(window, data, path, name)
+    else:
+        moveTreeElement(path, name, data.movePageUp)
+        updateMovedTreeElement(window, data, path, name)
+
+def moveTreeElementDown(window, data, path, name):
+    if '.md' in name:
+        moveTreeElement(path, name, data.moveArticleDown)
+        updateMovedTreeElement(window, data, path, name)
+    else:
+        moveTreeElement(path, name, data.movePageDown)
+        updateMovedTreeElement(window, data, path, name)
 
 def renderTreedata(data):
     #clear the tree
@@ -621,8 +658,6 @@ def popup_set_article_data(md_path, md_name, data, colData, window):
     img_b64 = base64.b64encode(buffer.getvalue())
     img_vis = False
     nft_data_vis = False
-    folder = DATA.folderPathList[md_path]
-    article_path = os.path.join(folder, md_name)
 
     
     if DATA.settings['nft_type'] != 'None' and DATA.settings['nft_site_type'] == 'Collection-Minter':
@@ -674,8 +709,6 @@ def popup_set_article_data(md_path, md_name, data, colData, window):
     col_layout1 = [[sg.Column(col_layout_color, expand_x=True, element_justification='left'), sg.Column(col_layout_colorr, expand_x=True, element_justification='right')]]
     col_layout2 = [[sg.Column(col_layout_l, expand_x=True, element_justification='left'), sg.Column(col_layout_r, expand_x=True, element_justification='right')]]
     col_layout3 = [[sg.Frame('NFT', col_nft_layout, expand_x=True, visible=nft_data_vis, font=font)]]
-    
-    col_layout_order_btns = [[sg.Button("Move Up", font=font, enable_events=True, k='-MOVE-ARTICLE-UP-'), sg.Button('Move Down', font=font, enable_events=True, k='-MOVE-ARTICLE-DOWN-')]]
 
     col_layout_btns = [[sg.Button("Save", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DATA-'), sg.Button('Cancel', font=font), sg.Button("Save As Default", font=font, bind_return_key=True, enable_events=True, k='-SAVE-DEFAULT-')]]
     layout = [
@@ -684,7 +717,6 @@ def popup_set_article_data(md_path, md_name, data, colData, window):
         [sg.Column(col_layout1, expand_x=True, element_justification='left')],
         [sg.Column(col_layout2, expand_x=True, element_justification='left')],
         [sg.Column(col_layout3, expand_x=True, element_justification='left')],
-        [sg.Column(col_layout_order_btns, expand_x=True, element_justification='center')],
         [sg.Column(col_layout_btns, expand_x=True, element_justification='right')],
     ]
     
@@ -754,24 +786,8 @@ def popup_set_article_data(md_path, md_name, data, colData, window):
             if color_chosen != None:
                 rgb = ImageColor.getcolor(color_chosen, 'RGB')
                 page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'time_stamp': data['time_stamp'], 'bg_img':img, 'color':color_chosen, 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata_link':values['METADATA-LINK'], 'metadata':data['metadata']}
-
-        elif event == '-MOVE-ARTICLE-UP-':
-            page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata_link':values['METADATA-LINK'], 'metadata':data['metadata'] }
-            DATA.moveArticleUp(md_path, md_name)
-            renderTreedata(DATA)
-            window['-TREE-'].update(treedata)
-            tree_select(article_path)
-            DATA.saveData()
-
-        elif event == '-MOVE-ARTICLE-DOWN-':
-            page_data = {'re_open':True, 'name':values['NAME'], 'column':values['COLUMN'], 'type':type_string, 'border':values['BORDER-TYPE'], 'bg_img_opacity':values['IMG-OPACITY'], 'author':values['AUTHOR'], 'use_thumb':values['USE-THUMB'], 'html': data['html'], 'bg_img':img, 'time_stamp': data['time_stamp'], 'color':values['COLOR'], 'rgb':rgb, 'use_color':values['USE-COLOR'], 'nft_start_supply':values['NFT-START-SUPPLY'], 'contract':"", 'metadata_link':values['METADATA-LINK'], 'metadata':data['metadata'] }
-            DATA.moveArticleDown(md_path, md_name)
-            renderTreedata(DATA)
-            window['-TREE-'].update(treedata)
-            tree_select(article_path)
-            DATA.saveData()
                 
-        return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' or event == 'Color Picker'  or event == '-MOVE-ARTICLE-UP-' or event == '-MOVE-ARTICLE-DOWN-' else None
+        return page_data if event == '-SAVE-DATA-' or event == 'Delete Image' or event == 'Color Picker' else None
             
 def popup_set_meta_data(md_name, data):
     
@@ -1293,7 +1309,7 @@ base_resource_dir = os.path.join(starting_path, '_resources')
 DATA = SiteDataHandler.SiteDataHandler(starting_path)
 SERVER_STATUS = ServerHandler.ServerStatusHandler()
 
-command = ['__________','Set-Column-Widths', '__________','Set-Meta-Data', 'Set-Form-Data']
+command = ['Move Up', 'Move Down', '__________','Set-Column-Widths', '__________','Set-Meta-Data', 'Set-Form-Data']
 author_dropdown = ['Add-Author', 'Update-Author', 'Delete-Author']
 css_input_dropdown = ['Reset-Css']
 #treedata = sg.TreeData()
@@ -1306,9 +1322,7 @@ ui_settings_layout = [[sg.Frame('UI Settings', [
                                                 [name('Style'), sg.Combo(DATA.styles, default_value=DATA.settings['style'], s=(15,22), enable_events=True, readonly=True, k='SETTING-style', font=font)],
                                                 [name('Row Padding'), sg.Spin(values=[i for i in range(1, 100)], initial_value=DATA.settings['row_pad'], enable_events=True, s=(25,22), k='SETTING-row_pad', font=font)],
                [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='SETTING-theme', font=font)],
-               [name('Custom CSS'), sg.Input(default_text=DATA.settings['customTheme'], s=20, right_click_menu=['&Right', css_input_dropdown], enable_events=True, k='SETTING-customTheme', font=font), sg.FolderBrowse(font=font)],
-               [name('Page Order'), sg.Listbox(DATA.pageList, expand_x=True, size=(10, 5), key="-ITEM-", font=font)],
-               [name(''), sg.Button("Move item to top", key="-CHANGE-PAGE-ORDER-", font=font)]
+               [name('Custom CSS'), sg.Input(default_text=DATA.settings['customTheme'], s=20, right_click_menu=['&Right', css_input_dropdown], enable_events=True, k='SETTING-customTheme', font=font), sg.FolderBrowse(font=font)]
                ], expand_y=True, expand_x=True, font=font)]]
 
 site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input(default_text=DATA.settings['siteName'], s=20, enable_events=True, k='SETTING-siteName', font=font)],
@@ -1379,29 +1393,13 @@ tree = window['-TREE-']         # type: sg.Tree
 tree.bind("<Double-1>", '+DOUBLE')
 block_focus(window)
 
-# key_handler = KeyHandler.KeyHandler(APP_ID, KEY, device_id, window)
-# if key_handler.initialized == False:
-#     sg.popup_error("Unable to initialize, please make sure you're connected to the internet, and try to start the program again.")
-#     window.close()
-#     sys.exit()
-    
-# open_ai = OpenAiHandler.OpenAIHandler(key_handler.openAI, resource_dir)
 
 ai_imgs = {}
 png_b64 = []
 seeds = []
 
 while True:
-    event, values = window.read()
-    print(event)
-    # if event == 'DEBUG':
-    #     print(dero.node)
-    #     print(dero.wallet)
-    #     dero.ping('20000')
-        #ImgToggle(window['ICON-LOCALHOST'])
-        #dero.create_new_wallet()
-        
-    
+    event, values = window.read() 
     # ------ Process menu choices ------ #
     if event == 'About...':
         #window.disappear()
@@ -1503,6 +1501,11 @@ while True:
                         if(d != None):
                             DATA.updateColumnWidths(f_name, d)
                             DATA.saveData()
+            if(event == 'Move Up'):
+                moveTreeElementUp(window, DATA, f_path, f_name)
+            if(event == 'Move Down'):
+                moveTreeElementDown(window, DATA, f_path, f_name)
+
                             
     if event == '-MD-BOLD-' or event == '-MD-ITALIC-' or event == '-MD-STRIKETHRU-' or event == '-MD-STRIKETHRU-' or '-MD-HEADING' in event:
         mline = window["-MD-INPUT-"]
@@ -1726,17 +1729,6 @@ while True:
     if(event == 'Reset-Css'):
         DATA.resetCss()
         window.Element('SETTING-theme').Update(text='')
-                
-    if(event == '-CHANGE-PAGE-ORDER-'):
-        listbox = window['-ITEM-'].Widget
-        idx = window.Element('-ITEM-').Widget.curselection()[0]
-        if idx != None:
-            old_index, new_index = idx, 0
-            if not listbox_move(listbox, old_index, new_index):
-                print("Something wrong, maybe wrong index.")
-            final_list = list(listbox.get(0, listbox.size()-1)) # Get final values in sg.litbox
-            DATA.pageList.insert(0, DATA.pageList.pop(idx))
-            DATA.saveData()
         
     if event == '-DEBUG-':
         site_data = DATA.generateSiteData()
