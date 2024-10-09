@@ -178,7 +178,6 @@ class SiteDataHandler:
        self.folderPathList[folder] = path
 
    def updateFolderData(self, folder):
-       print(f'ADDING NEW FOLDER DATA!!!!: {folder}')
        articleList = []
        for a in self.articleData[folder].keys():
            articleList.append(a)
@@ -223,7 +222,7 @@ class SiteDataHandler:
        for idx in range(0, columns):
            result['content']['columns'].append([])
        
-       for k in self.articleData[page].keys():
+       for k in self.folderData[page]['articleList']:
            article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'max_width':None, 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':"", 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"", 'metadata':json.dumps(self.opensea_metadata)}
            
            props = self.articleData[page][k].keys()
@@ -449,9 +448,11 @@ class SiteDataHandler:
            self.deleteFile(folder, path, self.articleData)
            self.deleteFile(folder, path, self.formData)
            self.deleteFile(folder, path, self.metaData)
+           self.deleteFile(folder, path, self.pageData)
+           if path in self.folderData[folder]['articleList']:
+               self.folderData[folder]['articleList'].pop(self.folderData[folder]['articleList'].index(path))
            
        for folder in self.oldFolders:
-           print(f'OLD FOLDER: {folder}')
            self.deleteFolder(folder, self.folderData)
            self.deleteFolder(folder, self.folders)
            self.deleteFolder(folder, self.pageData)
