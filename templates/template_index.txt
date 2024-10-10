@@ -415,7 +415,7 @@
                           {% if card.type == 'Expandable' %}
                           <ons-list-item expandable>
                           {% else %}
-                          <ons-list-item expandable expanded class="list-item list-item--expandable expanded ">
+                          <ons-list-item>
                           {% endif %}
                           {% if card.use_thumb %}
                             {% if card.author_img != '' %}
@@ -425,7 +425,11 @@
                             </div>
                               {% endif %}
                             {% endif %}
+                            {% if card.type == 'Expandable' %}
                             <div class="expandable-content">
+                            {% else %}
+                            <div>
+                            {% endif %}
                               <div class="article">
                                 <br />
                                 {{card.html}}
@@ -551,7 +555,7 @@
                           {% if card.type == 'Expandable' %}
                           <ons-list-item expandable>
                           {% else %}
-                          <ons-list-item expandable expanded class="list-item list-item--expandable expanded ">
+                          <ons-list-item>
                           {% endif %}
                           {% if card.use_thumb %}
                             {% if card.author_img != '' %}
@@ -561,7 +565,11 @@
                             </div>
                               {% endif %}
                             {% endif %}
+                            {% if card.type == 'Expandable' %}
                             <div class="expandable-content">
+                            {% else %}
+                            <div>
+                            {% endif %}
                               <div class="article">
                                 <br />
                                 {{card.html}}

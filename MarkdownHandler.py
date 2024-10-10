@@ -9,7 +9,6 @@ import markdown
 from pathlib import Path
 from PIL import Image
 from bs4 import BeautifulSoup
-from mrkdwn_analysis import MarkdownAnalyzer
 from jinja2 import Environment, FileSystemLoader
 
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )

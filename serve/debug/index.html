@@ -1,0 +1,2770 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <link rel="shortcut icon" type="image/x-icon" href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmcJLBGNFb2UKFy3jspNfHk8wFCjhSsBDaQ2tWrASQBSYE" />
+  <title></title>
+  <link rel="stylesheet" href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsenui.min.css">
+  <link rel="stylesheet" href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsen-css-components.min.css">
+  <script src="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/js/onsenui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/approvejs/3.1.2/approve.min.js" integrity="sha512-TmhOO3rUu5WfsLdsw9H1pB/p5/A/KnhydCuLNGlZoukfUUopMmA2sq6DWR9E+acuLB1DBk2A8cq63f7JMwHgVQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script type="module">
+    window.fn = {};
+
+    window.fn.open = function () {
+      var menu = document.getElementById('menu');
+      menu.open();
+    };
+    
+    window.fn.load = function (page) {
+      var menu = document.getElementById('menu');
+      var myNavigator = document.getElementById('myNavigator');
+    
+      menu.close();
+      myNavigator.resetToPage(page, { animation: 'fade' });
+    };
+
+    window.fn.showDialog = function(id) {
+      var dialog = document.getElementById(id);
+
+      if (dialog) {
+          dialog.show();
+      } else {
+        ons.createElement(id+'.html', { append: true })
+          .then(function(dialog) {
+              dialog.show();
+            });
+        }
+    };
+
+    window.fn.hideDialog = function(id) {
+      document
+        .getElementById(id)
+        .hide();
+    };
+
+    window.fn.formStateHandler = function (form, state) {
+        var buttons = form.querySelectorAll("button");
+        for (var i = 0; i < buttons.length; i++) {
+          buttons[i].disabled = state;
+        }
+    }
+
+    window.fn.validateEmail = function (form) {
+        var result = false;
+
+        var rules = {
+            required: true,
+            email: true
+        };
+
+        var inputs = document.getElementsByTagName("input");
+        var email = null;
+
+        for (var i = 0; i < inputs.length; i++) {
+            var input = inputs[i];
+
+            if(input.name == "email"){
+                email = input;
+                break;
+            }
+        }
+
+        if(email != null){
+            result = approve.value(email.value, rules);
+        }
+
+        return result['approved'];
+    }
+
+    window.fn.validateFields = function (form) {
+        var result = false;
+        var results = []
+
+        var rules = {
+            required: true
+        };
+
+        var inputs = document.getElementsByTagName("input");
+        var email = null;
+
+        for (var i = 0; i < inputs.length; i++) {
+            var input = inputs[i];
+            results.push(approve.value(input.value, rules)['approved']);
+        }
+
+        for (var i = 0; i < results.length; i++) {
+            var approved = results[i];
+
+            if(approved == false){
+                break;
+            }
+
+            result = approved;
+
+        }
+
+
+        return result;
+    }
+
+    ons.ready(function() {
+      var forms = document.getElementsByTagName("form");
+
+      for (var i = 0; i < forms.length; i++) {
+         var form = forms.item(i);
+
+        form.onsubmit = function (e) {
+            e.preventDefault();
+            var fields_filled = fn.validateFields(form);
+            var email_valid = fn.validateEmail(form);
+
+            if(fields_filled){
+                if(email_valid){
+                    fn.showDialog('loading');
+                    fn.formStateHandler(form, true);
+
+                    fetch(form.action, {
+                        method: "post", 
+                        body: new FormData(form)
+                    }).then(response => {
+                        var form_id = form.id
+                        var dlg_id = form_id.replace("form_", "dlg_")
+                        fn.hideDialog('loading');
+                        fn.showDialog(dlg_id);
+                        fn.formStateHandler(form, false);
+                    });
+
+                }else{
+                    alert('Email is invalid!');
+                }
+
+            }else{
+                alert('Some fields are empty!');
+            }
+        }
+      }
+
+      
+
+    });
+
+  </script>
+  <style>
+    textarea {
+        border: none;
+        overflow: auto;
+        outline: none;
+    
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none;
+    }
+    ons-list{
+      opacity: 90%;
+    }
+    ons-row{
+        padding: 5%;
+    }
+    ons-col, ons-card{
+        min-width: 350px;
+        margin: 0 auto;
+    }
+    video {
+      /* override other styles to make responsive */
+      width: 100%    !important;
+      height: auto   !important;
+    }
+    .menu_icon{
+      padding-right: 10px;
+    }
+    .author{
+      padding-left: 10px;
+    }
+    .form_container{
+      margin: 0 auto;
+    }
+    .form_list{
+        width: 100%;
+        margin: 0 auto;
+        max-width: 350px;
+        min-width: 250px;
+    }
+    .form_list_item{
+        width: 100%;
+        min-width:200px;
+        margin: 0;
+    }
+    .form_input{
+        width: 100%;
+        min-width:250px;
+        margin: 0 auto;
+    }
+    .article { 
+        height: 200px; 
+        width:100%; 
+        overflow: scroll;
+        outline: none;
+    
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none; 
+      }
+      .expanded_article {
+        width: 80%;
+        padding-left: 10%;
+        text-align: left;
+      }
+      .deployed_img_p{
+        padding-left: 10%;
+        padding-right: 10%;
+        width: 80%;
+      }
+      .deployed_img{
+        width: 100%;
+      }
+      .content_default{
+        height: 200px;
+      }
+      .content_medium{
+        height: 250px;
+      }
+      .content_tall{
+        height: 300px;
+      }
+      .vid_container{
+        margin: 0 auto;
+        max-width: 80%;
+        min-width: 250px;
+      }
+    </style>
+
+</head>
+<body>
+
+<!-- partial:index.partial.html -->
+<ons-splitter>
+  <ons-splitter-side id="menu" side="right" width="220px" collapse swipeable>
+    <ons-page>
+      <ons-list>
+        
+          
+        <ons-list-item onclick="fn.load('HEAVYMETA Blog.html')" tappable>
+          HEAVYMETA Blog
+        </ons-list-item>
+          
+        
+          
+        <ons-list-item onclick="fn.load('IPFS GateWay.html')" tappable>
+          IPFS GateWay
+        </ons-list-item>
+          
+        
+          
+        <ons-list-item onclick="fn.load('IPFS Gateway 2023.html')" tappable>
+          IPFS Gateway 2023
+        </ons-list-item>
+          
+        
+      </ons-list>
+    </ons-page>
+  </ons-splitter-side>
+  <ons-splitter-content>
+    <ons-navigator id="myNavigator" page="HEAVYMETA Blog.html"></ons-navigator>
+  </ons-splitter-content>
+</ons-splitter>
+
+
+
+
+
+
+<template id="HEAVYMETA Blog.html">
+  <ons-page>
+    <ons-toolbar modifier="default">
+      <div class="center">
+        HEAVYMETA Blog
+      </div>
+      
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()" modifier="default">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      
+    </ons-toolbar>
+    <div style="text-align: center">
+      <ons-row>
+        
+           <ons-col width="100.0%">
+                
+                
+                
+                    
+                    <ons-card style="max-width:None%;  margin:0 auto; margin-bottom: 5px;" modifier="default">
+                    
+                  
+                    <div class="title">
+                      Let_s Begin.md
+                    </div>
+                      <div class="content">
+                        
+                        <ons-list modifier="default">
+                        
+                          
+                          <ons-list-item>
+                          
+                          
+                            
+                            <div>
+                            
+                              <div class="article">
+                                <br />
+                                <p>I have been working in the Games Industry for well over 10 years.  First starting as a 3D Artist then moving into Technical Art.  I can see that Web3 holds great potential for Artists.  Leveraging this tech, we can create content and host it on the decentralized web.  We can maintain, sell, and transfer real ownership of our art via NFTs.  This means we can take control of what we produce with no middlemen.</p>
+<p>Being that I am well versed in content creation for games, it only makes sense that I focus on this arena first.  I am currently working on a Blender Add-On that will allow us to export 3D assets to ipfs, and encapsulate all associated links in an NFT Minting page.  This page will allow others to purchase customized version of our game ready art assets as NFTs.  Though, instead of just being an image, HEAVYMETA NFTs have real utility.  Game developers can use these assets in games, allowing players to use the same assets across multiple games where viable.</p>
+<p class="deployed_img_p">It's still the wild west in Web3, and to me that seems like the best time possible to stake a claim.  If you're reading this, you probably have similar thoughts.  If you're up for it, I'd love for you to come along with me on this ride.
+<img alt="DALL&middot;E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png" src="../_resources/DALL&middot;E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png" style="width:100%;"/></p>
+                                  
+                                  <ons-list>
+                                  
+                                </ons-list>
+                                
+                              </div>
+                              <ons-fab onclick="myNavigator.pushPage('nav_Let_s Begin.md.html')" modifier="default">
+                                <ons-icon icon="fa-chevron-left"></ons-icon>
+                              </ons-fab>
+                            </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                
+                
+           </ons-col>
+        
+       </ons-row>
+    </div>
+  </ons-page>
+</template>
+
+<template id="IPFS GateWay.html">
+  <ons-page>
+    <ons-toolbar modifier="default">
+      <div class="center">
+        IPFS GateWay
+      </div>
+      
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()" modifier="default">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      
+    </ons-toolbar>
+    <div style="text-align: center">
+      <ons-row>
+        
+           <ons-col width="%">
+                
+                
+                
+                    
+                    <ons-card style="max-width:None%;  margin:0 auto; margin-bottom: 5px;" modifier="default">
+                    
+                  
+                    <div class="title">
+                      IPFS Cluster Set Up part.1.md
+                    </div>
+                      <div class="content">
+                        
+                        <ons-list modifier="default">
+                        
+                          
+                          <ons-list-item expandable>
+                          
+                          
+                            
+                            <div class="expandable-content">
+                            
+                              <div class="article">
+                                <br />
+                                <p><a href="https://www.geekdecoder.com/setting-up-a-private-ipfs-network-with-ipfs-and-ipfs-cluster/">Notes Based on this link</a></p>
+<hr/>
+<hr/>
+<hr/>
+<p>Open PowerShell as admin:</p>
+<p><code>root@ip.address.here</code></p>
+<p>enter pw</p>
+<p>Set up new user:</p>
+<p>Add new user:
+<code>adduser username</code>
+Enable su-mode:
+<code>su -</code>
+Install sudo:
+<code>apt-get install sudo -y</code>
+Elevate the user:
+<code>usermod -aG sudo yourusername</code>
+Open sudo config:
+<code>visudo</code>
+Switch users:
+<code>su - username</code></p>
+<hr/>
+<hr/>
+<p>download ipfs &amp; unzip:</p>
+<p><code>wget  https://dist.ipfs.io/go-ipfs/v0.12.2/go-ipfs_v0.12.2_linux-amd64.tar.gz</code></p>
+<p><code>tar -xzf go-ipfs_v0.12.2_linux-amd64.tar.gz</code></p>
+<p><code>cd go-ipfs</code></p>
+<p><code>sudo ./install.sh</code></p>
+<hr/>
+<hr/>
+<p>Install ipfs and test:</p>
+<p><code>sudo go-ipfs/install.sh</code></p>
+<p><code>OUTPUT:
+Moved go-ipfs/ipfs to /usr/local/bin</code></p>
+<hr/>
+<hr/>
+<p>Check version:</p>
+<p><code>ipfs --version</code></p>
+<p><code>ipfs version 0.12.2</code></p>
+<hr/>
+<hr/>
+<p>Set the ipfs environment variable:</p>
+<p><code>IPFS_PATH=~/.ipfs ipfs init --profile server</code></p>
+<hr/>
+<hr/>
+<p>Remove default bootstrap nodes, set up private connections:</p>
+<p><code>IPFS_PATH=~/.ipfs ipfs bootstrap rm --all</code></p>
+<p>Get Bootnode IP Address:</p>
+<p><code>hostname -I</code></p>
+<p><code>OUTPUT:
+192.168.0.95 2603:8081:2301:3b54:5054:ff:fe4c:c469</code></p>
+<hr/>
+<hr/>
+<p>Get Peer ID Hash:</p>
+<p><code>IPFS_PATH=~/.ipfs ipfs config show | grep "PeerID"</code></p>
+<p><code>OUTPUT:
+"PeerID": "12D3KooWM5oWJ2Z55dCSvyB3Zo6nS1zW1GvnoZSdxNdDCuDAGvb3"</code></p>
+<hr/>
+<p>Remove all bootstrap peers from the node:
+<code>IPFS_PATH=~/.ipfs ipfs bootstrap rm --all</code></p>
+<hr/>
+<p><a href="https://docs.ipfs.io/how-to/modify-bootstrap-list/">Modify bootstrap node list</a> for private network, command is constructed as follows:</p>
+<p>IPFS_PATH=~/.ipfs ipfs bootstrap add /ip4/<strong><span style="color: red;">Bootnode IP Address</span></strong>/tcp/4001/ipfs/<strong><span style="color: red;">Peer ID Hash</span></strong>;
+Example:</p>
+<p><code>IPFS_PATH=~/.ipfs ipfs bootstrap add /ip4/192.168.0.95/tcp/4001/ipfs/12D3KooWM5oWJ2Z55dCSvyB3Zo6nS1zW1GvnoZSdxNdDCuDAGvb3</code></p>
+<p>To look at the peers, you can say:</p>
+<p><code>ipfs config show</code></p>
+<p class="deployed_img_p">Then scroll up to see
+<img alt="88e38fae3cd7f825ed36e40b8a5cb42e.png" src="../_resources/88e38fae3cd7f825ed36e40b8a5cb42e.png" style="width:100%;"/></p>
+<hr/>
+<hr/>
+<p>In order for the nodes to be able to talk to each other, the nodes must all share a swarm key. So we need to install Go on one of our nodes.</p>
+<p>Download Go:</p>
+<p><code>wget https://go.dev/dl/go1.18.2.linux-amd64.tar.gz</code></p>
+<p>Install Go:</p>
+<p><code>sudo tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz</code>
+Set Go Path:
+<code>export PATH=$PATH:/usr/local/go/bin</code></p>
+<hr/>
+<hr/>
+<p>**I ran into some issues when genrating the swarm key, I had to manulally generat it by downloading a git repo:</p>
+<p><code>git clone https://github.com/Kubuxu/go-ipfs-swarm-key-gen</code></p>
+<p>Generate the swarm key:</p>
+<p><code>cd go-ipfs-swarm-key-gen
+go run main.go</code></p>
+<p>The open swarm.key, and copy it's contents:</p>
+<p>```
+cd ~./ipfs</p>
+<p>sudo nano swarm.key
+```</p>
+<hr/>
+<hr/>
+<p>**<span style="color: red;">On the other node</span>, navigate to ipfs folder:</p>
+<p><code>cd ~./ipfs</code></p>
+<p>Create a swarm key file &amp; paste in lines from other node</p>
+<p><code>sudo nano swarm.key</code></p>
+<p>Pasted 3 lines should look similar to:</p>
+<p><code>/key/swarm/psk/1.0.0/
+/base16/
+25f64b1cf31f649817d495e446d4cbcc99000b8cc032a89b681e5f86f995fa28</code></p>
+<p>No sure what this file is, need to look up.</p>
+<hr/>
+<hr/>
+<p>Now we should be able to test our nodes:
+Force the setup to not connect, if there is an issue with our configuration:</p>
+<p><code>export LIBP2P_FORCE_PNET=1</code></p>
+<p>Start the network:</p>
+<p><code>IPFS_PATH=~/.ipfs ipfs daemon</code></p>
+<p>Now you can open two additional terminals to the servers, and ssh in. Then run some ipfs commands to ensure everything is working.</p>
+<p>Add a file on one node:</p>
+<p><code>echo "Hello World!" &gt; file1.txt
+$ ipfs add file1.txt
+added QmfM2r8seH2GiRaC4esTjeraXEachRt8ZsSeGaWTPLyMoG file1.txt
+ 13 B / 13 B [==========================================================] 100.00%
+$ ipfs cat QmfM2r8seH2GiRaC4esTjeraXEachRt8ZsSeGaWTPLyMoG
+Hello World!</code></p>
+<p>Check it on the other:</p>
+<p><code>ipfs cat QmfM2r8seH2GiRaC4esTjeraXEachRt8ZsSeGaWTPLyMoG
+Hello World!</code></p>
+                                  
+                                  <ons-list>
+                                  
+                                </ons-list>
+                                
+                              </div>
+                              <ons-fab onclick="myNavigator.pushPage('nav_IPFS Cluster Set Up part.1.md.html')" modifier="default">
+                                <ons-icon icon="fa-chevron-left"></ons-icon>
+                              </ons-fab>
+                            </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                
+                
+                
+                
+                    
+                    <ons-card style="max-width:None%;  margin:0 auto; margin-bottom: 5px;" modifier="default">
+                    
+                  
+                    <div class="title">
+                      How To Set Up A Public IPFS Gateway.md
+                    </div>
+                      <div class="content">
+                        
+                        <ons-list modifier="default">
+                        
+                          
+                          <ons-list-item>
+                          
+                          
+                            
+                            <div>
+                            
+                              <div class="article">
+                                <br />
+                                <h3>How To Set Up A Public IPFS Gateway</h3>
+<p>In a previous guide I showed <a href="https://blog.raptoreum.com/how-to-setup-a-private-ipfs-cluster/">how to set up a private IPFS cluster</a> now in this case I also need a public IPFS gateway so files on the private cluster are accessible by the public. This gateway will run on one of the IPFS nodes in the cluster, and I will use Nginx as a proxy to the local ipfs gateway that ships with the IPFS daemon. As usual this is on a Ubuntu 18.04 server. So here we go with how to set up a public IPFS gateway!</p>
+<h2>What You Need</h2>
+<ul>
+<li>A domain or sub-domain pointed to the server IP where your IPFS is</li>
+<li>A cup of coffee</li>
+</ul>
+<h2>Install Nginx And Configure</h2>
+<p><code>apt install nginx -y</code></p>
+<p>Check status to make sure it started and is not throwing any errors:</p>
+<p><code>systemctl status nginx</code></p>
+<p>Get your IP and open it with browser to make sure Nginx is serving its default page:</p>
+<p><code>curl -4 icanhazip.com</code></p>
+<p>Now browse to http://your-ip-here and you should see the Nginx default page &ldquo;<strong>Welcome to Nginx!</strong>&ldquo;.</p>
+<p>Set Up your nginx configs:</p>
+<p><code>mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code></p>
+<p><code>nano /etc/nginx/sites-available/default</code></p>
+<p>Copy and paste this config (change ipfs.weusertm.com to your domain)</p>
+<p>```
+server { server_name ipfs.weusertm.com; server_tokens off; listen 443 ssl; listen [::]:443 ssl; location / { proxy_pass http://localhost:8080; proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection 'upgrade'; proxy_set_header Host $host; proxy_cache_bypass $http_upgrade;
+    }
+}</p>
+<p>```</p>
+<p>Test that new config syntax and make sure it is ok:</p>
+<p><code>nginx -t</code></p>
+<p>If all good reload:</p>
+<p><code>systemctl reload nginx</code></p>
+<p>Of course we want to offer https. If you use CloudFlare you can get away with not installing CertBot for Lets Encrypt and you will have a good https connection. But keep in mind this is only one way encryption, if you want full encryption both ways you need to have a valid SSL on the IPFS machine as well. For full two way encryption you need to change a setting in your CloudFlare or you will end up with an error &ldquo;Too many redirects&rdquo; after running CertBot. You want your setting like so in CloudFlare &gt; SSL/TLS.</p>
+<h2><img alt="ipfs_gateway_full_ssl weusertm" class="alignnone size-large wp-image-197" height="531" sizes="(max-width: 1024px) 100vw, 1024px" src="../_resources/9596df84159e2e65515c9ad64593d939" srcset="https://blog.raptoreum.com/wp-content/uploads/2019/10/ipfs_gateway_full_ssl-1024x531.png 1024w, https://blog.raptoreum.com/wp-content/uploads/2019/10/ipfs_gateway_full_ssl-300x156.png 300w, https://blog.raptoreum.com/wp-content/uploads/2019/10/ipfs_gateway_full_ssl-768x399.png 768w" style="box-sizing: border-box; height: auto; max-width: 100%; vertical-align: top; border: 0px none; outline: 0px;" width="1024"/></h2>
+<h2>Set Up SSL On IPFS Machine</h2>
+<p><strong>Note:</strong> Domain you are using for this must resolve to your IPFS server IP before continuing with this part or certbot will fail to get a SSL for it.</p>
+<p><code>add-apt-repository ppa:certbot/certbot</code></p>
+<p><code>apt update -y
+apt install python-certbot-nginx -y</code></p>
+<p>Make certbot do some work:</p>
+<p><code>certbot --nginx -d ipfs.weusertm.com</code></p>
+<p>Certbot will update your nginx.conf for you. When asked if you want to redirect all traffic to https choose that option (#2).</p>
+<p>Let&rsquo;s harden things a bit with Diffie-Hellman:</p>
+<p><code>openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048</code></p>
+<p>Add that line to your nginx.conf under server {. Here is a snippet as an example:</p>
+<p><code>server { ssl_dhparam /etc/ssl/certs/dhparam.pem; server_name ipfs.weusertm.com; server_tokens off; listen 443 ssl; listen [::]:443 ssl;</code></p>
+<p>Test syntax again and reload:</p>
+<p><code>nginx -t
+systemctl reload nginx</code></p>
+<h2>Add Cron To Keep CertBot Renewing The SSL</h2>
+<p><code>crontab -e</code></p>
+<p>Add this line:</p>
+<p><code>15 3 * * * /usr/bin/certbot renew --quiet</code></p>
+<p>That is it! Now when you visit yourdomain.com/ipfs /hash you can view the file!</p>
+                                  
+                                  <ons-list>
+                                  
+                                </ons-list>
+                                
+                              </div>
+                              <ons-fab onclick="myNavigator.pushPage('nav_How To Set Up A Public IPFS Gateway.md.html')" modifier="default">
+                                <ons-icon icon="fa-chevron-left"></ons-icon>
+                              </ons-fab>
+                            </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                
+                
+                
+                
+                    
+                    <ons-card style="max-width:None%;  margin:0 auto; margin-bottom: 5px;" modifier="default">
+                    
+                  
+                    <div class="title">
+                      ipfs Gateway Setup.md
+                    </div>
+                      <div class="content">
+                        
+                        <ons-list modifier="default">
+                        
+                          
+                          <ons-list-item>
+                          
+                          
+                            
+                            <div>
+                            
+                              <div class="article">
+                                <br />
+                                <p class="deployed_img_p">Initial set up:
+1. Register a new domain name.
+2. Create a Domain on Digital Ocean: Create button &gt; Domain/DNS
+3. Link Name Cheap Custom DNS to Digital Ocean: <img alt="4e41aee55b4821a030806f7a2b6843ee.png" src="../_resources/4e41aee55b4821a030806f7a2b6843ee.png" style="width:100%;"/>
+4. Create a new Droplet, grab the ip, then:</p>
+<p><code>ssh root@the.server.ip</code></p>
+<ol>
+<li class="deployed_img_p">Shutdown server, then <a href="https://docs.digitalocean.com/products/networking/ipv6/how-to/enable/#on-existing-droplets">Enable ipv6</a>,:
+<code>sudo shutdown -h now</code>
+<img alt="828b07adfd13a02ba76c915c2f4426b9.png" src="../_resources/828b07adfd13a02ba76c915c2f4426b9.png" style="width:100%;"/></li>
+</ol>
+<p>Next <a href="https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-20-04">install Nginx</a>:
+<code>sudo apt update
+sudo apt install nginx</code></p>
+<p>Adjust the firewall:
+```
+sudo ufw app list
+Output
+Available applications:
+  Nginx Full
+  Nginx HTTP
+  Nginx HTTPS
+  OpenSSH</p>
+<p>sudo ufw allow 'Nginx HTTP'
+  sudo ufw allow 'Nginx HTTPS'
+  sudo ufw allow 'OpenSSH'
+```</p>
+<p class="deployed_img_p">Check to see if http is working:
+<code>systemctl status nginx</code>
+<img alt="6b8aa9d3c01e17e86f21bbc074d424cd.png" src="../_resources/6b8aa9d3c01e17e86f21bbc074d424cd.png" style="width:100%;"/>
+<code>curl -4 icanhazip.com
+http://your_server_ip</code>
+<img alt="407caafc3c348810209ada4ad3a52022.png" src="../_resources/407caafc3c348810209ada4ad3a52022.png" style="width:100%;"/></p>
+<p>Before continuing we will need to create some credentials, better to do this under a user account.  <a href="https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-22-04">So we will create one.</a></p>
+<p><code>adduser jason</code></p>
+<p>Elevate jason's priveledges to admin:</p>
+<p><code>usermod -aG sudo jason</code></p>
+<p>Switch to the new user:</p>
+<p><code>su - jason</code></p>
+<p>now <a href="https://certbot.eff.org/instructions?ws=nginx&amp;os=pip">install certbot compatible with this server</a>:
+<code>sudo apt update
+sudo apt install python3 python3-venv libaugeas0</code>
+Setup python virtual environment:
+<code>sudo python3 -m venv /opt/certbot/
+sudo /opt/certbot/bin/pip install --upgrade pip</code>
+Install certbot:
+<code>sudo /opt/certbot/bin/pip install certbot certbot-nginx</code></p>
+<p>Now <a href="https://certbot.eff.org/instructions?ws=nginx&amp;os=ubuntufocal">install the creds files</a>:</p>
+<p>USE THESE INSTRUCTIONS:
+https://www.geekdecoder.com/setting-up-ipfs-server-with-nginx-and-gateway/</p>
+                                  
+                                  <ons-list>
+                                  
+                                </ons-list>
+                                
+                              </div>
+                              <ons-fab onclick="myNavigator.pushPage('nav_ipfs Gateway Setup.md.html')" modifier="default">
+                                <ons-icon icon="fa-chevron-left"></ons-icon>
+                              </ons-fab>
+                            </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                
+                
+                
+                
+                    
+                    <ons-card style="max-width:None%;  margin:0 auto; margin-bottom: 5px;" modifier="default">
+                    
+                  
+                    <div class="title">
+                      Digital Ocean & Name Cheap Setup.md
+                    </div>
+                      <div class="content">
+                        
+                        <ons-list modifier="default">
+                        
+                          
+                          <ons-list-item>
+                          
+                          
+                            
+                            <div>
+                            
+                              <div class="article">
+                                <br />
+                                <h2>Cluster Machine Setup</h2>
+<p class="deployed_img_p">First register a new Domain.  Then open the dashboard.
+<img alt="bb5102fb9fc920fa0bb7dad379bd360d.png" src="../_resources/bb5102fb9fc920fa0bb7dad379bd360d.png" style="width:100%;"/></p>
+<hr/>
+<p class="deployed_img_p">then scroll down to find domain, and click the 'Manage' button.
+<img alt="e2daaec7b2d7fa1c4c75b022dc93a5ed.png" src="../_resources/e2daaec7b2d7fa1c4c75b022dc93a5ed.png" style="width:100%;"/></p>
+<hr/>
+<p>Scroll down to 'NAMESERVERS', change dropdown to 'Custom DNS' and enter the custom redirects for Digital Ocean:
+ns1.digitalocean.com
+ns2.digitalocean.com
+ns3.digitalocean.com</p>
+<p class="deployed_img_p">Domain is now pointed to Digital Ocean
+<img alt="0e3e8422fe8e4ff8ed3fd4ecaf632444.png" src="../_resources/0e3e8422fe8e4ff8ed3fd4ecaf632444.png" style="width:100%;"/></p>
+<hr/>
+<p class="deployed_img_p">Now we create our droplets.  We will create 2 to be used in the cluster. I create a new project and name it 'ipfs-cluster'.  Then click 'Create' &gt; 'Droplets'.
+<img alt="13c7b262f054608b309b866101295e7d.png" src="../_resources/13c7b262f054608b309b866101295e7d.png" style="width:100%;"/></p>
+<p class="deployed_img_p">Settings (left all default):
+- Unbuntu 20.04(LTS) x64
+- Shared CPU: Basic
+- $5/mo 
+- Use SSH
+I rename the server to 'unbunti-ipfs-cluster-0', and turn it off with the switch in the upper right:
+<img alt="575a1c33d202c886ce0bc22e676ba52e.png" src="../_resources/575a1c33d202c886ce0bc22e676ba52e.png" style="width:100%;"/></p>
+<hr/>
+<h2>Gateway Machine Setup</h2>
+<p>Gateway needs to be public facing so will need proper certs.
+In order to set up the certs correctly we need to <a href="https://docs.digitalocean.com/products/networking/ipv6/how-to/enable/#on-existing-droplets">Enable ipv6</a> &amp; Floating IP:</p>
+<hr/>
+<p class="deployed_img_p"><img alt="e333bf640c289a3b9a9bc7a2a5c20bcb.png" src="../_resources/e333bf640c289a3b9a9bc7a2a5c20bcb.png" style="width:100%;"/>
+<img alt="8a6878684b2d1c22bd8a18bb2bd773a8.png" src="../_resources/8a6878684b2d1c22bd8a18bb2bd773a8.png" style="width:100%;"/></p>
+<hr/>
+<p class="deployed_img_p">Now we will set up a cert for this server. Back in the main project view, click on the '...' in the upper right of the server ui &gt; 'Add a Domain':
+<img alt="e3d8637a5050c82e1d393c4643b4bff8.png" src="../_resources/e3d8637a5050c82e1d393c4643b4bff8.png" style="width:100%;"/></p>
+                                  
+                                  <ons-list>
+                                  
+                                </ons-list>
+                                
+                              </div>
+                              <ons-fab onclick="myNavigator.pushPage('nav_Digital Ocean & Name Cheap Setup.md.html')" modifier="default">
+                                <ons-icon icon="fa-chevron-left"></ons-icon>
+                              </ons-fab>
+                            </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                
+                
+                
+                
+                    
+                    <ons-card style="max-width:None%;  margin:0 auto; margin-bottom: 5px;" modifier="default">
+                    
+                  
+                    <div class="title">
+                      Installing IPFS Cluster.md
+                    </div>
+                      <div class="content">
+                        
+                        <ons-list modifier="default">
+                        
+                          
+                          <ons-list-item>
+                          
+                          
+                            
+                            <div>
+                            
+                              <div class="article">
+                                <br />
+                                <h2>Installing IPFS Cluster</h2>
+<p>Pretty simple and straight forward, each server needs three components of IPFS:</p>
+<p>1.) Main implementation of IPFS which is go-ipfs</p>
+<p>2.) ipfs-cluster-service, this is the IPFS cluster peer</p>
+<p>3.) ipfs-cluster-ctl needed for interaction with the cluster and cluster peer</p>
+<p>These are are all their own system services and daemons. I recommend you don&rsquo;t run as root, create a sudo user instead:</p>
+<p><code>adduser username (follow the steps) usermod -aG sudo</code></p>
+<p>Change to user:</p>
+<p><code>su - username</code></p>
+<h3>Grab IPFS, cluster-service, cluster-ctl Files And Wiggle Your Fingers</h3>
+<p><code>wget https://dist.ipfs.io/ipfs-cluster-service/v0.11.0/ipfs-cluster-service_v0.11.0_linux-amd64.tar.gz &amp;&amp; tar -xzf ipfs-cluster-service_v0.11.0_linux-amd64.tar.gz wget https://dist.ipfs.io/ipfs-cluster-ctl/v0.11.0/ipfs-cluster-ctl_v0.11.0_linux-amd64.tar.gz &amp;&amp; tar -xzf ipfs-cluster-ctl_v0.11.0_linux-amd64.tar.gz wget https://dist.ipfs.io/go-ipfs/v0.4.22/go-ipfs_v0.4.22_linux-amd64.tar.gz &amp;&amp; tar -xzf go-ipfs_v0.4.22_linux-amd64.tar.gz sudo cp ipfs-cluster-service/ipfs-cluster-service /usr/local/bin
+sudo cp ipfs-cluster-ctl/ipfs-cluster-ctl /usr/local/bin
+cd ~/go-ipfs
+sudo ./install.sh</code></p>
+<p>Confirm things are installed correctly:</p>
+<p><code>ipfs-cluster-service help</code></p>
+<p><code>ipfs-cluster-ctl help</code></p>
+<p><code>ipfs help</code></p>
+<h2>Secret Key Setup</h2>
+<p>This is a private key and the secret key which is 32-bit hex encoded random string is what keeps it private. Only peers that have this key can communicate with the cluster. Generate it and display:</p>
+<p><code>export CLUSTER_SECRET=$(od -vN 32  -An  -tx1 /dev/urandom | tr -d ' \n') echo $CLUSTER_SECRET</code></p>
+<p>You will need this secret key for the other two peers so record it for now, we will use it in a bit. Now we need to initiate the ~/.ipfs-cluster folder:</p>
+<p><code>ipfs-cluster-service init --consensus raft</code></p>
+<p>Take note of the peer identity when running above command, you will need it when bootstrapping other peers.</p>
+<p>Do the same for ipfs:</p>
+<p><code>ipfs init</code></p>
+<p>That will have created the needed folder and config file, we will come back to this. Let&rsquo;s setup our firewall as well as Supervisor to monitor and restart the ipfs daemons if needed, such as after a reboot.</p>
+<h3>Install CSF (Config Server Firewall)</h3>
+<p>This is probably a little overkill but I prefer overkill rather than underkill with firewalls.</p>
+<p>Few things required for CSF to be fully functional, on Ubuntu 18.04 fresh install this usually covers it:</p>
+<p><code>apt install sendmail unzip dnsutils libwww-perl -y</code></p>
+<p>CSF must be run with root so login as root or as sudo user do:</p>
+<p><code>sudo su</code></p>
+<p><code>cd /usr/src
+rm -fv csf.tgz
+wget https://download.configserver.com/csf.tgz tar -xzf csf.tgz
+cd csf
+sh install.sh</code></p>
+<p>Test it with:</p>
+<p><code>csf -r</code></p>
+<p>It should restart without any errors or complaints, now we have some config to do to make sure the cluster works smoothly.</p>
+<p><code>nano /etc/csf/csf.conf</code></p>
+<p>&ndash; Change TESTING value from 0 to 1
+&ndash; Scroll down to the ports section and remove all ports from TCP and UDP for both IPv6 and IPv4 except the following TCP ports 22, 80, 443 (inbound and outbound). 22 for ssh and 443 for grabbing updates.
+&ndash; Search (cntrl-w) for &ldquo;IGNORE_ALLOW&rdquo; and change its value from 0 to 1</p>
+<p>Now restart csf for effect:</p>
+<p><code>csf -r</code></p>
+<p>Instead of leaving open ports that is needed by the cluster we close everything except the absolute essential and each server we whitelist the other server IPs which allows them through the firewall. Whitelist the other two server IPs like:</p>
+<p><code>csf -a IPhere</code></p>
+<p>One more step is to tell CSF never to ban the other servers IPs so we add the IPs to csf.ignore:</p>
+<p><code>nano /etc/csf/csf.ignore</code></p>
+<h3>Install Supervisor And Setup Daemon Monitoring</h3>
+<p><code>sudo apt install supervisor -y</code></p>
+<p>Add some configs for ipfs-cluster-service and ipfs:</p>
+<p><code>sudo nano /etc/supervisor/supervisord.conf</code></p>
+<p>Add these two parts:</p>
+<p><code>[program:ipfs-cluster-service] environment=IPFS_CLUSTER_PATH=/home/youruser/.ipfs-cluster
+command=/usr/local/bin/ipfs-cluster-service daemon [program:ipfs] environment=IPFS_PATH=/home/youruser/.ipfs
+command=ipfs daemon</code></p>
+<p>Now lets let Supervisor know what&rsquo;s up, this will start the service daemon but we need it stopped which the last command does. Reason is we want to see what it is doing and if it is starting like it should.</p>
+<p><code>sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl stop ipfs-cluster-service</code></p>
+<p>Let&rsquo;s start in direct in our session and make sure it is starting properly:</p>
+<p><code>ipfs-cluster-daemon</code></p>
+<p>After a minute you should see output stop with <strong>* CLUSTER READY *.</strong> Everything is good if you see that and you can start the service again:</p>
+<p><code>sudo supervisorctl start ipfs-cluster-service</code></p>
+<p>We are ready to move on to bootstrapping another peer and adding to the cluster, but if your like me and you lost track of the secret key you can grab it again like this:</p>
+<p><code>cat .ipfs-cluster/service.json | grep secret</code></p>
+<h3>Bootstrapping Additional Peers (adding them to cluster)</h3>
+<p>Install and verify install exactly the same as we did the first time, but when you get to the secret key part you do:</p>
+<p><code>export CLUSTER_SECRET=your_secret_key_from_first_peer</code></p>
+<p><code>ipfs-cluster-service init --consensus raft</code></p>
+<p>Now we run the daemon in current session with &ndash;bootstrap:
+ipfs-cluster-service daemon &ndash;bootstrap /ip4/first_node_IP/tcp/9096/ipfs/peer_id</p>
+<p>The peer identity is shown when you first run ipfs-cluster-service, if you are not sure what it is do:</p>
+<p><code>sudo supervisorctl stop ipfs-cluster-service</code></p>
+<p><code>ipfs-cluster-service</code></p>
+<p>If everything is good you will see ** IPFS Cluster is READY ** followed by &ldquo;Current Raft Leader&rdquo;, then joined cluster. Kill it with cntrl-c add it to your Supervisor along with ipfs same as first node. You do not need to include &ndash;bootstrap flag unless the peer has been removed from cluster and is being re-added. Fire it up as normal:</p>
+<p><code>sudo supervisorctl start ipfs-cluster-service</code></p>
+<h3>Time To Take It For A Test Drive!</h3>
+<p>Create a testfile:</p>
+<p><code>mkdir test_file
+echo WeUseRTM  is going to roxxor soxxors!  &gt; smelly_soxx.txt
+ipfs add smelly_soxx.txt</code></p>
+<p>Check to see if it is on the other peers:</p>
+<p><code>ipfs cat files_hash</code></p>
+<p>If it is there it will return the contents of the file, in this case that is &ldquo;WeUseRTM is going to roxxor soxxors!&rdquo;. Also in the screen you see that I ran a search for the file hash just as a check to make sure the cluster was indeed private.</p>
+<p><img alt="raptoreum verify private ipfs cluster" class="alignnone size-large wp-image-100 jop-noMdConv" height="532" sizes="(max-width: 1024px) 100vw, 1024px" src="../_resources/e08410cbcb0afe1e1b0855e49e640bbd" srcset="https://blog.raptoreum.com/wp-content/uploads/2019/10/weusertm_verify_cluster-1024x532.png.webp 1024w, https://blog.raptoreum.com/wp-content/uploads/2019/10/weusertm_verify_cluster-300x156.png.webp 300w, https://blog.raptoreum.com/wp-content/uploads/2019/10/weusertm_verify_cluster-768x399.png.webp 768w" style="box-sizing: border-box; height: auto; max-width: 100%; margin: 0px 0px 15px; padding: 0px; border: 0px; font: inherit; vertical-align: baseline;" width="1024"/></p>
+<h2>Accessing IPFS Private Cluster API From External App</h2>
+<p>WeUseRTM runs outside of the IPFS cluster and the Cluster by default makes the needed API accessible only on 127.0.0.1. It took us a few tries to figure out just which API we wanted but we found that this was the one: (.ipfs-cluster/service.json)</p>
+<p><code>"api":  {  "ipfsproxy":  {  "listen_multiaddress":  "/ip4/127.0.0.1/tcp/9095",</code></p>
+<p>Change 127.0.0.1 to your public IPv4 or to 0.0.0.0 to make it bind to all available IP, then restart the ipfs-ctl service. This <strong>SHOULD NOT</strong> be open to public make sure you whitelist only the needed IP for access to that port.</p>
+<h2>Upgrading The IPFS Cluster</h2>
+<p>These are my notes to upgrade, at some point I will make it into a proper script <img alt="😛" src="../_resources/6c582937e037819ff92f71cd594a2409"/></p>
+<p><strong>Note:</strong> version mismatch will make the other nodes unable to connect until they are up to date</p>
+<p><code>wget https://dist.ipfs.io/ipfs-cluster-service/v0.12.1/ipfs-cluster-service_v0.12.1_linux-amd64.tar.gz &amp;&amp; tar -xzf ipfs-cluster-service_v0.12.1_linux-amd64.tar.gz  wget https://dist.ipfs.io/ipfs-cluster-ctl/v0.12.1/ipfs-cluster-ctl_v0.12.1_linux-amd64.tar.gz &amp;&amp; tar -xzf ipfs-cluster-ctl_v0.12.1_linux-amd64.tar.gz  wget https://dist.ipfs.io/go-ipfs/v0.4.23/go-ipfs_v0.4.23_linux-amd64.tar.gz &amp;&amp; tar -xzf go-ipfs_v0.4.23_linux-amd64.tar.gz  sudo supervisorctl stop ipfs-cluster-service  sleep 3  sudo cp ipfs-cluster-service/ipfs-cluster-service /usr/local/bin  sudo cp ipfs-cluster-service/ipfs-cluster-service /usr/local/bin  sudo cp ipfs-cluster-ctl/ipfs-cluster-ctl /usr/local/bin  cd ~/go-ipfs  sudo ./install.sh  sudo supervisorctl start ipfs-cluster-service  ipfs-cluster-ctl version  ipfs version  ipfs-cluster-service version</code></p>
+<p>Check all peers connectable from first node updated:</p>
+<p><code>ipfs-cluster-ctl peers ls</code></p>
+<p>If you see any of this &ldquo;ERROR: protocol not supported&rdquo; the related node is not running a good version.</p>
+                                  
+                                  <ons-list>
+                                  
+                                </ons-list>
+                                
+                              </div>
+                              <ons-fab onclick="myNavigator.pushPage('nav_Installing IPFS Cluster.md.html')" modifier="default">
+                                <ons-icon icon="fa-chevron-left"></ons-icon>
+                              </ons-fab>
+                            </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                
+                
+                
+                
+                    
+                    <ons-card style="max-width:None%;  margin:0 auto; margin-bottom: 5px;" modifier="default">
+                    
+                  
+                    <div class="title">
+                      IPFS Cluster Set Up part.2.md
+                    </div>
+                      <div class="content">
+                        
+                        <ons-list modifier="default">
+                        
+                          
+                          <ons-list-item>
+                          
+                          
+                            
+                            <div>
+                            
+                              <div class="article">
+                                <br />
+                                <p><a href="https://www.geekdecoder.com/setting-up-a-private-ipfs-network-with-ipfs-and-ipfs-cluster/">Notes Based on this link</a></p>
+<hr/>
+<hr/>
+<hr/>
+<h2><a href="https://www.vultr.com/docs/install-csf-configserver-security-firewall-on-ubuntu-20-04-lts/">Install a firewall</a></h2>
+<hr/>
+<p>If logged in as user, logout for root privledges:</p>
+<p><code>logout</code>
+Install some needed stuff:
+<code>apt install sendmail unzip dnsutils libwww-perl -y</code>
+Remove any install of Config Server that may exist:</p>
+<p><code>cd /usr/src
+rm -fv csf.tgz</code>
+Download &amp; unzip :
+```
+wget https://download.configserver.com/csf.tgz
+tar -xzf csf.tgz</p>
+<p><code>Install:</code>
+cd csf
+sh install.sh
+```
+Test it with:</p>
+<p><code>csf -r</code>
+It should restart without any errors or complaints, now we have some config to do to make sure the cluster works smoothly.</p>
+<p><code>nano /etc/csf/csf.conf</code></p>
+<p>&ndash; Change TESTING value from 0 to 1
+&ndash; Scroll down to the ports section and remove all ports from TCP and UDP for both IPv6 and IPv4 except the following TCP ports 22, 80, 443 (inbound and outbound). 22 for ssh and 443 for grabbing updates.
+&ndash; Search (cntrl-w) for &ldquo;IGNORE_ALLOW&rdquo; and change its value from 0 to 1</p>
+<p>Now restart csf for effect:</p>
+<p><code>csf -r</code>
+Instead of leaving open ports that is needed by the cluster we close everything except the absolute essential and each server we whitelist the other server IPs which allows them through the firewall. Whitelist the other two server IPs like:</p>
+<p><code>csf -a IPhere</code></p>
+<p>One more step is to tell CSF never to ban the other servers IPs so we add the IPs to csf.ignore:</p>
+<p><code>nano /etc/csf/csf.ignore</code></p>
+<hr/>
+<hr/>
+<p>Run ipfs as a background service</p>
+<p><code>sudo nano /etc/systemd/system/ipfs.service</code>
+Change the folowing settings(change:your_user_name):
+<code>Description=IPFS Daemon
+After=syslog.target network.target remote-fs.target nss-lookup.target
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ipfs daemon --enable-namesys-pubsub
+User=your_user_name
+[Install]
+WantedBy=multi-user.target</code>
+Restart systemctl so it finds new service:
+<code>sudo systemctl daemon-reload</code>
+Make service enable on start up:
+<code>sudo systemctl enable ipfs</code>
+Reboot nodes and check their status:
+<code>sudo systemctl status ipfs</code>
+OUtput should be something like this:
+```
+[sudo] password for ipfs:
+● ipfs.service - IPFS Daemon
+   Loaded: loaded (/etc/systemd/system/ipfs.service; enabled; vendor preset: ena
+   Active: active (running) since Thu 2021-06-10 09:23:46 CDT; 2min 24s ago
+ Main PID: 387 (ipfs)
+    Tasks: 9 (limit: 1149)
+   Memory: 77.8M
+   CGroup: /system.slice/ipfs.service
+           &boxur;&boxh;387 /usr/local/bin/ipfs daemon --enable-namesys-pubsub</p>
+<p>Jun 10 09:23:46 ipfs3 ipfs[387]: Swarm listening on /ip4/192.168.0.95/tcp/4001
+Jun 10 09:23:46 ipfs3 ipfs[387]: Swarm listening on /ip6/::1/tcp/4001
+Jun 10 09:23:46 ipfs3 ipfs[387]: Swarm listening on /p2p-circuit
+Jun 10 09:23:46 ipfs3 ipfs[387]: Swarm announcing /ip4/127.0.0.1/tcp/4001
+Jun 10 09:23:46 ipfs3 ipfs[387]: Swarm announcing /ip4/192.168.0.95/tcp/4001
+Jun 10 09:23:46 ipfs3 ipfs[387]: Swarm announcing /ip6/::1/tcp/4001
+Jun 10 09:23:46 ipfs3 ipfs[387]: API server listening on /ip4/127.0.0.1/tcp/5001
+Jun 10 09:23:46 ipfs3 ipfs[387]: WebUI: http://127.0.0.1:5001/webui
+Jun 10 09:23:46 ipfs3 ipfs[387]: Gateway (readonly) server listening on /ip4/127
+Jun 10 09:23:46 ipfs3 ipfs[387]: Daemon is ready
+```</p>
+<hr/>
+<hr/>
+<h2>Set Up Cluster</h2>
+<p>Download Cluster Service:
+<code>wget https://dist.ipfs.io/ipfs-cluster-service/v1.0.1/ipfs-cluster-service_v1.0.1_linux-amd64.tar.gz</code>
+Unzip:
+<code>tar xvfz ipfs-cluster-service_v1.0.1_linux-amd64.tar.gz</code>
+Install:
+<code>sudo cp ipfs-cluster-service/ipfs-cluster-service /usr/local/bin</code></p>
+<hr/>
+<hr/>
+<p>Download Cluster CTL:
+<code>wget https://dist.ipfs.io/ipfs-cluster-ctl/v1.0.1/ipfs-cluster-ctl_v1.0.1_linux-amd64.tar.gz</code>
+Unzip:
+<code>tar xvfz ipfs-cluster-ctl_v1.0.1_linux-amd64.tar.gz</code>
+Install:
+<code>sudo cp ipfs-cluster-ctl/ipfs-cluster-ctl /usr/local/bin</code>
+Check to see if they installed correctly:
+<code>ipfs-cluster-service help
+ipfs-cluster-ctl help</code></p>
+<hr/>
+<hr/>
+<hr/>
+<p>On node 0
+Generate CLUSTER_SECRET on node-0 variable:
+<code>export CLUSTER_SECRET=$(od -vN 32 -An -tx1 /dev/urandom | tr -d ' \n')</code>
+Check to see if it was generated:
+<code>echo $CLUSTER_SECRET
+OUTPUT:
+7d33cbf9b48845db5b8ba07eacb7898eea44f888576b9a19098fe33a7524d774</code>
+Assign it to environment on node-1 as well:
+<code>export CLUSTER_SECRET=7d33cbf9b48845db5b8ba07eacb7898eea44f888576b9a19098fe33a7524d774</code>
+Update .bashrc:
+<code>source ~/.bashrc</code>
+Initialize and Start a Cluster:
+<code>ipfs-cluster-service init</code>
+OUTPUT:
+<code>2021-06-10T10:06:36.240-0500    INFO    config  config/config.go:481    Saving configuration
+configuration written to /home/ipfs/.ipfs-cluster/service.json.
+2021-06-10T10:06:36.242-0500    INFO    config  config/identity.go:73   Saving identity
+new identity written to /home/ipfs/.ipfs-cluster/identity.json
+new empty peerstore written to /home/ipfs/.ipfs-cluster/peerstore.</code>
+We need to get the Cluster Peer ID, to bootsrap other nodes:
+<code>grep id /home/ipfs/.ipfs-cluster/identity.json</code>
+Start Cluster on node 0 only:
+<code>ipfs-cluster-service daemon</code>
+OUTPUT:
+```
+2021-06-10T10:13:40.672-0500    INFO    service ipfs-cluster-service/daemon.go:4
+6       Initializing. For verbose output run with "-l debug". Please wait...
+2021-06-10T10:13:40.816-0500    INFO    cluster ipfs-cluster@v0.13.3/cluster.go:
+136     IPFS Cluster v0.13.3 listening on:
+        /ip4/192.168.0.95/tcp/9096/p2p/12D3KooWSEaZydrYik9gKenUhezTi2z8NBXYHB2Rm                                                                                                             sknQePoMUxc
+        /ip4/127.0.0.1/tcp/9096/p2p/12D3KooWSEaZydrYik9gKenUhezTi2z8NBXYHB2Rmskn                                                                                                             QePoMUxc</p>
+<p>2021-06-10T10:13:40.817-0500    INFO    restapi rest/restapi.go:521     REST API
+(HTTP): /ip4/127.0.0.1/tcp/9094
+2021-06-10T10:13:40.818-0500    INFO    ipfsproxy       ipfsproxy/ipfsproxy.go:3
+20      IPFS Proxy: /ip4/127.0.0.1/tcp/9095 -&gt; /ip4/127.0.0.1/tcp/5001
+2021-06-10T10:13:40.819-0500    INFO    crdt    go-ds-crdt@v0.1.20/crdt.go:278 c
+rdt Datastore created. Number of heads: 0. Current max-height: 0
+2021-06-10T10:13:40.819-0500    INFO    crdt    crdt/consensus.go:300   'trust a
+ll' mode enabled. Any peer in the cluster can modify the pinset.
+2021-06-10T10:13:40.862-0500    INFO    cluster ipfs-cluster@v0.13.3/cluster.go:
+651     Cluster Peers (without including ourselves):
+2021-06-10T10:13:40.862-0500    INFO    cluster ipfs-cluster@v0.13.3/cluster.go:
+653         - No other peers
+2021-06-10T10:13:40.863-0500    INFO    cluster ipfs-cluster@v0.13.3/cluster.go:
+666     ** IPFS Cluster is READY **
+<code>Bootstrapping peers:
+On node 1, ipfs must be running, then:</code>
+ipfs-cluster-service init
+```
+In node-1, we will bootstrap the peers in with this command structure:
+ipfs-cluster-service daemon &ndash;bootstrap /ip4/<span style="color: red;">node-0-IP</span>/tcp/9096/ipfs/<span style="color: red;">node-0-peer-id</span></p>
+<p>Get node 0 Cluster Peer ID with:
+<code>cd .ipfs-cluster/
+cat identity.json</code>
+Get Node 0 IP with:
+<code>hostname -I</code>
+Example command structure:
+<code>ipfs-cluster-service daemon &ndash;bootstrap /ip4/192.168.0.116/tcp/9096/ipfs/12D3KooWSEaZydrYik9gKenUhezTi2z8NBXYHB2RmsknQePoMUxc</code>
+To check if we have new peers on node-0, say:
+<code>ipfs-cluster-ctl peers ls</code></p>
+<hr/>
+<hr/>
+<h2>Run Cluster as a service</h2>
+<p>Open the config:
+<code>sudo nano /etc/systemd/system/ipfs-cluster-service.service</code>
+Add the following:
+```
+Description=IPFS Cluster Service
+After=network.target</p>
+<p>[Service]
+LimitNOFILE={{ ipfs_cluster_fd_max }}
+Environment="IPFS_CLUSTER_FD_MAX={{ ipfs_cluster_fd_max}}"
+ExecStart=/usr/local/bin/ipfs-cluster-service daemon
+Restart=on-failure
+User=ipfs</p>
+<p>[Install]
+WantedBy=multi-user.target
+```</p>
+                                  
+                                  <ons-list>
+                                  
+                                </ons-list>
+                                
+                              </div>
+                              <ons-fab onclick="myNavigator.pushPage('nav_IPFS Cluster Set Up part.2.md.html')" modifier="default">
+                                <ons-icon icon="fa-chevron-left"></ons-icon>
+                              </ons-fab>
+                            </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                
+                
+                
+                
+                    
+                    <ons-card style="max-width:None%;  margin:0 auto; margin-bottom: 5px;" modifier="default">
+                    
+                  
+                    <div class="title">
+                      meta-trinity cluster setup.md
+                    </div>
+                      <div class="content">
+                        
+                        <ons-list modifier="default">
+                        
+                          
+                          <ons-list-item>
+                          
+                          
+                            
+                            <div>
+                            
+                              <div class="article">
+                                <br />
+                                <p>In this case I am using Digital Ocean to spin up my servers. I will create 3 Droplets, names father, son, and ghost. Father will act as the base node in the trinity, son we will later install a gateway onto for public access to the files. Ghost(s), are primarily for storage and pinning. I choose basic set up for each:</p>
+<p class="deployed_img_p"><img alt="339857e1b3374e9cc96501a19279b2fe.png" src="../_resources/339857e1b3374e9cc96501a19279b2fe.png" style="width:100%;"/>
+We get the ip from each:
+<img alt="e2bc3ec7cedce3b3e4aba19eb3e3181b.png" src="../_resources/e2bc3ec7cedce3b3e4aba19eb3e3181b.png" style="width:100%;"/>
+These ip addresses must be added to install_firewall.sh:
+<img alt="1a3bcc5f97d1f59f4c1a187961a339c7.png" src="../_resources/1a3bcc5f97d1f59f4c1a187961a339c7.png" style="width:100%;"/>
+Save and push up install_firewall.sh. In separate terminals, ssh into each droplet:
+<img alt="b5eea6e1d5b7c7cd66c06ceb2d48b273.png" src="../_resources/b5eea6e1d5b7c7cd66c06ceb2d48b273.png" style="width:100%;"/>
+enter pw when prompted. in each droplet we will create an initializing script:
+<img alt="bedd7af91a599bcb91b181d9bc87555d.png" src="../_resources/bedd7af91a599bcb91b181d9bc87555d.png" style="width:100%;"/>
+Paste this code into the init.sh file:</p>
+<p>```</p>
+<h1>!/bin/sh</h1>
+<h1>init for root level user install</h1>
+<h1>pass father, son, or ghost</h1>
+<h1>private tokens at: https://github.com/settings/tokens</h1>
+<p>apt install jq
+apt-get install git
+git clone https://inviti8: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@github.com/inviti8/meta-trinity.git
+chmod -R 777  ~/meta-trinity/
+chmod u+x ./meta-trinity/*.sh
+./meta-trinity/init_private.sh $1 $2
+```</p>
+<p class="deployed_img_p">to save and close: Ctrl-x, y, Enter. Then give the initializer script permissions:
+<img alt="b3e73c44ed13a413bbf355749266ab4a.png" src="../_resources/b3e73c44ed13a413bbf355749266ab4a.png" style="width:100%;"/>
+We initialize the cluster with the father node. So we generate keys we need for the others first by running:
+<img alt="4a98d1f5467a908f8100d90b9b211350.png" src="../_resources/4a98d1f5467a908f8100d90b9b211350.png" style="width:100%;"/>
+Answer yes to any prompts, and wait until it spits out the keys we need for the other nodes. While waiting, just ssh into the other nodes and add the init.sh script to each. When the father node is installed it will spit out a swarm key like this, we need to copy the hilighted key in the image, and include it in the init for the other nodes:
+<img alt="87ed93816d2869993bed8f12dad1f9a1.png" src="../_resources/87ed93816d2869993bed8f12dad1f9a1.png" style="width:100%;"/>
+like this:
+<img alt="cc5bdedffb7d57dfad454c8da0909969.png" src="../_resources/cc5bdedffb7d57dfad454c8da0909969.png" style="width:100%;"/>
+<img alt="f8894c5b906b6d224dcfcbee303d9c75.png" src="../_resources/f8894c5b906b6d224dcfcbee303d9c75.png" style="width:100%;"/>
+Run and wait. Then we need to make the network private and bootstrap the peers. When each init finishes, it spits out the bootstrap peer id needed for each node like below:
+<img alt="e8e14d1a782a5f3e76ffe1e8aa71eb1b.png" src="../_resources/e8e14d1a782a5f3e76ffe1e8aa71eb1b.png" style="width:100%;"/>
+These are copied into meta-trinity-peers/peers.json:
+<img alt="eadd348acf9904d9e9994eb64895a8b4.png" src="../_resources/eadd348acf9904d9e9994eb64895a8b4.png" style="width:100%;"/>
+Save and push up.</p>
+<p>The we switch to user mode on each like</p>
+<p class="deployed_img_p"><img alt="67af3be96d00a6d833c1604349377d7e.png" src="../_resources/67af3be96d00a6d833c1604349377d7e.png" style="width:100%;"/>
+<img alt="69a889aa6b4f2851b95f1a6832b6573e.png" src="../_resources/69a889aa6b4f2851b95f1a6832b6573e.png" style="width:100%;"/></p>
+<p class="deployed_img_p">do this for father, son, and ghost, then we run the bootstrap command for each:
+<img alt="806603ac3a36e952c7da239953ca869e.png" src="../_resources/806603ac3a36e952c7da239953ca869e.png" style="width:100%;"/>
+Should see:
+<img alt="23f377d3a9a3301a990dfa7e16a1a700.png" src="../_resources/23f377d3a9a3301a990dfa7e16a1a700.png" style="width:100%;"/>
+All peers connected, can verify by creating a text file on one node with
+<img alt="3e305407d5dbdc45681cf2efa601014a.png" src="../_resources/3e305407d5dbdc45681cf2efa601014a.png" style="width:100%;"/>
+Then on the other get the content of the added file with the added hash:
+<img alt="672d46595e3eb2b045e2b998f897cd81.png" src="../_resources/672d46595e3eb2b045e2b998f897cd81.png" style="width:100%;"/></p>
+<p class="deployed_img_p">**It may be necessary to reboot each node, if the test fails initially, by logging out of user and calling reboot, then ssh-ing back into each:
+<img alt="483ec9e7717f67ca2d88a5093fd6e254.png" src="../_resources/483ec9e7717f67ca2d88a5093fd6e254.png" style="width:100%;"/>
+<img alt="61021427b2cd581ccd5643067cefd7f2.png" src="../_resources/61021427b2cd581ccd5643067cefd7f2.png" style="width:100%;"/></p>
+<p class="deployed_img_p">Once the private network is functional, we can then install cluster on top. Again, start with father node like:
+<img alt="da706c9695796e1759e16096a1a1b70c.png" src="../_resources/da706c9695796e1759e16096a1a1b70c.png" style="width:100%;"/>
+<img alt="d51fd53807d47ba75195ed510dd3987a.png" src="../_resources/d51fd53807d47ba75195ed510dd3987a.png" style="width:100%;"/>
+When it finishes on the father node, it will spit out the command needed to bootstrap son, and ghosts into the cluster, and then will reboot:</p>
+<p class="deployed_img_p"><img alt="22a6604e55766bb015c24057c020812d.png" src="../_resources/22a6604e55766bb015c24057c020812d.png" style="width:100%;"/></p>
+<p>Paste the command into the corresponding son, or ghost terminals and run. When those finish they will reboot as well.</p>
+<p>Lastly, on each enable the cluster with:
+<code>su - father</code>(son, or ghost)
+<code>./meta-trinity/start_cluster.sh</code></p>
+<p>If all went well, you should be able to see peers on the cluster with:</p>
+<p class="deployed_img_p"><img alt="24824f13788785602506b976fc44dc75.png" src="../_resources/24824f13788785602506b976fc44dc75.png" style="width:100%;"/></p>
+<p class="deployed_img_p">Peers will also be on your ipfs private network, and seen with:
+<img alt="2491e439ee800e4aa952a22ee7e2c2dc.png" src="../_resources/2491e439ee800e4aa952a22ee7e2c2dc.png" style="width:100%;"/></p>
+                                  
+                                  <ons-list>
+                                  
+                                </ons-list>
+                                
+                              </div>
+                              <ons-fab onclick="myNavigator.pushPage('nav_meta-trinity cluster setup.md.html')" modifier="default">
+                                <ons-icon icon="fa-chevron-left"></ons-icon>
+                              </ons-fab>
+                            </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                
+                
+           </ons-col>
+        
+       </ons-row>
+    </div>
+  </ons-page>
+</template>
+
+<template id="IPFS Gateway 2023.html">
+  <ons-page>
+    <ons-toolbar modifier="default">
+      <div class="center">
+        IPFS Gateway 2023
+      </div>
+      
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()" modifier="default">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      
+    </ons-toolbar>
+    <div style="text-align: center">
+      <ons-row>
+        
+           <ons-col width="%">
+                
+                
+                
+                    
+                    <ons-card style="max-width:None%;  margin:0 auto; margin-bottom: 5px;" modifier="default">
+                    
+                  
+                    <div class="title">
+                      Public Set up.md
+                    </div>
+                      <div class="content">
+                        
+                        <ons-list modifier="default">
+                        
+                          
+                          <ons-list-item>
+                          
+                          
+                            
+                            <div>
+                            
+                              <div class="article">
+                                <br />
+                                <p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04</p>
+<p><code>sudo apt update</code></p>
+<pre><code>sudo apt upgrade
+
+sudo ufw allow 22
+
+sudo ufw enable
+</code></pre>
+<p>Create a new user, $USER is replaced with a real username:</p>
+<p><code>sudo adduser&nbsp;$USER &amp;&amp; usermod -aG sudo&nbsp;$USER</code></p>
+<p>Switch over to your new user account:</p>
+<p><code>su - $USER</code>
+Download the latest ipfs:
+<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
+extract:
+<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
+Install:
+<code>cd kubo
+sudo bash install.sh
+ipfs --version</code></p>
+<p>Open swarm port:
+<code>sudo ufw allow 4001</code></p>
+<p>Initialize ipfs, make note of your peer address that is returned on init:
+<code>ipfs init --profile server</code></p>
+<p>Create a new service:
+<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
+<p>Copy this code in replacing $USER with your username:
+`[Unit]
+Description=IPFS Daemon
+After=network.target</p>
+<p>[Service]
+User=$USER
+Environment=IPFS_PATH=/home/$USER/.ipfs
+ExecStart=/usr/local/bin/ipfs daemon --init --migrate
+StandardOutput=journal
+Restart=on-failure
+KillSignal=SIGINT</p>
+<p>[Install]
+WantedBy=multi-user.target`</p>
+<p>Configure ipfs gateway, replace 'example.com' with your domain:
+NoFetch = True, means it will only retrieve files on your local node.</p>
+<p><code>ipfs config --json Gateway '{
+        "HTTPHeaders": {
+            "Access-Control-Allow-Origin": [
+                "*"
+            ]
+        },
+        "RootRedirect": "",
+        "Writable": false,
+        "PathPrefixes": [
+            "/blog",
+            "/refs"
+        ],
+        "APICommands": [],
+        "NoFetch": true,
+        "NoDNSLink": false,
+        "PublicGateways": {
+            "www.example.com": {
+                "NoDNSLink": false,
+                "Paths": [
+                    "/ipfs",
+                    "/ipns",
+                    "/api"
+                ],
+                "UseSubdomains": true
+            },
+            "example.com": {
+                "NoDNSLink": false,
+                "Paths": [
+                    "/ipfs",
+                    "/ipns",
+                    "/api"
+                ],
+                "UseSubdomains": false
+            }
+        }
+    }'</code></p>
+<p>Start ipfs:
+<code>sudo systemctl daemon-reload
+sudo systemctl start ipfs</code></p>
+<p>Enabled after rebooting:
+<code>sudo systemctl enable ipfs</code></p>
+<p>Now Install the nginx server:
+<code>sudo apt install nginx</code>
+Open port:
+<code>sudo ufw allow 80</code>
+Backup nginx original nginx config:
+<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
+Create a new config file:
+<code>sudo nano /etc/nginx/sites-available/default</code>
+Paste the following code, replacing 'your_domain_name.com' with yours:
+`server {
+    listen 80;
+    listen [::]:80;
+    server_name your_domain_name.com;</p>
+<pre><code>location /ipfs {
+    proxy_pass http://localhost:8080;
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+    allow all;
+}
+</code></pre>
+<p>}`</p>
+<p>Test the config, and reload the service:
+<code>sudo nginx -t
+sudo systemctl reload nginx</code></p>
+<p>Enable https with certbot:
+<code>sudo apt install certbot python3-certbot-nginx</code></p>
+<p>Let in HTTPS traffic:
+<code>sudo ufw allow 'Nginx Full'
+sudo ufw delete allow 'Nginx HTTP'</code></p>
+<p>Get the ssl certificate, replace 'example.com' with your domain:
+<code>sudo certbot --nginx -d example.com -d www.example.com</code></p>
+                                  
+                                  <ons-list>
+                                  
+                                </ons-list>
+                                
+                              </div>
+                              <ons-fab onclick="myNavigator.pushPage('nav_Public Set up.md.html')" modifier="default">
+                                <ons-icon icon="fa-chevron-left"></ons-icon>
+                              </ons-fab>
+                            </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                
+                
+                
+                
+                    
+                    <ons-card style="max-width:None%;  margin:0 auto; margin-bottom: 5px;" modifier="default">
+                    
+                  
+                    <div class="title">
+                      Private Set up.md
+                    </div>
+                      <div class="content">
+                        
+                        <ons-list modifier="default">
+                        
+                          
+                          <ons-list-item>
+                          
+                          
+                            
+                            <div>
+                            
+                              <div class="article">
+                                <br />
+                                <p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04
+<code>sudo apt update</code></p>
+<p>```
+sudo apt upgrade    </p>
+<p>sudo ufw allow 22   </p>
+<p>sudo ufw enable -y 
+```</p>
+<p>Create a new user, $USER is replaced with a real username:</p>
+<p><code>sudo adduser&nbsp;$USER</code></p>
+<p>Enable su-mode:</p>
+<p><code>su -</code></p>
+<p>Install sudo:</p>
+<p><code>apt-get install sudo -y</code></p>
+<p>Elevate the user:</p>
+<p><code>usermod -aG sudo $USER</code></p>
+<p>Open sudo config:</p>
+<p><code>visudo</code></p>
+<p>Modify permissions, adding line
+```</p>
+<h1></h1>
+<h1>This file MUST be edited with the 'visudo' command as root.</h1>
+<h1></h1>
+<h1>Please consider adding local content in /etc/sudoers.d/ instead of</h1>
+<h1>directly modifying this file.</h1>
+<h1></h1>
+<h1>See the man page for details on how to write a sudoers file.</h1>
+<h1></h1>
+<p>Defaults        env_reset
+Defaults        mail_badpass
+Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"</p>
+<h1>Host alias specification</h1>
+<h1>User alias specification</h1>
+<h1>Cmnd alias specification</h1>
+<h1>User privilege specification</h1>
+<p>root    ALL=(ALL:ALL) ALL
+$USER   ALL=(ALL:ALL) ALL</p>
+<h1>Members of the admin group may gain root privileges</h1>
+<p>%admin ALL=(ALL) ALL</p>
+<h1>Allow members of group sudo to execute any command</h1>
+<p>%sudo   ALL=(ALL:ALL) ALL</p>
+<h1>See sudoers(5) for more information on "#include" directives:</h1>
+<h1>includedir /etc/sudoers.d</h1>
+<p>```</p>
+<p>Switch over to your new user account:
+<code>su - $USER</code>
+Download the latest ipfs:
+<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
+extract:
+<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
+Install:
+<code>cd kubo
+sudo bash install.sh 
+ipfs --version</code></p>
+<p>Open swarm port:
+<code>sudo ufw allow 4001
+sudo ufw --force enable</code>
+Initialize ipfs, make note of your peer address that is returned on init:
+<code>ipfs init --profile server</code>
+Create the swarm key file</p>
+<p><code>cd ~/.ipfs
+sudo nano swarm.key</code></p>
+<p>Example key file, replace the key string with a uniquly generated one
+<code>/key/swarm/psk/1.0.0/
+/base16/
+25f64b1cf31f649817d495e446d4cbcc99000b8cc032a89b681e5f86f995fb30</code></p>
+<p>Create a new service:
+<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
+<p>Copy this code in replacing $USER with your username:
+```
+[Unit]
+Description=IPFS Daemon
+After=network.target</p>
+<p>[Service]
+User=$USER
+Environment=IPFS_PATH=/home/$USER/.ipfs
+ExecStart=/usr/local/bin/ipfs daemon --enable-namesys-pubsub
+StandardOutput=journal
+Restart=on-failure
+KillSignal=SIGINT</p>
+<p>[Install]
+WantedBy=multi-user.target
+```</p>
+<p>Start ipfs:
+<code>sudo systemctl daemon-reload 
+sudo systemctl start ipfs</code></p>
+<p>Enabled after rebooting:
+<code>sudo systemctl enable ipfs</code></p>
+<p>Remove all standard peers:
+<code>ipfs bootstrap rm --all</code></p>
+<p>Set ipfs config for gateway and api:</p>
+<p><code>ipfs config Addresses.Gateway /ip4/0.0.0.0/8080
+ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001</code></p>
+<p>Force p2p:
+<code>export LIBP2P_FORCE_PNET=1</code></p>
+<p>Now Install the nginx server:
+<code>sudo apt install nginx</code>
+Open port:
+<code>sudo ufw allow 80</code>
+<code>sudo systemctl reload nginx</code>
+Backup nginx original nginx config:
+<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
+Create a new config file:
+<code>sudo nano /etc/nginx/sites-available/default</code>
+Paste the following code, replacing 'your_domain_name.com' with yours:
+```
+server {
+    listen 80;
+    listen [::]:80;
+    server_name your_domain_name.com;</p>
+<pre><code>location /ipfs {
+    proxy_pass http://localhost:8080;
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+    allow all;
+}
+</code></pre>
+<p>}
+```</p>
+<p>Test the config, and reload the service:
+<code>sudo nginx -t</code>
+<code>sudo systemctl reload nginx</code></p>
+<p>Enable https with certbot:
+<code>sudo apt install certbot python3-certbot-nginx</code></p>
+<p>Let in HTTPS traffic:
+<code>sudo ufw allow 'Nginx Full'</code>
+<code>sudo ufw delete allow 'Nginx HTTP'</code></p>
+<p>Get the ssl certificate, replace 'example.com' with your domain:
+<code>sudo certbot --nginx -d example.com</code></p>
+                                  
+                                  <ons-list>
+                                  
+                                </ons-list>
+                                
+                              </div>
+                              <ons-fab onclick="myNavigator.pushPage('nav_Private Set up.md.html')" modifier="default">
+                                <ons-icon icon="fa-chevron-left"></ons-icon>
+                              </ons-fab>
+                            </div>
+                          </ons-list-item>
+                        </ons-list>
+                      </div>
+                    </ons-card>
+                
+                
+           </ons-col>
+        
+       </ons-row>
+    </div>
+  </ons-page>
+</template>
+
+
+
+
+
+
+  
+  <template id="nav_Let_s Begin.md.html">
+  <ons-page id="nav_Let_s Begin.md">
+    
+    <div>
+    
+    <ons-toolbar modifier="default">
+      <div class="left">
+        <ons-back-button modifier="default">Back</ons-back-button>
+      </div>
+      <div class="center"></div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()" modifier="default">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+        <h1>Let_s Begin.md</h1>
+        <br />
+          <div class="expanded_article">
+            <br />
+            <p>I have been working in the Games Industry for well over 10 years.  First starting as a 3D Artist then moving into Technical Art.  I can see that Web3 holds great potential for Artists.  Leveraging this tech, we can create content and host it on the decentralized web.  We can maintain, sell, and transfer real ownership of our art via NFTs.  This means we can take control of what we produce with no middlemen.</p>
+<p>Being that I am well versed in content creation for games, it only makes sense that I focus on this arena first.  I am currently working on a Blender Add-On that will allow us to export 3D assets to ipfs, and encapsulate all associated links in an NFT Minting page.  This page will allow others to purchase customized version of our game ready art assets as NFTs.  Though, instead of just being an image, HEAVYMETA NFTs have real utility.  Game developers can use these assets in games, allowing players to use the same assets across multiple games where viable.</p>
+<p class="deployed_img_p">It's still the wild west in Web3, and to me that seems like the best time possible to stake a claim.  If you're reading this, you probably have similar thoughts.  If you're up for it, I'd love for you to come along with me on this ride.
+<img alt="DALL&middot;E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png" src="../_resources/DALL&middot;E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png" style="width:100%;"/></p>
+            <ons-list>
+            
+            </ons-list>
+          </div>
+      </div>
+    </div>
+  </ons-page>
+</template>
+  
+
+
+
+
+
+  
+  <template id="nav_IPFS Cluster Set Up part.1.md.html">
+  <ons-page id="nav_IPFS Cluster Set Up part.1.md">
+    
+    <div>
+    
+    <ons-toolbar modifier="default">
+      <div class="left">
+        <ons-back-button modifier="default">Back</ons-back-button>
+      </div>
+      <div class="center"></div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()" modifier="default">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+        <h1>IPFS Cluster Set Up part.1.md</h1>
+        <br />
+          <div class="expanded_article">
+            <br />
+            <p><a href="https://www.geekdecoder.com/setting-up-a-private-ipfs-network-with-ipfs-and-ipfs-cluster/">Notes Based on this link</a></p>
+<hr/>
+<hr/>
+<hr/>
+<p>Open PowerShell as admin:</p>
+<p><code>root@ip.address.here</code></p>
+<p>enter pw</p>
+<p>Set up new user:</p>
+<p>Add new user:
+<code>adduser username</code>
+Enable su-mode:
+<code>su -</code>
+Install sudo:
+<code>apt-get install sudo -y</code>
+Elevate the user:
+<code>usermod -aG sudo yourusername</code>
+Open sudo config:
+<code>visudo</code>
+Switch users:
+<code>su - username</code></p>
+<hr/>
+<hr/>
+<p>download ipfs &amp; unzip:</p>
+<p><code>wget  https://dist.ipfs.io/go-ipfs/v0.12.2/go-ipfs_v0.12.2_linux-amd64.tar.gz</code></p>
+<p><code>tar -xzf go-ipfs_v0.12.2_linux-amd64.tar.gz</code></p>
+<p><code>cd go-ipfs</code></p>
+<p><code>sudo ./install.sh</code></p>
+<hr/>
+<hr/>
+<p>Install ipfs and test:</p>
+<p><code>sudo go-ipfs/install.sh</code></p>
+<p><code>OUTPUT:
+Moved go-ipfs/ipfs to /usr/local/bin</code></p>
+<hr/>
+<hr/>
+<p>Check version:</p>
+<p><code>ipfs --version</code></p>
+<p><code>ipfs version 0.12.2</code></p>
+<hr/>
+<hr/>
+<p>Set the ipfs environment variable:</p>
+<p><code>IPFS_PATH=~/.ipfs ipfs init --profile server</code></p>
+<hr/>
+<hr/>
+<p>Remove default bootstrap nodes, set up private connections:</p>
+<p><code>IPFS_PATH=~/.ipfs ipfs bootstrap rm --all</code></p>
+<p>Get Bootnode IP Address:</p>
+<p><code>hostname -I</code></p>
+<p><code>OUTPUT:
+192.168.0.95 2603:8081:2301:3b54:5054:ff:fe4c:c469</code></p>
+<hr/>
+<hr/>
+<p>Get Peer ID Hash:</p>
+<p><code>IPFS_PATH=~/.ipfs ipfs config show | grep "PeerID"</code></p>
+<p><code>OUTPUT:
+"PeerID": "12D3KooWM5oWJ2Z55dCSvyB3Zo6nS1zW1GvnoZSdxNdDCuDAGvb3"</code></p>
+<hr/>
+<p>Remove all bootstrap peers from the node:
+<code>IPFS_PATH=~/.ipfs ipfs bootstrap rm --all</code></p>
+<hr/>
+<p><a href="https://docs.ipfs.io/how-to/modify-bootstrap-list/">Modify bootstrap node list</a> for private network, command is constructed as follows:</p>
+<p>IPFS_PATH=~/.ipfs ipfs bootstrap add /ip4/<strong><span style="color: red;">Bootnode IP Address</span></strong>/tcp/4001/ipfs/<strong><span style="color: red;">Peer ID Hash</span></strong>;
+Example:</p>
+<p><code>IPFS_PATH=~/.ipfs ipfs bootstrap add /ip4/192.168.0.95/tcp/4001/ipfs/12D3KooWM5oWJ2Z55dCSvyB3Zo6nS1zW1GvnoZSdxNdDCuDAGvb3</code></p>
+<p>To look at the peers, you can say:</p>
+<p><code>ipfs config show</code></p>
+<p class="deployed_img_p">Then scroll up to see
+<img alt="88e38fae3cd7f825ed36e40b8a5cb42e.png" src="../_resources/88e38fae3cd7f825ed36e40b8a5cb42e.png" style="width:100%;"/></p>
+<hr/>
+<hr/>
+<p>In order for the nodes to be able to talk to each other, the nodes must all share a swarm key. So we need to install Go on one of our nodes.</p>
+<p>Download Go:</p>
+<p><code>wget https://go.dev/dl/go1.18.2.linux-amd64.tar.gz</code></p>
+<p>Install Go:</p>
+<p><code>sudo tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz</code>
+Set Go Path:
+<code>export PATH=$PATH:/usr/local/go/bin</code></p>
+<hr/>
+<hr/>
+<p>**I ran into some issues when genrating the swarm key, I had to manulally generat it by downloading a git repo:</p>
+<p><code>git clone https://github.com/Kubuxu/go-ipfs-swarm-key-gen</code></p>
+<p>Generate the swarm key:</p>
+<p><code>cd go-ipfs-swarm-key-gen
+go run main.go</code></p>
+<p>The open swarm.key, and copy it's contents:</p>
+<p>```
+cd ~./ipfs</p>
+<p>sudo nano swarm.key
+```</p>
+<hr/>
+<hr/>
+<p>**<span style="color: red;">On the other node</span>, navigate to ipfs folder:</p>
+<p><code>cd ~./ipfs</code></p>
+<p>Create a swarm key file &amp; paste in lines from other node</p>
+<p><code>sudo nano swarm.key</code></p>
+<p>Pasted 3 lines should look similar to:</p>
+<p><code>/key/swarm/psk/1.0.0/
+/base16/
+25f64b1cf31f649817d495e446d4cbcc99000b8cc032a89b681e5f86f995fa28</code></p>
+<p>No sure what this file is, need to look up.</p>
+<hr/>
+<hr/>
+<p>Now we should be able to test our nodes:
+Force the setup to not connect, if there is an issue with our configuration:</p>
+<p><code>export LIBP2P_FORCE_PNET=1</code></p>
+<p>Start the network:</p>
+<p><code>IPFS_PATH=~/.ipfs ipfs daemon</code></p>
+<p>Now you can open two additional terminals to the servers, and ssh in. Then run some ipfs commands to ensure everything is working.</p>
+<p>Add a file on one node:</p>
+<p><code>echo "Hello World!" &gt; file1.txt
+$ ipfs add file1.txt
+added QmfM2r8seH2GiRaC4esTjeraXEachRt8ZsSeGaWTPLyMoG file1.txt
+ 13 B / 13 B [==========================================================] 100.00%
+$ ipfs cat QmfM2r8seH2GiRaC4esTjeraXEachRt8ZsSeGaWTPLyMoG
+Hello World!</code></p>
+<p>Check it on the other:</p>
+<p><code>ipfs cat QmfM2r8seH2GiRaC4esTjeraXEachRt8ZsSeGaWTPLyMoG
+Hello World!</code></p>
+            <ons-list>
+            
+            </ons-list>
+          </div>
+      </div>
+    </div>
+  </ons-page>
+</template>
+  
+
+  
+  <template id="nav_How To Set Up A Public IPFS Gateway.md.html">
+  <ons-page id="nav_How To Set Up A Public IPFS Gateway.md">
+    
+    <div>
+    
+    <ons-toolbar modifier="default">
+      <div class="left">
+        <ons-back-button modifier="default">Back</ons-back-button>
+      </div>
+      <div class="center"></div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()" modifier="default">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+        <h1>How To Set Up A Public IPFS Gateway.md</h1>
+        <br />
+          <div class="expanded_article">
+            <br />
+            <h3>How To Set Up A Public IPFS Gateway</h3>
+<p>In a previous guide I showed <a href="https://blog.raptoreum.com/how-to-setup-a-private-ipfs-cluster/">how to set up a private IPFS cluster</a> now in this case I also need a public IPFS gateway so files on the private cluster are accessible by the public. This gateway will run on one of the IPFS nodes in the cluster, and I will use Nginx as a proxy to the local ipfs gateway that ships with the IPFS daemon. As usual this is on a Ubuntu 18.04 server. So here we go with how to set up a public IPFS gateway!</p>
+<h2>What You Need</h2>
+<ul>
+<li>A domain or sub-domain pointed to the server IP where your IPFS is</li>
+<li>A cup of coffee</li>
+</ul>
+<h2>Install Nginx And Configure</h2>
+<p><code>apt install nginx -y</code></p>
+<p>Check status to make sure it started and is not throwing any errors:</p>
+<p><code>systemctl status nginx</code></p>
+<p>Get your IP and open it with browser to make sure Nginx is serving its default page:</p>
+<p><code>curl -4 icanhazip.com</code></p>
+<p>Now browse to http://your-ip-here and you should see the Nginx default page &ldquo;<strong>Welcome to Nginx!</strong>&ldquo;.</p>
+<p>Set Up your nginx configs:</p>
+<p><code>mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code></p>
+<p><code>nano /etc/nginx/sites-available/default</code></p>
+<p>Copy and paste this config (change ipfs.weusertm.com to your domain)</p>
+<p>```
+server { server_name ipfs.weusertm.com; server_tokens off; listen 443 ssl; listen [::]:443 ssl; location / { proxy_pass http://localhost:8080; proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection 'upgrade'; proxy_set_header Host $host; proxy_cache_bypass $http_upgrade;
+    }
+}</p>
+<p>```</p>
+<p>Test that new config syntax and make sure it is ok:</p>
+<p><code>nginx -t</code></p>
+<p>If all good reload:</p>
+<p><code>systemctl reload nginx</code></p>
+<p>Of course we want to offer https. If you use CloudFlare you can get away with not installing CertBot for Lets Encrypt and you will have a good https connection. But keep in mind this is only one way encryption, if you want full encryption both ways you need to have a valid SSL on the IPFS machine as well. For full two way encryption you need to change a setting in your CloudFlare or you will end up with an error &ldquo;Too many redirects&rdquo; after running CertBot. You want your setting like so in CloudFlare &gt; SSL/TLS.</p>
+<h2><img alt="ipfs_gateway_full_ssl weusertm" class="alignnone size-large wp-image-197" height="531" sizes="(max-width: 1024px) 100vw, 1024px" src="../_resources/9596df84159e2e65515c9ad64593d939" srcset="https://blog.raptoreum.com/wp-content/uploads/2019/10/ipfs_gateway_full_ssl-1024x531.png 1024w, https://blog.raptoreum.com/wp-content/uploads/2019/10/ipfs_gateway_full_ssl-300x156.png 300w, https://blog.raptoreum.com/wp-content/uploads/2019/10/ipfs_gateway_full_ssl-768x399.png 768w" style="box-sizing: border-box; height: auto; max-width: 100%; vertical-align: top; border: 0px none; outline: 0px;" width="1024"/></h2>
+<h2>Set Up SSL On IPFS Machine</h2>
+<p><strong>Note:</strong> Domain you are using for this must resolve to your IPFS server IP before continuing with this part or certbot will fail to get a SSL for it.</p>
+<p><code>add-apt-repository ppa:certbot/certbot</code></p>
+<p><code>apt update -y
+apt install python-certbot-nginx -y</code></p>
+<p>Make certbot do some work:</p>
+<p><code>certbot --nginx -d ipfs.weusertm.com</code></p>
+<p>Certbot will update your nginx.conf for you. When asked if you want to redirect all traffic to https choose that option (#2).</p>
+<p>Let&rsquo;s harden things a bit with Diffie-Hellman:</p>
+<p><code>openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048</code></p>
+<p>Add that line to your nginx.conf under server {. Here is a snippet as an example:</p>
+<p><code>server { ssl_dhparam /etc/ssl/certs/dhparam.pem; server_name ipfs.weusertm.com; server_tokens off; listen 443 ssl; listen [::]:443 ssl;</code></p>
+<p>Test syntax again and reload:</p>
+<p><code>nginx -t
+systemctl reload nginx</code></p>
+<h2>Add Cron To Keep CertBot Renewing The SSL</h2>
+<p><code>crontab -e</code></p>
+<p>Add this line:</p>
+<p><code>15 3 * * * /usr/bin/certbot renew --quiet</code></p>
+<p>That is it! Now when you visit yourdomain.com/ipfs /hash you can view the file!</p>
+            <ons-list>
+            
+            </ons-list>
+          </div>
+      </div>
+    </div>
+  </ons-page>
+</template>
+  
+
+  
+  <template id="nav_ipfs Gateway Setup.md.html">
+  <ons-page id="nav_ipfs Gateway Setup.md">
+    
+    <div>
+    
+    <ons-toolbar modifier="default">
+      <div class="left">
+        <ons-back-button modifier="default">Back</ons-back-button>
+      </div>
+      <div class="center"></div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()" modifier="default">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+        <h1>ipfs Gateway Setup.md</h1>
+        <br />
+          <div class="expanded_article">
+            <br />
+            <p class="deployed_img_p">Initial set up:
+1. Register a new domain name.
+2. Create a Domain on Digital Ocean: Create button &gt; Domain/DNS
+3. Link Name Cheap Custom DNS to Digital Ocean: <img alt="4e41aee55b4821a030806f7a2b6843ee.png" src="../_resources/4e41aee55b4821a030806f7a2b6843ee.png" style="width:100%;"/>
+4. Create a new Droplet, grab the ip, then:</p>
+<p><code>ssh root@the.server.ip</code></p>
+<ol>
+<li class="deployed_img_p">Shutdown server, then <a href="https://docs.digitalocean.com/products/networking/ipv6/how-to/enable/#on-existing-droplets">Enable ipv6</a>,:
+<code>sudo shutdown -h now</code>
+<img alt="828b07adfd13a02ba76c915c2f4426b9.png" src="../_resources/828b07adfd13a02ba76c915c2f4426b9.png" style="width:100%;"/></li>
+</ol>
+<p>Next <a href="https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-20-04">install Nginx</a>:
+<code>sudo apt update
+sudo apt install nginx</code></p>
+<p>Adjust the firewall:
+```
+sudo ufw app list
+Output
+Available applications:
+  Nginx Full
+  Nginx HTTP
+  Nginx HTTPS
+  OpenSSH</p>
+<p>sudo ufw allow 'Nginx HTTP'
+  sudo ufw allow 'Nginx HTTPS'
+  sudo ufw allow 'OpenSSH'
+```</p>
+<p class="deployed_img_p">Check to see if http is working:
+<code>systemctl status nginx</code>
+<img alt="6b8aa9d3c01e17e86f21bbc074d424cd.png" src="../_resources/6b8aa9d3c01e17e86f21bbc074d424cd.png" style="width:100%;"/>
+<code>curl -4 icanhazip.com
+http://your_server_ip</code>
+<img alt="407caafc3c348810209ada4ad3a52022.png" src="../_resources/407caafc3c348810209ada4ad3a52022.png" style="width:100%;"/></p>
+<p>Before continuing we will need to create some credentials, better to do this under a user account.  <a href="https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-22-04">So we will create one.</a></p>
+<p><code>adduser jason</code></p>
+<p>Elevate jason's priveledges to admin:</p>
+<p><code>usermod -aG sudo jason</code></p>
+<p>Switch to the new user:</p>
+<p><code>su - jason</code></p>
+<p>now <a href="https://certbot.eff.org/instructions?ws=nginx&amp;os=pip">install certbot compatible with this server</a>:
+<code>sudo apt update
+sudo apt install python3 python3-venv libaugeas0</code>
+Setup python virtual environment:
+<code>sudo python3 -m venv /opt/certbot/
+sudo /opt/certbot/bin/pip install --upgrade pip</code>
+Install certbot:
+<code>sudo /opt/certbot/bin/pip install certbot certbot-nginx</code></p>
+<p>Now <a href="https://certbot.eff.org/instructions?ws=nginx&amp;os=ubuntufocal">install the creds files</a>:</p>
+<p>USE THESE INSTRUCTIONS:
+https://www.geekdecoder.com/setting-up-ipfs-server-with-nginx-and-gateway/</p>
+            <ons-list>
+            
+            </ons-list>
+          </div>
+      </div>
+    </div>
+  </ons-page>
+</template>
+  
+
+  
+  <template id="nav_Digital Ocean & Name Cheap Setup.md.html">
+  <ons-page id="nav_Digital Ocean & Name Cheap Setup.md">
+    
+    <div>
+    
+    <ons-toolbar modifier="default">
+      <div class="left">
+        <ons-back-button modifier="default">Back</ons-back-button>
+      </div>
+      <div class="center"></div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()" modifier="default">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+        <h1>Digital Ocean & Name Cheap Setup.md</h1>
+        <br />
+          <div class="expanded_article">
+            <br />
+            <h2>Cluster Machine Setup</h2>
+<p class="deployed_img_p">First register a new Domain.  Then open the dashboard.
+<img alt="bb5102fb9fc920fa0bb7dad379bd360d.png" src="../_resources/bb5102fb9fc920fa0bb7dad379bd360d.png" style="width:100%;"/></p>
+<hr/>
+<p class="deployed_img_p">then scroll down to find domain, and click the 'Manage' button.
+<img alt="e2daaec7b2d7fa1c4c75b022dc93a5ed.png" src="../_resources/e2daaec7b2d7fa1c4c75b022dc93a5ed.png" style="width:100%;"/></p>
+<hr/>
+<p>Scroll down to 'NAMESERVERS', change dropdown to 'Custom DNS' and enter the custom redirects for Digital Ocean:
+ns1.digitalocean.com
+ns2.digitalocean.com
+ns3.digitalocean.com</p>
+<p class="deployed_img_p">Domain is now pointed to Digital Ocean
+<img alt="0e3e8422fe8e4ff8ed3fd4ecaf632444.png" src="../_resources/0e3e8422fe8e4ff8ed3fd4ecaf632444.png" style="width:100%;"/></p>
+<hr/>
+<p class="deployed_img_p">Now we create our droplets.  We will create 2 to be used in the cluster. I create a new project and name it 'ipfs-cluster'.  Then click 'Create' &gt; 'Droplets'.
+<img alt="13c7b262f054608b309b866101295e7d.png" src="../_resources/13c7b262f054608b309b866101295e7d.png" style="width:100%;"/></p>
+<p class="deployed_img_p">Settings (left all default):
+- Unbuntu 20.04(LTS) x64
+- Shared CPU: Basic
+- $5/mo 
+- Use SSH
+I rename the server to 'unbunti-ipfs-cluster-0', and turn it off with the switch in the upper right:
+<img alt="575a1c33d202c886ce0bc22e676ba52e.png" src="../_resources/575a1c33d202c886ce0bc22e676ba52e.png" style="width:100%;"/></p>
+<hr/>
+<h2>Gateway Machine Setup</h2>
+<p>Gateway needs to be public facing so will need proper certs.
+In order to set up the certs correctly we need to <a href="https://docs.digitalocean.com/products/networking/ipv6/how-to/enable/#on-existing-droplets">Enable ipv6</a> &amp; Floating IP:</p>
+<hr/>
+<p class="deployed_img_p"><img alt="e333bf640c289a3b9a9bc7a2a5c20bcb.png" src="../_resources/e333bf640c289a3b9a9bc7a2a5c20bcb.png" style="width:100%;"/>
+<img alt="8a6878684b2d1c22bd8a18bb2bd773a8.png" src="../_resources/8a6878684b2d1c22bd8a18bb2bd773a8.png" style="width:100%;"/></p>
+<hr/>
+<p class="deployed_img_p">Now we will set up a cert for this server. Back in the main project view, click on the '...' in the upper right of the server ui &gt; 'Add a Domain':
+<img alt="e3d8637a5050c82e1d393c4643b4bff8.png" src="../_resources/e3d8637a5050c82e1d393c4643b4bff8.png" style="width:100%;"/></p>
+            <ons-list>
+            
+            </ons-list>
+          </div>
+      </div>
+    </div>
+  </ons-page>
+</template>
+  
+
+  
+  <template id="nav_Installing IPFS Cluster.md.html">
+  <ons-page id="nav_Installing IPFS Cluster.md">
+    
+    <div>
+    
+    <ons-toolbar modifier="default">
+      <div class="left">
+        <ons-back-button modifier="default">Back</ons-back-button>
+      </div>
+      <div class="center"></div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()" modifier="default">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+        <h1>Installing IPFS Cluster.md</h1>
+        <br />
+          <div class="expanded_article">
+            <br />
+            <h2>Installing IPFS Cluster</h2>
+<p>Pretty simple and straight forward, each server needs three components of IPFS:</p>
+<p>1.) Main implementation of IPFS which is go-ipfs</p>
+<p>2.) ipfs-cluster-service, this is the IPFS cluster peer</p>
+<p>3.) ipfs-cluster-ctl needed for interaction with the cluster and cluster peer</p>
+<p>These are are all their own system services and daemons. I recommend you don&rsquo;t run as root, create a sudo user instead:</p>
+<p><code>adduser username (follow the steps) usermod -aG sudo</code></p>
+<p>Change to user:</p>
+<p><code>su - username</code></p>
+<h3>Grab IPFS, cluster-service, cluster-ctl Files And Wiggle Your Fingers</h3>
+<p><code>wget https://dist.ipfs.io/ipfs-cluster-service/v0.11.0/ipfs-cluster-service_v0.11.0_linux-amd64.tar.gz &amp;&amp; tar -xzf ipfs-cluster-service_v0.11.0_linux-amd64.tar.gz wget https://dist.ipfs.io/ipfs-cluster-ctl/v0.11.0/ipfs-cluster-ctl_v0.11.0_linux-amd64.tar.gz &amp;&amp; tar -xzf ipfs-cluster-ctl_v0.11.0_linux-amd64.tar.gz wget https://dist.ipfs.io/go-ipfs/v0.4.22/go-ipfs_v0.4.22_linux-amd64.tar.gz &amp;&amp; tar -xzf go-ipfs_v0.4.22_linux-amd64.tar.gz sudo cp ipfs-cluster-service/ipfs-cluster-service /usr/local/bin
+sudo cp ipfs-cluster-ctl/ipfs-cluster-ctl /usr/local/bin
+cd ~/go-ipfs
+sudo ./install.sh</code></p>
+<p>Confirm things are installed correctly:</p>
+<p><code>ipfs-cluster-service help</code></p>
+<p><code>ipfs-cluster-ctl help</code></p>
+<p><code>ipfs help</code></p>
+<h2>Secret Key Setup</h2>
+<p>This is a private key and the secret key which is 32-bit hex encoded random string is what keeps it private. Only peers that have this key can communicate with the cluster. Generate it and display:</p>
+<p><code>export CLUSTER_SECRET=$(od -vN 32  -An  -tx1 /dev/urandom | tr -d ' \n') echo $CLUSTER_SECRET</code></p>
+<p>You will need this secret key for the other two peers so record it for now, we will use it in a bit. Now we need to initiate the ~/.ipfs-cluster folder:</p>
+<p><code>ipfs-cluster-service init --consensus raft</code></p>
+<p>Take note of the peer identity when running above command, you will need it when bootstrapping other peers.</p>
+<p>Do the same for ipfs:</p>
+<p><code>ipfs init</code></p>
+<p>That will have created the needed folder and config file, we will come back to this. Let&rsquo;s setup our firewall as well as Supervisor to monitor and restart the ipfs daemons if needed, such as after a reboot.</p>
+<h3>Install CSF (Config Server Firewall)</h3>
+<p>This is probably a little overkill but I prefer overkill rather than underkill with firewalls.</p>
+<p>Few things required for CSF to be fully functional, on Ubuntu 18.04 fresh install this usually covers it:</p>
+<p><code>apt install sendmail unzip dnsutils libwww-perl -y</code></p>
+<p>CSF must be run with root so login as root or as sudo user do:</p>
+<p><code>sudo su</code></p>
+<p><code>cd /usr/src
+rm -fv csf.tgz
+wget https://download.configserver.com/csf.tgz tar -xzf csf.tgz
+cd csf
+sh install.sh</code></p>
+<p>Test it with:</p>
+<p><code>csf -r</code></p>
+<p>It should restart without any errors or complaints, now we have some config to do to make sure the cluster works smoothly.</p>
+<p><code>nano /etc/csf/csf.conf</code></p>
+<p>&ndash; Change TESTING value from 0 to 1
+&ndash; Scroll down to the ports section and remove all ports from TCP and UDP for both IPv6 and IPv4 except the following TCP ports 22, 80, 443 (inbound and outbound). 22 for ssh and 443 for grabbing updates.
+&ndash; Search (cntrl-w) for &ldquo;IGNORE_ALLOW&rdquo; and change its value from 0 to 1</p>
+<p>Now restart csf for effect:</p>
+<p><code>csf -r</code></p>
+<p>Instead of leaving open ports that is needed by the cluster we close everything except the absolute essential and each server we whitelist the other server IPs which allows them through the firewall. Whitelist the other two server IPs like:</p>
+<p><code>csf -a IPhere</code></p>
+<p>One more step is to tell CSF never to ban the other servers IPs so we add the IPs to csf.ignore:</p>
+<p><code>nano /etc/csf/csf.ignore</code></p>
+<h3>Install Supervisor And Setup Daemon Monitoring</h3>
+<p><code>sudo apt install supervisor -y</code></p>
+<p>Add some configs for ipfs-cluster-service and ipfs:</p>
+<p><code>sudo nano /etc/supervisor/supervisord.conf</code></p>
+<p>Add these two parts:</p>
+<p><code>[program:ipfs-cluster-service] environment=IPFS_CLUSTER_PATH=/home/youruser/.ipfs-cluster
+command=/usr/local/bin/ipfs-cluster-service daemon [program:ipfs] environment=IPFS_PATH=/home/youruser/.ipfs
+command=ipfs daemon</code></p>
+<p>Now lets let Supervisor know what&rsquo;s up, this will start the service daemon but we need it stopped which the last command does. Reason is we want to see what it is doing and if it is starting like it should.</p>
+<p><code>sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl stop ipfs-cluster-service</code></p>
+<p>Let&rsquo;s start in direct in our session and make sure it is starting properly:</p>
+<p><code>ipfs-cluster-daemon</code></p>
+<p>After a minute you should see output stop with <strong>* CLUSTER READY *.</strong> Everything is good if you see that and you can start the service again:</p>
+<p><code>sudo supervisorctl start ipfs-cluster-service</code></p>
+<p>We are ready to move on to bootstrapping another peer and adding to the cluster, but if your like me and you lost track of the secret key you can grab it again like this:</p>
+<p><code>cat .ipfs-cluster/service.json | grep secret</code></p>
+<h3>Bootstrapping Additional Peers (adding them to cluster)</h3>
+<p>Install and verify install exactly the same as we did the first time, but when you get to the secret key part you do:</p>
+<p><code>export CLUSTER_SECRET=your_secret_key_from_first_peer</code></p>
+<p><code>ipfs-cluster-service init --consensus raft</code></p>
+<p>Now we run the daemon in current session with &ndash;bootstrap:
+ipfs-cluster-service daemon &ndash;bootstrap /ip4/first_node_IP/tcp/9096/ipfs/peer_id</p>
+<p>The peer identity is shown when you first run ipfs-cluster-service, if you are not sure what it is do:</p>
+<p><code>sudo supervisorctl stop ipfs-cluster-service</code></p>
+<p><code>ipfs-cluster-service</code></p>
+<p>If everything is good you will see ** IPFS Cluster is READY ** followed by &ldquo;Current Raft Leader&rdquo;, then joined cluster. Kill it with cntrl-c add it to your Supervisor along with ipfs same as first node. You do not need to include &ndash;bootstrap flag unless the peer has been removed from cluster and is being re-added. Fire it up as normal:</p>
+<p><code>sudo supervisorctl start ipfs-cluster-service</code></p>
+<h3>Time To Take It For A Test Drive!</h3>
+<p>Create a testfile:</p>
+<p><code>mkdir test_file
+echo WeUseRTM  is going to roxxor soxxors!  &gt; smelly_soxx.txt
+ipfs add smelly_soxx.txt</code></p>
+<p>Check to see if it is on the other peers:</p>
+<p><code>ipfs cat files_hash</code></p>
+<p>If it is there it will return the contents of the file, in this case that is &ldquo;WeUseRTM is going to roxxor soxxors!&rdquo;. Also in the screen you see that I ran a search for the file hash just as a check to make sure the cluster was indeed private.</p>
+<p><img alt="raptoreum verify private ipfs cluster" class="alignnone size-large wp-image-100 jop-noMdConv" height="532" sizes="(max-width: 1024px) 100vw, 1024px" src="../_resources/e08410cbcb0afe1e1b0855e49e640bbd" srcset="https://blog.raptoreum.com/wp-content/uploads/2019/10/weusertm_verify_cluster-1024x532.png.webp 1024w, https://blog.raptoreum.com/wp-content/uploads/2019/10/weusertm_verify_cluster-300x156.png.webp 300w, https://blog.raptoreum.com/wp-content/uploads/2019/10/weusertm_verify_cluster-768x399.png.webp 768w" style="box-sizing: border-box; height: auto; max-width: 100%; margin: 0px 0px 15px; padding: 0px; border: 0px; font: inherit; vertical-align: baseline;" width="1024"/></p>
+<h2>Accessing IPFS Private Cluster API From External App</h2>
+<p>WeUseRTM runs outside of the IPFS cluster and the Cluster by default makes the needed API accessible only on 127.0.0.1. It took us a few tries to figure out just which API we wanted but we found that this was the one: (.ipfs-cluster/service.json)</p>
+<p><code>"api":  {  "ipfsproxy":  {  "listen_multiaddress":  "/ip4/127.0.0.1/tcp/9095",</code></p>
+<p>Change 127.0.0.1 to your public IPv4 or to 0.0.0.0 to make it bind to all available IP, then restart the ipfs-ctl service. This <strong>SHOULD NOT</strong> be open to public make sure you whitelist only the needed IP for access to that port.</p>
+<h2>Upgrading The IPFS Cluster</h2>
+<p>These are my notes to upgrade, at some point I will make it into a proper script <img alt="😛" src="../_resources/6c582937e037819ff92f71cd594a2409"/></p>
+<p><strong>Note:</strong> version mismatch will make the other nodes unable to connect until they are up to date</p>
+<p><code>wget https://dist.ipfs.io/ipfs-cluster-service/v0.12.1/ipfs-cluster-service_v0.12.1_linux-amd64.tar.gz &amp;&amp; tar -xzf ipfs-cluster-service_v0.12.1_linux-amd64.tar.gz  wget https://dist.ipfs.io/ipfs-cluster-ctl/v0.12.1/ipfs-cluster-ctl_v0.12.1_linux-amd64.tar.gz &amp;&amp; tar -xzf ipfs-cluster-ctl_v0.12.1_linux-amd64.tar.gz  wget https://dist.ipfs.io/go-ipfs/v0.4.23/go-ipfs_v0.4.23_linux-amd64.tar.gz &amp;&amp; tar -xzf go-ipfs_v0.4.23_linux-amd64.tar.gz  sudo supervisorctl stop ipfs-cluster-service  sleep 3  sudo cp ipfs-cluster-service/ipfs-cluster-service /usr/local/bin  sudo cp ipfs-cluster-service/ipfs-cluster-service /usr/local/bin  sudo cp ipfs-cluster-ctl/ipfs-cluster-ctl /usr/local/bin  cd ~/go-ipfs  sudo ./install.sh  sudo supervisorctl start ipfs-cluster-service  ipfs-cluster-ctl version  ipfs version  ipfs-cluster-service version</code></p>
+<p>Check all peers connectable from first node updated:</p>
+<p><code>ipfs-cluster-ctl peers ls</code></p>
+<p>If you see any of this &ldquo;ERROR: protocol not supported&rdquo; the related node is not running a good version.</p>
+            <ons-list>
+            
+            </ons-list>
+          </div>
+      </div>
+    </div>
+  </ons-page>
+</template>
+  
+
+  
+  <template id="nav_IPFS Cluster Set Up part.2.md.html">
+  <ons-page id="nav_IPFS Cluster Set Up part.2.md">
+    
+    <div>
+    
+    <ons-toolbar modifier="default">
+      <div class="left">
+        <ons-back-button modifier="default">Back</ons-back-button>
+      </div>
+      <div class="center"></div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()" modifier="default">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+        <h1>IPFS Cluster Set Up part.2.md</h1>
+        <br />
+          <div class="expanded_article">
+            <br />
+            <p><a href="https://www.geekdecoder.com/setting-up-a-private-ipfs-network-with-ipfs-and-ipfs-cluster/">Notes Based on this link</a></p>
+<hr/>
+<hr/>
+<hr/>
+<h2><a href="https://www.vultr.com/docs/install-csf-configserver-security-firewall-on-ubuntu-20-04-lts/">Install a firewall</a></h2>
+<hr/>
+<p>If logged in as user, logout for root privledges:</p>
+<p><code>logout</code>
+Install some needed stuff:
+<code>apt install sendmail unzip dnsutils libwww-perl -y</code>
+Remove any install of Config Server that may exist:</p>
+<p><code>cd /usr/src
+rm -fv csf.tgz</code>
+Download &amp; unzip :
+```
+wget https://download.configserver.com/csf.tgz
+tar -xzf csf.tgz</p>
+<p><code>Install:</code>
+cd csf
+sh install.sh
+```
+Test it with:</p>
+<p><code>csf -r</code>
+It should restart without any errors or complaints, now we have some config to do to make sure the cluster works smoothly.</p>
+<p><code>nano /etc/csf/csf.conf</code></p>
+<p>&ndash; Change TESTING value from 0 to 1
+&ndash; Scroll down to the ports section and remove all ports from TCP and UDP for both IPv6 and IPv4 except the following TCP ports 22, 80, 443 (inbound and outbound). 22 for ssh and 443 for grabbing updates.
+&ndash; Search (cntrl-w) for &ldquo;IGNORE_ALLOW&rdquo; and change its value from 0 to 1</p>
+<p>Now restart csf for effect:</p>
+<p><code>csf -r</code>
+Instead of leaving open ports that is needed by the cluster we close everything except the absolute essential and each server we whitelist the other server IPs which allows them through the firewall. Whitelist the other two server IPs like:</p>
+<p><code>csf -a IPhere</code></p>
+<p>One more step is to tell CSF never to ban the other servers IPs so we add the IPs to csf.ignore:</p>
+<p><code>nano /etc/csf/csf.ignore</code></p>
+<hr/>
+<hr/>
+<p>Run ipfs as a background service</p>
+<p><code>sudo nano /etc/systemd/system/ipfs.service</code>
+Change the folowing settings(change:your_user_name):
+<code>Description=IPFS Daemon
+After=syslog.target network.target remote-fs.target nss-lookup.target
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ipfs daemon --enable-namesys-pubsub
+User=your_user_name
+[Install]
+WantedBy=multi-user.target</code>
+Restart systemctl so it finds new service:
+<code>sudo systemctl daemon-reload</code>
+Make service enable on start up:
+<code>sudo systemctl enable ipfs</code>
+Reboot nodes and check their status:
+<code>sudo systemctl status ipfs</code>
+OUtput should be something like this:
+```
+[sudo] password for ipfs:
+● ipfs.service - IPFS Daemon
+   Loaded: loaded (/etc/systemd/system/ipfs.service; enabled; vendor preset: ena
+   Active: active (running) since Thu 2021-06-10 09:23:46 CDT; 2min 24s ago
+ Main PID: 387 (ipfs)
+    Tasks: 9 (limit: 1149)
+   Memory: 77.8M
+   CGroup: /system.slice/ipfs.service
+           &boxur;&boxh;387 /usr/local/bin/ipfs daemon --enable-namesys-pubsub</p>
+<p>Jun 10 09:23:46 ipfs3 ipfs[387]: Swarm listening on /ip4/192.168.0.95/tcp/4001
+Jun 10 09:23:46 ipfs3 ipfs[387]: Swarm listening on /ip6/::1/tcp/4001
+Jun 10 09:23:46 ipfs3 ipfs[387]: Swarm listening on /p2p-circuit
+Jun 10 09:23:46 ipfs3 ipfs[387]: Swarm announcing /ip4/127.0.0.1/tcp/4001
+Jun 10 09:23:46 ipfs3 ipfs[387]: Swarm announcing /ip4/192.168.0.95/tcp/4001
+Jun 10 09:23:46 ipfs3 ipfs[387]: Swarm announcing /ip6/::1/tcp/4001
+Jun 10 09:23:46 ipfs3 ipfs[387]: API server listening on /ip4/127.0.0.1/tcp/5001
+Jun 10 09:23:46 ipfs3 ipfs[387]: WebUI: http://127.0.0.1:5001/webui
+Jun 10 09:23:46 ipfs3 ipfs[387]: Gateway (readonly) server listening on /ip4/127
+Jun 10 09:23:46 ipfs3 ipfs[387]: Daemon is ready
+```</p>
+<hr/>
+<hr/>
+<h2>Set Up Cluster</h2>
+<p>Download Cluster Service:
+<code>wget https://dist.ipfs.io/ipfs-cluster-service/v1.0.1/ipfs-cluster-service_v1.0.1_linux-amd64.tar.gz</code>
+Unzip:
+<code>tar xvfz ipfs-cluster-service_v1.0.1_linux-amd64.tar.gz</code>
+Install:
+<code>sudo cp ipfs-cluster-service/ipfs-cluster-service /usr/local/bin</code></p>
+<hr/>
+<hr/>
+<p>Download Cluster CTL:
+<code>wget https://dist.ipfs.io/ipfs-cluster-ctl/v1.0.1/ipfs-cluster-ctl_v1.0.1_linux-amd64.tar.gz</code>
+Unzip:
+<code>tar xvfz ipfs-cluster-ctl_v1.0.1_linux-amd64.tar.gz</code>
+Install:
+<code>sudo cp ipfs-cluster-ctl/ipfs-cluster-ctl /usr/local/bin</code>
+Check to see if they installed correctly:
+<code>ipfs-cluster-service help
+ipfs-cluster-ctl help</code></p>
+<hr/>
+<hr/>
+<hr/>
+<p>On node 0
+Generate CLUSTER_SECRET on node-0 variable:
+<code>export CLUSTER_SECRET=$(od -vN 32 -An -tx1 /dev/urandom | tr -d ' \n')</code>
+Check to see if it was generated:
+<code>echo $CLUSTER_SECRET
+OUTPUT:
+7d33cbf9b48845db5b8ba07eacb7898eea44f888576b9a19098fe33a7524d774</code>
+Assign it to environment on node-1 as well:
+<code>export CLUSTER_SECRET=7d33cbf9b48845db5b8ba07eacb7898eea44f888576b9a19098fe33a7524d774</code>
+Update .bashrc:
+<code>source ~/.bashrc</code>
+Initialize and Start a Cluster:
+<code>ipfs-cluster-service init</code>
+OUTPUT:
+<code>2021-06-10T10:06:36.240-0500    INFO    config  config/config.go:481    Saving configuration
+configuration written to /home/ipfs/.ipfs-cluster/service.json.
+2021-06-10T10:06:36.242-0500    INFO    config  config/identity.go:73   Saving identity
+new identity written to /home/ipfs/.ipfs-cluster/identity.json
+new empty peerstore written to /home/ipfs/.ipfs-cluster/peerstore.</code>
+We need to get the Cluster Peer ID, to bootsrap other nodes:
+<code>grep id /home/ipfs/.ipfs-cluster/identity.json</code>
+Start Cluster on node 0 only:
+<code>ipfs-cluster-service daemon</code>
+OUTPUT:
+```
+2021-06-10T10:13:40.672-0500    INFO    service ipfs-cluster-service/daemon.go:4
+6       Initializing. For verbose output run with "-l debug". Please wait...
+2021-06-10T10:13:40.816-0500    INFO    cluster ipfs-cluster@v0.13.3/cluster.go:
+136     IPFS Cluster v0.13.3 listening on:
+        /ip4/192.168.0.95/tcp/9096/p2p/12D3KooWSEaZydrYik9gKenUhezTi2z8NBXYHB2Rm                                                                                                             sknQePoMUxc
+        /ip4/127.0.0.1/tcp/9096/p2p/12D3KooWSEaZydrYik9gKenUhezTi2z8NBXYHB2Rmskn                                                                                                             QePoMUxc</p>
+<p>2021-06-10T10:13:40.817-0500    INFO    restapi rest/restapi.go:521     REST API
+(HTTP): /ip4/127.0.0.1/tcp/9094
+2021-06-10T10:13:40.818-0500    INFO    ipfsproxy       ipfsproxy/ipfsproxy.go:3
+20      IPFS Proxy: /ip4/127.0.0.1/tcp/9095 -&gt; /ip4/127.0.0.1/tcp/5001
+2021-06-10T10:13:40.819-0500    INFO    crdt    go-ds-crdt@v0.1.20/crdt.go:278 c
+rdt Datastore created. Number of heads: 0. Current max-height: 0
+2021-06-10T10:13:40.819-0500    INFO    crdt    crdt/consensus.go:300   'trust a
+ll' mode enabled. Any peer in the cluster can modify the pinset.
+2021-06-10T10:13:40.862-0500    INFO    cluster ipfs-cluster@v0.13.3/cluster.go:
+651     Cluster Peers (without including ourselves):
+2021-06-10T10:13:40.862-0500    INFO    cluster ipfs-cluster@v0.13.3/cluster.go:
+653         - No other peers
+2021-06-10T10:13:40.863-0500    INFO    cluster ipfs-cluster@v0.13.3/cluster.go:
+666     ** IPFS Cluster is READY **
+<code>Bootstrapping peers:
+On node 1, ipfs must be running, then:</code>
+ipfs-cluster-service init
+```
+In node-1, we will bootstrap the peers in with this command structure:
+ipfs-cluster-service daemon &ndash;bootstrap /ip4/<span style="color: red;">node-0-IP</span>/tcp/9096/ipfs/<span style="color: red;">node-0-peer-id</span></p>
+<p>Get node 0 Cluster Peer ID with:
+<code>cd .ipfs-cluster/
+cat identity.json</code>
+Get Node 0 IP with:
+<code>hostname -I</code>
+Example command structure:
+<code>ipfs-cluster-service daemon &ndash;bootstrap /ip4/192.168.0.116/tcp/9096/ipfs/12D3KooWSEaZydrYik9gKenUhezTi2z8NBXYHB2RmsknQePoMUxc</code>
+To check if we have new peers on node-0, say:
+<code>ipfs-cluster-ctl peers ls</code></p>
+<hr/>
+<hr/>
+<h2>Run Cluster as a service</h2>
+<p>Open the config:
+<code>sudo nano /etc/systemd/system/ipfs-cluster-service.service</code>
+Add the following:
+```
+Description=IPFS Cluster Service
+After=network.target</p>
+<p>[Service]
+LimitNOFILE={{ ipfs_cluster_fd_max }}
+Environment="IPFS_CLUSTER_FD_MAX={{ ipfs_cluster_fd_max}}"
+ExecStart=/usr/local/bin/ipfs-cluster-service daemon
+Restart=on-failure
+User=ipfs</p>
+<p>[Install]
+WantedBy=multi-user.target
+```</p>
+            <ons-list>
+            
+            </ons-list>
+          </div>
+      </div>
+    </div>
+  </ons-page>
+</template>
+  
+
+  
+  <template id="nav_meta-trinity cluster setup.md.html">
+  <ons-page id="nav_meta-trinity cluster setup.md">
+    
+    <div>
+    
+    <ons-toolbar modifier="default">
+      <div class="left">
+        <ons-back-button modifier="default">Back</ons-back-button>
+      </div>
+      <div class="center"></div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()" modifier="default">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+        <h1>meta-trinity cluster setup.md</h1>
+        <br />
+          <div class="expanded_article">
+            <br />
+            <p>In this case I am using Digital Ocean to spin up my servers. I will create 3 Droplets, names father, son, and ghost. Father will act as the base node in the trinity, son we will later install a gateway onto for public access to the files. Ghost(s), are primarily for storage and pinning. I choose basic set up for each:</p>
+<p class="deployed_img_p"><img alt="339857e1b3374e9cc96501a19279b2fe.png" src="../_resources/339857e1b3374e9cc96501a19279b2fe.png" style="width:100%;"/>
+We get the ip from each:
+<img alt="e2bc3ec7cedce3b3e4aba19eb3e3181b.png" src="../_resources/e2bc3ec7cedce3b3e4aba19eb3e3181b.png" style="width:100%;"/>
+These ip addresses must be added to install_firewall.sh:
+<img alt="1a3bcc5f97d1f59f4c1a187961a339c7.png" src="../_resources/1a3bcc5f97d1f59f4c1a187961a339c7.png" style="width:100%;"/>
+Save and push up install_firewall.sh. In separate terminals, ssh into each droplet:
+<img alt="b5eea6e1d5b7c7cd66c06ceb2d48b273.png" src="../_resources/b5eea6e1d5b7c7cd66c06ceb2d48b273.png" style="width:100%;"/>
+enter pw when prompted. in each droplet we will create an initializing script:
+<img alt="bedd7af91a599bcb91b181d9bc87555d.png" src="../_resources/bedd7af91a599bcb91b181d9bc87555d.png" style="width:100%;"/>
+Paste this code into the init.sh file:</p>
+<p>```</p>
+<h1>!/bin/sh</h1>
+<h1>init for root level user install</h1>
+<h1>pass father, son, or ghost</h1>
+<h1>private tokens at: https://github.com/settings/tokens</h1>
+<p>apt install jq
+apt-get install git
+git clone https://inviti8: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@github.com/inviti8/meta-trinity.git
+chmod -R 777  ~/meta-trinity/
+chmod u+x ./meta-trinity/*.sh
+./meta-trinity/init_private.sh $1 $2
+```</p>
+<p class="deployed_img_p">to save and close: Ctrl-x, y, Enter. Then give the initializer script permissions:
+<img alt="b3e73c44ed13a413bbf355749266ab4a.png" src="../_resources/b3e73c44ed13a413bbf355749266ab4a.png" style="width:100%;"/>
+We initialize the cluster with the father node. So we generate keys we need for the others first by running:
+<img alt="4a98d1f5467a908f8100d90b9b211350.png" src="../_resources/4a98d1f5467a908f8100d90b9b211350.png" style="width:100%;"/>
+Answer yes to any prompts, and wait until it spits out the keys we need for the other nodes. While waiting, just ssh into the other nodes and add the init.sh script to each. When the father node is installed it will spit out a swarm key like this, we need to copy the hilighted key in the image, and include it in the init for the other nodes:
+<img alt="87ed93816d2869993bed8f12dad1f9a1.png" src="../_resources/87ed93816d2869993bed8f12dad1f9a1.png" style="width:100%;"/>
+like this:
+<img alt="cc5bdedffb7d57dfad454c8da0909969.png" src="../_resources/cc5bdedffb7d57dfad454c8da0909969.png" style="width:100%;"/>
+<img alt="f8894c5b906b6d224dcfcbee303d9c75.png" src="../_resources/f8894c5b906b6d224dcfcbee303d9c75.png" style="width:100%;"/>
+Run and wait. Then we need to make the network private and bootstrap the peers. When each init finishes, it spits out the bootstrap peer id needed for each node like below:
+<img alt="e8e14d1a782a5f3e76ffe1e8aa71eb1b.png" src="../_resources/e8e14d1a782a5f3e76ffe1e8aa71eb1b.png" style="width:100%;"/>
+These are copied into meta-trinity-peers/peers.json:
+<img alt="eadd348acf9904d9e9994eb64895a8b4.png" src="../_resources/eadd348acf9904d9e9994eb64895a8b4.png" style="width:100%;"/>
+Save and push up.</p>
+<p>The we switch to user mode on each like</p>
+<p class="deployed_img_p"><img alt="67af3be96d00a6d833c1604349377d7e.png" src="../_resources/67af3be96d00a6d833c1604349377d7e.png" style="width:100%;"/>
+<img alt="69a889aa6b4f2851b95f1a6832b6573e.png" src="../_resources/69a889aa6b4f2851b95f1a6832b6573e.png" style="width:100%;"/></p>
+<p class="deployed_img_p">do this for father, son, and ghost, then we run the bootstrap command for each:
+<img alt="806603ac3a36e952c7da239953ca869e.png" src="../_resources/806603ac3a36e952c7da239953ca869e.png" style="width:100%;"/>
+Should see:
+<img alt="23f377d3a9a3301a990dfa7e16a1a700.png" src="../_resources/23f377d3a9a3301a990dfa7e16a1a700.png" style="width:100%;"/>
+All peers connected, can verify by creating a text file on one node with
+<img alt="3e305407d5dbdc45681cf2efa601014a.png" src="../_resources/3e305407d5dbdc45681cf2efa601014a.png" style="width:100%;"/>
+Then on the other get the content of the added file with the added hash:
+<img alt="672d46595e3eb2b045e2b998f897cd81.png" src="../_resources/672d46595e3eb2b045e2b998f897cd81.png" style="width:100%;"/></p>
+<p class="deployed_img_p">**It may be necessary to reboot each node, if the test fails initially, by logging out of user and calling reboot, then ssh-ing back into each:
+<img alt="483ec9e7717f67ca2d88a5093fd6e254.png" src="../_resources/483ec9e7717f67ca2d88a5093fd6e254.png" style="width:100%;"/>
+<img alt="61021427b2cd581ccd5643067cefd7f2.png" src="../_resources/61021427b2cd581ccd5643067cefd7f2.png" style="width:100%;"/></p>
+<p class="deployed_img_p">Once the private network is functional, we can then install cluster on top. Again, start with father node like:
+<img alt="da706c9695796e1759e16096a1a1b70c.png" src="../_resources/da706c9695796e1759e16096a1a1b70c.png" style="width:100%;"/>
+<img alt="d51fd53807d47ba75195ed510dd3987a.png" src="../_resources/d51fd53807d47ba75195ed510dd3987a.png" style="width:100%;"/>
+When it finishes on the father node, it will spit out the command needed to bootstrap son, and ghosts into the cluster, and then will reboot:</p>
+<p class="deployed_img_p"><img alt="22a6604e55766bb015c24057c020812d.png" src="../_resources/22a6604e55766bb015c24057c020812d.png" style="width:100%;"/></p>
+<p>Paste the command into the corresponding son, or ghost terminals and run. When those finish they will reboot as well.</p>
+<p>Lastly, on each enable the cluster with:
+<code>su - father</code>(son, or ghost)
+<code>./meta-trinity/start_cluster.sh</code></p>
+<p>If all went well, you should be able to see peers on the cluster with:</p>
+<p class="deployed_img_p"><img alt="24824f13788785602506b976fc44dc75.png" src="../_resources/24824f13788785602506b976fc44dc75.png" style="width:100%;"/></p>
+<p class="deployed_img_p">Peers will also be on your ipfs private network, and seen with:
+<img alt="2491e439ee800e4aa952a22ee7e2c2dc.png" src="../_resources/2491e439ee800e4aa952a22ee7e2c2dc.png" style="width:100%;"/></p>
+            <ons-list>
+            
+            </ons-list>
+          </div>
+      </div>
+    </div>
+  </ons-page>
+</template>
+  
+
+
+
+
+
+  
+  <template id="nav_Public Set up.md.html">
+  <ons-page id="nav_Public Set up.md">
+    
+    <div>
+    
+    <ons-toolbar modifier="default">
+      <div class="left">
+        <ons-back-button modifier="default">Back</ons-back-button>
+      </div>
+      <div class="center"></div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()" modifier="default">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+        <h1>Public Set up.md</h1>
+        <br />
+          <div class="expanded_article">
+            <br />
+            <p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04</p>
+<p><code>sudo apt update</code></p>
+<pre><code>sudo apt upgrade
+
+sudo ufw allow 22
+
+sudo ufw enable
+</code></pre>
+<p>Create a new user, $USER is replaced with a real username:</p>
+<p><code>sudo adduser&nbsp;$USER &amp;&amp; usermod -aG sudo&nbsp;$USER</code></p>
+<p>Switch over to your new user account:</p>
+<p><code>su - $USER</code>
+Download the latest ipfs:
+<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
+extract:
+<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
+Install:
+<code>cd kubo
+sudo bash install.sh
+ipfs --version</code></p>
+<p>Open swarm port:
+<code>sudo ufw allow 4001</code></p>
+<p>Initialize ipfs, make note of your peer address that is returned on init:
+<code>ipfs init --profile server</code></p>
+<p>Create a new service:
+<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
+<p>Copy this code in replacing $USER with your username:
+`[Unit]
+Description=IPFS Daemon
+After=network.target</p>
+<p>[Service]
+User=$USER
+Environment=IPFS_PATH=/home/$USER/.ipfs
+ExecStart=/usr/local/bin/ipfs daemon --init --migrate
+StandardOutput=journal
+Restart=on-failure
+KillSignal=SIGINT</p>
+<p>[Install]
+WantedBy=multi-user.target`</p>
+<p>Configure ipfs gateway, replace 'example.com' with your domain:
+NoFetch = True, means it will only retrieve files on your local node.</p>
+<p><code>ipfs config --json Gateway '{
+        "HTTPHeaders": {
+            "Access-Control-Allow-Origin": [
+                "*"
+            ]
+        },
+        "RootRedirect": "",
+        "Writable": false,
+        "PathPrefixes": [
+            "/blog",
+            "/refs"
+        ],
+        "APICommands": [],
+        "NoFetch": true,
+        "NoDNSLink": false,
+        "PublicGateways": {
+            "www.example.com": {
+                "NoDNSLink": false,
+                "Paths": [
+                    "/ipfs",
+                    "/ipns",
+                    "/api"
+                ],
+                "UseSubdomains": true
+            },
+            "example.com": {
+                "NoDNSLink": false,
+                "Paths": [
+                    "/ipfs",
+                    "/ipns",
+                    "/api"
+                ],
+                "UseSubdomains": false
+            }
+        }
+    }'</code></p>
+<p>Start ipfs:
+<code>sudo systemctl daemon-reload
+sudo systemctl start ipfs</code></p>
+<p>Enabled after rebooting:
+<code>sudo systemctl enable ipfs</code></p>
+<p>Now Install the nginx server:
+<code>sudo apt install nginx</code>
+Open port:
+<code>sudo ufw allow 80</code>
+Backup nginx original nginx config:
+<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
+Create a new config file:
+<code>sudo nano /etc/nginx/sites-available/default</code>
+Paste the following code, replacing 'your_domain_name.com' with yours:
+`server {
+    listen 80;
+    listen [::]:80;
+    server_name your_domain_name.com;</p>
+<pre><code>location /ipfs {
+    proxy_pass http://localhost:8080;
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+    allow all;
+}
+</code></pre>
+<p>}`</p>
+<p>Test the config, and reload the service:
+<code>sudo nginx -t
+sudo systemctl reload nginx</code></p>
+<p>Enable https with certbot:
+<code>sudo apt install certbot python3-certbot-nginx</code></p>
+<p>Let in HTTPS traffic:
+<code>sudo ufw allow 'Nginx Full'
+sudo ufw delete allow 'Nginx HTTP'</code></p>
+<p>Get the ssl certificate, replace 'example.com' with your domain:
+<code>sudo certbot --nginx -d example.com -d www.example.com</code></p>
+            <ons-list>
+            
+            </ons-list>
+          </div>
+      </div>
+    </div>
+  </ons-page>
+</template>
+  
+
+  
+  <template id="nav_Private Set up.md.html">
+  <ons-page id="nav_Private Set up.md">
+    
+    <div>
+    
+    <ons-toolbar modifier="default">
+      <div class="left">
+        <ons-back-button modifier="default">Back</ons-back-button>
+      </div>
+      <div class="center"></div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.open()" modifier="default">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+    </ons-toolbar>
+
+    <div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+        <h1>Private Set up.md</h1>
+        <br />
+          <div class="expanded_article">
+            <br />
+            <p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04
+<code>sudo apt update</code></p>
+<p>```
+sudo apt upgrade    </p>
+<p>sudo ufw allow 22   </p>
+<p>sudo ufw enable -y 
+```</p>
+<p>Create a new user, $USER is replaced with a real username:</p>
+<p><code>sudo adduser&nbsp;$USER</code></p>
+<p>Enable su-mode:</p>
+<p><code>su -</code></p>
+<p>Install sudo:</p>
+<p><code>apt-get install sudo -y</code></p>
+<p>Elevate the user:</p>
+<p><code>usermod -aG sudo $USER</code></p>
+<p>Open sudo config:</p>
+<p><code>visudo</code></p>
+<p>Modify permissions, adding line
+```</p>
+<h1></h1>
+<h1>This file MUST be edited with the 'visudo' command as root.</h1>
+<h1></h1>
+<h1>Please consider adding local content in /etc/sudoers.d/ instead of</h1>
+<h1>directly modifying this file.</h1>
+<h1></h1>
+<h1>See the man page for details on how to write a sudoers file.</h1>
+<h1></h1>
+<p>Defaults        env_reset
+Defaults        mail_badpass
+Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"</p>
+<h1>Host alias specification</h1>
+<h1>User alias specification</h1>
+<h1>Cmnd alias specification</h1>
+<h1>User privilege specification</h1>
+<p>root    ALL=(ALL:ALL) ALL
+$USER   ALL=(ALL:ALL) ALL</p>
+<h1>Members of the admin group may gain root privileges</h1>
+<p>%admin ALL=(ALL) ALL</p>
+<h1>Allow members of group sudo to execute any command</h1>
+<p>%sudo   ALL=(ALL:ALL) ALL</p>
+<h1>See sudoers(5) for more information on "#include" directives:</h1>
+<h1>includedir /etc/sudoers.d</h1>
+<p>```</p>
+<p>Switch over to your new user account:
+<code>su - $USER</code>
+Download the latest ipfs:
+<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
+extract:
+<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
+Install:
+<code>cd kubo
+sudo bash install.sh 
+ipfs --version</code></p>
+<p>Open swarm port:
+<code>sudo ufw allow 4001
+sudo ufw --force enable</code>
+Initialize ipfs, make note of your peer address that is returned on init:
+<code>ipfs init --profile server</code>
+Create the swarm key file</p>
+<p><code>cd ~/.ipfs
+sudo nano swarm.key</code></p>
+<p>Example key file, replace the key string with a uniquly generated one
+<code>/key/swarm/psk/1.0.0/
+/base16/
+25f64b1cf31f649817d495e446d4cbcc99000b8cc032a89b681e5f86f995fb30</code></p>
+<p>Create a new service:
+<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
+<p>Copy this code in replacing $USER with your username:
+```
+[Unit]
+Description=IPFS Daemon
+After=network.target</p>
+<p>[Service]
+User=$USER
+Environment=IPFS_PATH=/home/$USER/.ipfs
+ExecStart=/usr/local/bin/ipfs daemon --enable-namesys-pubsub
+StandardOutput=journal
+Restart=on-failure
+KillSignal=SIGINT</p>
+<p>[Install]
+WantedBy=multi-user.target
+```</p>
+<p>Start ipfs:
+<code>sudo systemctl daemon-reload 
+sudo systemctl start ipfs</code></p>
+<p>Enabled after rebooting:
+<code>sudo systemctl enable ipfs</code></p>
+<p>Remove all standard peers:
+<code>ipfs bootstrap rm --all</code></p>
+<p>Set ipfs config for gateway and api:</p>
+<p><code>ipfs config Addresses.Gateway /ip4/0.0.0.0/8080
+ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001</code></p>
+<p>Force p2p:
+<code>export LIBP2P_FORCE_PNET=1</code></p>
+<p>Now Install the nginx server:
+<code>sudo apt install nginx</code>
+Open port:
+<code>sudo ufw allow 80</code>
+<code>sudo systemctl reload nginx</code>
+Backup nginx original nginx config:
+<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
+Create a new config file:
+<code>sudo nano /etc/nginx/sites-available/default</code>
+Paste the following code, replacing 'your_domain_name.com' with yours:
+```
+server {
+    listen 80;
+    listen [::]:80;
+    server_name your_domain_name.com;</p>
+<pre><code>location /ipfs {
+    proxy_pass http://localhost:8080;
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+    allow all;
+}
+</code></pre>
+<p>}
+```</p>
+<p>Test the config, and reload the service:
+<code>sudo nginx -t</code>
+<code>sudo systemctl reload nginx</code></p>
+<p>Enable https with certbot:
+<code>sudo apt install certbot python3-certbot-nginx</code></p>
+<p>Let in HTTPS traffic:
+<code>sudo ufw allow 'Nginx Full'</code>
+<code>sudo ufw delete allow 'Nginx HTTP'</code></p>
+<p>Get the ssl certificate, replace 'example.com' with your domain:
+<code>sudo certbot --nginx -d example.com</code></p>
+            <ons-list>
+            
+            </ons-list>
+          </div>
+      </div>
+    </div>
+  </ons-page>
+</template>
+  
+
+
+
+
+<template id="loading.html">
+  <ons-dialog id="loading">
+    <div style="text-align: center; padding: 10px;">
+      <p>
+        <ons-progress-circular indeterminate></ons-progress-circular>
+      </p>
+    </div>
+  </ons-dialog>
+</template>
+
+<!-- partial -->
+<!-- <script  src="./script.js"></script> -->
+
+</body>
+</html>
