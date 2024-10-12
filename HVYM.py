@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 """
-import os
+import os, shutil
 import subprocess
+import concurrent.futures
+from subprocess import run, Popen, PIPE
+from pathlib import Path
+import ast
 
 
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
@@ -13,11 +17,40 @@ class HVYM_Handler:
    """
    def __init__(self):
        self.HOME = HOME = os.path.expanduser('~')
+       self.icp_daemon_running = False
        self.bin = os.path.join(self.HOME, '.local', 'share', 'heavymeta-cli', 'hvym')
        self.icp_path = os.path.join(self.HOME, '.local', 'share', 'heavymeta-cli', 'icp')
        self.icp_template = self.icp_site_template()
        self.icp_session = self.current_icp_session()
        self.icp_project_path = None
+       self.icp_assets_path = None
+       self.icp_index_path = None
+
+   def _run_futures_cmds(self, cmds):
+    result = None
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = {executor.submit(run, cmd, shell=True): cmd for cmd in cmds}
+        
+        for future in concurrent.futures.as_completed(futures):
+            cmd = futures[future]
+            
+            try:
+                result = future.result()  # Get the result from Future object
+                
+            except Exception as e:   # Checking for any exception raised by the command
+                print("Command failed with error:", str(e))
+
+        return result
+    
+   def _run_command(self, cmd):
+    process = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+    output, error = process.communicate()
+
+    if process.returncode != 0:   # Checking the return code
+        print("Command failed with error:", error.decode('utf-8'))
+    else:
+        print(output.decode('utf-8'))
+        return output.decode('utf-8')
 
    def _subprocess(self, command):
         try:
@@ -39,13 +72,47 @@ class HVYM_Handler:
    
    def set_icp_project_path(self):
        self.icp_project_path = os.path.join(self.icp_session, self.icp_template).rstrip()
+       self.icp_assets_path = os.path.join(self.icp_project_path, 'assets', 'assets').rstrip()
+       self.icp_index_path = os.path.join(self.icp_project_path, 'assets', 'src', 'index.html').rstrip()
        return self.icp_project_path
    
    def install_icp_site_template(self):
        self._subprocess(f'{self.bin} icp-init assets -f')
 
    def start_icp_daemon(self):
-       self._subprocess(f'{self.bin} icp-start-assets assets')
+       output = self._run_futures_cmds([f'{self.bin} icp-start-assets assets'])
+       self.icp_daemon_running = True
+       print(output)
 
    def stop_icp_daemon(self):
-       self._subprocess(f'{self.bin} icp-stop-assets assets')
+       output = self._run_futures_cmds([f'{self.bin} icp-stop-assets assets'])
+       self.icp_daemon_running = False
+       print(output)
+
+   def _icp_deploy(self, debug=True):
+       cmd = f'{self.bin} icp-deploy-assets assets'
+       urls = ast.literal_eval(self._run_command(cmd))
+    
+       return urls[1].rstrip()
+
+   def debug_icp_deploy(self):
+       return self._icp_deploy()
+
+   def icp_deploy(self):
+       return self._icp_deploy(False)
+
+   def clean_icp_assets(self):
+       if os.path.isdir(self.icp_assets_path):
+        for filename in os.listdir(self.icp_assets_path):
+            file_path = os.path.join(self.icp_assets_path, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print('Failed to delete %s. Reason: %s' % (file_path, e))
+
+   def choice_popup(self, msg):
+       return self._run_command(f'{self.bin} custom-choice-prompt "{msg}"').rstrip()
+       

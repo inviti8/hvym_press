@@ -149,7 +149,7 @@ class MarkdownHandler:
         with open(page, "wb") as f:
             f.write(output.encode())
 
-   def renderICPageTemplate(self, template_file, data, page, resource_dir):
+   def renderICPPageTemplate(self, template_file, data, page, resource_dir):
         output = self._renderTemplate(template_file, data)
         output = self._flattenMediaLinks(output.encode(), resource_dir)
         

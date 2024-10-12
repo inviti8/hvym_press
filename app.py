@@ -46,7 +46,6 @@ serve_dir = os.path.join(SCRIPT_DIR, 'serve')
 debug_dir = serve_dir
 resource_dir = os.path.join(serve_dir, '_resources')
 dist_dir = os.path.join(SCRIPT_DIR, 'dist')
-api_url = 'https://notable-excellent-skill.anvil.app/'
 ai_mods = None
 article_metadata = ""
     
@@ -1413,6 +1412,31 @@ while True:
             LaunchStaticSite('serve')
         else:
             sg.popup_ok('Start Localhost first')
+
+    elif event == 'Start Internet Computer':
+        print('Start Internet Computer')
+        if DATA.HVYM.icp_daemon_running == False:
+            DATA.HVYM.start_icp_daemon()
+        
+    elif event == 'Stop Internet Computer':
+        print('Stop Internet Computer')
+        if DATA.HVYM.icp_daemon_running == True:
+            DATA.HVYM.stop_icp_daemon()
+
+    elif event == 'Internet Computer Debug':
+        print('Open ICP Debug page')
+        if DATA.HVYM.icp_daemon_running == True:
+            option = DATA.HVYM.choice_popup("Deploy site to local Internet Computer?")
+            if option == 'OK':
+                site_data = DATA.generateSiteData()
+                DATA.refreshDebugMedia()
+                DATA.refreshCss()
+                url = DATA.openDebugICPPage('template_index.txt', site_data)
+                option = DATA.HVYM.choice_popup(f"Do you want to open debug url?")
+                if option == 'OK':
+                    webbrowser.open_new_tab(url)
+        else:
+            sg.popup_ok('Start Internet Computer first')
         
     elif event == 'Rebuild Local':
         print('Rebuild Local')
