@@ -196,13 +196,13 @@ class SiteDataHandler:
        self.mdPathList[file] = path
        self.mdFileList[file] = analyzer.identify_links()
            
-   def openStaticPage(self, template_file, data):
+   def renderStaticPage(self, template_file, data):
        target_path = os.path.join(SCRIPT_DIR, 'serve')
        page_path = os.path.join(target_path,'index.html')
 
        self.markdownHandler.renderPageTemplate(template_file, data, page_path)
 
-   def openDebugICPPage(self, template_file, data):
+   def renderDebugICPPage(self, template_file, data):
        target_path = os.path.join(SCRIPT_DIR, 'serve')
        page_path = os.path.join(target_path,'index.html')
        resource_path = os.path.join(target_path,self.settings['mediaDir'])
@@ -211,7 +211,6 @@ class SiteDataHandler:
        self.HVYM.clean_icp_assets()
        shutil.move(page_path, self.HVYM.icp_index_path)
        shutil.copytree(resource_path, self.HVYM.icp_assets_path, dirs_exist_ok=True)
-       return self.HVYM.debug_icp_deploy()
            
    def generateFormData(self, page, article):
        result = []

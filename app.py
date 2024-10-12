@@ -192,6 +192,13 @@ def updateFolderData(first_run, data):
     for page in data.articleData.keys():
         DATA.updateFolderData(page)
 
+def refreshSiteData(data):
+    site_data = data.generateSiteData()
+    data.refreshDebugMedia()
+    data.refreshCss()
+
+    return site_data
+
 def add_files_in_folder(parent, dirname, data):
     files = os.listdir(dirname)
     file_paths = []
@@ -948,7 +955,7 @@ def DoDeploy(data, window, private=False):
         
     site_data = DATA.generateSiteData()
     data.refreshDebugMedia()
-    data.openStaticPage('template_index.txt', site_data)
+    data.renderStaticPage('template_index.txt', site_data)
     data.refereshDist()
         
     tup = data.deploySite(False, False, private)
@@ -1091,13 +1098,16 @@ while True:
     elif event == 'Local Debug':
         print('Open Debug page')
         if SERVER_STATUS.server_running == True:
-            site_data = DATA.generateSiteData()
-            DATA.refreshDebugMedia()
-            DATA.refreshCss()
-            DATA.openStaticPage('template_index.txt', site_data)
+            site_data = refreshSiteData(DATA)
+            DATA.renderStaticPage('template_index.txt', site_data)
             LaunchStaticSite('serve')
         else:
             sg.popup_ok('Start Localhost first')
+
+    elif event == 'Rebuild Local':
+        print('Rebuild Local')
+        site_data = refreshSiteData(DATA)
+        DATA.renderStaticPage('template_index.txt', site_data)
 
     elif event == 'Start Internet Computer':
         print('Start Internet Computer')
@@ -1114,25 +1124,26 @@ while True:
         if DATA.HVYM.icp_daemon_running == True:
             option = DATA.HVYM.choice_popup("Deploy site to local Internet Computer?")
             if option == 'OK':
-                site_data = DATA.generateSiteData()
-                DATA.refreshDebugMedia()
-                DATA.refreshCss()
-                url = DATA.openDebugICPPage('template_index.txt', site_data)
+                site_data = refreshSiteData(DATA)
+                DATA.renderDebugICPPage('template_index.txt', site_data)
+                url = DATA.HVYM.debug_icp_deploy()
                 option = DATA.HVYM.choice_popup(f"Do you want to open debug url?")
                 if option == 'OK':
                     webbrowser.open_new_tab(url)
         else:
             sg.popup_ok('Start Internet Computer first')
+
+    elif event == 'Rebuild Internet Computer':
+        print('Rebuild ICP Debug page')
+        if DATA.HVYM.icp_daemon_running == True:
+            option = DATA.HVYM.choice_popup("Deploy site to local Internet Computer?")
+            if option == 'OK':
+                site_data = refreshSiteData(DATA)
+                DATA.renderDebugICPPage('template_index.txt', site_data)
+                url = DATA.HVYM.debug_icp_deploy()
+        else:
+            sg.popup_ok('Start Internet Computer first')
         
-    elif event == 'Rebuild Local':
-        print('Rebuild Local')
-        site_data = DATA.generateSiteData()
-        DATA.refreshDebugMedia()
-        DATA.refreshCss()
-        DATA.openStaticPage('template_index.txt', site_data)
-        
-    elif event == 'Edit Me':
-        sg.execute_editor(__file__)
     elif event == 'Version':
         sg.popup_scrolled(__file__, sg.get_versions(), keep_on_top=True, non_blocking=True)
     elif event == 'Refresh Files':
@@ -1140,9 +1151,7 @@ while True:
         add_files_in_folder('', starting_path, DATA)
         window['-TREE-'].Update(values=treedata)
         window.Refresh()
-    elif event == 'Launch Editor':
-        print('Mardown Editor')
-        
+
     if event in (sg.WIN_CLOSED, 'Cancel'):
         break
     if len(values['-TREE-']) > 0:
@@ -1192,7 +1201,6 @@ while True:
                 moveTreeElementDown(window, DATA, f_path, f_name)
                                            
     if 'SETTING-' in event:
-        print('This is called!!')
         arr = event.split('-')
         setting = arr[len(arr)-1]
         val = values[event]
@@ -1233,7 +1241,7 @@ while True:
         site_data = DATA.generateSiteData()
         #print(site_data)
         DATA.refreshDebugMedia()
-        DATA.openStaticPage('template_index.txt', site_data)
+        DATA.renderStaticPage('template_index.txt', site_data)
         
     if event == '-CANCEL-':
         threading.Thread(target=StopServer, args=(), daemon=True).start()
