@@ -6,7 +6,6 @@ Created on Thu Nov 10 09:29:06 2022
 """
 import os
 import markdown
-from pathlib import Path
 from PIL import Image
 from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
@@ -94,6 +93,36 @@ class MarkdownHandler:
                
        return soup.decode(formatter='html')
    
+   def _shortenMediaLinks(self, html):
+       soup = BeautifulSoup(html, 'html.parser')
+       imgs = soup.findAll('img')
+       links = soup.findAll('a')
+        
+       for img in imgs:
+           if '../' in img['src']:
+               img['src'] = img['src'].replace('../', './')  
+
+       for link in links:
+           if ('.mp3' in link['src'] or '.mp4' in link['src']) and '../' in img['src']:
+               link['src'] = link['src'].replace('../', './')
+
+       return soup.decode(formatter='html')
+   
+   def _flattenMediaLinks(self, html, resource_dir):
+       soup = BeautifulSoup(html, 'html.parser')
+       imgs = soup.findAll('img')
+       links = soup.findAll('a')
+        
+       for img in imgs:
+           if f'../{resource_dir}/' in img['src']:
+               img['src'] = img['src'].replace(f'../{resource_dir}/', '')  
+
+       for link in links:
+           if ('.mp3' in link['src'] or '.mp4' in link['src']) and f'../{resource_dir}/' in img['src']:
+               link['src'] = link['src'].replace(f'../{resource_dir}/', '')
+
+       return soup.decode(formatter='html')
+   
    def updateDeployerManifest(self, manifest):
        self.deployerManifest = manifest
    
@@ -109,10 +138,20 @@ class MarkdownHandler:
        
        return md.convert(html)
    
+   def _renderTemplate(self, template_file, data):
+       template = env.get_template(template_file)
+       return  template.render(data=data)
+   
    def renderPageTemplate(self, template_file, data, page):
+        output = self._renderTemplate(template_file, data)
+        output = self._shortenMediaLinks(output.encode())
+        
+        with open(page, "wb") as f:
+            f.write(output.encode())
 
-        template = env.get_template(template_file)
-        output = template.render(data=data)
+   def renderICPageTemplate(self, template_file, data, page, resource_dir):
+        output = self._renderTemplate(template_file, data)
+        output = self._flattenMediaLinks(output.encode(), resource_dir)
         
         with open(page, "wb") as f:
             f.write(output.encode())

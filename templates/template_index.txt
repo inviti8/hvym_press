@@ -254,7 +254,7 @@
 {% if data.settings.pageType == 'splitter' %}
 <!-- partial:index.partial.html -->
 <ons-splitter>
-  <ons-splitter-side id="menu" side="right" width="220px" collapse swipeable>
+  <ons-splitter-side id="menu" side="left" width="220px" collapse swipeable>
     <ons-page>
       <ons-list>
         {% for page in data.pages %}
@@ -470,7 +470,7 @@
         {{page.title}}
       </div>
       {% if data.settings.pageType == 'splitter' %}
-      <div class="right">
+      <div class="left">
         <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
           <ons-icon icon="md-menu"></ons-icon>
         </ons-toolbar-button>

@@ -20,10 +20,7 @@ import uuid
 import pickle
 import shutil
 import ffmpy
-import markdown
 import jsonpickle
-import MarkdownHandler
-import W3DeployHandler
 from pathlib import Path
 from bs4 import BeautifulSoup
 from mrkdwn_analysis import MarkdownAnalyzer
@@ -39,7 +36,7 @@ env = Environment(loader=file_loader)
 
 class SiteDataHandler:
    'Class for handling site data.'
-   def __init__(self, filePath):
+   def __init__(self, filePath, MarkdownHandler, W3DeployHandler, HVYM):
       self.filePath = filePath
       self.resourcePath = os.path.join(self.filePath, '_resources')
       self.distPath = os.path.join(SCRIPT_DIR, 'dist')
@@ -61,7 +58,7 @@ class SiteDataHandler:
 }
       '''
       self.css_components = 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsen-css-components.min.css'
-      self.settings = {'css_components':self.css_components, 'uiFramework':'onsen', 'pageType':'splitter', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'dist', 'description':'', 'siteID': uuid.uuid4().hex, 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'pinata_meta_data':'', 'pinata_timeout':100, 'arWallet':'', 'nft_site_type':'None', 'nft_type':'None', 'nft_metadata_standard':'None', 'nft_start_supply':1024, 'nft_contract':'', 'site_metadata':self.opensea_metadata, 'project_name': os.path.basename(self.filePath)}
+      self.settings = {'css_components':self.css_components, 'uiFramework':'onsen', 'pageType':'splitter', 'menuSide':'right', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'dist', 'mediaDir':'_resources', 'description':'', 'siteID': uuid.uuid4().hex, 'customTheme':'','pinata_jwt':'', 'pinata_key':'', 'pinata_gateway':'', 'pinata_meta_data':'', 'pinata_timeout':100, 'arWallet':'', 'nft_site_type':'None', 'nft_type':'None', 'nft_metadata_standard':'None', 'nft_start_supply':1024, 'nft_contract':'', 'site_metadata':self.opensea_metadata, 'project_name': os.path.basename(self.filePath)}
       self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['splitter', 'tabs', 'carousel']
@@ -81,9 +78,11 @@ class SiteDataHandler:
       self.oldDataKeys = []
       self.templateDebug = 'template_index.txt'
       self.markdownHandler = MarkdownHandler.MarkdownHandler(filePath)
-      self.debugPath = os.path.join(SCRIPT_DIR, 'serve', 'debug')
-      self.debugResourcePath = os.path.join(SCRIPT_DIR, 'serve', '_resources')
+      self.debugPath = os.path.join(SCRIPT_DIR, 'serve')
+      self.debugResourcePath = os.path.join(SCRIPT_DIR, 'serve', self.settings['mediaDir'])
       self.deployHandler = W3DeployHandler.W3DeployHandler(self.filePath, self.debugPath, self.resourcePath, self.settings)
+      self.HVYM = HVYM.HVYM_Handler()
+      self.icpProjectPath = os.path.join(self.HVYM.icp_path, self.settings['project_name'])
       self.images = {}
       self.videos = {}
       self.audio = {}
@@ -115,6 +114,7 @@ class SiteDataHandler:
           self.authors = data['authors']
           self.css_components = data['css_components']
           self.fileExists = True
+          self.debugResourcePath = os.path.join(SCRIPT_DIR, 'serve', self.settings['mediaDir'])
           self.deployHandler = W3DeployHandler.W3DeployHandler(self.filePath, self.debugPath, self.resourcePath, self.settings)
           self.images = data['media']['images']
           self.videos = data['media']['videos']
@@ -149,6 +149,12 @@ class SiteDataHandler:
           self._old_folderPathList = data['folderPathList']
           self._old_mdPathList = data['mdPathList']
           self._old_mdFileList = data['mdFileList']
+
+      self.HVYM.set_icp_session(self.settings['project_name'])
+
+      if os.path.isdir(self.HVYM.icp_session):
+          if not os.path.isdir(self.HVYM.set_icp_project_path()):
+              self.HVYM.install_icp_site_template()
  
       self.saveData()
    
@@ -189,19 +195,11 @@ class SiteDataHandler:
        self.mdPathList[file] = path
        self.mdFileList[file] = analyzer.identify_links()
            
-   def openStaticPage(self, template_file, data, route=0):
-       '''
-       Open model for debugging.
-       routes are:
-           0:/debug/
-           1:/deploy/
-       '''
-       routes = ['debug', 'deploy']
-       target_path = os.path.join(SCRIPT_DIR, 'serve', routes[route])
+   def openStaticPage(self, template_file, data):
+       target_path = os.path.join(SCRIPT_DIR, 'serve')
        page_path = os.path.join(target_path,'index.html')
 
-       if route == 0:
-           self.markdownHandler.renderPageTemplate(template_file, data, page_path)
+       self.markdownHandler.renderPageTemplate(template_file, data, page_path)
            
    def generateFormData(self, page, article):
        result = []
@@ -223,7 +221,7 @@ class SiteDataHandler:
            result['content']['columns'].append([])
        
        for k in self.folderData[page]['articleList']:
-           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'max_width':None, 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':"", 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"", 'metadata':json.dumps(self.opensea_metadata)}
+           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'max_width':'90', 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':"", 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"", 'metadata':json.dumps(self.opensea_metadata)}
            
            props = self.articleData[page][k].keys()
            

@@ -12,6 +12,7 @@ import base64
 import requests
 import threading
 import webbrowser
+import MarkdownHandler
 import ServerHandler
 import SiteDataHandler
 import PIL.Image
@@ -28,6 +29,8 @@ import TreeData
 import random
 import pyperclip
 import jsoneditor
+import subprocess
+import HVYM
 
 APP_ID = "WEEEBX52m4JHXA"
 KEY = 'v0PVScmCcHNOBzLJRiqU3kSnRwoWPd4YXE-x1UVp0is='
@@ -40,7 +43,7 @@ file_loader = FileSystemLoader('templates')
 env = Environment(loader=file_loader)
 ICON_PICKER = IconPicker.IconPicker()
 serve_dir = os.path.join(SCRIPT_DIR, 'serve')
-debug_dir = os.path.join(serve_dir, 'debug')
+debug_dir = serve_dir
 resource_dir = os.path.join(serve_dir, '_resources')
 dist_dir = os.path.join(SCRIPT_DIR, 'dist')
 api_url = 'https://notable-excellent-skill.anvil.app/'
@@ -157,6 +160,13 @@ tt_theme = "Use a basic light or dark css theme."
 tt_custom_theme = "Load a custom css them file."
 tt_page_order = "Adjusts the order in which each site section is displayed."
 tt_authors = "Right click to add, modifiy, or delete an author for the site."
+
+def _subprocess(command):
+        try:
+            output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT)
+            return output.decode('utf-8')
+        except Exception as e:
+            return None
 
 def load_save_data(file_dir):
     result = None
@@ -1283,7 +1293,7 @@ if not starting_path:
 
 base_resource_dir = os.path.join(starting_path, '_resources')
     
-DATA = SiteDataHandler.SiteDataHandler(starting_path)
+DATA = SiteDataHandler.SiteDataHandler(starting_path, MarkdownHandler, W3DeployHandler, HVYM)
 SERVER_STATUS = ServerHandler.ServerStatusHandler()
 
 command = ['---', 'Move Up', 'Move Down', '---','Set-Column-Widths', '---','Set-Meta-Data', 'Set-Form-Data', '---', 'Close Menu']
@@ -1302,6 +1312,7 @@ ui_settings_layout = [[sg.Frame('UI Settings', [
                ], expand_y=True, expand_x=True, font=font)]]
 
 site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input(default_text=DATA.settings['siteName'], s=20, enable_events=True, k='SETTING-siteName', font=font)],
+               [name('Media Folder'), sg.Input(default_text=DATA.settings['mediaDir'], s=20, enable_events=True, k='SETTING-mediaDir', font=font)],
                [name('Description'), sg.Multiline(default_text=DATA.settings['description'],s=(20,8), enable_events=True, k='SETTING-description', font=font)],
                [name('Site ID'), sg.Input(default_text=DATA.settings['siteID'], s=20, enable_events=True, k='SETTING-siteID', font=font)],
                ], expand_y=True, expand_x=True, font=font)]]
@@ -1350,8 +1361,11 @@ tab3_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, elem
                [sg.Column(author_settings_layout, expand_x=True, expand_y=True, element_justification='left'),
                 sg.Column(deployment_settings_layout, expand_x=True, expand_y=True, element_justification='left')],]
 
-menu_def = [['&Debug', ['Start Localhost', 'Open Debug Site', 'Rebuild Site', 'Stop Localhost']],
-                ['& Deploy', ['---', 'Pintheon', 'Internet Computer']],
+menu_def = [['&Project', ['Set HVYM Project']],
+                ['&Server', ['Start Localhost', 'Stop Localhost', 'Start Internet Computer', 'Stop Internet Computer']],
+                ['&Rebuild', ['Rebuild Local', 'Rebuild Internet Computer']],
+                ['&Debug', ['Local Debug', 'Pintheon Debug', 'Internet Computer Debug']],
+                ['& Deploy', ['Pintheon', 'Internet Computer']],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-', font=font)],
@@ -1389,20 +1403,19 @@ while True:
             threading.Thread(target=StopServer, args=(), daemon=True).start()
             #SERVER_STATUS.popup_server_status(False)
         
-    elif event == 'Open Debug Site':
+    elif event == 'Local Debug':
         print('Open Debug page')
         if SERVER_STATUS.server_running == True:
             site_data = DATA.generateSiteData()
             DATA.refreshDebugMedia()
             DATA.refreshCss()
             DATA.openStaticPage('template_index.txt', site_data)
-            sub_path = os.path.join('serve', 'debug')
-            LaunchStaticSite(sub_path)
+            LaunchStaticSite('serve')
         else:
             sg.popup_ok('Start Localhost first')
         
-    elif event == 'Rebuild Site':
-        print('Rebuild Site')
+    elif event == 'Rebuild Local':
+        print('Rebuild Local')
         site_data = DATA.generateSiteData()
         DATA.refreshDebugMedia()
         DATA.refreshCss()
