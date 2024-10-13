@@ -1,3 +1,4 @@
+altgraph==0.17.4
 annotated-types==0.6.0
 anyio==4.3.0
 beautifulsoup4==4.12.3
@@ -24,13 +25,14 @@ markdown-analysis==0.0.5
 MarkupSafe==2.1.5
 marshmallow==3.21.2
 mypy-extensions==1.0.0
-openai==1.28.0
 packaging==24.0
 pillow==10.3.0
 pyasn1==0.6.0
 pycparser==2.22
 pydantic==2.7.1
 pydantic_core==2.18.2
+pyinstaller==6.10.0
+pyinstaller-hooks-contrib==2024.8
 pyperclip==1.8.2
 PySimpleGUI==5.0.4
 PyYAML==6.0.1
@@ -43,5 +45,4 @@ typing-inspect==0.9.0
 typing_extensions==4.11.0
 urllib3==2.2.1
 WMI==1.4.9
-youtube-transcript-api==0.6.2
 zipp==3.18.1

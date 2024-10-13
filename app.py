@@ -21,7 +21,6 @@ import IconPicker
 import io
 from io import BytesIO
 from sys import platform
-from pathlib import Path
 from PIL import Image, ImageDraw, ImageColor
 from jinja2 import Environment, FileSystemLoader
 import PySimpleGUI as sg
@@ -35,11 +34,10 @@ import HVYM
 
 APP_ID = "WEEEBX52m4JHXA"
 KEY = 'v0PVScmCcHNOBzLJRiqU3kSnRwoWPd4YXE-x1UVp0is='
-FILE_PATH = Path(__file__).parent
-LOGO = os.path.join(FILE_PATH, 'images', 'logo.png')
 
 sg.theme("DarkGrey13")
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
+LOGO = os.path.join(SCRIPT_DIR, 'images', 'logo.png')
 NAME_SIZE = 15
 font = ('Terminal', 9)
 file_loader = FileSystemLoader('templates')
