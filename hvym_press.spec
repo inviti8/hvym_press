@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='app',
+    name='hvym_press',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
