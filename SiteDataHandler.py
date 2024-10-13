@@ -153,6 +153,12 @@ class SiteDataHandler:
       self.HVYM.set_icp_session(self.settings['project_name'])
       self.HVYM.set_icp_project_path()
 
+      if not os.path.isdir(self.debugResourcePath):
+          print('Create media folder')
+          os.makedirs(self.debugResourcePath)
+          print(self.debugResourcePath)
+          print(os.path.isdir(self.debugResourcePath))
+
       if os.path.isdir(self.HVYM.icp_session):
           if not os.path.isdir(self.HVYM.icp_project_path):
               self.HVYM.install_icp_site_template()
