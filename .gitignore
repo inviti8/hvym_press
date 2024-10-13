@@ -1,0 +1,5 @@
+# Create a .gitignore file for your Python project
+
+build/
+dist/
+__pycache__/
