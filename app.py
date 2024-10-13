@@ -21,6 +21,7 @@ import IconPicker
 import io
 from io import BytesIO
 from sys import platform
+from pathlib import Path
 from PIL import Image, ImageDraw, ImageColor
 from jinja2 import Environment, FileSystemLoader
 import PySimpleGUI as sg
@@ -34,6 +35,8 @@ import HVYM
 
 APP_ID = "WEEEBX52m4JHXA"
 KEY = 'v0PVScmCcHNOBzLJRiqU3kSnRwoWPd4YXE-x1UVp0is='
+FILE_PATH = Path(__file__).parent
+LOGO = os.path.join(FILE_PATH, 'images', 'logo.png')
 
 sg.theme("DarkGrey13")
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
@@ -995,7 +998,7 @@ dir_check = [dir_icon(0), dir_icon(1), dir_icon(2)]
 
 check = [icon(0), icon(1), icon(2)]
 
-starting_path = sg.popup_get_folder('Site Directory', font=font, icon='logo.png')
+starting_path = sg.popup_get_folder('Site Directory', font=font, icon=LOGO)
 
 if not starting_path:
     sys.exit(0)
@@ -1064,7 +1067,7 @@ layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-', font=font)]
     [sg.TabGroup([[sg.Tab(starting_path, tab1_layout, font=font, border_width=0), sg.Tab('Settings', tab2_layout, font=font, border_width=0)]], tab_border_width=0)]]
 
 window = sg.Window('Heavymeta Press', layout, use_default_focus=False, finalize=True)
-window.set_icon("logo.png")
+window.set_icon(LOGO)
 tree = window['-TREE-']
 tree.Widget.configure(show='tree') 
 tree.bind("<Double-1>", '+DOUBLE')
