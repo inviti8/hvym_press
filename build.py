@@ -34,6 +34,8 @@ template_dir = cwd / 'templates'
 template_copied_dir = build_dir / 'templates'
 img_dir = cwd / 'images'
 img_copied_dir = build_dir / 'images'
+serve_dir = cwd / 'serve'
+serve_copied_dir = build_dir / 'serve'
 dist_dir = build_dir / 'dist' / 'linux'
 
 if args.mac:
@@ -58,13 +60,14 @@ for file in files:
 
 shutil.copytree(template_dir, build_dir / template_dir.name)
 shutil.copytree(img_dir, build_dir / img_dir.name)
+shutil.copytree(serve_dir, build_dir / serve_dir.name)
 
 # install dependencies from requirements.txt
 subprocess.run(['pip', 'install', '-r', str(build_dir / file11.name)], check=True)
 
 # build the python script into an executable using PyInstaller
-subprocess.run(['pyinstaller', str(file1), str(file2), str(file3), str(file4), str(file5), str(file6), str(file7), str(file8), str(file9), str(file10), '--onefile', f'--distpath={dist_dir}', '--add-data', 'templates:templates', '--add-data', 'images:images', '--add-data', 'data:data',  str(build_dir / 'hvym_press')], check=True)
-
+subprocess.run(['pyinstaller', str(file1), str(file2), str(file3), str(file4), str(file5), str(file6), str(file7), str(file8), str(file9), str(file10), '--onefile', f'--distpath={dist_dir}', '--add-data', 'templates:templates', '--add-data', 'images:images', '--add-data', 'serve:serve'], check=True)
+#subprocess.run(['pyinstaller', '--onefile', f'--distpath={dist_dir}', '--add-data', 'templates:templates', '--add-data', 'images:images', '--add-data', 'data:data', '--add-data', 'npm_links:npm_links',  str(build_dir / src_file1.name)], check=True)
 # copy built executable to destination directory
 # if args.test:
 #     test_dir = Path('/home/desktop/.local/share/heavymeta-cli')
