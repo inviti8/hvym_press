@@ -404,7 +404,16 @@
                     {% endif %}
                   {% endif %}
                     <div class="title">
+                    {% if card.use_thumb %}
+                      {% if card.author_img != '' %}
+                        <div class="left">
+                            <span class="list-item__subtitle author"><img class="list-item__thumbnail" src="{{card.author_img}}">{{card.author}}</span>
+                        </div>
+                        {{card.name}}
+                        {% endif %}
+                      {% else %}
                       {{card.name}}
+                      {% endif %}
                     </div>
                       <div class="content">
                         {% if card.use_color%}
@@ -417,14 +426,6 @@
                           {% else %}
                           <ons-list-item>
                           {% endif %}
-                          {% if card.use_thumb %}
-                            {% if card.author_img != '' %}
-                            <div class="left">
-                              <img class="list-item__thumbnail" src="{{card.author_img}}">
-                              <p class="list-item__subtitle author">{{card.author}}</p>
-                            </div>
-                              {% endif %}
-                            {% endif %}
                             {% if card.type == 'Expandable' %}
                             <div class="expandable-content">
                             {% else %}
@@ -544,7 +545,16 @@
                     {% endif %}
                   {% endif %}
                     <div class="title">
+                    {% if card.use_thumb %}
+                      {% if card.author_img != '' %}
+                        <div class="left">
+                          <span class="list-item__subtitle author"><img class="list-item__thumbnail" src="{{card.author_img}}">{{card.author}}</span>
+                        </div>
+                          {{card.name}}
+                        {% endif %}
+                      {% else %}
                       {{card.name}}
+                      {% endif %}
                     </div>
                       <div class="content">
                         {% if card.use_color%}
@@ -557,14 +567,6 @@
                           {% else %}
                           <ons-list-item>
                           {% endif %}
-                          {% if card.use_thumb %}
-                            {% if card.author_img != '' %}
-                            <div class="left">
-                              <img class="list-item__thumbnail" src="{{card.author_img}}">
-                              <p class="list-item__subtitle author">{{card.author}}</p>
-                            </div>
-                              {% endif %}
-                            {% endif %}
                             {% if card.type == 'Expandable' %}
                             <div class="expandable-content">
                             {% else %}

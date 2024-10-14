@@ -117,18 +117,18 @@ def newFolderData(f, data):
     data.updatePageData(f, {'title':f_name, 'icon':'none', 'use_text':True, 'max_height':800, 'columns':"1", 'footer_height':200})
     data.updateColumnWidths(f, [])
 
-def newFileData(f_path, f, full_path, data):
+def newFileData(f_path, f, full_path, data, file_type='.md'):
     f_name = os.path.basename(f)
     f_name.replace('.md', '')
     t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(full_path)))
 
     data.updateFile(f_path, f, 'Default', True)
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.5, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"",  'metadata':json.dumps(DATA.opensea_metadata)})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.5, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"",  'metadata':json.dumps(DATA.opensea_metadata), 'file_type': file_type})
     data.updateArticleHTML(f_path, f, full_path)
     data.updateFormData(f_path, f, {'formType':{'name':False, 'email':True, 'address':False, 'phone':False,'eth':False, 'btc':False, 'polygon':False, 'generic':False}, 'customHtml':"", 'btn_txt':"SUBMIT", 'response':"Form Submitted", 'form_id':""})
     data.updateMetaData(f_path, f, {'name':"", 'description':""})
 
-def newMdFile(parent, file, filename, fullpath, icon, data):
+def newMdFile(file, filename, fullpath, data):
     basepath = fullpath.replace(filename, '')
     f_path = baseFolder(basepath)
     data.addMdPath(file, fullpath)
@@ -232,14 +232,7 @@ def add_files_in_folder(parent, dirname, data):
             else:
                 file_extension = pathlib.Path(f).suffix           
                 if file_extension == '.md':
-                    data.addMdPath(f, fullpath)
-                    if f_path in data.articleData and f_name in data.articleData[f_path].keys():
-                        data_t = data.articleData[f_path][f_name]['time_stamp']
-                        
-                    if data.hasNoFileFolder(f_path) or data.hasNoFile(f_path, f):
-                        newFileData(f_path, f, fullpath, data)
-                    elif fileIsNew(fullpath, data_t):
-                        data.updateArticleHTML(f_path, f_name, fullpath)
+                    newMdFile(f_path, f, fullpath, data)
 
         for fd in new_folders:
             fd_path = os.path.join(dirname, fd)
@@ -249,10 +242,9 @@ def add_files_in_folder(parent, dirname, data):
                 f_name = os.path.basename(f)
                 basepath = fullpath.replace(f_name, '')
                 file_extension = pathlib.Path(f).suffix
-                f_icon = block
                                 
                 if file_extension == '.md':
-                    newMdFile(fd_path, f, f_name, fullpath, f_icon, data)
+                    newMdFile(f, f_name, fullpath, data)
 
             data.updateFolderData(fd)
                         
@@ -278,7 +270,7 @@ def add_files_in_folder(parent, dirname, data):
                 basepath = fullpath.replace(f_name, '')
                                 
                 if file_extension == '.md':
-                    newMdFile(parent, f, f_name, fullpath, f_icon, data)
+                    newMdFile(f, f_name, fullpath, data)
 
     if first_run == False:             
         data.deleteOldFiles()

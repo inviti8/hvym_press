@@ -9,14 +9,12 @@ from pathlib import Path
 import ast
 
 
-SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
-
 class HVYM_Handler:
    """
    Class for handling hvym calls
    """
    def __init__(self):
-       self.HOME = HOME = os.path.expanduser('~')
+       self.HOME = os.path.expanduser('~')
        self.icp_daemon_running = False
        self.bin = os.path.join(self.HOME, '.local', 'share', 'heavymeta-cli', 'hvym')
        self.icp_path = os.path.join(self.HOME, '.local', 'share', 'heavymeta-cli', 'icp')
