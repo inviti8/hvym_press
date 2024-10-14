@@ -115,4 +115,10 @@ class HVYM_Handler:
 
    def choice_popup(self, msg):
        return self._run_command(f'{self.bin} custom-choice-prompt "{msg}"').rstrip()
+   
+   def loading_msg(self, msg):
+       self._run_command(f'{self.bin} custom-loading-msg "{msg}"')
+
+   def prompt(self, msg):
+       self._run_command(f'{self.bin} custom-prompt "{msg}"')
        

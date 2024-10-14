@@ -1026,11 +1026,15 @@ author_settings_layout = [[sg.Frame('Author Settings', [
     ],  size=(15,10), expand_y=True, expand_x=True, font=font)]]
 
 deployment_settings_layout = [[sg.Frame('Deployment Settings', [
-    [name('Project Name:'), sg.Input(default_text=DATA.settings['project_name'], s=20, enable_events=True, expand_x=True, k='SETTING-project_name', font=font)],                               
-               [sg.Frame('Pintheon', [[name('JWT'), sg.Input(default_text=DATA.settings['pinata_jwt'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_jwt', font=font)],
-                                    [name('Gateway URL'), sg.Input(default_text=DATA.settings['pinata_gateway'], s=20, enable_events=True, expand_x=True, k='SETTING-pinata_gateway', font=font)],
-                                    [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['pinata_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-pinata_meta_data', font=font)]
-               ], expand_x=True, k='PINATA-GRP', font=font)],
+    [name('Project Name:'), sg.Input(default_text=DATA.settings['project_name'], s=20, enable_events=True, expand_x=True, k='SETTING-project_name', font=font)],
+    [name('Deployment:'), sg.Combo(['local', 'Pintheon', 'Internet Computer'], default_value=DATA.settings['deploy_type'], s=(22,22), enable_events=True, readonly=True, k='SETTING-deploy_type', font=font)],                               
+               [sg.Frame('Pintheon', [[name('JWT'), sg.Input(default_text=DATA.settings['backend_auth_key'], s=20, enable_events=True, expand_x=True, k='SETTING-backend_auth_key', font=font)],
+                                    [name('Gateway URL'), sg.Input(default_text=DATA.settings['backend_end_point'], s=20, enable_events=True, expand_x=True, k='SETTING-backend_end_point', font=font)],
+                                    [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['backend_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-backend_meta_data', font=font)]
+               ], expand_x=True, k='PINTHEON-GRP', font=font, visible=(DATA.settings['deploy_type']=='Pintheon'))],
+               [sg.Frame('Internet Computer', [[name('Principal'), sg.Input(default_text=DATA.settings['backend_auth_key'], s=20, enable_events=True, expand_x=True, k='SETTING-principal', font=font)],
+                                    [name('Canister ID'), sg.Input(default_text=DATA.settings['backend_end_point'], s=20, enable_events=True, expand_x=True, k='SETTING-canister_id', font=font)],
+               ], expand_x=True, k='ICP-GRP', font=font, visible=(DATA.settings['deploy_type']=='Internet Computer'))],
                ], expand_y=True, expand_x=True, font=font)]]
 
 nft_settings_layout = [[sg.Frame('NFT Settings', [
@@ -1047,10 +1051,10 @@ tab2_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, elem
                [sg.Column(author_settings_layout, expand_x=True, expand_y=True, element_justification='left'),
                 sg.Column(deployment_settings_layout, expand_x=True, expand_y=True, element_justification='left')],]
 
-menu_def = [['&Server', ['Start Localhost', 'Stop Localhost', 'Start Internet Computer', 'Stop Internet Computer']],
-                ['&Rebuild', ['Rebuild Local', 'Rebuild Internet Computer']],
-                ['&Debug', ['Local Debug', 'Pintheon Debug', 'Internet Computer Debug']],
-                ['& Deploy', ['Pintheon', 'Internet Computer']],
+menu_def = [['&Server', ['Start Daemon', 'Stop Daemon']],
+                ['&Rebuild', ['Rebuild Local']],
+                ['&Debug', ['Launch Debug']],
+                ['& Deploy', ['Launch Deploy']],
                 ['&Help', ['&About...']], ]
 
 layout = [[sg.MenubarCustom(menu_def, pad=(0,0), k='-CUST MENUBAR-', font=font)],
@@ -1070,70 +1074,85 @@ while True:
     event, values = window.read() 
     # ------ Process menu choices ------ #
     if event == 'About...':
-        sg.popup('About this program', 'Weeeb3 by HEAVYMETA',
+        sg.popup('About this program', 'HEAVYMETA PRESS',
                  'Version', '0.0.1',  grab_anywhere=True, keep_on_top=True)
         window.reappear()
         
-    elif event == 'Start Localhost':
-        print('should start localhost')
-        if SERVER_STATUS.server_running == False:
-            threading.Thread(target=StartServer, args=(), daemon=True).start()
-            SERVER_STATUS.popup_server_status()
+    elif event == 'Start Daemon':
+        deployType = DATA.settings['deploy_type']
+
+        if deployType == 'local' or deployType == 'Pintheon':
+            print('should start localhost')
+            if SERVER_STATUS.server_running == False:
+                threading.Thread(target=StartServer, args=(), daemon=True).start()
+                SERVER_STATUS.popup_server_status()
+        if deployType == 'Internet Computer':
+            print('Start Internet Computer')
+            if DATA.HVYM.icp_daemon_running == False:
+                DATA.HVYM.start_icp_daemon()
         
-    elif event == 'Stop Localhost':
-        print('should stop localhost')
-        if SERVER_STATUS.server_running == True:
-            threading.Thread(target=StopServer, args=(), daemon=True).start()
-            #SERVER_STATUS.popup_server_status(False)
+    elif event == 'Stop Daemon':
+        deployType = DATA.settings['deploy_type']
+
+        if deployType == 'local' or deployType == 'Pintheon':
+            print('should Stop Daemon')
+            if SERVER_STATUS.server_running == True:
+                threading.Thread(target=StopServer, args=(), daemon=True).start()
+                #SERVER_STATUS.popup_server_status(False)
+        elif deployType == 'Internet Computer':
+            print('Stop Internet Computer')
+            if DATA.HVYM.icp_daemon_running == True:
+                DATA.HVYM.stop_icp_daemon()
         
-    elif event == 'Local Debug':
-        print('Open Debug page')
-        if SERVER_STATUS.server_running == True:
-            site_data = refreshSiteData(DATA)
-            DATA.renderStaticPage('template_index.txt', site_data)
-            LaunchStaticSite('serve')
-        else:
-            sg.popup_ok('Start Localhost first')
+    elif event == 'Launch Debug':
+        deployType = DATA.settings['deploy_type']
+
+        if deployType == 'local' or deployType == 'Pintheon':
+            print('Open Debug page')
+            if SERVER_STATUS.server_running == True:
+                site_data = refreshSiteData(DATA)
+                DATA.renderStaticPage('template_index.txt', site_data)
+                LaunchStaticSite('serve')
+            else:
+                sg.popup_ok('Start Localhost first')
+
+        if deployType == 'Internet Computer':
+            if DATA.HVYM.icp_daemon_running == True:
+                option = DATA.HVYM.choice_popup("Deploy site to local Internet Computer?")
+                if option == 'OK':
+                    DATA.HVYM.loading_msg('Building Site')
+                    site_data = refreshSiteData(DATA)
+                    DATA.renderDebugICPPage('template_index.txt', site_data)
+                    url = DATA.HVYM.debug_icp_deploy()
+                    option = DATA.HVYM.choice_popup(f"Do you want to open debug url?")
+                    if option == 'OK':
+                        webbrowser.open_new_tab(url)
+            else:
+                sg.popup_ok('Start Internet Computer first')
 
     elif event == 'Rebuild Local':
-        print('Rebuild Local')
-        site_data = refreshSiteData(DATA)
-        DATA.renderStaticPage('template_index.txt', site_data)
-
-    elif event == 'Start Internet Computer':
-        print('Start Internet Computer')
-        if DATA.HVYM.icp_daemon_running == False:
-            DATA.HVYM.start_icp_daemon()
-        
-    elif event == 'Stop Internet Computer':
-        print('Stop Internet Computer')
-        if DATA.HVYM.icp_daemon_running == True:
-            DATA.HVYM.stop_icp_daemon()
-
-    elif event == 'Internet Computer Debug':
-        print('Open ICP Debug page')
-        if DATA.HVYM.icp_daemon_running == True:
-            option = DATA.HVYM.choice_popup("Deploy site to local Internet Computer?")
-            if option == 'OK':
-                site_data = refreshSiteData(DATA)
-                DATA.renderDebugICPPage('template_index.txt', site_data)
-                url = DATA.HVYM.debug_icp_deploy()
-                option = DATA.HVYM.choice_popup(f"Do you want to open debug url?")
+        deployType = DATA.settings['deploy_type']
+        if deployType == 'local' or deployType == 'Pintheon':
+            print('Rebuild Local')
+            site_data = refreshSiteData(DATA)
+            DATA.renderStaticPage('template_index.txt', site_data)
+        elif deployType == 'Internet Computer':
+            if DATA.HVYM.icp_daemon_running == True:
+                option = DATA.HVYM.choice_popup("Deploy site to local Internet Computer?")
                 if option == 'OK':
-                    webbrowser.open_new_tab(url)
-        else:
-            sg.popup_ok('Start Internet Computer first')
+                    DATA.HVYM.loading_msg('Rebuilding Site')
+                    site_data = refreshSiteData(DATA)
+                    DATA.renderDebugICPPage('template_index.txt', site_data)
+                    url = DATA.HVYM.debug_icp_deploy()
+            else:
+                sg.popup_ok('Start Internet Computer first')
 
-    elif event == 'Rebuild Internet Computer':
-        print('Rebuild ICP Debug page')
-        if DATA.HVYM.icp_daemon_running == True:
-            option = DATA.HVYM.choice_popup("Deploy site to local Internet Computer?")
-            if option == 'OK':
-                site_data = refreshSiteData(DATA)
-                DATA.renderDebugICPPage('template_index.txt', site_data)
-                url = DATA.HVYM.debug_icp_deploy()
-        else:
-            sg.popup_ok('Start Internet Computer first')
+    elif event == 'Launch Deploy':
+        deployType = DATA.settings['deploy_type']
+
+        if deployType == 'local':
+            DATA.HVYM.prompt('Current deploy type is set to local.\n Change settings, if you want to deploy live.\n')
+
         
     elif event == 'Version':
         sg.popup_scrolled(__file__, sg.get_versions(), keep_on_top=True, non_blocking=True)
@@ -1199,6 +1218,19 @@ while True:
         DATA.updateSetting(setting, val)
         DATA.saveData()
         DATA.deployHandler.updateSettings(DATA.settings)
+
+        if setting == 'deploy_type':
+            if val == 'local':
+                window.Element('PINTHEON-GRP').Update(visible=False)
+                window.Element('ICP-GRP').Update(visible=False)
+            elif val == 'Pintheon':
+                window.Element('PINTHEON-GRP').Update(visible=True)
+                window.Element('ICP-GRP').Update(visible=False)
+            elif val == 'Internet Computer':
+                window.Element('PINTHEON-GRP').Update(visible=False)
+                window.Element('ICP-GRP').Update(visible=True)
+
+
             
     if event == 'Add-Author' or event == 'Update-Author':
         d = popup_author()
@@ -1252,7 +1284,7 @@ while True:
         
         if site_cid != None:
             sg.popup_no_buttons("Site Deployed", auto_close=True, auto_close_duration=1.5, non_blocking=False)
-            url = os.path.join('https://', DATA.settings['pinata_gateway'], 'ipfs' ,site_cid, 'index.html').replace('\\', '/')
+            url = os.path.join('https://', DATA.settings['backend_end_point'], 'ipfs' ,site_cid, 'index.html').replace('\\', '/')
             webbrowser.open_new_tab(url)
             
         

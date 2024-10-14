@@ -119,7 +119,7 @@ class W3DeployHandler:
        self.pinataPinURL = 'https://api.pinata.cloud/pinning'
        self.pinataSubmarineURL = 'https://managed.mypinata.cloud/api/v1/content'
        self.pinataDataURL = 'https://api.pinata.cloud/data'
-       self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'jwt':settings['pinata_jwt'], 'api_key':settings['pinata_key'], 'gateway':settings['pinata_gateway'], 'timeout':settings['pinata_timeout'], 'meta_data':settings['pinata_meta_data']}
+       self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'jwt':settings['backend_auth_key'], 'api_key':settings['pinata_key'], 'gateway':settings['backend_end_point'], 'timeout':settings['backend_timeout'], 'meta_data':settings['backend_meta_data']}
        self.pinataToken = None
        self.deployFiles = []
        self.deployedStatuses = {}
@@ -519,7 +519,7 @@ class W3DeployHandler:
        self.saveData()
            
    def updateSettings(self, settings):
-       self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'jwt':settings['pinata_jwt'], 'api_key':settings['pinata_key'], 'gateway':settings['pinata_gateway'], 'timeout':settings['pinata_timeout'], 'meta_data':settings['pinata_meta_data']}
+       self.pinata = {'api_url':"https://managed.mypinata.cloud/api/v1/content", 'jwt':settings['backend_auth_key'], 'api_key':settings['pinata_key'], 'gateway':settings['backend_end_point'], 'timeout':settings['backend_timeout'], 'meta_data':settings['backend_meta_data']}
        self.saveData()
        
    def setPinataApiKey(self, api_key):

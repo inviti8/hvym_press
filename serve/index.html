@@ -1,16 +1,945 @@
 <!DOCTYPE html>
+
 <html lang="en">
-
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>HTML5 Boilerplate</title>
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8"/>
+<link href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmcJLBGNFb2UKFy3jspNfHk8wFCjhSsBDaQ2tWrASQBSYE" rel="shortcut icon" type="image/x-icon"/>
+<title></title>
+<link href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsenui.min.css" rel="stylesheet"/>
+<link href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsen-css-components.min.css" rel="stylesheet"/>
+<script src="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/js/onsenui.min.js"></script>
+<script crossorigin="anonymous" integrity="sha512-TmhOO3rUu5WfsLdsw9H1pB/p5/A/KnhydCuLNGlZoukfUUopMmA2sq6DWR9E+acuLB1DBk2A8cq63f7JMwHgVQ==" referrerpolicy="no-referrer" src="https://cdnjs.cloudflare.com/ajax/libs/approvejs/3.1.2/approve.min.js"></script>
+<script type="module">
+    window.fn = {};
+
+    window.fn.open = function () {
+      var menu = document.getElementById('menu');
+      menu.open();
+    };
+    
+    window.fn.load = function (page) {
+      var menu = document.getElementById('menu');
+      var myNavigator = document.getElementById('myNavigator');
+    
+      menu.close();
+      myNavigator.resetToPage(page, { animation: 'fade' });
+    };
+
+    window.fn.showDialog = function(id) {
+      var dialog = document.getElementById(id);
+
+      if (dialog) {
+          dialog.show();
+      } else {
+        ons.createElement(id+'.html', { append: true })
+          .then(function(dialog) {
+              dialog.show();
+            });
+        }
+    };
+
+    window.fn.hideDialog = function(id) {
+      document
+        .getElementById(id)
+        .hide();
+    };
+
+    window.fn.formStateHandler = function (form, state) {
+        var buttons = form.querySelectorAll("button");
+        for (var i = 0; i < buttons.length; i++) {
+          buttons[i].disabled = state;
+        }
+    }
+
+    window.fn.validateEmail = function (form) {
+        var result = false;
+
+        var rules = {
+            required: true,
+            email: true
+        };
+
+        var inputs = document.getElementsByTagName("input");
+        var email = null;
+
+        for (var i = 0; i < inputs.length; i++) {
+            var input = inputs[i];
+
+            if(input.name == "email"){
+                email = input;
+                break;
+            }
+        }
+
+        if(email != null){
+            result = approve.value(email.value, rules);
+        }
+
+        return result['approved'];
+    }
+
+    window.fn.validateFields = function (form) {
+        var result = false;
+        var results = []
+
+        var rules = {
+            required: true
+        };
+
+        var inputs = document.getElementsByTagName("input");
+        var email = null;
+
+        for (var i = 0; i < inputs.length; i++) {
+            var input = inputs[i];
+            results.push(approve.value(input.value, rules)['approved']);
+        }
+
+        for (var i = 0; i < results.length; i++) {
+            var approved = results[i];
+
+            if(approved == false){
+                break;
+            }
+
+            result = approved;
+
+        }
+
+
+        return result;
+    }
+
+    ons.ready(function() {
+      var forms = document.getElementsByTagName("form");
+
+      for (var i = 0; i < forms.length; i++) {
+         var form = forms.item(i);
+
+        form.onsubmit = function (e) {
+            e.preventDefault();
+            var fields_filled = fn.validateFields(form);
+            var email_valid = fn.validateEmail(form);
+
+            if(fields_filled){
+                if(email_valid){
+                    fn.showDialog('loading');
+                    fn.formStateHandler(form, true);
+
+                    fetch(form.action, {
+                        method: "post", 
+                        body: new FormData(form)
+                    }).then(response => {
+                        var form_id = form.id
+                        var dlg_id = form_id.replace("form_", "dlg_")
+                        fn.hideDialog('loading');
+                        fn.showDialog(dlg_id);
+                        fn.formStateHandler(form, false);
+                    });
+
+                }else{
+                    alert('Email is invalid!');
+                }
+
+            }else{
+                alert('Some fields are empty!');
+            }
+        }
+      }
+
+      
+
+    });
+
+  </script>
+<style>
+    textarea {
+        border: none;
+        overflow: auto;
+        outline: none;
+    
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none;
+    }
+    ons-list{
+      opacity: 90%;
+    }
+    ons-row{
+        padding: 5%;
+    }
+    ons-col, ons-card{
+        min-width: 350px;
+        margin: 0 auto;
+    }
+    video {
+      /* override other styles to make responsive */
+      width: 100%    !important;
+      height: auto   !important;
+    }
+    .menu_icon{
+      padding-right: 10px;
+    }
+    .author{
+      padding-left: 10px;
+    }
+    .form_container{
+      margin: 0 auto;
+    }
+    .form_list{
+        width: 100%;
+        margin: 0 auto;
+        max-width: 350px;
+        min-width: 250px;
+    }
+    .form_list_item{
+        width: 100%;
+        min-width:200px;
+        margin: 0;
+    }
+    .form_input{
+        width: 100%;
+        min-width:250px;
+        margin: 0 auto;
+    }
+    .article { 
+        height: 200px; 
+        width:100%; 
+        overflow: scroll;
+        outline: none;
+    
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none; 
+      }
+      .expanded_article {
+        width: 80%;
+        padding-left: 10%;
+        text-align: left;
+      }
+      .deployed_img_p{
+        padding-left: 10%;
+        padding-right: 10%;
+        width: 80%;
+      }
+      .deployed_img{
+        width: 100%;
+      }
+      .content_default{
+        height: 200px;
+      }
+      .content_medium{
+        height: 250px;
+      }
+      .content_tall{
+        height: 300px;
+      }
+      .vid_container{
+        margin: 0 auto;
+        max-width: 80%;
+        min-width: 250px;
+      }
+    </style>
 </head>
-
 <body>
-  <h1>Page Title</h1>
-  <script src="scripts.js"></script>
-</body>
+<!-- partial:index.partial.html -->
+<ons-splitter>
+<ons-splitter-side collapse="" id="menu" side="left" swipeable="" width="220px">
+<ons-page>
+<ons-list>
+<ons-list-item onclick="fn.load('HEAVYMETA Blog.html')" tappable="">
+          HEAVYMETA Blog
+        </ons-list-item>
+<ons-list-item onclick="fn.load('IPFS Gateway 2023.html')" tappable="">
+          IPFS Gateway 2023
+        </ons-list-item>
+</ons-list>
+</ons-page>
+</ons-splitter-side>
+<ons-splitter-content>
+<ons-navigator id="myNavigator" page="HEAVYMETA Blog.html"></ons-navigator>
+</ons-splitter-content>
+</ons-splitter>
+<template id="HEAVYMETA Blog.html">
+<ons-page>
+<ons-toolbar modifier="default">
+<div class="center">
+        HEAVYMETA Blog
+      </div>
+<div class="left">
+<ons-toolbar-button modifier="default" onclick="fn.open()">
+<ons-icon icon="md-menu"></ons-icon>
+</ons-toolbar-button>
+</div>
+</ons-toolbar>
+<div style="text-align: center">
+<ons-row>
+<ons-col width="%">
+<ons-card modifier="default" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
+<div class="title">
+                      Let_s Begin.md
+                    </div>
+<div class="content">
+<ons-list modifier="default">
+<ons-list-item>
+<div>
+<div class="article">
+<br/>
+<p>I have been working in the Games Industry for well over 10 years.  First starting as a 3D Artist then moving into Technical Art.  I can see that Web3 holds great potential for Artists.  Leveraging this tech, we can create content and host it on the decentralized web.  We can maintain, sell, and transfer real ownership of our art via NFTs.  This means we can take control of what we produce with no middlemen.</p>
+<p>Being that I am well versed in content creation for games, it only makes sense that I focus on this arena first.  I am currently working on a Blender Add-On that will allow us to export 3D assets to ipfs, and encapsulate all associated links in an NFT Minting page.  This page will allow others to purchase customized version of our game ready art assets as NFTs.  Though, instead of just being an image, HEAVYMETA NFTs have real utility.  Game developers can use these assets in games, allowing players to use the same assets across multiple games where viable.</p>
+<p class="deployed_img_p">It's still the wild west in Web3, and to me that seems like the best time possible to stake a claim.  If you're reading this, you probably have similar thoughts.  If you're up for it, I'd love for you to come along with me on this ride.
+<img alt="DALL&middot;E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png" src="./_resources/DALL&middot;E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png" style="width:100%;"/></p>
+<ons-list>
+</ons-list>
+</div>
+<ons-fab modifier="default" onclick="myNavigator.pushPage('nav_Let_s Begin.md.html')">
+<ons-icon icon="fa-chevron-left"></ons-icon>
+</ons-fab>
+</div>
+</ons-list-item>
+</ons-list>
+</div>
+</ons-card>
+</ons-col>
+</ons-row>
+</div>
+</ons-page>
+</template>
+<template id="IPFS Gateway 2023.html">
+<ons-page>
+<ons-toolbar modifier="default">
+<div class="center">
+        IPFS Gateway 2023
+      </div>
+<div class="left">
+<ons-toolbar-button modifier="default" onclick="fn.open()">
+<ons-icon icon="md-menu"></ons-icon>
+</ons-toolbar-button>
+</div>
+</ons-toolbar>
+<div style="text-align: center">
+<ons-row>
+<ons-col width="%">
+<ons-card modifier="default" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
+<div class="title">
+                      Public Set up.md
+                    </div>
+<div class="content">
+<ons-list modifier="default">
+<ons-list-item>
+<div>
+<div class="article">
+<br/>
+<p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04</p>
+<p><code>sudo apt update</code></p>
+<pre><code>sudo apt upgrade
 
+sudo ufw allow 22
+
+sudo ufw enable
+</code></pre>
+<p>Create a new user, $USER is replaced with a real username:</p>
+<p><code>sudo adduser&nbsp;$USER &amp;&amp; usermod -aG sudo&nbsp;$USER</code></p>
+<p>Switch over to your new user account:</p>
+<p><code>su - $USER</code>
+Download the latest ipfs:
+<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
+extract:
+<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
+Install:
+<code>cd kubo
+sudo bash install.sh
+ipfs --version</code></p>
+<p>Open swarm port:
+<code>sudo ufw allow 4001</code></p>
+<p>Initialize ipfs, make note of your peer address that is returned on init:
+<code>ipfs init --profile server</code></p>
+<p>Create a new service:
+<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
+<p>Copy this code in replacing $USER with your username:
+`[Unit]
+Description=IPFS Daemon
+After=network.target</p>
+<p>[Service]
+User=$USER
+Environment=IPFS_PATH=/home/$USER/.ipfs
+ExecStart=/usr/local/bin/ipfs daemon --init --migrate
+StandardOutput=journal
+Restart=on-failure
+KillSignal=SIGINT</p>
+<p>[Install]
+WantedBy=multi-user.target`</p>
+<p>Configure ipfs gateway, replace 'example.com' with your domain:
+NoFetch = True, means it will only retrieve files on your local node.</p>
+<p><code>ipfs config --json Gateway '{
+        "HTTPHeaders": {
+            "Access-Control-Allow-Origin": [
+                "*"
+            ]
+        },
+        "RootRedirect": "",
+        "Writable": false,
+        "PathPrefixes": [
+            "/blog",
+            "/refs"
+        ],
+        "APICommands": [],
+        "NoFetch": true,
+        "NoDNSLink": false,
+        "PublicGateways": {
+            "www.example.com": {
+                "NoDNSLink": false,
+                "Paths": [
+                    "/ipfs",
+                    "/ipns",
+                    "/api"
+                ],
+                "UseSubdomains": true
+            },
+            "example.com": {
+                "NoDNSLink": false,
+                "Paths": [
+                    "/ipfs",
+                    "/ipns",
+                    "/api"
+                ],
+                "UseSubdomains": false
+            }
+        }
+    }'</code></p>
+<p>Start ipfs:
+<code>sudo systemctl daemon-reload
+sudo systemctl start ipfs</code></p>
+<p>Enabled after rebooting:
+<code>sudo systemctl enable ipfs</code></p>
+<p>Now Install the nginx server:
+<code>sudo apt install nginx</code>
+Open port:
+<code>sudo ufw allow 80</code>
+Backup nginx original nginx config:
+<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
+Create a new config file:
+<code>sudo nano /etc/nginx/sites-available/default</code>
+Paste the following code, replacing 'your_domain_name.com' with yours:
+`server {
+    listen 80;
+    listen [::]:80;
+    server_name your_domain_name.com;</p>
+<pre><code>location /ipfs {
+    proxy_pass http://localhost:8080;
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+    allow all;
+}
+</code></pre>
+<p>}`</p>
+<p>Test the config, and reload the service:
+<code>sudo nginx -t
+sudo systemctl reload nginx</code></p>
+<p>Enable https with certbot:
+<code>sudo apt install certbot python3-certbot-nginx</code></p>
+<p>Let in HTTPS traffic:
+<code>sudo ufw allow 'Nginx Full'
+sudo ufw delete allow 'Nginx HTTP'</code></p>
+<p>Get the ssl certificate, replace 'example.com' with your domain:
+<code>sudo certbot --nginx -d example.com -d www.example.com</code></p>
+<ons-list>
+</ons-list>
+</div>
+<ons-fab modifier="default" onclick="myNavigator.pushPage('nav_Public Set up.md.html')">
+<ons-icon icon="fa-chevron-left"></ons-icon>
+</ons-fab>
+</div>
+</ons-list-item>
+</ons-list>
+</div>
+</ons-card>
+<ons-card modifier="default" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
+<div class="title">
+                      Private Set up.md
+                    </div>
+<div class="content">
+<ons-list modifier="default">
+<ons-list-item>
+<div>
+<div class="article">
+<br/>
+<p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04
+<code>sudo apt update</code></p>
+<p>```
+sudo apt upgrade    </p>
+<p>sudo ufw allow 22   </p>
+<p>sudo ufw enable -y 
+```</p>
+<p>Create a new user, $USER is replaced with a real username:</p>
+<p><code>sudo adduser&nbsp;$USER</code></p>
+<p>Enable su-mode:</p>
+<p><code>su -</code></p>
+<p>Install sudo:</p>
+<p><code>apt-get install sudo -y</code></p>
+<p>Elevate the user:</p>
+<p><code>usermod -aG sudo $USER</code></p>
+<p>Open sudo config:</p>
+<p><code>visudo</code></p>
+<p>Modify permissions, adding line
+```</p>
+<h1></h1>
+<h1>This file MUST be edited with the 'visudo' command as root.</h1>
+<h1></h1>
+<h1>Please consider adding local content in /etc/sudoers.d/ instead of</h1>
+<h1>directly modifying this file.</h1>
+<h1></h1>
+<h1>See the man page for details on how to write a sudoers file.</h1>
+<h1></h1>
+<p>Defaults        env_reset
+Defaults        mail_badpass
+Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"</p>
+<h1>Host alias specification</h1>
+<h1>User alias specification</h1>
+<h1>Cmnd alias specification</h1>
+<h1>User privilege specification</h1>
+<p>root    ALL=(ALL:ALL) ALL
+$USER   ALL=(ALL:ALL) ALL</p>
+<h1>Members of the admin group may gain root privileges</h1>
+<p>%admin ALL=(ALL) ALL</p>
+<h1>Allow members of group sudo to execute any command</h1>
+<p>%sudo   ALL=(ALL:ALL) ALL</p>
+<h1>See sudoers(5) for more information on "#include" directives:</h1>
+<h1>includedir /etc/sudoers.d</h1>
+<p>```</p>
+<p>Switch over to your new user account:
+<code>su - $USER</code>
+Download the latest ipfs:
+<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
+extract:
+<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
+Install:
+<code>cd kubo
+sudo bash install.sh 
+ipfs --version</code></p>
+<p>Open swarm port:
+<code>sudo ufw allow 4001
+sudo ufw --force enable</code>
+Initialize ipfs, make note of your peer address that is returned on init:
+<code>ipfs init --profile server</code>
+Create the swarm key file</p>
+<p><code>cd ~/.ipfs
+sudo nano swarm.key</code></p>
+<p>Example key file, replace the key string with a uniquly generated one
+<code>/key/swarm/psk/1.0.0/
+/base16/
+25f64b1cf31f649817d495e446d4cbcc99000b8cc032a89b681e5f86f995fb30</code></p>
+<p>Create a new service:
+<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
+<p>Copy this code in replacing $USER with your username:
+```
+[Unit]
+Description=IPFS Daemon
+After=network.target</p>
+<p>[Service]
+User=$USER
+Environment=IPFS_PATH=/home/$USER/.ipfs
+ExecStart=/usr/local/bin/ipfs daemon --enable-namesys-pubsub
+StandardOutput=journal
+Restart=on-failure
+KillSignal=SIGINT</p>
+<p>[Install]
+WantedBy=multi-user.target
+```</p>
+<p>Start ipfs:
+<code>sudo systemctl daemon-reload 
+sudo systemctl start ipfs</code></p>
+<p>Enabled after rebooting:
+<code>sudo systemctl enable ipfs</code></p>
+<p>Remove all standard peers:
+<code>ipfs bootstrap rm --all</code></p>
+<p>Set ipfs config for gateway and api:</p>
+<p><code>ipfs config Addresses.Gateway /ip4/0.0.0.0/8080
+ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001</code></p>
+<p>Force p2p:
+<code>export LIBP2P_FORCE_PNET=1</code></p>
+<p>Now Install the nginx server:
+<code>sudo apt install nginx</code>
+Open port:
+<code>sudo ufw allow 80</code>
+<code>sudo systemctl reload nginx</code>
+Backup nginx original nginx config:
+<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
+Create a new config file:
+<code>sudo nano /etc/nginx/sites-available/default</code>
+Paste the following code, replacing 'your_domain_name.com' with yours:
+```
+server {
+    listen 80;
+    listen [::]:80;
+    server_name your_domain_name.com;</p>
+<pre><code>location /ipfs {
+    proxy_pass http://localhost:8080;
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+    allow all;
+}
+</code></pre>
+<p>}
+```</p>
+<p>Test the config, and reload the service:
+<code>sudo nginx -t</code>
+<code>sudo systemctl reload nginx</code></p>
+<p>Enable https with certbot:
+<code>sudo apt install certbot python3-certbot-nginx</code></p>
+<p>Let in HTTPS traffic:
+<code>sudo ufw allow 'Nginx Full'</code>
+<code>sudo ufw delete allow 'Nginx HTTP'</code></p>
+<p>Get the ssl certificate, replace 'example.com' with your domain:
+<code>sudo certbot --nginx -d example.com</code></p>
+<ons-list>
+</ons-list>
+</div>
+<ons-fab modifier="default" onclick="myNavigator.pushPage('nav_Private Set up.md.html')">
+<ons-icon icon="fa-chevron-left"></ons-icon>
+</ons-fab>
+</div>
+</ons-list-item>
+</ons-list>
+</div>
+</ons-card>
+</ons-col>
+</ons-row>
+</div>
+</ons-page>
+</template>
+<template id="nav_Let_s Begin.md.html">
+<ons-page id="nav_Let_s Begin.md">
+<div>
+<ons-toolbar modifier="default">
+<div class="left">
+<ons-back-button modifier="default">Back</ons-back-button>
+</div>
+<div class="center"></div>
+<div class="right">
+<ons-toolbar-button modifier="default" onclick="fn.open()">
+<ons-icon icon="md-menu"></ons-icon>
+</ons-toolbar-button>
+</div>
+</ons-toolbar>
+<div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+<h1>Let_s Begin.md</h1>
+<br/>
+<div class="expanded_article">
+<br/>
+<p>I have been working in the Games Industry for well over 10 years.  First starting as a 3D Artist then moving into Technical Art.  I can see that Web3 holds great potential for Artists.  Leveraging this tech, we can create content and host it on the decentralized web.  We can maintain, sell, and transfer real ownership of our art via NFTs.  This means we can take control of what we produce with no middlemen.</p>
+<p>Being that I am well versed in content creation for games, it only makes sense that I focus on this arena first.  I am currently working on a Blender Add-On that will allow us to export 3D assets to ipfs, and encapsulate all associated links in an NFT Minting page.  This page will allow others to purchase customized version of our game ready art assets as NFTs.  Though, instead of just being an image, HEAVYMETA NFTs have real utility.  Game developers can use these assets in games, allowing players to use the same assets across multiple games where viable.</p>
+<p class="deployed_img_p">It's still the wild west in Web3, and to me that seems like the best time possible to stake a claim.  If you're reading this, you probably have similar thoughts.  If you're up for it, I'd love for you to come along with me on this ride.
+<img alt="DALL&middot;E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png" src="./_resources/DALL&middot;E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png" style="width:100%;"/></p>
+<ons-list>
+</ons-list>
+</div>
+</div>
+</div>
+</ons-page>
+</template>
+<template id="nav_Public Set up.md.html">
+<ons-page id="nav_Public Set up.md">
+<div>
+<ons-toolbar modifier="default">
+<div class="left">
+<ons-back-button modifier="default">Back</ons-back-button>
+</div>
+<div class="center"></div>
+<div class="right">
+<ons-toolbar-button modifier="default" onclick="fn.open()">
+<ons-icon icon="md-menu"></ons-icon>
+</ons-toolbar-button>
+</div>
+</ons-toolbar>
+<div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+<h1>Public Set up.md</h1>
+<br/>
+<div class="expanded_article">
+<br/>
+<p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04</p>
+<p><code>sudo apt update</code></p>
+<pre><code>sudo apt upgrade
+
+sudo ufw allow 22
+
+sudo ufw enable
+</code></pre>
+<p>Create a new user, $USER is replaced with a real username:</p>
+<p><code>sudo adduser&nbsp;$USER &amp;&amp; usermod -aG sudo&nbsp;$USER</code></p>
+<p>Switch over to your new user account:</p>
+<p><code>su - $USER</code>
+Download the latest ipfs:
+<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
+extract:
+<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
+Install:
+<code>cd kubo
+sudo bash install.sh
+ipfs --version</code></p>
+<p>Open swarm port:
+<code>sudo ufw allow 4001</code></p>
+<p>Initialize ipfs, make note of your peer address that is returned on init:
+<code>ipfs init --profile server</code></p>
+<p>Create a new service:
+<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
+<p>Copy this code in replacing $USER with your username:
+`[Unit]
+Description=IPFS Daemon
+After=network.target</p>
+<p>[Service]
+User=$USER
+Environment=IPFS_PATH=/home/$USER/.ipfs
+ExecStart=/usr/local/bin/ipfs daemon --init --migrate
+StandardOutput=journal
+Restart=on-failure
+KillSignal=SIGINT</p>
+<p>[Install]
+WantedBy=multi-user.target`</p>
+<p>Configure ipfs gateway, replace 'example.com' with your domain:
+NoFetch = True, means it will only retrieve files on your local node.</p>
+<p><code>ipfs config --json Gateway '{
+        "HTTPHeaders": {
+            "Access-Control-Allow-Origin": [
+                "*"
+            ]
+        },
+        "RootRedirect": "",
+        "Writable": false,
+        "PathPrefixes": [
+            "/blog",
+            "/refs"
+        ],
+        "APICommands": [],
+        "NoFetch": true,
+        "NoDNSLink": false,
+        "PublicGateways": {
+            "www.example.com": {
+                "NoDNSLink": false,
+                "Paths": [
+                    "/ipfs",
+                    "/ipns",
+                    "/api"
+                ],
+                "UseSubdomains": true
+            },
+            "example.com": {
+                "NoDNSLink": false,
+                "Paths": [
+                    "/ipfs",
+                    "/ipns",
+                    "/api"
+                ],
+                "UseSubdomains": false
+            }
+        }
+    }'</code></p>
+<p>Start ipfs:
+<code>sudo systemctl daemon-reload
+sudo systemctl start ipfs</code></p>
+<p>Enabled after rebooting:
+<code>sudo systemctl enable ipfs</code></p>
+<p>Now Install the nginx server:
+<code>sudo apt install nginx</code>
+Open port:
+<code>sudo ufw allow 80</code>
+Backup nginx original nginx config:
+<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
+Create a new config file:
+<code>sudo nano /etc/nginx/sites-available/default</code>
+Paste the following code, replacing 'your_domain_name.com' with yours:
+`server {
+    listen 80;
+    listen [::]:80;
+    server_name your_domain_name.com;</p>
+<pre><code>location /ipfs {
+    proxy_pass http://localhost:8080;
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+    allow all;
+}
+</code></pre>
+<p>}`</p>
+<p>Test the config, and reload the service:
+<code>sudo nginx -t
+sudo systemctl reload nginx</code></p>
+<p>Enable https with certbot:
+<code>sudo apt install certbot python3-certbot-nginx</code></p>
+<p>Let in HTTPS traffic:
+<code>sudo ufw allow 'Nginx Full'
+sudo ufw delete allow 'Nginx HTTP'</code></p>
+<p>Get the ssl certificate, replace 'example.com' with your domain:
+<code>sudo certbot --nginx -d example.com -d www.example.com</code></p>
+<ons-list>
+</ons-list>
+</div>
+</div>
+</div>
+</ons-page>
+</template>
+<template id="nav_Private Set up.md.html">
+<ons-page id="nav_Private Set up.md">
+<div>
+<ons-toolbar modifier="default">
+<div class="left">
+<ons-back-button modifier="default">Back</ons-back-button>
+</div>
+<div class="center"></div>
+<div class="right">
+<ons-toolbar-button modifier="default" onclick="fn.open()">
+<ons-icon icon="md-menu"></ons-icon>
+</ons-toolbar-button>
+</div>
+</ons-toolbar>
+<div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+<h1>Private Set up.md</h1>
+<br/>
+<div class="expanded_article">
+<br/>
+<p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04
+<code>sudo apt update</code></p>
+<p>```
+sudo apt upgrade    </p>
+<p>sudo ufw allow 22   </p>
+<p>sudo ufw enable -y 
+```</p>
+<p>Create a new user, $USER is replaced with a real username:</p>
+<p><code>sudo adduser&nbsp;$USER</code></p>
+<p>Enable su-mode:</p>
+<p><code>su -</code></p>
+<p>Install sudo:</p>
+<p><code>apt-get install sudo -y</code></p>
+<p>Elevate the user:</p>
+<p><code>usermod -aG sudo $USER</code></p>
+<p>Open sudo config:</p>
+<p><code>visudo</code></p>
+<p>Modify permissions, adding line
+```</p>
+<h1></h1>
+<h1>This file MUST be edited with the 'visudo' command as root.</h1>
+<h1></h1>
+<h1>Please consider adding local content in /etc/sudoers.d/ instead of</h1>
+<h1>directly modifying this file.</h1>
+<h1></h1>
+<h1>See the man page for details on how to write a sudoers file.</h1>
+<h1></h1>
+<p>Defaults        env_reset
+Defaults        mail_badpass
+Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"</p>
+<h1>Host alias specification</h1>
+<h1>User alias specification</h1>
+<h1>Cmnd alias specification</h1>
+<h1>User privilege specification</h1>
+<p>root    ALL=(ALL:ALL) ALL
+$USER   ALL=(ALL:ALL) ALL</p>
+<h1>Members of the admin group may gain root privileges</h1>
+<p>%admin ALL=(ALL) ALL</p>
+<h1>Allow members of group sudo to execute any command</h1>
+<p>%sudo   ALL=(ALL:ALL) ALL</p>
+<h1>See sudoers(5) for more information on "#include" directives:</h1>
+<h1>includedir /etc/sudoers.d</h1>
+<p>```</p>
+<p>Switch over to your new user account:
+<code>su - $USER</code>
+Download the latest ipfs:
+<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
+extract:
+<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
+Install:
+<code>cd kubo
+sudo bash install.sh 
+ipfs --version</code></p>
+<p>Open swarm port:
+<code>sudo ufw allow 4001
+sudo ufw --force enable</code>
+Initialize ipfs, make note of your peer address that is returned on init:
+<code>ipfs init --profile server</code>
+Create the swarm key file</p>
+<p><code>cd ~/.ipfs
+sudo nano swarm.key</code></p>
+<p>Example key file, replace the key string with a uniquly generated one
+<code>/key/swarm/psk/1.0.0/
+/base16/
+25f64b1cf31f649817d495e446d4cbcc99000b8cc032a89b681e5f86f995fb30</code></p>
+<p>Create a new service:
+<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
+<p>Copy this code in replacing $USER with your username:
+```
+[Unit]
+Description=IPFS Daemon
+After=network.target</p>
+<p>[Service]
+User=$USER
+Environment=IPFS_PATH=/home/$USER/.ipfs
+ExecStart=/usr/local/bin/ipfs daemon --enable-namesys-pubsub
+StandardOutput=journal
+Restart=on-failure
+KillSignal=SIGINT</p>
+<p>[Install]
+WantedBy=multi-user.target
+```</p>
+<p>Start ipfs:
+<code>sudo systemctl daemon-reload 
+sudo systemctl start ipfs</code></p>
+<p>Enabled after rebooting:
+<code>sudo systemctl enable ipfs</code></p>
+<p>Remove all standard peers:
+<code>ipfs bootstrap rm --all</code></p>
+<p>Set ipfs config for gateway and api:</p>
+<p><code>ipfs config Addresses.Gateway /ip4/0.0.0.0/8080
+ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001</code></p>
+<p>Force p2p:
+<code>export LIBP2P_FORCE_PNET=1</code></p>
+<p>Now Install the nginx server:
+<code>sudo apt install nginx</code>
+Open port:
+<code>sudo ufw allow 80</code>
+<code>sudo systemctl reload nginx</code>
+Backup nginx original nginx config:
+<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
+Create a new config file:
+<code>sudo nano /etc/nginx/sites-available/default</code>
+Paste the following code, replacing 'your_domain_name.com' with yours:
+```
+server {
+    listen 80;
+    listen [::]:80;
+    server_name your_domain_name.com;</p>
+<pre><code>location /ipfs {
+    proxy_pass http://localhost:8080;
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+    allow all;
+}
+</code></pre>
+<p>}
+```</p>
+<p>Test the config, and reload the service:
+<code>sudo nginx -t</code>
+<code>sudo systemctl reload nginx</code></p>
+<p>Enable https with certbot:
+<code>sudo apt install certbot python3-certbot-nginx</code></p>
+<p>Let in HTTPS traffic:
+<code>sudo ufw allow 'Nginx Full'</code>
+<code>sudo ufw delete allow 'Nginx HTTP'</code></p>
+<p>Get the ssl certificate, replace 'example.com' with your domain:
+<code>sudo certbot --nginx -d example.com</code></p>
+<ons-list>
+</ons-list>
+</div>
+</div>
+</div>
+</ons-page>
+</template>
+<template id="loading.html">
+<ons-dialog id="loading">
+<div style="text-align: center; padding: 10px;">
+<p>
+<ons-progress-circular indeterminate=""></ons-progress-circular>
+</p>
+</div>
+</ons-dialog>
+</template>
+<!-- partial -->
+<!-- <script  src="./script.js"></script> -->
+</body>
 </html>
