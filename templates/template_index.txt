@@ -404,16 +404,7 @@
                     {% endif %}
                   {% endif %}
                     <div class="title">
-                    {% if card.use_thumb %}
-                      {% if card.author_img != '' %}
-                        <div class="left">
-                            <span class="list-item__subtitle author"><img class="list-item__thumbnail" src="{{card.author_img}}">{{card.author}}</span>
-                        </div>
-                        {{card.name}}
-                        {% endif %}
-                      {% else %}
                       {{card.name}}
-                      {% endif %}
                     </div>
                       <div class="content">
                         {% if card.use_color%}
@@ -424,13 +415,17 @@
                           {% if card.type == 'Expandable' %}
                           <ons-list-item expandable>
                           {% else %}
-                          <ons-list-item>
+                          <ons-list-item expandable expanded class="list-item list-item--expandable expanded ">
                           {% endif %}
-                            {% if card.type == 'Expandable' %}
-                            <div class="expandable-content">
-                            {% else %}
-                            <div>
+                          {% if card.use_thumb %}
+                            {% if card.author_img != '' %}
+                            <div class="left">
+                              <img class="list-item__thumbnail" src="{{card.author_img}}">
+                              <p class="list-item__subtitle author">{{card.author}}</p>
+                            </div>
+                              {% endif %}
                             {% endif %}
+                            <div class="expandable-content">
                               <div class="article">
                                 <br />
                                 {{card.html}}
@@ -545,16 +540,7 @@
                     {% endif %}
                   {% endif %}
                     <div class="title">
-                    {% if card.use_thumb %}
-                      {% if card.author_img != '' %}
-                        <div class="left">
-                          <span class="list-item__subtitle author"><img class="list-item__thumbnail" src="{{card.author_img}}">{{card.author}}</span>
-                        </div>
-                          {{card.name}}
-                        {% endif %}
-                      {% else %}
                       {{card.name}}
-                      {% endif %}
                     </div>
                       <div class="content">
                         {% if card.use_color%}
@@ -565,13 +551,17 @@
                           {% if card.type == 'Expandable' %}
                           <ons-list-item expandable>
                           {% else %}
-                          <ons-list-item>
+                          <ons-list-item expandable expanded class="list-item list-item--expandable expanded ">
                           {% endif %}
-                            {% if card.type == 'Expandable' %}
-                            <div class="expandable-content">
-                            {% else %}
-                            <div>
+                          {% if card.use_thumb %}
+                            {% if card.author_img != '' %}
+                            <div class="left">
+                              <img class="list-item__thumbnail" src="{{card.author_img}}">
+                              <p class="list-item__subtitle author">{{card.author}}</p>
+                            </div>
+                              {% endif %}
                             {% endif %}
+                            <div class="expandable-content">
                               <div class="article">
                                 <br />
                                 {{card.html}}
@@ -632,7 +622,7 @@
         <ons-back-button modifier="{{data.settings.style}}">Back</ons-back-button>
       </div>
       <div class="center"></div>
-      <div class="right">
+      <div class="left">
         <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
           <ons-icon icon="md-menu"></ons-icon>
         </ons-toolbar-button>

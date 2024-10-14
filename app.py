@@ -115,7 +115,7 @@ def baseFolder(f_path):
 def newFolderData(f, data):
     f_name = os.path.basename(f)
     data.updatePageData(f, {'title':f_name, 'icon':'none', 'use_text':True, 'max_height':800, 'columns':"1", 'footer_height':200})
-    data.updateColumnWidths(f, [])
+    data.updateColumnWidths(f, [90])
 
 def newFileData(f_path, f, full_path, data, file_type='.md'):
     f_name = os.path.basename(f)
@@ -1003,19 +1003,19 @@ ui_settings_layout = [[sg.Frame('UI Settings', [
                                                 [name('Row Padding'), sg.Spin(values=[i for i in range(1, 100)], initial_value=DATA.settings['row_pad'], enable_events=True, s=(25,22), k='SETTING-row_pad', font=font)],
                [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='SETTING-theme', font=font)],
                [name('Custom CSS'), sg.Input(default_text=DATA.settings['customTheme'], s=20, right_click_menu=['&Right', css_input_dropdown], enable_events=True, k='SETTING-customTheme', font=font), sg.FolderBrowse(font=font)]
-               ], expand_y=True, expand_x=True, font=font)]]
+               ], relief='sunken', expand_y=True, expand_x=True, font=font)]]
 
 site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input(default_text=DATA.settings['siteName'], s=20, enable_events=True, k='SETTING-siteName', font=font)],
                [name('Media Folder'), sg.Input(default_text=DATA.settings['mediaDir'], s=20, enable_events=True, k='SETTING-mediaDir', font=font)],
                [name('Description'), sg.Multiline(default_text=DATA.settings['description'],s=(20,8), enable_events=True, k='SETTING-description', font=font)],
                [name('Site ID'), sg.Input(default_text=DATA.settings['siteID'], s=20, enable_events=True, k='SETTING-siteID', font=font)],
-               ], expand_y=True, expand_x=True, font=font)]]
+               ], relief='sunken', expand_y=True, expand_x=True, font=font)]]
 
 author_settings_layout = [[sg.Frame('Author Settings', [
     [sg.Frame('Authors', [
         [sg.Listbox(DATA.authors.keys(), right_click_menu=['&Right', author_dropdown], no_scrollbar=True, expand_x=True, size=(15,8), k='AUTHOR-LIST', font=font)]
-        ], expand_x=True, font=font)],
-    ],  size=(15,10), expand_y=True, expand_x=True, font=font)]]
+        ], border_width=0, expand_x=True, font=font)],
+    ],  size=(15,10), relief='sunken', expand_y=True, expand_x=True, font=font)]]
 
 deployment_settings_layout = [[sg.Frame('Deployment Settings', [
     [name('Project Name:'), sg.Input(default_text=DATA.settings['project_name'], s=20, enable_events=True, expand_x=True, k='SETTING-project_name', font=font)],
@@ -1023,11 +1023,11 @@ deployment_settings_layout = [[sg.Frame('Deployment Settings', [
                [sg.Frame('Pintheon', [[name('JWT'), sg.Input(default_text=DATA.settings['backend_auth_key'], s=20, enable_events=True, expand_x=True, k='SETTING-backend_auth_key', font=font)],
                                     [name('Gateway URL'), sg.Input(default_text=DATA.settings['backend_end_point'], s=20, enable_events=True, expand_x=True, k='SETTING-backend_end_point', font=font)],
                                     [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['backend_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-backend_meta_data', font=font)]
-               ], expand_x=True, k='PINTHEON-GRP', font=font, visible=(DATA.settings['deploy_type']=='Pintheon'))],
+               ], border_width=0, expand_x=True, k='PINTHEON-GRP', font=font, visible=(DATA.settings['deploy_type']=='Pintheon'))],
                [sg.Frame('Internet Computer', [[name('Principal'), sg.Input(default_text=DATA.settings['backend_auth_key'], s=20, enable_events=True, expand_x=True, k='SETTING-principal', font=font)],
                                     [name('Canister ID'), sg.Input(default_text=DATA.settings['backend_end_point'], s=20, enable_events=True, expand_x=True, k='SETTING-canister_id', font=font)],
-               ], expand_x=True, k='ICP-GRP', font=font, visible=(DATA.settings['deploy_type']=='Internet Computer'))],
-               ], expand_y=True, expand_x=True, font=font)]]
+               ], border_width=0, expand_x=True, k='ICP-GRP', font=font, visible=(DATA.settings['deploy_type']=='Internet Computer'))],
+               ], relief='sunken', expand_y=True, expand_x=True, font=font)]]
 
 nft_settings_layout = [[sg.Frame('NFT Settings', [
     [sg.Frame('NFT Type:', [
