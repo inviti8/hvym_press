@@ -119,4 +119,7 @@ class HVYM_Handler:
 
    def prompt(self, msg):
        self._run_command(f'{self.bin} custom-prompt "{msg}"')
+
+   def set_canister_id(self, canister_id):
+       self._run_command(f'{self.bin} icp-assign-canister-id "www" "assets" "{canister_id}"')
        

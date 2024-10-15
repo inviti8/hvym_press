@@ -238,7 +238,7 @@ class SiteDataHandler:
            result['content']['columns'].append([])
        
        for k in self.folderData[page]['articleList']:
-           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'max_width':'90', 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':"", 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"", 'metadata':json.dumps(self.opensea_metadata)}
+           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'max_width':'90', 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':"", 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"", 'metadata':json.dumps(self.opensea_metadata), 'file_type': None}
            
            props = self.articleData[page][k].keys()
            

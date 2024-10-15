@@ -25,12 +25,23 @@ import jsoneditor
 import subprocess
 import HVYM
 
-hvym_theme = {'BACKGROUND': '#31b09c',
+# hvym_theme = {'BACKGROUND': '#31b09c',
+#                 'TEXT': '#fff4c9',
+#                 'INPUT': '#712d3d',
+#                 'TEXT_INPUT': '#fff4c9',
+#                 'SCROLL': '#4ed8a7',
+#                 'BUTTON': ('#afe8c5', '#cf5270'),
+#                 'PROGRESS': ('#01826B', '#D0D0D0'),
+#                 'BORDER': 0,
+#                 'SLIDER_DEPTH': 0,
+#                 'PROGRESS_DEPTH': 0}
+
+hvym_theme = {'BACKGROUND': '#98314a',
                 'TEXT': '#fff4c9',
                 'INPUT': '#712d3d',
                 'TEXT_INPUT': '#fff4c9',
-                'SCROLL': '#4ed8a7',
-                'BUTTON': ('#afe8c5', '#cf5270'),
+                'SCROLL': '#01826B',
+                'BUTTON': ('#712d3d', '#31b09c'),
                 'PROGRESS': ('#01826B', '#D0D0D0'),
                 'BORDER': 0,
                 'SLIDER_DEPTH': 0,
@@ -1011,8 +1022,7 @@ deployment_settings_layout = [[sg.Frame('Deployment Settings', [
                                     [name('Gateway URL'), sg.Input(default_text=DATA.settings['backend_end_point'], s=20, enable_events=True, expand_x=True, k='SETTING-backend_end_point', font=font)],
                                     [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['backend_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-backend_meta_data', font=font)]
                ], border_width=0, expand_x=True, k='PINTHEON-GRP', font=font, visible=(DATA.settings['deploy_type']=='Pintheon'))],
-               [sg.Frame('Internet Computer', [[name('Principal'), sg.Input(default_text=DATA.settings['backend_auth_key'], s=20, enable_events=True, expand_x=True, k='SETTING-principal', font=font)],
-                                    [name('Canister ID'), sg.Input(default_text=DATA.settings['backend_end_point'], s=20, enable_events=True, expand_x=True, k='SETTING-canister_id', font=font)],
+               [sg.Frame('Internet Computer', [[name('Canister ID'), sg.Input(default_text=DATA.settings['canister_id'], s=20, enable_events=True, expand_x=True, k='SETTING-canister_id', font=font)],
                ], border_width=0, expand_x=True, k='ICP-GRP', font=font, visible=(DATA.settings['deploy_type']=='Internet Computer'))],
                ], relief='sunken', expand_y=True, expand_x=True, font=font)]]
 
@@ -1131,6 +1141,12 @@ while True:
 
         if deployType == 'local':
             DATA.HVYM.prompt('Current deploy type is set to local.\n Change settings, if you want to deploy live.\n')
+        elif deployType == 'Internet Computer':
+            if DATA.HVYM.icp_daemon_running == True:
+                    option = DATA.HVYM.choice_popup("Deploy site to Internet Computer Main Net?")
+                    if option == 'OK':
+                        canister_id = DATA.settings['canister_id']
+                        DATA.HVYM.set_canister_id(canister_id)
 
         
     elif event == 'Version':
@@ -1208,9 +1224,7 @@ while True:
             elif val == 'Internet Computer':
                 window.Element('PINTHEON-GRP').Update(visible=False)
                 window.Element('ICP-GRP').Update(visible=True)
-
-
-            
+      
     if event == 'Add-Author' or event == 'Update-Author':
         d = popup_author()
         author_list = list(DATA.authors.keys())
