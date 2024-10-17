@@ -1017,7 +1017,7 @@ author_settings_layout = [[sg.Frame('Author Settings', [
 
 deployment_settings_layout = [[sg.Frame('Deployment Settings', [
     [name('Project Name:'), sg.Input(default_text=DATA.settings['project_name'], s=20, enable_events=True, expand_x=True, k='SETTING-project_name', font=font)],
-    [name('Deployment:'), sg.Combo(['local', 'Pintheon', 'Internet Computer'], default_value=DATA.settings['deploy_type'], s=(22,22), enable_events=True, readonly=True, k='SETTING-deploy_type', font=font)],                               
+    [name('Deployment:'), sg.Combo(['local', 'Internet Computer'], default_value=DATA.settings['deploy_type'], s=(22,22), enable_events=True, readonly=True, k='SETTING-deploy_type', font=font)],                               
                [sg.Frame('Pintheon', [[name('JWT'), sg.Input(default_text=DATA.settings['backend_auth_key'], s=20, enable_events=True, expand_x=True, k='SETTING-backend_auth_key', font=font)],
                                     [name('Gateway URL'), sg.Input(default_text=DATA.settings['backend_end_point'], s=20, enable_events=True, expand_x=True, k='SETTING-backend_end_point', font=font)],
                                     [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['backend_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-backend_meta_data', font=font)]
@@ -1224,6 +1224,9 @@ while True:
             elif val == 'Internet Computer':
                 window.Element('PINTHEON-GRP').Update(visible=False)
                 window.Element('ICP-GRP').Update(visible=True)
+
+        if setting == 'theme':
+            DATA.setCss(val)
       
     if event == 'Add-Author' or event == 'Update-Author':
         d = popup_author()

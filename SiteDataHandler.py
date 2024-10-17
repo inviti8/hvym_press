@@ -57,12 +57,22 @@ class SiteDataHandler:
   "attributes": []
 }
       '''
+      self.css_themes = {'light': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsen-css-components.min.css',
+                         'dark' : 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmYjopsBQRefVoWCt3HfmWVZkFkZDQRqkLUw55PEG5aFqj/onsen-css-components.min.css',
+                         'heavymeta': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmaDkumresYJzesdXdBqmnyPVe1atbN8FrZt2KQx954T2D/onsen-css-components.min.css',
+                         'crimson-tide': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmRcB5edDD1yXJEFxBVXgNmZ9TzbaM9tUT4XaoKV5d6gB6/onsen-css-components.min.css',
+                         'deep-blue': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmdNVb1YqDB9FeKon6Amv1saXNF7NckA1nhLEqEkJgiBTK/onsen-css-components.min.css',
+                         'golden-crown': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmenBnDtv3i7mxeMXrQuqs9P5fzpH57obCZMpDSGNtsY2f/onsen-css-components.min.css',
+                         'somewhat-jaded': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmRRgg2LdP48LwbBLELGgpAxn4GVU1d1NaccPbNStgLxdE/onsen-css-components.min.css',
+                         'mandarin-logos': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmRaWxkfNxSRLpnVUmcDtZQvNBRUmJHYyuUG5QzLg6XRyn/onsen-css-components.min.css',
+                         'ogon-batto': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmTwvJqFD39MMFG6ovvuPG3neBG278PFLUbga6CUPYgrnw/onsen-css-components.min.css',
+                         'vexxed-vampire': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmfQczjcDcKPr2X3nypWBnsFcKfMuZ2GVonm6YFaihTCkS/onsen-css-components.min.css'}
       self.css_components = 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsen-css-components.min.css'
       self.settings = {'css_components':self.css_components, 'uiFramework':'onsen', 'pageType':'splitter', 'menuSide':'right', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'dist', 'mediaDir':'_resources', 'description':'', 'siteID': uuid.uuid4().hex, 'customTheme':'','backend_auth_key':'', 'pinata_key':'', 'backend_end_point':'', 'backend_meta_data':'', 'backend_timeout':100, 'arWallet':'', 'nft_site_type':'None', 'nft_type':'None', 'nft_metadata_standard':'None', 'nft_start_supply':1024, 'nft_contract':'', 'site_metadata':self.opensea_metadata, 'project_name': os.path.basename(self.filePath), 'deploy_type': 'local', 'canister_id': '', 'principal': ''}
       self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['splitter', 'tabs', 'carousel']
-      self.themes = ['light', 'dark']
+      self.themes = list(self.css_themes.keys())
       self.styles = ['default', 'material']
       self.deployTypes = ['Pinata', 'Submarine', 'Arweave']
       self.nftTypes = ['None', 'Dero', 'Beam']
@@ -112,7 +122,7 @@ class SiteDataHandler:
           self.metaData = data['metaData']
           self.settings = data['settings']
           self.authors = data['authors']
-          self.css_components = data['css_components']
+          self.css_components = self.css_themes[self.settings['theme']]
           self.fileExists = True
           self.debugResourcePath = os.path.join(SCRIPT_DIR, 'serve', self.settings['mediaDir'])
           self.deployHandler = W3DeployHandler.W3DeployHandler(self.filePath, self.debugPath, self.resourcePath, self.settings)
@@ -404,8 +414,15 @@ class SiteDataHandler:
                    ff.run()
                    os.remove(in_file)
                    os.rename(out_file, in_file)
+
             
-            
+   def setCss(self, theme):
+       self.css_components = self.css_themes[theme]
+       self.settings['css_components'] = self.css_components
+       self.settings['theme'] = theme
+       self.saveData()
+
+
    def resetCss(self):
        self.settings['css_components'] = self.css_components
        self.saveData()
