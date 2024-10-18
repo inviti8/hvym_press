@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['/media/desktop/_dsk/dev/weeeb_3/app.py', '/media/desktop/_dsk/dev/weeeb_3/ColorPicker.py', '/media/desktop/_dsk/dev/weeeb_3/HVYM.py', '/media/desktop/_dsk/dev/weeeb_3/IconPicker.py', '/media/desktop/_dsk/dev/weeeb_3/LoadingWindow.py', '/media/desktop/_dsk/dev/weeeb_3/MarkdownHandler.py', '/media/desktop/_dsk/dev/weeeb_3/ServerHandler.py', '/media/desktop/_dsk/dev/weeeb_3/SiteDataHandler.py', '/media/desktop/_dsk/dev/weeeb_3/TreeData.py', '/media/desktop/_dsk/dev/weeeb_3/W3DeployHandler.py'],
+    ['/media/desktop/_dsk/dev/hvym_press/app.py', '/media/desktop/_dsk/dev/hvym_press/ColorPicker.py', '/media/desktop/_dsk/dev/hvym_press/HVYM.py', '/media/desktop/_dsk/dev/hvym_press/IconPicker.py', '/media/desktop/_dsk/dev/hvym_press/LoadingWindow.py', '/media/desktop/_dsk/dev/hvym_press/MarkdownHandler.py', '/media/desktop/_dsk/dev/hvym_press/ServerHandler.py', '/media/desktop/_dsk/dev/hvym_press/SiteDataHandler.py', '/media/desktop/_dsk/dev/hvym_press/TreeData.py', '/media/desktop/_dsk/dev/hvym_press/W3DeployHandler.py'],
     pathex=[],
     binaries=[],
     datas=[('templates', 'templates'), ('images', 'images'), ('serve', 'serve')],

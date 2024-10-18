@@ -3,4 +3,5 @@
 build/
 dist/
 serve/
+serve/_resources/
 __pycache__/

@@ -12,6 +12,14 @@ args = parser.parse_args()
 # get current working directory
 cwd = Path.cwd()
 
+def clean_dir(dir):
+    for item in dir.iterdir():
+        if item.name != '.git' and item.name != 'README.md' and item.name != 'install.sh':
+            if item.is_file():
+                item.unlink()
+            else:
+                shutil.rmtree(item)
+
 # source files
 file1 = cwd / 'app.py'
 file2 = cwd / 'ColorPicker.py'
@@ -28,7 +36,6 @@ file11 = cwd / 'requirements.txt'
 files = [file1, file2, file3, file4, file5, file6, file7, file8, file9, file10, file11]
 
 # target directories for the build folder and files
-#build_dir = cwd.parent / 'hvym'
 build_dir = cwd / 'build'
 template_dir = cwd / 'templates'
 template_copied_dir = build_dir / 'templates'
@@ -38,6 +45,9 @@ serve_dir = cwd / 'serve'
 serve_copied_dir = build_dir / 'serve'
 dist_dir = build_dir / 'dist' / 'linux'
 
+release_dir = cwd / 'release'
+release_linux = release_dir / 'linux'
+
 if args.mac:
     dist_dir = build_dir / 'dist' / 'mac'
 
@@ -46,12 +56,13 @@ if args.mac:
 if not build_dir.exists():
     build_dir.mkdir()
 else: # delete all files inside the directory
-    for item in build_dir.iterdir():
-        if item.name != '.git' and item.name != 'README.md' and item.name != 'install.sh':
-            if item.is_file():
-                item.unlink()
-            else:
-                shutil.rmtree(item)
+    clean_dir(build_dir)
+
+# check if release dir exists, if not create it
+if not release_dir.exists():
+    release_dir.mkdir()
+else: # delete all files inside the directory
+    clean_dir(release_dir)
 
 
 for file in files:
@@ -67,7 +78,9 @@ subprocess.run(['pip', 'install', '-r', str(build_dir / file11.name)], check=Tru
 
 # build the python script into an executable using PyInstaller
 subprocess.run(['pyinstaller', str(file1), str(file2), str(file3), str(file4), str(file5), str(file6), str(file7), str(file8), str(file9), str(file10), '--onefile', '--name=hvym_press',  f'--distpath={dist_dir}', '--add-data', 'templates:templates', '--add-data', 'images:images', '--add-data', 'serve:serve'], check=True)
-#subprocess.run(['pyinstaller', '--onefile', f'--distpath={dist_dir}', '--add-data', 'templates:templates', '--add-data', 'images:images', '--add-data', 'data:data', '--add-data', 'npm_links:npm_links',  str(build_dir / src_file1.name)], check=True)
+#copy the executable to the release directory
+shutil.move(str(dist_dir / 'hvym_press'), str(release_dir))
+
 # copy built executable to destination directory
 # if args.test:
 #     test_dir = Path('/home/desktop/.local/share/heavymeta-cli')
