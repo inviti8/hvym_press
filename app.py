@@ -234,12 +234,14 @@ def add_files_in_folder(parent, dirname, data):
                 data.pruneFiles()
                 if '_resources' not in fullpath:
                     data.addFolderPath(f, fullpath)
-                if data.hasNoFolder(f):
-                    newFolderData(f, data)
-                add_files_in_folder(fullpath, fullpath, data)
-                if f_name not in data.pageList and not f_name.startswith("_"):
-                    data.pageList.append(f_name)
-                    new_folders.append(f_name)
+                    if data.hasNoFolder(f):
+                        newFolderData(f, data)
+                    
+                    if f_name not in data.pageList and not f_name.startswith("_"):
+                        data.pageList.append(f_name)
+                        new_folders.append(f_name)
+
+                    add_files_in_folder(fullpath, fullpath, data)
             else:
                 file_extension = pathlib.Path(f).suffix           
                 if file_extension == '.md':
@@ -268,11 +270,13 @@ def add_files_in_folder(parent, dirname, data):
             if os.path.isdir(fullpath):
                 if '_resources' not in fullpath:
                     data.addFolderPath(f, fullpath)
-                newFolderData(f, data)
-                add_files_in_folder(fullpath, fullpath, data)
-                if not f_name.startswith("_"):
-                    data.pageList.append(f_name)
-                    print("Page: "+f_name+" is appended")
+                    newFolderData(f, data)
+                    
+                    if not f_name.startswith("_"):
+                        data.pageList.append(f_name)
+                        print("Page: "+f_name+" is appended")
+
+                    add_files_in_folder(fullpath, fullpath, data)
                 
             else:
                 file_extension = pathlib.Path(f).suffix
