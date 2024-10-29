@@ -7,9 +7,9 @@ BASE_DIR="${XDG_CONFIG_HOME:-$HOME}"
 LOCAL_DIR="${LOCAL_DIR-"$BASE_DIR/.local"}"
 PRESS_DIR="$LOCAL_DIR/share/heavymeta-press"
 
-BIN_URL="https://github.com/inviti8/hvym_press/raw/release/linux/hvym_press"
+BIN_URL="https://github.com/inviti8/hvym_press/raw/refs/heads/main/release/hvym_press"
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    BIN_URL="https://github.com/inviti8/hvym_press/raw/release/mac/hvym_press"
+    BIN_URL="https://github.com/inviti8/hvym_press/raw/refs/heads/main/release/hvym_press"
 fi
 
 BIN_PATH="$PRESS_DIR/hvym_press"
