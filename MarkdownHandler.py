@@ -100,11 +100,11 @@ class MarkdownHandler:
        links = soup.findAll('a')
         
        for img in imgs:
-           if '../' in img['src']:
+           if 'src' in img and '../' in img['src']:
                img['src'] = img['src'].replace('../', './')  
 
        for link in links:
-           if ('.mp3' in link['src'] or '.mp4' in link['src']) and '../' in img['src']:
+           if ('src' in link and ('.mp3' in link['src'] or '.mp4' in link['src'])) and ('src' in img and '../' in img['src']):
                link['src'] = link['src'].replace('../', './')
 
        return soup.decode(formatter='html')
@@ -115,11 +115,11 @@ class MarkdownHandler:
        links = soup.findAll('a')
         
        for img in imgs:
-           if f'../{resource_dir}/' in img['src']:
+           if 'src' in img and f'../{resource_dir}/' in img['src']:
                img['src'] = img['src'].replace(f'../{resource_dir}/', '')  
 
        for link in links:
-           if ('.mp3' in link['src'] or '.mp4' in link['src']) and f'../{resource_dir}/' in img['src']:
+           if ('src' in link and ('.mp3' in link['src'] or '.mp4' in link['src'])) and ('src' in img and f'../{resource_dir}/' in img['src']):
                link['src'] = link['src'].replace(f'../{resource_dir}/', '')
 
        return soup.decode(formatter='html')

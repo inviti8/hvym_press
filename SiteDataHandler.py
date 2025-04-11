@@ -383,17 +383,18 @@ class SiteDataHandler:
            selfData[folder].pop(path)
            
    def cloneDirectory(self, source, target):
-       source_files = os.listdir(source)
-       target_files = os.listdir(target)
-       
-       for f in target_files:
-           f_path = os.path.join(target, f)
-           os.remove(f_path)
-           
-       for f in source_files:
-            src_path = os.path.join(source, f)
-            dst_path = os.path.join(target, f)
-            shutil.copy(src_path, dst_path)
+       if os.path.isdir(source) and os.path.isdir(target):
+        source_files = os.listdir(source)
+        target_files = os.listdir(target)
+        
+        for f in target_files:
+            f_path = os.path.join(target, f)
+            os.remove(f_path)
+            
+        for f in source_files:
+                src_path = os.path.join(source, f)
+                dst_path = os.path.join(target, f)
+                shutil.copy(src_path, dst_path)
             
    def convertVideos(self, folder):
        if shutil.which('ffmpeg') == False:
@@ -519,43 +520,44 @@ class SiteDataHandler:
        
    def fileList(self, ext):
        result = {}
-       media = {'images':self.images, 'videos':self.videos, 'audio':self.audio, 'gltf':self.gltf}
-       files = os.listdir(self.resourcePath)
-       m_type = 'image'
-       
-       if ext == '.mp4':
-           m_type = 'video'
-       elif ext == '.mp3':
-           m_type = 'audio'
-       elif ext == '.gltf':
-           m_type = '3d'
-       
-       for f in files:
-           f_path = os.path.join(self.resourcePath, f)
-           t_stamp = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(f_path)))
-           obj = {'type':m_type, 'path':f_path, 'cid':None, 'time_stamp':t_stamp}
-           key = 'images'
+       if os.path.isdir(self.resourcePath):
+        media = {'images':self.images, 'videos':self.videos, 'audio':self.audio, 'gltf':self.gltf}
+        files = os.listdir(self.resourcePath)
+        m_type = 'image'
+        
+        if ext == '.mp4':
+            m_type = 'video'
+        elif ext == '.mp3':
+            m_type = 'audio'
+        elif ext == '.gltf':
+            m_type = '3d'
+        
+        for f in files:
+            f_path = os.path.join(self.resourcePath, f)
+            t_stamp = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(f_path)))
+            obj = {'type':m_type, 'path':f_path, 'cid':None, 'time_stamp':t_stamp}
+            key = 'images'
 
-           if m_type == 'video':
-               key = 'videos'
-           elif m_type == 'audio':
-               key = 'audio'
-           elif m_type == '3d':
-               key = 'gltf'
-               
-           if os.path.isfile(f_path) and ext in f:
-               if self.mediaSaved(f) == False or self.mediaOutOfDate(f, key) == True:
-                   result[f] = obj
+            if m_type == 'video':
+                key = 'videos'
+            elif m_type == 'audio':
+                key = 'audio'
+            elif m_type == '3d':
+                key = 'gltf'
+                
+            if os.path.isfile(f_path) and ext in f:
+                if self.mediaSaved(f) == False or self.mediaOutOfDate(f, key) == True:
+                    result[f] = obj
 
-               else:
-                   if m_type == 'image':
-                       result[f] = media['images'][f]
-                   elif m_type == 'video':
-                       result[f] = media['videos'][f]
-                   elif m_type == 'audio':
-                       result[f] = media['audio'][f]
-                   elif m_type == '3d':
-                       result[f] = media['gltf'][f]
+                else:
+                    if m_type == 'image':
+                        result[f] = media['images'][f]
+                    elif m_type == 'video':
+                        result[f] = media['videos'][f]
+                    elif m_type == 'audio':
+                        result[f] = media['audio'][f]
+                    elif m_type == '3d':
+                        result[f] = media['gltf'][f]
                
        return result
    
