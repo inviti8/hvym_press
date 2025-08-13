@@ -99,10 +99,10 @@ class DependencyChecker:
         """Check if Python version is compatible"""
         version = sys.version_info
         if version.major < 3 or (version.major == 3 and version.minor < 8):
-                    print(f"ERROR: Python 3.8+ required, found {version.major}.{version.minor}")
-        return False
-    print(f"SUCCESS: Python {version.major}.{version.minor}.{version.micro}")
-    return True
+            print(f"ERROR: Python 3.8+ required, found {version.major}.{version.minor}")
+            return False
+        print(f"SUCCESS: Python {version.major}.{version.minor}.{version.micro}")
+        return True
     
     @staticmethod
     def check_pip() -> bool:
