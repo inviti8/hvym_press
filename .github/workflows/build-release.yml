@@ -1,0 +1,335 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*'  # Triggers on tags like v0.00, v0.01, v1.0, etc.
+
+env:
+  PYTHON_VERSION: '3.11'
+  PROJECT_NAME: 'hvym_press'
+
+jobs:
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+        
+    - name: Build Windows executable
+      run: |
+        python build_cross_platform.py
+        echo "Build completed for Windows"
+        
+    - name: Upload Windows artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.PROJECT_NAME }}-windows
+        path: release/hvym_press.exe
+        retention-days: 30
+
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+        
+    - name: Build Linux executable
+      run: |
+        python build_cross_platform.py
+        echo "Build completed for Linux"
+        
+    - name: Upload Linux artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.PROJECT_NAME }}-linux
+        path: release/hvym_press
+        retention-days: 30
+
+  build-macos:
+    name: Build macOS (Intel)
+    runs-on: macos-latest  # This runs on Intel macOS, not Apple Silicon
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+        
+    - name: Build macOS executable
+      run: |
+        python build_cross_platform.py
+        echo "Build completed for macOS"
+        
+    - name: Upload macOS artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.PROJECT_NAME }}-macos
+        path: release/hvym_press
+        retention-days: 30
+
+  create-release:
+    name: Create Release
+    needs: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: artifacts
+        
+    - name: Prepare release assets
+      run: |
+        mkdir -p release-assets
+        
+        # Copy Windows executable
+        if [ -f "artifacts/${{ env.PROJECT_NAME }}-windows/hvym_press.exe" ]; then
+          cp "artifacts/${{ env.PROJECT_NAME }}-windows/hvym_press.exe" "release-assets/hvym_press-windows.exe"
+        fi
+        
+        # Copy Linux executable
+        if [ -f "artifacts/${{ env.PROJECT_NAME }}-linux/hvym_press" ]; then
+          cp "artifacts/${{ env.PROJECT_NAME }}-linux/hvym_press" "release-assets/hvym_press-linux"
+        fi
+        
+        # Copy macOS executable
+        if [ -f "artifacts/${{ env.PROJECT_NAME }}-macos/hvym_press" ]; then
+          cp "artifacts/${{ env.PROJECT_NAME }}-macos/hvym_press" "release-assets/hvym_press-macos"
+        fi
+        
+        # Create install scripts
+        cat > "release-assets/install-windows.bat" << 'EOF'
+@echo off
+echo Installing HVYM Press for Windows...
+set INSTALL_DIR=%LOCALAPPDATA%\heavymeta-cli
+if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
+copy "%~dp0hvym_press-windows.exe" "%INSTALL_DIR%\hvym_press.exe"
+echo Installation completed! Executable is in: %INSTALL_DIR%
+echo You can add this directory to your PATH for system-wide access.
+pause
+EOF
+
+        cat > "release-assets/install-linux.sh" << 'EOF'
+#!/bin/bash
+echo "Installing HVYM Press for Linux..."
+INSTALL_DIR="$HOME/.local/share/heavymeta-cli"
+mkdir -p "$INSTALL_DIR"
+cp "$(dirname "$0")/hvym_press-linux" "$INSTALL_DIR/hvym_press"
+chmod +x "$INSTALL_DIR/hvym_press"
+echo "Installation completed! Executable is in: $INSTALL_DIR"
+echo "You can add this directory to your PATH for system-wide access."
+echo "Add this line to your ~/.bashrc or ~/.zshrc:"
+echo "export PATH=\"\$PATH:$INSTALL_DIR\""
+EOF
+
+        cat > "release-assets/install-macos.sh" << 'EOF'
+#!/bin/bash
+echo "Installing HVYM Press for macOS..."
+INSTALL_DIR="$HOME/Library/Application Support/heavymeta-cli"
+mkdir -p "$INSTALL_DIR"
+cp "$(dirname "$0")/hvym_press-macos" "$INSTALL_DIR/hvym_press"
+chmod +x "$INSTALL_DIR/hvym_press"
+echo "Installation completed! Executable is in: $INSTALL_DIR"
+echo "You can add this directory to your PATH for system-wide access."
+echo "Add this line to your ~/.zshrc:"
+echo "export PATH=\"\$PATH:$INSTALL_DIR\""
+EOF
+
+        # Make shell scripts executable
+        chmod +x "release-assets/install-linux.sh"
+        chmod +x "release-assets/install-macos.sh"
+        
+        # Create README for release
+        cat > "release-assets/README.md" << 'EOF'
+# HVYM Press Release
+
+This release contains pre-built executables for multiple platforms.
+
+## Supported Platforms
+
+- **Windows**: `hvym_press-windows.exe`
+- **Linux**: `hvym_press-linux`
+- **macOS (Intel)**: `hvym_press-macos`
+
+## Installation
+
+### Windows
+1. Download `hvym_press-windows.exe`
+2. Run `install-windows.bat` as administrator
+3. Or manually copy to `%LOCALAPPDATA%\heavymeta-cli\`
+
+### Linux
+1. Download `hvym_press-linux`
+2. Run: `chmod +x install-linux.sh && ./install-linux.sh`
+3. Or manually copy to `~/.local/share/heavymeta-cli/`
+
+### macOS (Intel only)
+1. Download `hvym_press-macos`
+2. Run: `chmod +x install-macos.sh && ./install-macos.sh`
+3. Or manually copy to `~/Library/Application Support/heavymeta-cli/`
+
+## Notes
+
+- **Apple Silicon (M1/M2)**: Not supported in this release
+- **Dependencies**: All required libraries are bundled in the executables
+- **Updates**: Check GitHub releases for newer versions
+
+## Building from Source
+
+If you need to build for an unsupported platform:
+
+```bash
+git clone https://github.com/yourusername/hvym_press.git
+cd hvym_press
+python build_cross_platform.py
+```
+
+## Support
+
+For issues or questions, please check the GitHub repository or create an issue.
+EOF
+
+        echo "Release assets prepared successfully"
+        ls -la release-assets/
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: release-assets/*
+        name: Release ${{ github.ref_name }}
+        tag_name: ${{ github.ref_name }}
+        body: |
+          ## 🚀 HVYM Press Release ${{ github.ref_name }}
+          
+          ### 📦 What's New
+          - Cross-platform executables for Windows, Linux, and Intel macOS
+          - Improved media link replacement and IPFS deployment
+          - Enhanced error handling and debugging
+          
+          ### 🌍 Supported Platforms
+          - **Windows**: `hvym_press-windows.exe`
+          - **Linux**: `hvym_press-linux` 
+          - **macOS (Intel)**: `hvym_press-macos`
+          
+          ### ⚠️ Important Notes
+          - **Apple Silicon (M1/M2)**: Not supported in this release
+          - All dependencies are bundled in the executables
+          - Includes installation scripts for each platform
+          
+          ### 🔧 Installation
+          Run the appropriate install script for your platform:
+          - Windows: `install-windows.bat`
+          - Linux: `./install-linux.sh`
+          - macOS: `./install-macos.sh`
+          
+          ### 📋 Changes
+          - Fixed IPFS media upload issues
+          - Improved HTML generation and media link replacement
+          - Enhanced cross-platform compatibility
+          - Better error handling and user feedback
+          
+          ### 🐛 Bug Fixes
+          - Fixed URL encoding issues in media link matching
+          - Resolved path traversal protection bugs
+          - Fixed HTML generation order issues
+          - Improved manifest structure and data flow
+          
+          ### 📚 Documentation
+          - Comprehensive build system documentation
+          - Cross-platform installation guides
+          - Troubleshooting and debugging information
+          
+          ---
+          
+          **Built with ❤️ using GitHub Actions**
+          
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify-completion:
+    name: Notify Completion
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify success
+      if: success()
+      run: |
+        echo "🎉 Release created successfully!"
+        echo "Version: ${{ github.ref_name }}"
+        echo "Repository: ${{ github.repository }}"
+        echo "Release URL: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+        
+    - name: Notify failure
+      if: failure()
+      run: |
+        echo "💥 Release creation failed!"
+        echo "Check the workflow logs for details:"
+        echo "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
