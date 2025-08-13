@@ -161,97 +161,89 @@ jobs:
           cp "artifacts/${{ env.PROJECT_NAME }}-macos/hvym_press" "release-assets/hvym_press-macos"
         fi
         
-        # Create install scripts
-        cat > "release-assets/install-windows.bat" << 'EOF'
-@echo off
-echo Installing HVYM Press for Windows...
-set INSTALL_DIR=%LOCALAPPDATA%\heavymeta-cli
-if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
-copy "%~dp0hvym_press-windows.exe" "%INSTALL_DIR%\hvym_press.exe"
-echo Installation completed! Executable is in: %INSTALL_DIR%
-echo You can add this directory to your PATH for system-wide access.
-pause
-EOF
+        # Create install scripts - using echo to avoid YAML parsing issues
+        echo '@echo off' > "release-assets/install-windows.bat"
+        echo 'echo Installing HVYM Press for Windows...' >> "release-assets/install-windows.bat"
+        echo 'set INSTALL_DIR=%LOCALAPPDATA%\heavymeta-cli' >> "release-assets/install-windows.bat"
+        echo 'if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"' >> "release-assets/install-windows.bat"
+        echo 'copy "%~dp0hvym_press-windows.exe" "%INSTALL_DIR%\hvym_press.exe"' >> "release-assets/install-windows.bat"
+        echo 'echo Installation completed! Executable is in: %INSTALL_DIR%' >> "release-assets/install-windows.bat"
+        echo 'echo You can add this directory to your PATH for system-wide access.' >> "release-assets/install-windows.bat"
+        echo 'pause' >> "release-assets/install-windows.bat"
 
-        cat > "release-assets/install-linux.sh" << 'EOF'
-#!/bin/bash
-echo "Installing HVYM Press for Linux..."
-INSTALL_DIR="$HOME/.local/share/heavymeta-cli"
-mkdir -p "$INSTALL_DIR"
-cp "$(dirname "$0")/hvym_press-linux" "$INSTALL_DIR/hvym_press"
-chmod +x "$INSTALL_DIR/hvym_press"
-echo "Installation completed! Executable is in: $INSTALL_DIR"
-echo "You can add this directory to your PATH for system-wide access."
-echo "Add this line to your ~/.bashrc or ~/.zshrc:"
-echo "export PATH=\"\$PATH:$INSTALL_DIR\""
-EOF
+        echo '#!/bin/bash' > "release-assets/install-linux.sh"
+        echo 'echo "Installing HVYM Press for Linux..."' >> "release-assets/install-linux.sh"
+        echo 'INSTALL_DIR="$HOME/.local/share/heavymeta-cli"' >> "release-assets/install-linux.sh"
+        echo 'mkdir -p "$INSTALL_DIR"' >> "release-assets/install-linux.sh"
+        echo 'cp "$(dirname "$0")/hvym_press-linux" "$INSTALL_DIR/hvym_press"' >> "release-assets/install-linux.sh"
+        echo 'chmod +x "$INSTALL_DIR/hvym_press"' >> "release-assets/install-linux.sh"
+        echo 'echo "Installation completed! Executable is in: $INSTALL_DIR"' >> "release-assets/install-linux.sh"
+        echo 'echo "You can add this directory to your PATH for system-wide access."' >> "release-assets/install-linux.sh"
+        echo 'echo "Add this line to your ~/.bashrc or ~/.zshrc:"' >> "release-assets/install-linux.sh"
+        echo 'echo "export PATH=\\"\\$PATH:$INSTALL_DIR\\""' >> "release-assets/install-linux.sh"
 
-        cat > "release-assets/install-macos.sh" << 'EOF'
-#!/bin/bash
-echo "Installing HVYM Press for macOS..."
-INSTALL_DIR="$HOME/Library/Application Support/heavymeta-cli"
-mkdir -p "$INSTALL_DIR"
-cp "$(dirname "$0")/hvym_press-macos" "$INSTALL_DIR/hvym_press"
-chmod +x "$INSTALL_DIR/hvym_press"
-echo "Installation completed! Executable is in: $INSTALL_DIR"
-echo "You can add this directory to your PATH for system-wide access."
-echo "Add this line to your ~/.zshrc:"
-echo "export PATH=\"\$PATH:$INSTALL_DIR\""
-EOF
+        echo '#!/bin/bash' > "release-assets/install-macos.sh"
+        echo 'echo "Installing HVYM Press for macOS..."' >> "release-assets/install-macos.sh"
+        echo 'INSTALL_DIR="$HOME/Library/Application Support/heavymeta-cli"' >> "release-assets/install-macos.sh"
+        echo 'mkdir -p "$INSTALL_DIR"' >> "release-assets/install-macos.sh"
+        echo 'cp "$(dirname "$0")/hvym_press-macos" "$INSTALL_DIR/hvym_press"' >> "release-assets/install-macos.sh"
+        echo 'chmod +x "$INSTALL_DIR/hvym_press"' >> "release-assets/install-macos.sh"
+        echo 'echo "Installation completed! Executable is in: $INSTALL_DIR"' >> "release-assets/install-macos.sh"
+        echo 'echo "You can add this directory to your PATH for system-wide access."' >> "release-assets/install-macos.sh"
+        echo 'echo "Add this line to your ~/.zshrc:"' >> "release-assets/install-macos.sh"
+        echo 'echo "export PATH=\\"\\$PATH:$INSTALL_DIR\\""' >> "release-assets/install-macos.sh"
 
         # Make shell scripts executable
         chmod +x "release-assets/install-linux.sh"
         chmod +x "release-assets/install-macos.sh"
         
         # Create README for release
-        cat > "release-assets/README.md" << 'EOF'
-# HVYM Press Release
-
-This release contains pre-built executables for multiple platforms.
-
-## Supported Platforms
-
-- **Windows**: `hvym_press-windows.exe`
-- **Linux**: `hvym_press-linux`
-- **macOS (Intel)**: `hvym_press-macos`
-
-## Installation
-
-### Windows
-1. Download `hvym_press-windows.exe`
-2. Run `install-windows.bat` as administrator
-3. Or manually copy to `%LOCALAPPDATA%\heavymeta-cli\`
-
-### Linux
-1. Download `hvym_press-linux`
-2. Run: `chmod +x install-linux.sh && ./install-linux.sh`
-3. Or manually copy to `~/.local/share/heavymeta-cli/`
-
-### macOS (Intel only)
-1. Download `hvym_press-macos`
-2. Run: `chmod +x install-macos.sh && ./install-macos.sh`
-3. Or manually copy to `~/Library/Application Support/heavymeta-cli/`
-
-## Notes
-
-- **Apple Silicon (M1/M2)**: Not supported in this release
-- **Dependencies**: All required libraries are bundled in the executables
-- **Updates**: Check GitHub releases for newer versions
-
-## Building from Source
-
-If you need to build for an unsupported platform:
-
-```bash
-git clone https://github.com/yourusername/hvym_press.git
-cd hvym_press
-python build_cross_platform.py
-```
-
-## Support
-
-For issues or questions, please check the GitHub repository or create an issue.
-EOF
+        echo "# HVYM Press Release" > "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "This release contains pre-built executables for multiple platforms." >> "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "## Supported Platforms" >> "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "- **Windows**: \`hvym_press-windows.exe\`" >> "release-assets/README.md"
+        echo "- **Linux**: \`hvym_press-linux\`" >> "release-assets/README.md"
+        echo "- **macOS (Intel)**: \`hvym_press-macos\`" >> "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "## Installation" >> "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "### Windows" >> "release-assets/README.md"
+        echo "1. Download \`hvym_press-windows.exe\`" >> "release-assets/README.md"
+        echo "2. Run \`install-windows.bat\` as administrator" >> "release-assets/README.md"
+        echo "3. Or manually copy to \`%LOCALAPPDATA%\\heavymeta-cli\\\`" >> "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "### Linux" >> "release-assets/README.md"
+        echo "1. Download \`hvym_press-linux\`" >> "release-assets/README.md"
+        echo "2. Run: \`chmod +x install-linux.sh && ./install-linux.sh\`" >> "release-assets/README.md"
+        echo "3. Or manually copy to \`~/.local/share/heavymeta-cli/\`" >> "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "### macOS (Intel only)" >> "release-assets/README.md"
+        echo "1. Download \`hvym_press-macos\`" >> "release-assets/README.md"
+        echo "2. Run: \`chmod +x install-macos.sh && ./install-macos.sh\`" >> "release-assets/README.md"
+        echo "3. Or manually copy to \`~/Library/Application Support/heavymeta-cli/\`" >> "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "## Notes" >> "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "- **Apple Silicon (M1/M2)**: Not supported in this release" >> "release-assets/README.md"
+        echo "- **Dependencies**: All required libraries are bundled in the executables" >> "release-assets/README.md"
+        echo "- **Updates**: Check GitHub releases for newer versions" >> "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "## Building from Source" >> "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "If you need to build for an unsupported platform:" >> "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "\`\`\`bash" >> "release-assets/README.md"
+        echo "git clone https://github.com/yourusername/hvym_press.git" >> "release-assets/README.md"
+        echo "cd hvym_press" >> "release-assets/README.md"
+        echo "python build_cross_platform.py" >> "release-assets/README.md"
+        echo "\`\`\`" >> "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "## Support" >> "release-assets/README.md"
+        echo "" >> "release-assets/README.md"
+        echo "For issues or questions, please check the GitHub repository or create an issue." >> "release-assets/README.md"
 
         echo "Release assets prepared successfully"
         ls -la release-assets/
