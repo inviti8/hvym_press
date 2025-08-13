@@ -99,10 +99,10 @@ class DependencyChecker:
         """Check if Python version is compatible"""
         version = sys.version_info
         if version.major < 3 or (version.major == 3 and version.minor < 8):
-            print(f"❌ Python 3.8+ required, found {version.major}.{version.minor}")
-            return False
-        print(f"✅ Python {version.major}.{version.minor}.{version.micro}")
-        return True
+                    print(f"ERROR: Python 3.8+ required, found {version.major}.{version.minor}")
+        return False
+    print(f"SUCCESS: Python {version.major}.{version.minor}.{version.micro}")
+    return True
     
     @staticmethod
     def check_pip() -> bool:
@@ -110,10 +110,10 @@ class DependencyChecker:
         try:
             subprocess.run([sys.executable, "-m", "pip", "--version"], 
                          capture_output=True, check=True)
-            print("✅ pip available")
+            print("SUCCESS: pip available")
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
-            print("❌ pip not available")
+            print("ERROR: pip not available")
             return False
     
     @staticmethod
@@ -122,23 +122,23 @@ class DependencyChecker:
         try:
             subprocess.run(["pyinstaller", "--version"], 
                          capture_output=True, check=True)
-            print("✅ PyInstaller available")
+            print("SUCCESS: PyInstaller available")
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
-            print("❌ PyInstaller not available")
+            print("ERROR: PyInstaller not available")
             return False
     
     @staticmethod
     def install_pyinstaller() -> bool:
         """Install PyInstaller if not available"""
-        print("📦 Installing PyInstaller...")
+        print("INFO: Installing PyInstaller...")
         try:
             subprocess.run([sys.executable, "-m", "pip", "install", "pyinstaller"], 
                          check=True)
-            print("✅ PyInstaller installed successfully")
+            print("SUCCESS: PyInstaller installed successfully")
             return True
         except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to install PyInstaller: {e}")
+            print(f"ERROR: Failed to install PyInstaller: {e}")
             return False
 
 class BuildManager:
@@ -170,11 +170,11 @@ class BuildManager:
                 else:
                     shutil.rmtree(item)
             except Exception as e:
-                print(f"⚠️  Warning: Could not remove {item}: {e}")
+                print(f"WARNING: Could not remove {item}: {e}")
     
     def create_directories(self) -> None:
         """Create necessary build directories"""
-        print("📁 Creating build directories...")
+        print("INFO: Creating build directories...")
         
         # Clean and recreate build directory
         if self.build_dir.exists():
@@ -189,60 +189,60 @@ class BuildManager:
             self.clean_directory(self.release_dir)
         self.release_dir.mkdir(exist_ok=True)
         
-        print("✅ Build directories created")
+        print("SUCCESS: Build directories created")
     
     def copy_source_files(self) -> None:
         """Copy source files to build directory"""
-        print("📋 Copying source files...")
+        print("INFO: Copying source files...")
         
         for file_name in self.config.source_files:
             source_file = self.cwd / file_name
             if source_file.exists():
                 shutil.copy2(source_file, self.build_dir)
-                print(f"  ✅ {file_name}")
+                print(f"  SUCCESS: {file_name}")
             else:
-                print(f"  ⚠️  Warning: {file_name} not found")
+                print(f"  WARNING: {file_name} not found")
         
-        print("✅ Source files copied")
+        print("SUCCESS: Source files copied")
     
     def copy_resource_directories(self) -> None:
         """Copy resource directories to build directory"""
-        print("📁 Copying resource directories...")
+        print("INFO: Copying resource directories...")
         
         for dir_name in self.config.resource_dirs:
             source_dir = self.cwd / dir_name
             if source_dir.exists() and source_dir.is_dir():
                 target_dir = self.build_dir / dir_name
                 shutil.copytree(source_dir, target_dir)
-                print(f"  ✅ {dir_name}/")
+                print(f"  SUCCESS: {dir_name}/")
             else:
-                print(f"  ⚠️  Warning: {dir_name}/ not found")
+                print(f"  WARNING: {dir_name}/ not found")
         
-        print("✅ Resource directories copied")
+        print("SUCCESS: Resource directories copied")
     
     def install_dependencies(self) -> bool:
         """Install Python dependencies"""
-        print("📦 Installing Python dependencies...")
+        print("INFO: Installing Python dependencies...")
         
         requirements_file = self.build_dir / 'requirements.txt'
         if not requirements_file.exists():
-            print("❌ requirements.txt not found in build directory")
+            print("ERROR: requirements.txt not found in build directory")
             return False
         
         try:
             subprocess.run([sys.executable, "-m", "pip", "install", "-r", str(requirements_file)], 
                          check=True, capture_output=True)
-            print("✅ Dependencies installed successfully")
+            print("SUCCESS: Dependencies installed successfully")
             return True
         except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to install dependencies: {e}")
+            print(f"ERROR: Failed to install dependencies: {e}")
             if e.stderr:
                 print(f"Error details: {e.stderr.decode()}")
             return False
     
     def build_executable(self) -> bool:
         """Build executable using PyInstaller"""
-        print("🔨 Building executable...")
+        print("INFO: Building executable...")
         
         # Prepare PyInstaller command
         cmd = [
@@ -274,10 +274,10 @@ class BuildManager:
         
         try:
             result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-            print("✅ Executable built successfully")
+            print("SUCCESS: Executable built successfully")
             return True
         except subprocess.CalledProcessError as e:
-            print(f"❌ Build failed: {e}")
+            print(f"ERROR: Build failed: {e}")
             if e.stdout:
                 print(f"Build output: {e.stdout}")
             if e.stderr:
@@ -286,36 +286,36 @@ class BuildManager:
     
     def move_to_release(self) -> bool:
         """Move built executable to release directory"""
-        print("📦 Moving executable to release directory...")
+        print("INFO: Moving executable to release directory...")
         
         source_exe = self.dist_dir / self.platform_mgr.executable_name
         target_exe = self.release_dir / self.platform_mgr.executable_name
         
         if not source_exe.exists():
-            print(f"❌ Built executable not found: {source_exe}")
+            print(f"ERROR: Built executable not found: {source_exe}")
             return False
         
         try:
             shutil.move(str(source_exe), str(target_exe))
-            print(f"✅ Executable moved to: {target_exe}")
+            print(f"SUCCESS: Executable moved to: {target_exe}")
             
             # Set executable permissions on Unix-like systems
             if not self.platform_mgr.is_windows:
                 os.chmod(target_exe, 0o755)
-                print("✅ Executable permissions set")
+                print("SUCCESS: Executable permissions set")
             
             return True
         except Exception as e:
-            print(f"❌ Failed to move executable: {e}")
+            print(f"ERROR: Failed to move executable: {e}")
             return False
     
     def copy_to_install_dir(self, install_dir: Path) -> bool:
         """Copy executable to installation directory for testing"""
-        print(f"📋 Copying executable to install directory: {install_dir}")
+        print(f"INFO: Copying executable to install directory: {install_dir}")
         
         source_exe = self.release_dir / self.platform_mgr.executable_name
         if not source_exe.exists():
-            print(f"❌ Release executable not found: {source_exe}")
+            print(f"ERROR: Release executable not found: {source_exe}")
             return False
         
         try:
@@ -323,23 +323,23 @@ class BuildManager:
             target_exe = install_dir / self.platform_mgr.executable_name
             
             shutil.copy2(source_exe, target_exe)
-            print(f"✅ Executable copied to: {target_exe}")
+            print(f"SUCCESS: Executable copied to: {target_exe}")
             
             # Set executable permissions on Unix-like systems
             if not self.platform_mgr.is_windows:
                 os.chmod(target_exe, 0o755)
-                print("✅ Install executable permissions set")
+                print("SUCCESS: Install executable permissions set")
             
             return True
         except Exception as e:
-            print(f"❌ Failed to copy to install directory: {e}")
+            print(f"ERROR: Failed to copy to install directory: {e}")
             return False
     
     def build(self, test_install: bool = False) -> bool:
         """Execute the complete build process"""
-        print(f"🚀 Starting build for {self.platform_mgr.platform_name}")
-        print(f"📂 Build directory: {self.build_dir}")
-        print(f"📦 Release directory: {self.release_dir}")
+        print(f"INFO: Starting build for {self.platform_mgr.platform_name}")
+        print(f"INFO: Build directory: {self.build_dir}")
+        print(f"INFO: Release directory: {self.release_dir}")
         print()
         
         start_time = time.time()
@@ -370,16 +370,16 @@ class BuildManager:
             if test_install:
                 install_dir = self.platform_mgr.get_install_dir()
                 if not self.copy_to_install_dir(install_dir):
-                    print("⚠️  Test install failed, but build succeeded")
+                    print("WARNING: Test install failed, but build succeeded")
             
             build_time = time.time() - start_time
-            print(f"\n🎉 Build completed successfully in {build_time:.1f} seconds!")
-            print(f"📁 Executable location: {self.release_dir / self.platform_mgr.executable_name}")
+            print(f"\nSUCCESS: Build completed successfully in {build_time:.1f} seconds!")
+            print(f"INFO: Executable location: {self.release_dir / self.platform_mgr.executable_name}")
             
             return True
             
         except Exception as e:
-            print(f"\n💥 Build failed with error: {e}")
+            print(f"\nERROR: Build failed with error: {e}")
             return False
 
 def main():
@@ -412,7 +412,7 @@ Examples:
     platform_mgr = PlatformManager()
     build_mgr = BuildManager(config, platform_mgr)
     
-    print("🔧 hvym_press Cross-Platform Build Script")
+    print("BUILD: hvym_press Cross-Platform Build Script")
     print("=" * 50)
     print(f"Platform: {platform_mgr.system.title()} ({platform_mgr.arch})")
     print(f"Python: {sys.version}")
@@ -420,38 +420,38 @@ Examples:
     print()
     
     # Check dependencies
-    print("🔍 Checking dependencies...")
+    print("INFO: Checking dependencies...")
     if not DependencyChecker.check_python_version():
         sys.exit(1)
     
     if not DependencyChecker.check_pip():
-        print("❌ pip is required for building")
+        print("ERROR: pip is required for building")
         sys.exit(1)
     
     if not DependencyChecker.check_pyinstaller():
-        print("📦 PyInstaller not found, attempting to install...")
+        print("INFO: PyInstaller not found, attempting to install...")
         if not DependencyChecker.install_pyinstaller():
-            print("❌ Failed to install PyInstaller")
+            print("ERROR: Failed to install PyInstaller")
             print("Please install manually: pip install pyinstaller")
             sys.exit(1)
     
     if args.check_deps:
-        print("✅ All dependencies satisfied")
+        print("SUCCESS: All dependencies satisfied")
         return
     
     # Clean only mode
     if args.clean:
-        print("🧹 Cleaning build artifacts...")
+        print("INFO: Cleaning build artifacts...")
         build_mgr.clean_directory(build_mgr.build_dir)
         build_mgr.clean_directory(build_mgr.release_dir)
-        print("✅ Cleanup completed")
+        print("SUCCESS: Cleanup completed")
         return
     
     # Execute build
     success = build_mgr.build(test_install=args.test)
     
     if not success:
-        print("\n💥 Build failed! Check the error messages above.")
+        print("\nERROR: Build failed! Check the error messages above.")
         sys.exit(1)
 
 if __name__ == "__main__":
