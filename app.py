@@ -16,14 +16,14 @@ import PIL.Image
 import ColorPicker
 import IconPicker
 import io
+import platform
 from PIL import Image, ImageDraw, ImageColor
 from jinja2 import Environment, FileSystemLoader
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 import W3DeployHandler
 import TreeData
 import jsoneditor
 import subprocess
-import HVYM
 
 # hvym_theme = {'BACKGROUND': '#31b09c',
 #                 'TEXT': '#fff4c9',
@@ -75,13 +75,13 @@ block_inset = b'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABhGlDQ1BJQ0MgcHJv
 
 block_inset_thumb = b'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9bRSktgnYQ6ZChOlkRFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi7OCk6CIl/i8ptIjx4Lgf7+497t4B/kaFqWbXOKBqlpFOJoRsblXoeUUQYfRjDFGJmfqcKKbgOb7u4ePrXZxneZ/7c4SVvMkAn0A8y3TDIt4gnt60dM77xBFWkhTic+JRgy5I/Mh12eU3zkWH/TwzYmTS88QRYqHYwXIHs5KhEk8RxxRVo3x/1mWF8xZntVJjrXvyF4by2soy12lGkcQiliBCgIwayqjAQpxWjRQTadpPePiHHL9ILplcZTByLKAKFZLjB/+D392ahckJNymUALpfbPtjGOjZBZp12/4+tu3mCRB4Bq60tr/aAGY+Sa+3tdgR0LcNXFy3NXkPuNwBBp90yZAcKUDTXygA72f0TTlg4BYIrrm9tfZx+gBkqKvUDXBwCIwUKXvd4929nb39e6bV3w+TpHK0wvhApQAAAAZiS0dEAM8AUgBwrTtPlwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gKDRQgJDyxOOwAAAJcSURBVHja7Zm/axRBFMc/e55JDP46CDJqMCEgSjrRQjOkURvtBiIWdtpYWFjY2CnYiRAI9hbij0LmHxCxmUIQVNRGSCmMjSicJ0RzZ+EcLOtp9i6zyd76PjDccnfzbu7t9837zh0IgiAIgiAIwn9JEjOY9a4OzAC7Iq9z2Sj9udQJsN6NABeBm8COyGt0wIJR+kvsBNQixjoCLAJ7gAfATmB3jrH9b8MoPQ6MAaeAO0UooB4x1gQwGq7fAG3gTI55h/6hqifASeAZcB64VOYEpHkILAPT64xzOyhgFnhVdgV0mQcOR/jyXU4AU0V1gSIScCx13QFeAO9Tz60C54BGGdpgveD4beCxUXoxU9tzqQQ0ge+ZeY3M2saKWmBtkxKfpNRwK5TLTBiTwIdhVsBz4Fof728apVsZhaxWpQS6ZZClEx63ADesd1czr01VJQE1YMF6dzCzCe7N+IeJqm6CSWiL82U9DNUYDr4OqwJ6+YC12FCfsCk+IMfJcq4qCUiAA9a7o32U2w9gW5W6wBXgcp/zRqvkA7aGUUqiJ8Ao/dp6N5l2ej28/lo0NujmFP4hXa+/1McesBLO/rNVKYE/vH6OLlCZs0Avr5/HO1TmLBDD6zeN0o+sd/eGwgpb7+4DZyOFaxmlX1rvOkT+D6MIBbSCfC8A2iidWO8GufPpDvLOevctXH8qewLeAk+B08C09c4B+waI49JdFRgHPg5gpnJb1Zjy3w/cBY5HKq+E3z+vXwecUXql1AkISRgJyoq1v/wEVozSbQRBEARBEARBEARBEARBEARBENbBL9TmjFti3SiJAAAAAElFTkSuQmCC'
 
-expandable = b'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9bRSktgnYQ6ZChOlkRFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi7OCk6CIl/i8ptIjx4Lgf7+497t4B/kaFqWbXOKBqlpFOJoRsblXoeUUQYfRjDFGJmfqcKKbgOb7u4ePrXZxneZ/7c4SVvMkAn0A8y3TDIt4gnt60dM77xBFWkhTic+JRgy5I/Mh12eU3zkWH/TwzYmTS88QRYqHYwXIHs5KhEk8RxxRVo3x/1mWF8xZntVJjrXvyF4by2soy12lGkcQiliBCgIwayqjAQpxWjRQTadpPePiHHL9ILplcZTByLKAKFZLjB/+D392ahckJNymUALpfbPtjGOjZBZp12/4+tu3mCRB4Bq60tr/aAGY+Sa+3tdgR0LcNXFy3NXkPuNwBBp90yZAcKUDTXygA72f0TTlg4BYIrrm9tfZx+gBkqKvUDXBwCIwUKXvd4929nb39e6bV3w+TpHK0wvhApQAAAAZiS0dEAM8AUgBwrTtPlwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gKDRQjEDYon5oAAAGLSURBVHja7dg9S8NAAMbxf2OpBfGlUDXgoDi6uIgIWfwKmQRXFxfB1UkHV13Ez5HJzTXgIDg4d1RTlCoopZaauqRQpEpTL+Wqz2/KNcn18uRekoCIiIiIiIjIv5OzsVFBFDqA8+Xn2He9WLdMLB4CQRTmgWVg2nA7K77r1awOIIjCIrADHAKT3xzWHrB9V8C273oPpgPIG6xrFTgBxjO4UZvAcRKwUY7BusoZXXzHVhaVmuwBz8BLV/l+gDoef9hXtT2Aa2At2W4Ar0Arxfmx73qNkV0FkhVgPikWgKVkWPSrmBw/kZTnuvbNAk++6+3Z3APWgYuu8hQQAzWg3mcdnYsv9WjbO2B1ACVgpseydwqcpZhwm8ANsDKMIZAfwn+8+a5XTzmcPoY1B2QdwBhwFEThfopz2sDiXwmg83xQxlIOoyNnewD1AZ7106jaHsAtcJlRCHfA7ii8Di8A58CGoXBzQAU4AELf9ZrWj6sgCgvJ5Gqqd7WApj6HiYiIiIiIiIiIiIiIiIj8widJyEtyI7k9AwAAAABJRU5ErkJggg=='
+expandable = b'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9bRSktgnYQ6ZChOlkRFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi7OCk6CIl/i8ptIjx4Lgf7+497t4B/kaFqWbXOKBqlpFOJoRsblXoeUUQYfRjDFGJmfqcKKbgOb7u4ePrXZxneZ/7c4SVvMkAn0A8y3TDIt4gnt60dM77xBFWkhTic+JRgy5I/Mh12eU3zkWH/TwzYmTS88QRYqHYwXIHs5KhEk8RxxRVo3x/1mWF8xZntVJjrXvyF4by2soy12lGkcQiliBCgIwayqjAQpxWjRQTadpPePiHHL9ILplcZTByLKAKFZLjB/+D392ahckJNymUALpfbPtjGOjZBZp12/4+tu3mCRB4Bq60tr/aAGY+Sa+3tdgR0LcNXFy3NXkPuNwBBp90yZAcKUDTXygA72f0TTlg4BYIrrm9tfZx+gBkqKvUDXBwCIwUKXvd4929nb39e6bV3w+TpHK0wvhApQAAAAZiS0dEAM8AUgBwrTtPlwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gKDRQjEDYon5oAAAGLSURBVHja7dg9S8NAAIbht1VUENFClYCD6CQuQhURsriLQyZBcHJxKbo66eAkODj4OzKIm2vAQaoguHUUUxR1Ei2aulyhSBJRU7nq9yxJeslx9yV3uRRERERERERE/p2cjY3ywyAP5D/8HHmOG+mWicVDwA+DbmACGMy4nVXPce+tDsAPgz5gDdgGBhJOa3yzfafAiue4N1kH0J1hXdPAPtDbhhu1AOyagK0NoNjS+YrnuDMxT0njB/Uv2x7AA/Bo9o9SzrtKKbtNKau1Yw7IMoAzYNbsr8bc/RJwAbgJ10ee4z7/9lsgywAi4LMODAKLCWV9fhgUgX5zPNJSNgzceY5btjmAOeDY7B8knDMO7KXU0ex8IaZtL4DVARSAoeaE5YfBUktZCaiYIVA22yR14ByY6rQh0GrSbN+Ajbg3widrirdOnAPidAE7fhhsfuGaBjD2VwJorg+Ktn4L5P/7p3uWATx9Y63/FTXbA7gETtoUwjWw3gmfw6PAITCfUbg5oApsAYHnuHXrx5UfBj1mcs3q6XoF6vo7TERERERERERERERERETkB94BGANWm40E/joAAAAASUVORK5CYII='
 
 expandable_thumb = b'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9bRSktgnYQ6ZChOlkRFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi7OCk6CIl/i8ptIjx4Lgf7+497t4B/kaFqWbXOKBqlpFOJoRsblXoeUUQYfRjDFGJmfqcKKbgOb7u4ePrXZxneZ/7c4SVvMkAn0A8y3TDIt4gnt60dM77xBFWkhTic+JRgy5I/Mh12eU3zkWH/TwzYmTS88QRYqHYwXIHs5KhEk8RxxRVo3x/1mWF8xZntVJjrXvyF4by2soy12lGkcQiliBCgIwayqjAQpxWjRQTadpPePiHHL9ILplcZTByLKAKFZLjB/+D392ahckJNymUALpfbPtjGOjZBZp12/4+tu3mCRB4Bq60tr/aAGY+Sa+3tdgR0LcNXFy3NXkPuNwBBp90yZAcKUDTXygA72f0TTlg4BYIrrm9tfZx+gBkqKvUDXBwCIwUKXvd4929nb39e6bV3w+TpHK0wvhApQAAAAZiS0dEAM8AUgBwrTtPlwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gKDRQqCYOBjBMAAAGqSURBVHja7dgxS8NAAIbht1VUENFClYCD6CQuQhURsriLQyZBcHJxKbo66eAkODj4OzKIm2vAQaoguHUUUxR1Ei2aulyhSBJRU7nq9yxJeslx9yV3uRRERERERERE/p2cjY3ywyAP5D/8HHmOG+mWicVDwA+DbmACGMy4nVXPce+tDsAPgz5gDdgGBhJOa3yzfafAiue4N1kH0J1hXdPAPtDbhhu1AOyagK0NoNjS+YrnuDMxT0njB/Uv2x7AA/Bo9o9SzrtKKbtNKau1Yw7IMoAzYNbsr8bc/RJwAbgJ10ee4z7/9lsgywAi4LMODAKLCWV9fhgUgX5zPNJSNgzceY5btjmAOeDY7B8knDMO7KXU0ex8IaZtL4DVARSAoeaE5YfBUktZCaiYIVA22yR14ByY6rQh0GrSbN+Ajbg3widrirdOnAPidAE7fhhsfuGaBjD2VwJorg+Ktn4L5P/7p3uWATx9Y63/FTXbA7gETtoUwjWw3gmfw6PAITCfUbg5oApsAYHnuHXrx5UfBj1mcs3q6XoF6vo7TERERERERERERERERETkB94BGANWm40E/joAAAAASUVORK5CYII='
 
 expandable_inset = b'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9bRSktgnYQ6ZChOlkRFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi7OCk6CIl/i8ptIjx4Lgf7+497t4B/kaFqWbXOKBqlpFOJoRsblXoeUUQYfRjDFGJmfqcKKbgOb7u4ePrXZxneZ/7c4SVvMkAn0A8y3TDIt4gnt60dM77xBFWkhTic+JRgy5I/Mh12eU3zkWH/TwzYmTS88QRYqHYwXIHs5KhEk8RxxRVo3x/1mWF8xZntVJjrXvyF4by2soy12lGkcQiliBCgIwayqjAQpxWjRQTadpPePiHHL9ILplcZTByLKAKFZLjB/+D392ahckJNymUALpfbPtjGOjZBZp12/4+tu3mCRB4Bq60tr/aAGY+Sa+3tdgR0LcNXFy3NXkPuNwBBp90yZAcKUDTXygA72f0TTlg4BYIrrm9tfZx+gBkqKvUDXBwCIwUKXvd4929nb39e6bV3w+TpHK0wvhApQAAAAZiS0dEAM8AUgBwrTtPlwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gKDRQjLW5A04sAAAG5SURBVHja7di7S8NQGMbhn6FIwUEUL9HFQURwExyELHXqImImpZMggouT/4Krk0vBxam4KYqbKAgFB8FdcBSv1EkotReXTyii9XYaG3yfJeSkfUm+nvMlDYiIiIiIiIj8O20uw3Zu8h7gvRmuhn5Q/YsckYiXgE3fbmDYcexl6AeFOPSAASAHTNpQzdH5nQKZ0A+uXRcg4ThvDUg14YdKWfai62DPcd5cE5drU7Jdz4ADoL/B8d5Pvn/f4NhtLJrgJz0i2WDWVUM/KMb9QWgDWAXmgQkbvrPtE/AAfHSRSaAH6LD9PtueAdvAeugHK61egCLQDWwCGRsuA491RWjk9eK76pZnDlgCCqEfJFu9B7znAhgH2r/4+RJwDoxFsQSiKEAl9IOSXdhXZ1Ilqh7QjAJ0Aid1S2B05yZ/8Y3lVgOG6vZPLDM2BXh+s98OjDjObNkHIc8a3r7DzH3L9OIwAxLW9aeAQWAGGPhh1jWwB4wCVw7+V0RSgGlgFzgGloEtuy3+RAFYALK2BGbjUIBDIA0c2YlnHeWmgXxc3gd41vhcFbcMlPQ6TERERERERERERERERETkF14A2ytguuTfCOkAAAAASUVORK5CYII='
 
-expandable_inset_thumb = b'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9bRSktgnYQ6ZChOlkRFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi7OCk6CIl/i8ptIjx4Lgf7+497t4B/kaFqWbXOKBqlpFOJoRsblXoeUUQYfRjDFGJmfqcKKbgOb7u4ePrXZxneZ/7c4SVvMkAn0A8y3TDIt4gnt60dM77xBFWkhTic+JRgy5I/Mh12eU3zkWH/TwzYmTS88QRYqHYwXIHs5KhEk8RxxRVo3x/1mWF8xZntVJjrXvyF4by2soy12lGkcQiliBCgIwayqjAQpxWjRQTadpPePiHHL9ILplcZTByLKAKFZLjB/+D392ahckJNymUALpfbPtjGOjZBZp12/4+tu3mCRB4Bq60tr/aAGY+Sa+3tdgR0LcNXFy3NXkPuNwBBp90yZAcKUDTXygA72f0TTlg4BYIrrm9tfZx+gBkqKvUDXBwCIwUKXvd4929nb39e6bV3w+TpHK0wvhApQAAAAZiS0dEAM8AUgBwrTtPlwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gKDRQqHgBSCdQAAAHVSURBVHja7dg/SBthHMbxb44gBYfWUOrpolAk0NEuwrvo5KAt3iQ4CaXQxamDq0MnoVMXRyfpULhScStVhIMOJQoFB8FRclKwa7E26fJTjmAO1Dcxh89nubz3Xh4uv/dPkgMRERERERGRe6fkMyxOkwAIWk43otA17iJHpMtLwKZvBXjqOfYoCt1pEfaAIWADmLBTTU/39x1YiEJX912Asue8d8BkBwZq0rJf9XoB5u1Yi0L3/IoZ0rxlds8XYAsYBHZyrjnI6fuV03fSiT3AawGi0M3bSK9cMfrjwD7g2ry9EYXuT7e/BbwWIE6TD8DbnEseATNt+h7EafIY6Lf2Ezv+AD4C76PQLfX6EngNLOf0jwKrOf0XH34gc28bwCfL7vkCXG5YcZq8yLTHgZotgSU7tnMG7AHPCrcEMmrAgr3+GYWudM2l9K+Qe4B5COxmClCN0+TwGj+6msBIpr1rmYUpwN+Wdh8w5jnTm6ADeb+BTY+Zm5YZFGEGlIFzYAoYBl4CQzfMqgNfgCpw7OF/RVcKMAt8BraBN8A6ULlh1imwCKzZEpgrQgG+AtPAN7vxNU+500BSlOcBgW18vop7DpzpcZiIiIiIiIiIiIiIiIiIyC38B/WyaOxWSAfbAAAAAElFTkSuQmCC'
+expandable_inset_thumb = b'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9bRSktgnYQ6ZChOlkRFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi7OCk6CIl/i8ptIjx4Lgf7+497t4B/kaFqWbXOKBqlpFOJoRsblXoeUUQYfRjDFGJmfqcKKbgOb7u4ePrXZxneZ/7c4SVvMkAn0A8y3TDIt4gnt60dM77xBFWkhTic+JRgy5I/Mh12eU3zkWH/TwzYmTS88QRYqHYwXIHs5KhEk8RxxRVo3x/1mWF8xZntVJjrXvyF4by2soy12lGkcQiliBCgIwayqjAQpxWjRQTadpPePiHHL9ILplcZTByLKAKFZLjB/+D392ahckJNymUALpfbPtjGOjZBZp12/4+tu3mCRB4Bq60tr/aAGY+Sa+3tdgR0LcNXFy3NXkPuNwBBp90yZAcKUDTXygA72f0TTlg4BYIrrm9tfZx+gBkqKvUDXBwCIwUKXvd4929nb39e6bV3w+TpHK0wvhApQAAAAZiS0dEAM8AUgBwrTtPlwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gKDRQgJDyxOOwAAAJcSURBVHja7Zm/axRBFMc/e55JDP46CDJqMCEgSjrRQjOkURvtBiIWdtpYWFjY2CnYiRAI9hbij0LmHxCxmUIQVNRGSCmMjSicJ0RzZ+EcLOtp9i6zyd76PjDccnfzbu7t9837zh0IgiAIgiAIwn9JEjOY9a4OzAC7Iq9z2Sj9udQJsN6NABeBm8COyGt0wIJR+kvsBNQixjoCLAJ7gAfATmB3jrH9b8MoPQ6MAaeAO0UooB4x1gQwGq7fAG3gTI55h/6hqifASeAZcB64VOYEpHkILAPT64xzOyhgFnhVdgV0mQcOR/jyXU4AU0V1gSIScCx13QFeAO9Tz60C54BGGdpgveD4beCxUXoxU9tzqQQ0ge+ZeY3M2saKWmBtkxKfpNRwK5TLTBiTwIdhVsBz4Fof728apVsZhaxWpQS6ZZClEx63ADesd1czr01VJQE1YMF6dzCzCe7N+IeJqm6CSWiL82U9DNUYDr4OqwJ6+YC12FCfsCk+IMfJcq4qCUiAA9a7o32U2w9gW5W6wBXgcp/zRqvkA7aGUUqiJ8Ao/dp6N5l2ej28/lo0NujmFP4hXa+/1McesBLO/rNVKYE/vH6OLlCZs0Avr5/HO1TmLBDD6zeN0o+sd/eGwgpb7+4DZyOFaxmlX1rvOkT+D6MIBbSCfC8A2iidWO8GufPpDvLOevctXH8qewLeAk+B08C09c4B+waI49JdFRgHPg5gpnJb1Zjy3w/cBY5HKq+E3z+vXwecUXql1AkISRgJyoq1v/wEVozSbQRBEARBEARBEARBEARBEARBENbBL9TmjFti3SiJAAAAAElFTkSuQmCC'
 
 form = b'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9bRSktgnYQ6ZChOlkRFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi7OCk6CIl/i8ptIjx4Lgf7+497t4B/kaFqWbXOKBqlpFOJoRsblXoeUUQYfRjDFGJmfqcKKbgOb7u4ePrXZxneZ/7c4SVvMkAn0A8y3TDIt4gnt60dM77xBFWkhTic+JRgy5I/Mh12eU3zkWH/TwzYmTS88QRYqHYwXIHs5KhEk8RxxRVo3x/1mWF8xZntVJjrXvyF4by2soy12lGkcQiliBCgIwayqjAQpxWjRQTadpPePiHHL9ILplcZTByLKAKFZLjB/+D392ahckJNymUALpfbPtjGOjZBZp12/4+tu3mCRB4Bq60tr/aAGY+Sa+3tdgR0LcNXFy3NXkPuNwBBp90yZAcKUDTXygA72f0TTlg4BYIrrm9tfZx+gBkqKvUDXBwCIwUKXvd4929nb39e6bV3w+TpHK0wvhApQAAAAZiS0dEAM8AUgBwrTtPlwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gKDRUBOkvjelsAAAIjSURBVHja7Zm/axRBFMc/t5eoiWf8UQ3RxiIYwUoTEJaA5D8YiyBpU2lnqRZqY6WtoCksRBFFVmsbQaZMkVoQG3EatUiIcuESC1+xLHvnijO6u3kfGG5+8e7Nd9/Mm70DRVEURVEURdmTdEIay7xLgGPAgcB+frEm/V5rATLvusB54BpwIqCPCfAcuGtN+iO0AGMBbU0Dq8DpCA9qBvgEPAptOAloqxdp8ciWuhLDcEJzOBjD6FhNFnfHmvTGiPNlN9YXxxLgFfC44tx5YDLzrg+MFwetSTsxlY8lwFfAF/o+lCzOZ95tA+f+V+jFEmABMLn2FnAo196W0J4AjgCHh/mSefdEqkebJMCMlKo8Ba5KfaJwkeoBy02LgD9lucIiv+31NNjqCLhtTXqrTWlwFXgth9vvOCuLHJRFZFPT4HtgrdC3WbK4zcy7jTamwSXgTKFvpyS09wHH5RW6MyT870t1skkCzEmpyjPgeq49VRi/LHeJ1h6Cl6T8czQN1sSPF9akS21Kgy+Bt7n3gJ7UN0rmngRm25YG31iTPqgyMfNuTu4LSZu2wErm3YWS/n4uEvZL/dQoPzLvLjZRgHkpVXkHrAwZm5XP8TYfggtSRhHlLAi57/r8+iUoFmt1F+AzcK/szh8oq9yMIUDov8amZC8vAt1AD2gdeAh8tCYd1FoAEaErjoeyvQMMrEl3URRFURRFURRFURRFURRFURRF+Qt+Aqhcd+FeuKMxAAAAAElFTkSuQmCC'
 
@@ -94,7 +94,11 @@ tt_debug_btn = "Renders site, and launches at localhost:8080."
 
 def _subprocess(command):
         try:
-            output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT)
+            if platform.system() == 'Windows':
+                cmd_array = ["cmd", "/c", command]
+            else:
+                cmd_array = ["bash", "-c", command]
+            output = subprocess.check_output(cmd_array, stderr=subprocess.STDOUT)
             return output.decode('utf-8')
         except Exception as e:
             return None
@@ -102,8 +106,13 @@ def _subprocess(command):
 def load_save_data(file_dir):
     result = None
     if os.path.isfile(file_dir) and os.path.basename(file_dir) == 'site.data':
-        data = open(file_dir, 'rb')
-        result = pickle.load(data)
+        try:
+            with open(file_dir, 'r') as data:
+                result = json.load(data)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            # Fallback to pickle for backward compatibility
+            with open(file_dir, 'rb') as data:
+                result = pickle.load(data)
         
     return result
 
@@ -928,36 +937,59 @@ def create_image_grid_popup(image_array, num_cols):
     else:
         return None, None
                 
-def DoDeploy(data, window, private=False):
-    window.disappear()
-    media = data.gatherMedia()
-    tup = data.deployMedia(False, True, private)
-    if tup == None:
-        window.reappear()
-        return
-    
-    media_cid = tup[0]
-    if media_cid != None:
-        sg.popup_no_buttons("Media Deployed, Deploying Site", auto_close=True, auto_close_duration=1.5, non_blocking=False)
+def DoDeploy(data, window):
+    """
+    Simplified deployment flow:
+    1. Upload media files
+    2. Generate HTML with deployed media links
+    3. Build site
+    4. Deploy site
+    """
+    try:
+        # Step 1: Deploy media files
+        print("Step 1: Deploying media files...")
+        media_result = data.deployMedia()
+        
+        if not media_result or media_result[0] is None:
+            sg.popup_error("Failed to deploy media files")
+            return
+        
+        print(f"Successfully deployed media files")
+        
+        # Step 2: Update HTML with deployed media links
+        print("Step 2: Updating HTML with deployed media links...")
         data.updateAllArticleHTML(data.filePath)
-        data.refereshDist()
-        data.refreshCss()
-        data.saveData()
         
-    site_data = DATA.generateSiteData()
-    data.refreshDebugMedia()
-    data.renderStaticPage('template_index.txt', site_data)
-    data.refereshDist()
+        # Step 3: Build the site
+        print("Step 3: Building site...")
+        site_data = data.generateSiteData()
+        data.renderStaticPage('template_index.txt', site_data)
         
-    tup = data.deploySite(False, False, private)
-    site_cid = tup[0]
-    url = tup[1]
-    
-    if url != None:
-        webbrowser.open_new_tab(url)
-    
-    data.deleteDist()
-    window.reappear()
+        # Step 4: Deploy the site
+        print("Step 4: Deploying site...")
+        if not hasattr(data, 'distPath') or not data.distPath:
+            sg.popup_error("No distribution path configured")
+            return
+        
+        site_result = data.deploySite(data.distPath)
+        
+        if site_result and site_result[0] is not None:
+            site_cid, site_url = site_result
+            print(f"Site deployed successfully!\nSite URL: {site_url}")
+            webbrowser.open_new_tab(site_url)
+        else:
+            print('Deploy Failed!')
+            
+    except Exception as e:
+        sg.popup_error(f"Deployment failed: {str(e)}")
+        print(f"Deployment error: {e}")
+        
+        # Cleanup on error
+        try:
+            if hasattr(data, 'deleteDist'):
+                data.deleteDist()
+        except Exception as cleanup_error:
+            print(f"Cleanup failed: {cleanup_error}")
     
 
 def StartServer(path=SCRIPT_DIR, port=8000):
@@ -989,7 +1021,7 @@ starting_path = sg.popup_get_folder('Site Directory', font=font, icon=LOGO)
 if not starting_path:
     sys.exit(0)
     
-DATA = SiteDataHandler.SiteDataHandler(starting_path, MarkdownHandler, W3DeployHandler, HVYM)
+DATA = SiteDataHandler.SiteDataHandler(starting_path, MarkdownHandler, W3DeployHandler)
 SERVER_STATUS = ServerHandler.ServerStatusHandler()
 
 command = ['---', 'Move Up', 'Move Down', '---','Set-Column-Widths', '---','Set-Meta-Data', 'Set-Form-Data', '---', 'Close Menu']
@@ -1011,6 +1043,7 @@ site_settings_layout = [[sg.Frame('Site Settings', [[name('Site Name'), sg.Input
                [name('Media Folder'), sg.Input(default_text=DATA.settings['mediaDir'], s=20, enable_events=True, k='SETTING-mediaDir', font=font)],
                [name('Description'), sg.Multiline(default_text=DATA.settings['description'],s=(20,8), enable_events=True, k='SETTING-description', font=font)],
                [name('Site ID'), sg.Input(default_text=DATA.settings['siteID'], s=20, enable_events=True, k='SETTING-siteID', font=font)],
+               [name('25519 Pub'), sg.Input(default_text=DATA.settings['25519_pub'], readonly='True', s=20, enable_events=False, k='SETTING-siteID', font=font)],
                ], relief='sunken', expand_y=True, expand_x=True, font=font)]]
 
 author_settings_layout = [[sg.Frame('Author Settings', [
@@ -1020,14 +1053,12 @@ author_settings_layout = [[sg.Frame('Author Settings', [
     ],  size=(15,10), relief='sunken', expand_y=True, expand_x=True, font=font)]]
 
 deployment_settings_layout = [[sg.Frame('Deployment Settings', [
-    [name('Project Name:'), sg.Input(default_text=DATA.settings['project_name'], s=20, enable_events=True, expand_x=True, k='SETTING-project_name', font=font)],
-    [name('Deployment:'), sg.Combo(['local', 'Internet Computer'], default_value=DATA.settings['deploy_type'], s=(22,22), enable_events=True, readonly=True, k='SETTING-deploy_type', font=font)],                               
-               [sg.Frame('Pintheon', [[name('JWT'), sg.Input(default_text=DATA.settings['backend_auth_key'], s=20, enable_events=True, expand_x=True, k='SETTING-backend_auth_key', font=font)],
-                                    [name('Gateway URL'), sg.Input(default_text=DATA.settings['backend_end_point'], s=20, enable_events=True, expand_x=True, k='SETTING-backend_end_point', font=font)],
-                                    [name('Meta-Data'), sg.Multiline(default_text=DATA.settings['backend_meta_data'], s=(10,4), enable_events=True, expand_x=True, k='SETTING-backend_meta_data', font=font)]
-               ], border_width=0, expand_x=True, k='PINTHEON-GRP', font=font, visible=(DATA.settings['deploy_type']=='Pintheon'))],
-               [sg.Frame('Internet Computer', [[name('Canister ID'), sg.Input(default_text=DATA.settings['canister_id'], s=20, enable_events=True, expand_x=True, k='SETTING-canister_id', font=font)],
-               ], border_width=0, expand_x=True, k='ICP-GRP', font=font, visible=(DATA.settings['deploy_type']=='Internet Computer'))],
+    [name('Project Name:'), sg.Input(default_text=DATA.settings.get('project_name', ''), s=20, enable_events=True, expand_x=True, k='SETTING-project_name', font=font)],
+    [name('Deployment:'), sg.Combo(['local', 'Pintheon'], default_value=DATA.settings.get('deploy_type', 'Pintheon'), s=(22,22), enable_events=True, readonly=True, k='SETTING-deploy_type', font=font)],                               
+               [sg.Frame('Pintheon', [[name('Access Token'), sg.Input(default_text=DATA.settings.get('pintheon_access_token', ''), s=20, enable_events=True, expand_x=True, k='SETTING-pintheon_access_token', font=font)],
+                                    [name('Gateway URL'), sg.Input(default_text=DATA.settings.get('backend_end_point', ''), s=20, enable_events=True, expand_x=True, k='SETTING-backend_end_point', font=font)],
+                                    [name('Meta-Data'), sg.Multiline(default_text=DATA.settings.get('backend_meta_data', ''), s=(10,4), enable_events=True, expand_x=True, k='SETTING-backend_meta_data', font=font)]
+               ], border_width=0, expand_x=True, k='PINTHEON-GRP', font=font, visible=(DATA.settings.get('deploy_type', 'Pintheon')=='Pintheon'))],
                ], relief='sunken', expand_y=True, expand_x=True, font=font)]]
 
 nft_settings_layout = [[sg.Frame('NFT Settings', [
@@ -1074,33 +1105,30 @@ while True:
     elif event == 'Start Daemon':
         deployType = DATA.settings['deploy_type']
 
-        if deployType == 'local' or deployType == 'Pintheon':
+        if deployType == 'local':
             print('should start localhost')
             if SERVER_STATUS.server_running == False:
                 threading.Thread(target=StartServer, args=(), daemon=True).start()
                 SERVER_STATUS.popup_server_status()
-        if deployType == 'Internet Computer':
-            print('Start Internet Computer')
-            if DATA.HVYM.icp_daemon_running == False:
-                DATA.HVYM.start_icp_daemon()
+        elif deployType == 'Pintheon':
+            print('Pintheon deployment - no local server needed')
+
         
     elif event == 'Stop Daemon':
         deployType = DATA.settings['deploy_type']
 
-        if deployType == 'local' or deployType == 'Pintheon':
+        if deployType == 'local':
             print('should Stop Daemon')
             if SERVER_STATUS.server_running == True:
                 threading.Thread(target=StopServer, args=(), daemon=True).start()
                 #SERVER_STATUS.popup_server_status(False)
-        elif deployType == 'Internet Computer':
-            print('Stop Internet Computer')
-            if DATA.HVYM.icp_daemon_running == True:
-                DATA.HVYM.stop_icp_daemon()
+        elif deployType == 'Pintheon':
+            print('Pintheon deployment - no local server to stop')
         
     elif event == 'Launch Debug':
         deployType = DATA.settings['deploy_type']
 
-        if deployType == 'local' or deployType == 'Pintheon':
+        if deployType == 'local':
             print('Open Debug page')
             if SERVER_STATUS.server_running == True:
                 site_data = refreshSiteData(DATA)
@@ -1108,49 +1136,31 @@ while True:
                 LaunchStaticSite('serve')
             else:
                 sg.popup_ok('Start Localhost first')
-
-        if deployType == 'Internet Computer':
-            if DATA.HVYM.icp_daemon_running == True:
-                option = DATA.HVYM.choice_popup("Deploy site to local Internet Computer?")
-                if option == 'OK':
-                    DATA.HVYM.loading_msg('Building Site')
-                    site_data = refreshSiteData(DATA)
-                    DATA.renderDebugICPPage('template_index.txt', site_data)
-                    url = DATA.HVYM.debug_icp_deploy()
-                    option = DATA.HVYM.choice_popup(f"Do you want to open debug url?")
-                    if option == 'OK':
-                        webbrowser.open_new_tab(url)
-            else:
-                sg.popup_ok('Start Internet Computer first')
+        elif deployType == 'Pintheon':
+            print('Pintheon deployment - building site for deployment')
+            site_data = refreshSiteData(DATA)
+            DATA.renderStaticPage('template_index.txt', site_data)
 
     elif event == 'Rebuild Local':
         deployType = DATA.settings['deploy_type']
-        if deployType == 'local' or deployType == 'Pintheon':
+        if deployType == 'local':
             print('Rebuild Local')
             site_data = refreshSiteData(DATA)
             DATA.renderStaticPage('template_index.txt', site_data)
-        elif deployType == 'Internet Computer':
-            if DATA.HVYM.icp_daemon_running == True:
-                option = DATA.HVYM.choice_popup("Deploy site to local Internet Computer?")
-                if option == 'OK':
-                    DATA.HVYM.loading_msg('Rebuilding Site')
-                    site_data = refreshSiteData(DATA)
-                    DATA.renderDebugICPPage('template_index.txt', site_data)
-                    url = DATA.HVYM.debug_icp_deploy()
-            else:
-                sg.popup_ok('Start Internet Computer first')
+        elif deployType == 'Pintheon':
+            print('Rebuild Pintheon site')
+            site_data = refreshSiteData(DATA)
+            DATA.renderStaticPage('template_index.txt', site_data)
 
     elif event == 'Launch Deploy':
         deployType = DATA.settings['deploy_type']
 
         if deployType == 'local':
-            DATA.HVYM.prompt('Current deploy type is set to local.\n Change settings, if you want to deploy live.\n')
-        elif deployType == 'Internet Computer':
-            if DATA.HVYM.icp_daemon_running == True:
-                    option = DATA.HVYM.choice_popup("Deploy site to Internet Computer Main Net?")
-                    if option == 'OK':
-                        canister_id = DATA.settings['canister_id']
-                        DATA.HVYM.set_canister_id(canister_id)
+            sg.popup('Current deploy type is set to local.\n Change settings, if you want to deploy live.\n' , keep_on_top=True)
+        elif deployType == 'Pintheon':
+            option = sg.popup_yes_no("Would you like to continue?")
+            if option == 'Yes':
+                threading.Thread(target=DoDeploy, args=(DATA, window), daemon=True).start()
 
         
     elif event == 'Version':
@@ -1163,7 +1173,7 @@ while True:
 
     if event in (sg.WIN_CLOSED, 'Cancel'):
         break
-    if len(values['-TREE-']) > 0:
+    if values['-TREE-'] and len(values['-TREE-']) > 0:
         path_val = values['-TREE-'][0]
         f_name = os.path.basename(path_val)
         f_path = baseFolder(path_val.replace(f_name, ''))
@@ -1221,13 +1231,8 @@ while True:
         if setting == 'deploy_type':
             if val == 'local':
                 window.Element('PINTHEON-GRP').Update(visible=False)
-                window.Element('ICP-GRP').Update(visible=False)
             elif val == 'Pintheon':
                 window.Element('PINTHEON-GRP').Update(visible=True)
-                window.Element('ICP-GRP').Update(visible=False)
-            elif val == 'Internet Computer':
-                window.Element('PINTHEON-GRP').Update(visible=False)
-                window.Element('ICP-GRP').Update(visible=True)
 
         if setting == 'theme':
             DATA.setCss(val)
@@ -1271,25 +1276,8 @@ while True:
         
     if event =='-DEPLOY-':
         print('deploy!')
-        media = DATA.gatherMedia()
-        media_cid = DATA.deployMedia()
-        if media_cid != None:
-            sg.popup_no_buttons("Media Deployed, Deploying Site", auto_close=True, auto_close_duration=1.5, non_blocking=False)
-            DATA.updateAllArticleHTML(DATA.filePath)
-            DATA.refereshDist()
-            DATA.refreshCss()
-            DATA.saveData()
+        # Use the same simplified deployment flow
+        DoDeploy(DATA, window)
             
-        site_cid = DATA.deploySite(False, False)
-        
-        if site_cid != None:
-            sg.popup_no_buttons("Site Deployed", auto_close=True, auto_close_duration=1.5, non_blocking=False)
-            url = os.path.join('https://', DATA.settings['backend_end_point'], 'ipfs' ,site_cid, 'index.html').replace('\\', '/')
-            webbrowser.open_new_tab(url)
-            
-if DATA.HVYM.icp_daemon_running == True:
-    DATA.HVYM.stop_icp_daemon()      
-    #print(values[event])
-    #print(event, values)
 DATA.onCloseData()
 window.close()

@@ -4,7 +4,7 @@ Created on Mon Feb  6 19:35:17 2023
 
 @author: pc
 """
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 
 
 class TreeData(sg.TreeData):

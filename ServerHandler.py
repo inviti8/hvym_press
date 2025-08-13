@@ -1,6 +1,6 @@
 
 # -*- coding: UTF-8 -*-
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 import http.server
 import socketserver
 import threading

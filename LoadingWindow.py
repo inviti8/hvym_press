@@ -6,7 +6,7 @@ Created on Wed Feb  8 23:26:44 2023
 """
 import sys
 import threading
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 
 
 class LoadingWindow:

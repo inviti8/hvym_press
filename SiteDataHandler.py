@@ -26,6 +26,8 @@ from bs4 import BeautifulSoup
 from mrkdwn_analysis import MarkdownAnalyzer
 from jinja2 import Environment, FileSystemLoader
 from collections import deque
+from hvym_stellar import *
+from stellar_sdk import Keypair
 
 
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
@@ -36,7 +38,7 @@ env = Environment(loader=file_loader)
 
 class SiteDataHandler:
    'Class for handling site data.'
-   def __init__(self, filePath, MarkdownHandler, W3DeployHandler, HVYM):
+   def __init__(self, filePath, MarkdownHandler, W3DeployHandler):
       self.filePath = filePath
       self.resourcePath = os.path.join(self.filePath, '_resources')
       self.distPath = os.path.join(SCRIPT_DIR, 'dist')
@@ -68,13 +70,13 @@ class SiteDataHandler:
                          'ogon-batto': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmTwvJqFD39MMFG6ovvuPG3neBG278PFLUbga6CUPYgrnw/onsen-css-components.min.css',
                          'vexxed-vampire': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmfQczjcDcKPr2X3nypWBnsFcKfMuZ2GVonm6YFaihTCkS/onsen-css-components.min.css'}
       self.css_components = 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsen-css-components.min.css'
-      self.settings = {'css_components':self.css_components, 'uiFramework':'onsen', 'pageType':'splitter', 'menuSide':'right', 'style':'default', 'row_pad':5, 'deployType':'Pinata', 'theme':'light', 'siteName':'dist', 'mediaDir':'_resources', 'description':'', 'siteID': uuid.uuid4().hex, 'customTheme':'','backend_auth_key':'', 'pinata_key':'', 'backend_end_point':'', 'backend_meta_data':'', 'backend_timeout':100, 'arWallet':'', 'nft_site_type':'None', 'nft_type':'None', 'nft_metadata_standard':'None', 'nft_start_supply':1024, 'nft_contract':'', 'site_metadata':self.opensea_metadata, 'project_name': os.path.basename(self.filePath), 'deploy_type': 'local', 'canister_id': '', 'principal': ''}
+      self.settings = {'css_components':self.css_components, 'uiFramework':'onsen', 'pageType':'splitter', 'menuSide':'right', 'style':'default', 'row_pad':5, 'deployType':'Pintheon', 'theme':'light', 'siteName':'dist', 'mediaDir':'_resources', 'description':'', 'siteID': uuid.uuid4().hex, 'customTheme':'', 'pintheon_access_token':'', 'backend_end_point':'https://127.0.0.1:9999', 'backend_meta_data':'', 'backend_timeout':100, 'nft_site_type':'None', 'nft_type':'None', 'nft_metadata_standard':'None', 'nft_start_supply':1024, 'nft_contract':'', 'site_metadata':self.opensea_metadata, 'project_name': os.path.basename(self.filePath), 'deploy_type': 'Pintheon', 'private_key': ''}
       self.authors = {}
       self.uiFramework = ['onsen']
       self.navigation = ['splitter', 'tabs', 'carousel']
       self.themes = list(self.css_themes.keys())
       self.styles = ['default', 'material']
-      self.deployTypes = ['Pinata', 'Submarine', 'Arweave']
+      self.deployTypes = ['Pintheon']
       self.nftTypes = ['None', 'Dero', 'Beam']
       self.nftMetadata_standards = ['None', 'Opensea']
       self.nftSiteTypes = ['None', 'Site-NFT', 'Collection-Minter']
@@ -90,9 +92,6 @@ class SiteDataHandler:
       self.markdownHandler = MarkdownHandler.MarkdownHandler(filePath)
       self.debugPath = os.path.join(SCRIPT_DIR, 'serve')
       self.debugResourcePath = os.path.join(SCRIPT_DIR, 'serve', self.settings['mediaDir'])
-      self.deployHandler = W3DeployHandler.W3DeployHandler(self.filePath, self.debugPath, self.resourcePath, self.settings)
-      self.HVYM = HVYM.HVYM_Handler()
-      self.icpProjectPath = os.path.join(self.HVYM.icp_path, self.settings['project_name'])
       self.images = {}
       self.videos = {}
       self.audio = {}
@@ -125,7 +124,6 @@ class SiteDataHandler:
           self.css_components = self.css_themes[self.settings['theme']]
           self.fileExists = True
           self.debugResourcePath = os.path.join(SCRIPT_DIR, 'serve', self.settings['mediaDir'])
-          self.deployHandler = W3DeployHandler.W3DeployHandler(self.filePath, self.debugPath, self.resourcePath, self.settings)
           self.images = data['media']['images']
           self.videos = data['media']['videos']
           self.audio = data['media']['audio']
@@ -133,12 +131,10 @@ class SiteDataHandler:
           self.folderPathList = data['folderPathList']
           self.mdPathList = data['mdPathList']
           self.mdFileList = data['mdFileList']
-          self.firstRun = True
 
       if os.path.isfile(self.dataBakFilePath):
           dataFile = open(self.dataBakFilePath, 'rb')
           data = pickle.load(dataFile)
-          self.firstRun = False
           self._old_pageList = data['pageList']
           self._old_folders = data['folders']
           self._old_folderData = data['folderData']
@@ -160,8 +156,6 @@ class SiteDataHandler:
           self._old_mdPathList = data['mdPathList']
           self._old_mdFileList = data['mdFileList']
 
-      self.HVYM.set_icp_session(self.settings['project_name'])
-      self.HVYM.set_icp_project_path()
 
       if not os.path.isdir(self.debugResourcePath):
           print('Create media folder')
@@ -169,10 +163,22 @@ class SiteDataHandler:
           print(self.debugResourcePath)
           print(os.path.isdir(self.debugResourcePath))
 
-      if os.path.isdir(self.HVYM.icp_session):
-          if not os.path.isdir(self.HVYM.icp_project_path):
-              self.HVYM.install_icp_site_template()
- 
+      if not os.path.isfile(self.dataBakFilePath):
+          self.keys = Keypair.random()
+          self.keys_25519 = Stellar25519KeyPair(self.keys)
+          self.pub25519 = self.keys_25519.public_key()
+          self.updateSetting('private_key', self.keys.secret)
+          self.updateSetting('25519_pub', self.pub25519)
+          self.settings['private_key'] = self.keys.secret
+          self.firstRun = True
+      else:
+          self.keys = Keypair.from_secret(self.settings['private_key'])
+          self.keys_25519 = Stellar25519KeyPair(self.keys)
+          self.pub25519 = self.keys_25519.public_key()
+          self.firstRun = False
+
+      self.deployHandler = W3DeployHandler.W3DeployHandler(self.filePath, self.debugPath, self.resourcePath, self.settings)
+
       self.saveData()
    
    def _reorder_list(self, l, list_element, index):
@@ -213,20 +219,30 @@ class SiteDataHandler:
        self.mdFileList[file] = analyzer.identify_links()
            
    def renderStaticPage(self, template_file, data):
+       """
+       Render the static page with media links already replaced.
+       First renders to serve folder, then copies to dist folder for deployment.
+       """
+       # Render to serve folder first
        target_path = os.path.join(SCRIPT_DIR, 'serve')
        page_path = os.path.join(target_path,'index.html')
 
        self.markdownHandler.renderPageTemplate(template_file, data, page_path)
-
-   def renderDebugICPPage(self, template_file, data):
-       target_path = os.path.join(SCRIPT_DIR, 'serve')
-       page_path = os.path.join(target_path,'index.html')
-       resource_path = os.path.join(target_path,self.settings['mediaDir'])
-
-       self.markdownHandler.renderICPPageTemplate(template_file, data, page_path, self.settings['mediaDir'])
-       self.HVYM.clean_icp_assets()
-       shutil.move(page_path, self.HVYM.icp_index_path)
-       shutil.copytree(resource_path, self.HVYM.icp_assets_path, dirs_exist_ok=True)
+       
+       # Ensure dist folder exists and copy the rendered file there
+       if hasattr(self, 'distPath') and self.distPath:
+           import shutil
+           os.makedirs(self.distPath, exist_ok=True)
+           dist_index_path = os.path.join(self.distPath, 'index.html')
+           
+           # Copy the rendered index.html to dist folder
+           try:
+               shutil.copy2(page_path, dist_index_path)
+               print(f"Copied rendered index.html to dist folder: {dist_index_path}")
+           except Exception as e:
+               print(f"Warning: Could not copy to dist folder: {e}")
+       else:
+           print("Warning: No distPath configured, cannot copy rendered file")
            
    def generateFormData(self, page, article):
        result = []
@@ -254,6 +270,15 @@ class SiteDataHandler:
            
            for prop in props:
                article_data[prop] = self.articleData[page][k][prop]
+           
+           # Debug: Check what HTML content we have
+           if 'html' in article_data and article_data['html']:
+               print(f"DEBUG: Article '{k}' HTML content preview: {article_data['html'][:200]}...")
+               # Check if it contains media links
+               if '../_resources/' in article_data['html']:
+                   print(f"DEBUG: Article '{k}' still contains local media links!")
+               else:
+                   print(f"DEBUG: Article '{k}' HTML appears to have media links replaced")
                
            author = self.articleData[page][k]['author']
            author_img = self.authors[author]
@@ -437,7 +462,7 @@ class SiteDataHandler:
            f_name = 'onsen-css-components.min.css'
            css_components = os.path.join(self.settings['customTheme'], f_name).replace('\\', '/')
            
-           url = self.deployHandler.pinataCss(css_components)
+           url = self.deployHandler.pintheonCss(css_components)
            
            if url != None:
                self.settings['css_components'] = url
@@ -574,33 +599,70 @@ class SiteDataHandler:
    def setDeployFolder(self, folder):
        self.deployHandler.deployFolderName = folder
    
-   def deployMedia(self, usefullPath=False, askPermission=True, private=False):
-       result = False
-       deployFolder = self.resourcePath
-       self.refreshDebugMedia()
-       
-       if os.path.isdir(self.debugResourcePath) and len(os.listdir(self.debugResourcePath)) > 0:
-           deployFolder = self.debugResourcePath
-       
-       if self.deployHandler.manifest != None:
-           self.markdownHandler.deployerManifest = self.deployHandler.manifest
-           
-       result = self.deployHandler.pinataDirectoryGUI(deployFolder, True, True, usefullPath, askPermission, private)
-       self.deployHandler.saveData()
-       
-       return result
-   
-   def deploySite(self, usefullPath=False, askPermission=True, private=False):
-        result = False
-        
-        if self.deployHandler.manifest != None:
-            self.markdownHandler.deployerManifest = self.deployHandler.manifest
+   def deployMedia(self, usefullPath=False, askPermission=True):
+        """
+        Deploy all media files from the media folder.
+        Returns a tuple (media_cid, status) for backward compatibility.
+        """
+        try:
+            result = False
+            deployFolder = self.resourcePath
+            self.refreshDebugMedia()
+
+            if os.path.isdir(self.debugResourcePath) and len(os.listdir(self.debugResourcePath)) > 0:
+                deployFolder = self.debugResourcePath
             
-        result = self.deployHandler.pinataDirectoryGUI(self.distPath, True, True, usefullPath, askPermission, private)
-        self.deployHandler.saveData()
-        
-        return result
-   
+            if self.deployHandler.manifest != None:
+                self.markdownHandler.deployerManifest = self.deployHandler.manifest
+
+            # Use the new simplified media upload method
+            media_manifest = self.deployHandler.uploadMediaFiles(deployFolder)
+            self.deployHandler.saveData()
+            
+            # For backward compatibility, return a tuple
+            if media_manifest:
+                # Return first media file's CID and a status message
+                first_file = next(iter(media_manifest.values()))
+                return (first_file['cid'], 'media_deployed')
+            
+            return (None, None)
+            
+        except Exception as e:
+            print(f"Error deploying media: {e}")
+            return (None, None)
+    
+   def deploySite(self, usefullPath=False, askPermission=True):
+       """
+       Deploy the built site to IPFS.
+       Returns a tuple of (cid, url) or (None, None) on failure.
+       """
+       try:
+           # Validate that we have a distribution path
+           if not hasattr(self, 'distPath') or not self.distPath:
+               print("Error: No distribution path configured")
+               return (None, None)
+           
+           if not os.path.exists(self.distPath):
+               print(f"Error: Distribution directory does not exist: {self.distPath}")
+               return (None, None)
+           
+           if not os.path.isdir(self.distPath):
+               print(f"Error: Distribution path is not a directory: {self.distPath}")
+               return (None, None)
+           
+           if self.deployHandler.manifest != None:
+               self.markdownHandler.deployerManifest = self.deployHandler.manifest
+               
+           # Use the new simplified site deployment method
+           result = self.deployHandler.deploySite(self.distPath)
+           self.deployHandler.saveData()
+           
+           return result
+           
+       except Exception as e:
+           print(f"Error: Site deployment failed: {e}")
+           return (None, None)
+           
    def gatherMedia(self):
        self.images = self.fileList('.png')
        self.videos = self.fileList('.mp4')
@@ -673,7 +735,7 @@ class SiteDataHandler:
                self.updateAllArticleHTML(fullname)
            else:
                self.updateArticleHTML(f_path, f_name, fullname)
-           
+          
    def updateMediaFiles(self, folder, path, filePath):
        if(folder in self.articleData):
            html = self.articleData[folder][path]['html']
@@ -684,6 +746,7 @@ class SiteDataHandler:
            
            for image in media['images']:
                i_name = os.path.basename(image)
+               # TODO: Complete implementation for media file updates
            
    def updateFormData(self, folder, path, data):
        if(folder in self.formData):
@@ -720,8 +783,8 @@ class SiteDataHandler:
            
    def deleteAuthor(self, author):
        for page in self.pageList:
-          for k in self.articleData[page]:
-              if self.articleData[page][k]['author'] == author:
+           for k in self.articleData[page]:
+               if self.articleData[page][k]['author'] == author:
                    self.articleData['author'] = "anonymous"          
                   
    def getJsonData(self):
@@ -738,11 +801,3 @@ class SiteDataHandler:
 
    def onCloseData(self):
        shutil.copy(self.dataFilePath, self.dataBakFilePath)
-             
-       
-
-   
-    
-
-
-

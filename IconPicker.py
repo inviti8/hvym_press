@@ -5,7 +5,7 @@ Created on Sat Nov  5 17:29:24 2022
 @author: pc
 """
 
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 
 class IconPicker:
    """

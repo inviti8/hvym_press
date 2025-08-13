@@ -7,6 +7,7 @@ import concurrent.futures
 from subprocess import run, Popen, PIPE
 from pathlib import Path
 import ast
+import platform
 
 
 class HVYM_Handler:
@@ -15,19 +16,20 @@ class HVYM_Handler:
    """
    def __init__(self):
        self.HOME = os.path.expanduser('~')
-       self.icp_daemon_running = False
        self.bin = os.path.join(self.HOME, '.local', 'share', 'heavymeta-cli', 'hvym')
-       self.icp_path = os.path.join(self.HOME, '.local', 'share', 'heavymeta-cli', 'icp')
-       self.icp_template = self.icp_site_template()
-       self.icp_session = self.current_icp_session()
-       self.icp_project_path = None
-       self.icp_assets_path = None
-       self.icp_index_path = None
+
+   def _get_command_array(self, command):
+       """Convert shell command to platform-specific command array"""
+       if platform.system() == "Windows":
+           return ["cmd", "/c", command]
+       else:
+           return ["bash", "-c", command]
 
    def _run_futures_cmds(self, cmds):
     result = None
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = {executor.submit(run, cmd, shell=True): cmd for cmd in cmds}
+        # Use platform-specific command arrays instead of shell=True
+        futures = {executor.submit(run, self._get_command_array(cmd)): cmd for cmd in cmds}
         
         for future in concurrent.futures.as_completed(futures):
             cmd = futures[future]
@@ -41,7 +43,8 @@ class HVYM_Handler:
         return result
     
    def _run_command(self, cmd):
-    process = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+    # Use platform-specific command array instead of shell=True
+    process = Popen(self._get_command_array(cmd), stdout=PIPE, stderr=PIPE)
     output, error = process.communicate()
 
     if process.returncode != 0:   # Checking the return code
@@ -52,64 +55,14 @@ class HVYM_Handler:
 
    def _subprocess(self, command):
         try:
-            output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT)
+            # Use platform-specific command array instead of shell=True
+            output = subprocess.check_output(self._get_command_array(command), stderr=subprocess.STDOUT)
             return output.decode('utf-8')
         except Exception as e:
             print(f'An error occured: {e}')
             return None
         
-   def icp_site_template(self):
-       return self._subprocess(f'{self.bin} icp-template assets').rstrip()
-        
-   def current_icp_session(self):
-       return self._subprocess(f'{self.bin} icp-project-path')
-   
-   def set_icp_session(self, name):
-       self.icp_session = self._subprocess(f'{self.bin} icp-project {name}').rstrip()
-       return self.icp_session
-   
-   def set_icp_project_path(self):
-       self.icp_project_path = os.path.join(self.icp_session, self.icp_template).rstrip()
-       self.icp_assets_path = os.path.join(self.icp_project_path, 'assets', 'assets').rstrip()
-       self.icp_index_path = os.path.join(self.icp_project_path, 'assets', 'src', 'index.html').rstrip()
-       return self.icp_project_path
-   
-   def install_icp_site_template(self):
-       self._subprocess(f'{self.bin} icp-init assets -f')
 
-   def start_icp_daemon(self):
-       output = self._run_futures_cmds([f'{self.bin} icp-start-assets assets'])
-       self.icp_daemon_running = True
-       print(output)
-
-   def stop_icp_daemon(self):
-       output = self._run_futures_cmds([f'{self.bin} icp-stop-assets assets'])
-       self.icp_daemon_running = False
-       print(output)
-
-   def _icp_deploy(self, debug=True):
-       cmd = f'{self.bin} icp-deploy-assets assets'
-       urls = ast.literal_eval(self._run_command(cmd))
-    
-       return urls[1].rstrip()
-
-   def debug_icp_deploy(self):
-       return self._icp_deploy()
-
-   def icp_deploy(self):
-       return self._icp_deploy(False)
-
-   def clean_icp_assets(self):
-       if os.path.isdir(self.icp_assets_path):
-        for filename in os.listdir(self.icp_assets_path):
-            file_path = os.path.join(self.icp_assets_path, filename)
-            try:
-                if os.path.isfile(file_path) or os.path.islink(file_path):
-                    os.unlink(file_path)
-                elif os.path.isdir(file_path):
-                    shutil.rmtree(file_path)
-            except Exception as e:
-                print('Failed to delete %s. Reason: %s' % (file_path, e))
 
    def choice_popup(self, msg):
        return self._run_command(f'{self.bin} custom-choice-prompt "{msg}"').rstrip()
@@ -120,6 +73,5 @@ class HVYM_Handler:
    def prompt(self, msg):
        self._run_command(f'{self.bin} custom-prompt "{msg}"')
 
-   def set_canister_id(self, canister_id):
-       self._run_command(f'{self.bin} icp-assign-canister-id "www" "assets" "{canister_id}"')
+
        

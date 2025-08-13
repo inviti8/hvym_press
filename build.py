@@ -3,6 +3,7 @@ import subprocess
 from pathlib import Path
 import argparse
 import os
+import platform
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--test", help="copy executable to local install directory", action="store_true")
@@ -43,14 +44,22 @@ img_dir = cwd / 'images'
 img_copied_dir = build_dir / 'images'
 serve_dir = cwd / 'serve'
 serve_copied_dir = build_dir / 'serve'
-dist_dir = build_dir / 'dist' / 'linux'
 
-release_dir = cwd / 'release'
-release_linux = release_dir / 'linux'
+# Platform-specific paths
+current_platform = platform.system().lower()
+if current_platform == "darwin":  # macOS
+    dist_dir = build_dir / 'dist' / 'mac'
+elif current_platform == "windows":
+    dist_dir = build_dir / 'dist' / 'windows'
+else:  # Linux and others
+    dist_dir = build_dir / 'dist' / 'linux'
 
+# Override with command line argument if specified
 if args.mac:
     dist_dir = build_dir / 'dist' / 'mac'
 
+release_dir = cwd / 'release'
+release_linux = release_dir / 'linux'
 
 # check if build dir exists, if not create it
 if not build_dir.exists():
@@ -64,6 +73,8 @@ if not release_dir.exists():
 else: # delete all files inside the directory
     clean_dir(release_dir)
 
+# Create dist subdirectory
+dist_dir.mkdir(parents=True, exist_ok=True)
 
 for file in files:
     # copy source files to build directory
@@ -76,14 +87,27 @@ shutil.copytree(serve_dir, build_dir / serve_dir.name)
 # install dependencies from requirements.txt
 subprocess.run(['pip', 'install', '-r', str(build_dir / file11.name)], check=True)
 
+# Platform-specific PyInstaller commands
+if current_platform == "windows":
+    executable_name = "hvym_press.exe"
+    add_data_sep = ";"
+else:
+    executable_name = "hvym_press"
+    add_data_sep = ":"
+
 # build the python script into an executable using PyInstaller
-subprocess.run(['pyinstaller', str(file1), str(file2), str(file3), str(file4), str(file5), str(file6), str(file7), str(file8), str(file9), str(file10), '--onefile', '--name=hvym_press',  f'--distpath={dist_dir}', '--add-data', 'templates:templates', '--add-data', 'images:images', '--add-data', 'serve:serve'], check=True)
-#copy the executable to the release directory
-shutil.move(str(dist_dir / 'hvym_press'), str(release_dir))
+subprocess.run(['pyinstaller', str(file1), str(file2), str(file3), str(file4), str(file5), str(file6), str(file7), str(file8), str(file9), str(file10), '--onefile', '--name=hvym_press',  f'--distpath={dist_dir}', '--add-data', f'templates{add_data_sep}templates', '--add-data', f'images{add_data_sep}images', '--add-data', f'serve{add_data_sep}serve'], check=True)
+
+# copy the executable to the release directory
+shutil.move(str(dist_dir / executable_name), str(release_dir))
 
 # copy built executable to destination directory
 # if args.test:
-#     test_dir = Path('/home/desktop/.local/share/heavymeta-cli')
-#     shutil.copy(str(dist_dir / (file1.stem )), test_dir)
-#     subprocess.Popen('chmod +x ./hvym', cwd=test_dir, shell=True, stderr=subprocess.STDOUT)
+#     if current_platform == "windows":
+#         test_dir = Path(os.path.expanduser('~')) / 'AppData' / 'Local' / 'heavymeta-cli'
+#     else:
+#         test_dir = Path('/home/desktop/.local/share/heavymeta-cli')
+#     shutil.copy(str(dist_dir / executable_name), test_dir)
+#     if current_platform != "windows":
+#         subprocess.run(['chmod', '+x', str(test_dir / executable_name)], check=True)
 

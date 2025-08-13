@@ -9,6 +9,7 @@ import markdown
 from PIL import Image
 from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
+import urllib.parse
 
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
 templates = os.path.join(SCRIPT_DIR , 'templates')
@@ -27,70 +28,120 @@ class MarkdownHandler:
        self.deployerManifest = deployerManifest
        
    def _deployedURL(self, href):
-       result = None
-       f_name = os.path.basename(href)
-
-       if self.deployerManifest != None and f_name in self.deployerManifest.keys():
-           if self.deployerManifest[f_name]['url'] != None:
-               result = self.deployerManifest[f_name]['url']
-               
-       return result
+       """
+       Get the deployed IPFS URL for a media file.
+       Returns the original href if no deployed URL is found.
+       Handles both relative and absolute paths.
+       """
+       if not self.deployerManifest or 'media_files' not in self.deployerManifest:
+           print(f"DEBUG: No manifest or media_files in manifest for {href}")
+           return href
+       
+       # Handle both relative and absolute paths
+       filename = os.path.basename(href)
+       
+       # Decode URL-encoded characters in the filename
+       decoded_filename = urllib.parse.unquote(filename)
+       
+       media_files = self.deployerManifest['media_files']
+       
+       print(f"DEBUG: Looking for {decoded_filename} (decoded from {filename}) in manifest with {len(media_files)} files")
+       print(f"DEBUG: Available files: {list(media_files.keys())}")
+       
+       # First try exact filename match with decoded name
+       if decoded_filename in media_files:
+           deployed_url = media_files[decoded_filename]['url']
+           print(f"DEBUG: Exact match found for {decoded_filename}: {deployed_url}")
+           print(f"Replacing {href} with deployed URL: {deployed_url}")
+           return deployed_url
+       
+       # Try to find by filename regardless of path (case-insensitive)
+       for media_filename, media_data in media_files.items():
+           if media_filename.lower() == decoded_filename.lower():
+               deployed_url = media_data['url']
+               print(f"DEBUG: Case-insensitive match found for {decoded_filename}: {deployed_url}")
+               print(f"Found media file {decoded_filename} in manifest (case-insensitive match)")
+               return deployed_url
+       
+       # Try to find by filename without extension
+       decoded_filename_no_ext = os.path.splitext(decoded_filename)[0]
+       for media_filename, media_data in media_files.items():
+           media_filename_no_ext = os.path.splitext(media_filename)[0]
+           if media_filename_no_ext.lower() == decoded_filename_no_ext.lower():
+               deployed_url = media_data['url']
+               print(f"DEBUG: Extension-insensitive match found for {decoded_filename}: {deployed_url}")
+               print(f"Found media file {decoded_filename} in manifest (extension-insensitive match)")
+               return deployed_url
+       
+       print(f"DEBUG: No deployed URL found for {decoded_filename} (from {href})")
+       print(f"DEBUG: Original href: {href}, extracted filename: {filename}, decoded filename: {decoded_filename}")
+       print(f"DEBUG: Manifest keys: {list(media_files.keys())}")
+       return href
    
    def _handleImgTags(self, html):
+        """
+        Handle image tags and replace src attributes with deployed URLs.
+        Now processes ALL image types, not just .png
+        """
         def handleHREF(href):
             result = self._deployedURL(href)
-               
             if result == None:
                 result = href
-                
             return result
         
         soup = BeautifulSoup(html, 'html.parser')
         links = soup.findAll('img')
         
         for link in links:
-            if '.png' in link['src']:
-                src = handleHREF(link['src'])
-                f_name = os.path.basename(src)
-                st = "width:100%;"
-                   
-                new_tag = soup.new_tag('img', alt=f_name, src=src, style=st)
-                link['class'] = 'deployed_img'
-                link.parent['class'] = 'deployed_img_p'
-                link.replaceWith(new_tag)
+            if 'src' in link.attrs:
+                # Process ALL image types, not just .png
+                src = link['src']
+                if any(ext in src.lower() for ext in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp']):
+                    deployed_src = handleHREF(src)
+                    if deployed_src != src:
+                        print(f"Replacing image src: {src} -> {deployed_src}")
+                        link['src'] = deployed_src
+                        link['class'] = 'deployed_img'
+                        if link.parent:
+                            link.parent['class'] = 'deployed_img_p'
                 
         return soup.decode(formatter='html')
         
        
    def _handleMediaTags(self, html):
-       
+       """
+       Handle media tags (video, audio) and replace href attributes with deployed URLs.
+       """
        def handleHREF(href):
            result = self._deployedURL(href)
-              
            if result == None:
                result = href
-               
            return result
                
        soup = BeautifulSoup(html, 'html.parser')
        links = soup.findAll('a')
 
        for link in links:
-           
-           if '.mp4' in link['href']:
-               href = handleHREF(link['href'])
-                  
-               new_tag = soup.new_tag('video', controls=None, muted=None, autoplay=None, width="320", height="240", src=href, type="video/mp4")
-               new_tag['src'] = href
-               link.parent['class'] = 'vid_container'
-               link.replaceWith(new_tag)
+           if 'href' in link.attrs:
+               href = link['href']
                
-           if '.mp3' in link['href']:
-               href = handleHREF(link['href'])
+               # Handle video files
+               if any(ext in href.lower() for ext in ['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm']):
+                   deployed_href = handleHREF(href)
+                   if deployed_href != href:
+                       print(f"Replacing video href: {href} -> {deployed_href}")
+                       new_tag = soup.new_tag('video', controls=None, muted=None, autoplay=None, width="320", height="240", src=deployed_href, type="video/mp4")
+                       link.parent['class'] = 'vid_container'
+                       link.replaceWith(new_tag)
                
-               new_tag = soup.new_tag('audio', controls=None, src=href, type="audio/mpeg")
-               link.parent['class'] = 'audio_container'
-               link.replaceWith(new_tag)
+               # Handle audio files
+               elif any(ext in href.lower() for ext in ['.mp3', '.wav', '.ogg', '.flac', '.aac']):
+                   deployed_href = handleHREF(href)
+                   if deployed_href != href:
+                       print(f"Replacing audio href: {href} -> {deployed_href}")
+                       new_tag = soup.new_tag('audio', controls=None, src=deployed_href, type="audio/mpeg")
+                       link.parent['class'] = 'audio_container'
+                       link.replaceWith(new_tag)
                
        return soup.decode(formatter='html')
    
@@ -128,16 +179,30 @@ class MarkdownHandler:
        self.deployerManifest = manifest
    
    def generateHTML(self, filePath):
-       file = open(filePath, 'r', encoding="utf-8")
-       md_file = file.read()
-       md = markdown.Markdown()
-       md.convert(md_file)
-       html = markdown.markdown(md_file)
-       html = self._handleMediaTags(html)
-       html = self._handleImgTags(html)
-       file.close()
+       """
+       Generate HTML from markdown file with proper media link replacement.
        
-       return md.convert(html)
+       :param filePath: path to the markdown file
+       :type filePath: (str)
+       :return: HTML with deployed media links
+       :rtype: (str)
+       """
+       try:
+           with open(filePath, 'r', encoding="utf-8") as file:
+               md_file = file.read()
+           
+           # Convert markdown to HTML
+           html = markdown.markdown(md_file)
+           
+           # Process media links BEFORE any other HTML manipulation
+           html = self._handleImgTags(html)
+           html = self._handleMediaTags(html)
+           
+           return html
+           
+       except Exception as e:
+           print(f"Error generating HTML from {filePath}: {e}")
+           return f"<p>Error generating HTML: {e}</p>"
    
    def _renderTemplate(self, template_file, data):
        template = env.get_template(template_file)
@@ -145,14 +210,58 @@ class MarkdownHandler:
    
    def renderPageTemplate(self, template_file, data, page):
         output = self._renderTemplate(template_file, data)
-        output = self._shortenMediaLinks(output.encode())
         
+        # Debug: Check if the rendered output contains media links
+        if '../_resources/' in output:
+            print(f"DEBUG: Rendered template still contains local media links!")
+            # Find and show examples
+            import re
+            media_links = re.findall(r'\.\./_resources/[^"\s]+', output)
+            if media_links:
+                print(f"DEBUG: Found local media links in template: {media_links[:3]}...")
+        else:
+            print(f"DEBUG: Rendered template appears to have media links replaced")
+        
+        # Process with _shortenMediaLinks (expects string)
+        output = self._shortenMediaLinks(output)
+        
+        # Debug: Check after shortening (output is still string)
+        if '../_resources/' in output:
+            print(f"DEBUG: After shortening, still contains local media links!")
+        else:
+            print(f"DEBUG: After shortening, no local media links found")
+        
+        # Convert to bytes only for file writing
         with open(page, "wb") as f:
             f.write(output.encode())
+        
+        print(f"DEBUG: Template rendered to: {page}")
+        print(f"DEBUG: File size: {len(output)} characters")
 
-   def renderICPPageTemplate(self, template_file, data, page, resource_dir):
-        output = self._renderTemplate(template_file, data)
-        output = self._flattenMediaLinks(output.encode(), resource_dir)
-        
-        with open(page, "wb") as f:
-            f.write(output.encode())
+   def testMediaReplacement(self, test_html, manifest):
+       """
+       Test method to verify media link replacement is working correctly.
+       
+       :param test_html: HTML string to test
+       :type test_html: (str)
+       :param manifest: Deployment manifest to use
+       :type manifest: (dict)
+       :return: Processed HTML
+       :rtype: (str)
+       """
+       print("=== TESTING MEDIA REPLACEMENT ===")
+       print(f"Input HTML: {test_html}")
+       print(f"Manifest: {manifest}")
+       
+       # Set the manifest
+       self.deployerManifest = manifest
+       
+       # Process the HTML
+       result = self._handleImgTags(test_html)
+       result = self._handleMediaTags(result)
+       
+       print(f"Output HTML: {result}")
+       print("=== END TEST ===")
+       
+       return result
+
