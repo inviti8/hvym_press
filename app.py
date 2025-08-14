@@ -1104,8 +1104,14 @@ nft_settings_layout = [[sg.Frame('NFT Settings', [
         [sg.Combo(['None', 'NFT', 'Minter'], default_value='None', s=(15,22), enable_events=True, readonly=True, k='SETTING-nft-type')]
         ], expand_x=True)],
     ],  size=(15,10), expand_y=True, expand_x=True)]]
-
-tab1_layout =  [[TreeData.Tree(treedata, [], True,
+home_page_msg = 'Home Page NOT Detected'
+if DATA.hasHomePage:
+    home_page_msg = 'Home Page Detected'
+    
+tab1_layout =  [[sg.Text(home_page_msg)],
+            [sg.Button('', image_data=home_icon, 
+            button_color=(sg.theme_background_color(),sg.theme_background_color()),border_width=0, visible=DATA.hasHomePage, key='')],
+            [TreeData.Tree(treedata, [], True,
                    10, 40, '-TREE-', font, 48, False, True, True, True, ['&Right', command])]]   
 
 tab2_layout = [[sg.Column(ui_settings_layout, expand_x=True, expand_y=True, element_justification='left'), 
