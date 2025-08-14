@@ -507,7 +507,7 @@ class SiteDataHandler:
            self.deleteFile(folder, path, self.formData)
            self.deleteFile(folder, path, self.metaData)
            self.deleteFile(folder, path, self.pageData)
-           if path in self.folderData[folder]['articleList']:
+           if folder in self.folderData and path in self.folderData[folder]['articleList']:
                self.folderData[folder]['articleList'].pop(self.folderData[folder]['articleList'].index(path))
            
        for folder in self.oldFolders:
