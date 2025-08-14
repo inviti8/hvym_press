@@ -130,9 +130,6 @@ def fileIsNew(filePath, time_stamp):
 def baseFolder(f_path):
     f_path = f_path.rstrip(os.path.sep)
     return os.path.basename(f_path)
-    # sep = os.path.sep
-    # arr = f_path.split(sep)
-    # return(arr[len(arr)-2])
 
 def newFolderData(f, data):
     f_name = os.path.basename(f)
