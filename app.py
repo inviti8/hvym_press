@@ -128,9 +128,11 @@ def fileIsNew(filePath, time_stamp):
     return result
 
 def baseFolder(f_path):
-    sep = os.path.sep
-    arr = f_path.split(sep)
-    return(arr[len(arr)-2])
+    f_path = f_path.rstrip(os.path.sep)
+    return os.path.basename(f_path)
+    # sep = os.path.sep
+    # arr = f_path.split(sep)
+    # return(arr[len(arr)-2])
 
 def newFolderData(f, data):
     f_name = os.path.basename(f)
@@ -210,9 +212,6 @@ def renderTreedata(data):
                 treedata.Insert(pagePath, articlePath, article, values=[0], icon=icon )
 
 def updateFolderData(first_run, data):
-    if not first_run:
-        return
-    
     for page in data.articleData.keys():
         DATA.updateFolderData(page)
 
@@ -223,84 +222,101 @@ def refreshSiteData(data):
 
     return site_data
 
-def add_files_in_folder(parent, dirname, data):
-    files = os.listdir(dirname)
-    file_paths = []
-    new_folders = []
-    first_run = False
+def process_folder(folder_path, folder_name, data, is_first_run=False):
+    """Process a single folder and add it to data structures"""
+    if '_resources' in folder_path:
+        return False  # Skip _resources folders
     
-    if(data.fileExists and not first_run):
-        data.pruneFolders()
-        for f in files:
-            fullpath = os.path.join(dirname, f)
-            f_name = os.path.basename(f)
-            basepath = fullpath.replace(f_name, '')
-            f_path = baseFolder(basepath)
+    # Add folder to data structures
+    data.addFolderPath(folder_name, folder_path)
+    
+    # Create folder data if it doesn't exist
+    if data.hasNoFolder(folder_name):
+        newFolderData(folder_name, data)
+    
+    # Add to pageList if it's a valid page
+    if folder_name not in data.pageList and not folder_name.startswith("_"):
+        data.pageList.append(folder_name)
+        print(f"Page: {folder_name} is appended")
+        return True  # Indicates this is a new folder
+    
+    return False
 
-            file_paths.append(fullpath)
+def process_markdown_file(file_path, file_name, parent_folder, data):
+    """Process a single markdown file and add it to data structures"""
+    file_extension = pathlib.Path(file_name).suffix
+    
+    if file_extension == '.md':
+        newMdFile(file_name, file_name, file_path, data)
+        return True
+    
+    return False
+
+def scan_directory_recursive(dirname, data, is_first_run=False):
+    """Recursively scan directory and process folders and files"""
+    try:
+        files = os.listdir(dirname)
+    except PermissionError:
+        print(f"Permission denied accessing directory: {dirname}")
+        return
+    except FileNotFoundError:
+        print(f"Directory not found: {dirname}")
+        return
+    
+    new_folders = []
+    
+    # Process all items in the directory
+    for item in files:
+        fullpath = os.path.join(dirname, item)
+        
+        if os.path.isdir(fullpath):
+            # Process folder
+            is_new_folder = process_folder(fullpath, item, data, is_first_run)
+            if is_new_folder:
+                new_folders.append(item)
             
-            if os.path.isdir(fullpath):
-                data.pruneFiles()
-                if '_resources' not in fullpath:
-                    data.addFolderPath(f, fullpath)
-                    if data.hasNoFolder(f):
-                        newFolderData(f, data)
-                    
-                    if f_name not in data.pageList and not f_name.startswith("_"):
-                        data.pageList.append(f_name)
-                        new_folders.append(f_name)
-
-                    add_files_in_folder(fullpath, fullpath, data)
-            else:
-                file_extension = pathlib.Path(f).suffix           
-                if file_extension == '.md':
-                    newMdFile(f_path, f, fullpath, data)
-
-        for fd in new_folders:
-            fd_path = os.path.join(dirname, fd)
-            files = os.listdir(fd_path)
-            for f in files:
-                fullpath = os.path.join(fd_path, f)
-                f_name = os.path.basename(f)
-                basepath = fullpath.replace(f_name, '')
-                file_extension = pathlib.Path(f).suffix
-                                
-                if file_extension == '.md':
-                    newMdFile(f, f_name, fullpath, data)
-
-            data.updateFolderData(fd)
-                        
-    else:
-        first_run = True
-        for f in files:
-            fullpath = os.path.join(dirname, f)
-            f_name = os.path.basename(f)
-            
-            if os.path.isdir(fullpath):
-                if '_resources' not in fullpath:
-                    data.addFolderPath(f, fullpath)
-                    newFolderData(f, data)
-                    
-                    if not f_name.startswith("_"):
-                        data.pageList.append(f_name)
-                        print("Page: "+f_name+" is appended")
-
-                    add_files_in_folder(fullpath, fullpath, data)
+            # Recursively scan subdirectory
+            scan_directory_recursive(fullpath, data, is_first_run)
+        else:
+            # Process file
+            parent_folder = baseFolder(dirname)
+            process_markdown_file(fullpath, item, parent_folder, data)
+    
+    # Process markdown files in new folders (for non-first-run scenarios)
+    if not is_first_run and new_folders:
+        for folder_name in new_folders:
+            folder_path = os.path.join(dirname, folder_name)
+            try:
+                subfiles = os.listdir(folder_path)
+                for subfile in subfiles:
+                    subfile_path = os.path.join(folder_path, subfile)
+                    if os.path.isfile(subfile_path):
+                        process_markdown_file(subfile_path, subfile, folder_name, data)
                 
-            else:
-                file_extension = pathlib.Path(f).suffix
-                f_icon = block
-                f_name = os.path.basename(f)
-                basepath = fullpath.replace(f_name, '')
-                                
-                if file_extension == '.md':
-                    newMdFile(f, f_name, fullpath, data)
+                # Update folder data after processing files
+                data.updateFolderData(folder_name)
+            except (PermissionError, FileNotFoundError) as e:
+                print(f"Error processing subfolder {folder_name}: {e}")
 
-    if first_run == False:             
+def add_files_in_folder(parent, dirname, data):
+    """Main method to scan directory and populate data structures"""
+    is_first_run = not data.fileExists
+    
+    # Handle existing data updates
+    if not is_first_run:
+        data.pruneFolders()
+        data.pruneFiles()
+    
+    # Scan directory recursively
+    scan_directory_recursive(dirname, data, is_first_run)
+    
+    # Clean up old data if not first run
+    if not is_first_run:
         data.deleteOldFiles()
-
+    
+    # Save data and update UI
     data.saveData()
-    updateFolderData(first_run, data)
+    updateFolderData(is_first_run, data)
     renderTreedata(data)
     
                 
