@@ -519,6 +519,14 @@ class SiteDataHandler:
            self.deleteFolder(folder, self.formData)
            self.deleteFolder(folder, self.metaData)
            
+           # CRITICAL FIX: Also remove from pageList and folderPathList
+           if folder in self.pageList:
+               self.pageList.remove(folder)
+               print(f"Removed deleted folder '{folder}' from pageList")
+           if folder in self.folderPathList:
+               self.folderPathList.pop(folder, None)
+               print(f"Removed deleted folder '{folder}' from folderPathList")
+           
        self.oldDataFolders.clear()
        self.oldDataKeys.clear()
        self.oldFolders.clear()

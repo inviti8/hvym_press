@@ -130,9 +130,6 @@ def fileIsNew(filePath, time_stamp):
 def baseFolder(f_path):
     f_path = f_path.rstrip(os.path.sep)
     return os.path.basename(f_path)
-    # sep = os.path.sep
-    # arr = f_path.split(sep)
-    # return(arr[len(arr)-2])
 
 def newFolderData(f, data):
     f_name = os.path.basename(f)
@@ -201,19 +198,42 @@ def renderTreedata(data):
 
     #render the data
     for page in data.pageList:
+        # Safety check: ensure the page exists in articleData before rendering
+        if page not in data.articleData:
+            print(f"WARNING: Page '{page}' found in pageList but not in articleData - skipping")
+            continue
+            
+        # Safety check: ensure the page has a valid path
+        if page not in data.folderPathList:
+            print(f"WARNING: Page '{page}' found in pageList but not in folderPathList - skipping")
+            continue
+            
         aData = data.articleData[page]
         pagePath = data.folderPathList[page]
         treedata.Insert('', pagePath, page, values=[0], icon=folder_icon )
+        
         if page in data.folderData:
             for article in data.folderData[page]['articleList']:
+                # Safety check: ensure the article exists in aData
+                if article not in aData:
+                    print(f"WARNING: Article '{article}' not found in aData for page '{page}' - skipping")
+                    continue
+                    
                 d = aData[article]
                 articlePath = os.path.join(pagePath, article)
                 icon = get_file_icon(d['type'])
                 treedata.Insert(pagePath, articlePath, article, values=[0], icon=icon )
+        else:
+            print(f"WARNING: Page '{page}' not found in folderData - skipping article rendering")
 
 def updateFolderData(first_run, data):
+    """Update folder data to sync with articleData"""
     for page in data.articleData.keys():
-        DATA.updateFolderData(page)
+        # Safety check: ensure the page exists in pageList before updating
+        if page in data.pageList:
+            DATA.updateFolderData(page)
+        else:
+            print(f"WARNING: Page '{page}' found in articleData but not in pageList - skipping update")
 
 def refreshSiteData(data):
     site_data = data.generateSiteData()
