@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="shortcut icon" type="image/x-icon" href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmcJLBGNFb2UKFy3jspNfHk8wFCjhSsBDaQ2tWrASQBSYE" />
-  <title>{{data.settings.site_name}}</title>
+  <title>{{data.settings.siteName}}</title>
   <link rel="stylesheet" href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsenui.min.css">
   <link rel="stylesheet" href="{{data.settings.css_components}}">
   <script src="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/js/onsenui.min.js"></script>
@@ -247,6 +247,55 @@
         max-width: 80%;
         min-width: 250px;
       }
+      
+      /* Home Page Styles */
+      .hero-section {
+          min-height: 60vh;
+          background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), var(--hero-bg);
+          background-size: cover;
+          background-position: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          color: white;
+          margin-bottom: 2rem;
+      }
+
+      .hero-content {
+          padding: 2rem;
+      }
+
+      .hero-title {
+          font-size: 3rem;
+          margin-bottom: 1rem;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+      }
+
+      .hero-subtitle {
+          font-size: 1.2rem;
+          margin-bottom: 2rem;
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+      }
+
+      .home-navigation {
+          text-align: center;
+          padding: 2rem;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 1rem;
+      }
+
+      .home-nav-button {
+          margin: 0.5rem;
+      }
+
+      .home-content {
+          padding: 2rem;
+          max-width: 800px;
+          margin: 0 auto;
+      }
     </style>
 
 </head>
@@ -257,6 +306,12 @@
   <ons-splitter-side id="menu" side="left" width="220px" collapse swipeable>
     <ons-page>
       <ons-list>
+        {% if data.hasHomePage %}
+        <ons-list-item onclick="fn.load('home.html')" tappable>
+          <ons-icon class='menu_icon' icon="md-home"></ons-icon>
+          <p>Home</p>
+        </ons-list-item>
+        {% endif %}
         {% for page in data.pages %}
           {% if page.icon != 'none' %}
         <ons-list-item onclick="fn.load('{{page.title}}.html')" tappable>
@@ -275,13 +330,21 @@
     </ons-page>
   </ons-splitter-side>
   <ons-splitter-content>
-    <ons-navigator id="myNavigator" page="{{data.pages[0].title}}.html"></ons-navigator>
+    {% if data.hasHomePage %}
+      <ons-navigator id="myNavigator" page="home.html"></ons-navigator>
+    {% else %}
+      <ons-navigator id="myNavigator" page="{{data.pages[0].title}}.html"></ons-navigator>
+    {% endif %}
   </ons-splitter-content>
 </ons-splitter>
 {% endif %}
 
 {% if data.settings.pageType == 'tabs' %}
+{% if data.hasHomePage %}
+<ons-navigator id="myNavigator" page="home.html" hide-toolbar=true>
+{% else %}
 <ons-navigator id="myNavigator" page="{{data.pages[0].title}}.html" hide-toolbar=true>
+{% endif %}
   <ons-page>
     <ons-tabbar swipeable position="auto">
       {% for page in data.pages %}
@@ -315,7 +378,11 @@
 {% if data.settings.pageType == 'carousel' %}
 <ons-splitter>
   <ons-splitter-content>
-    <ons-navigator id="myNavigator" page="{{data.pages[0].title}}.html"></ons-navigator>
+    {% if data.hasHomePage %}
+      <ons-navigator id="myNavigator" page="home.html"></ons-navigator>
+    {% else %}
+      <ons-navigator id="myNavigator" page="{{data.pages[0].title}}.html"></ons-navigator>
+    {% endif %}
   </ons-splitter-content>
 </ons-splitter>
 
@@ -456,8 +523,66 @@
   </ons-carousel>
 </ons-page>
 </template>
+{% endif %}
 
-{% else %}
+<!-- Home Page Template (available for all page types) -->
+{% if data.hasHomePage %}
+<template id="home.html">
+  <ons-page>
+    <ons-toolbar modifier="{{data.settings.style}}">
+      <div class="center">
+        {{data.homePage.title}}
+      </div>
+      {% if data.settings.pageType == 'splitter' %}
+      <div class="left">
+        <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
+          <ons-icon icon="md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      {% endif %}
+    </ons-toolbar>
+    
+    <!-- Hero Section (if configured) -->
+    {% if data.homePage.content.hero_title or data.homePage.content.hero_image %}
+    <div class="hero-section" {% if data.homePage.content.hero_image %}style="background-image: url('{{data.homePage.content.hero_image}}')"{% endif %}>
+      <div class="hero-content">
+        {% if data.homePage.content.hero_title %}
+        <h1 class="hero-title">{{data.homePage.content.hero_title}}</h1>
+        {% endif %}
+        {% if data.homePage.content.hero_subtitle %}
+        <p class="hero-subtitle">{{data.homePage.content.hero_subtitle}}</p>
+        {% endif %}
+        {% if data.homePage.content.cta_button.text %}
+        <ons-button onclick="fn.load('{{data.pages[0].title}}.html')" modifier="large" class="hero-cta">
+          {{data.homePage.content.cta_button.text}}
+        </ons-button>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+    
+    <!-- Navigation Buttons (from frontmatter) -->
+    {% if data.homePage.navigation %}
+    <div class="home-navigation">
+      {% for nav_item in data.homePage.navigation %}
+        {% if nav_item.page in data.pageList %}
+        <ons-button onclick="fn.load('{{nav_item.page}}.html')" modifier="{{nav_item.style or 'primary'}}" class="home-nav-button">
+          {{nav_item.text}}
+        </ons-button>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Main Content (processed markdown) -->
+    <div class="home-content">
+      {{data.homePage.content.html|safe}}
+    </div>
+  </ons-page>
+</template>
+{% endif %}
+
+<!-- Regular Page Templates -->
 {% for page in data.pages %}
 <template id="{{page.title}}.html">
   <ons-page>
@@ -590,7 +715,6 @@
   </ons-page>
 </template>
 {% endfor %}
-{% endif %}
 
 {% for page in data.pages %}
 {% for column in page.content.columns %}
