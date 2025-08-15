@@ -58,9 +58,1469 @@ from hvym_stellar import *
 
 from stellar_sdk import Keypair
 
+CSS_LIGHT = ''' 
+/* Custom Theme for Onsen UI 2.11.2 */
 
+  /* variables for iOS components */
+  --background-color: #efeff4;
+  --text-color: #1f1f21;
+  --sub-text-color: #999;
+  --highlight-color: rgba(122,72,169,1);
+  --second-highlight-color: rgba(159,122,193,1);
+  --border-color: #ccc;
+  --button-background-color: var(--highlight-color);
+  --button-cta-background-color: var(--second-highlight-color);
+  --toolbar-background-color: #fafafa;
+  --toolbar-button-color: var(--highlight-color);
+  --toolbar-text-color: #1f1f21;
+  --toolbar-border-color: #b2b2b2;
+  --button-bar-color: var(--highlight-color);
+  --button-bar-active-text-color: #fff;
+  --button-bar-active-background-color: color-mod(var(--button-bar-color) tint(70%));
+  --button-light-color: black;
+  --segment-color: var(--highlight-color);
+  --segment-active-text-color: #fff;
+  --segment-active-background-color: color-mod(var(--segment-color) tint(70%));
+  --list-background-color: #fff;
+  --list-header-background-color: #eee;
+  --list-tap-active-background-color: #d9d9d9;
+  --list-item-chevron-color: #c7c7cc;
+  --progress-bar-color: var(--highlight-color);
+  --progress-bar-secondary-color: rgba(174,119,224,1);
+  --progress-bar-background-color: transparent;
+  --progress-circle-primary-color: var(--highlight-color);
+  --progress-circle-secondary-color: #65adff;
+  --progress-circle-background-color: transparent;
+  --tabbar-background-color: #fafafa;
+  --tabbar-text-color: #999;
+  --tabbar-highlight-text-color: var(--highlight-color);
+  --tabbar-border-color: #ccc;
+  --switch-highlight-color: rgba(210,199,92,1);
+  --switch-border-color: #e5e5e5;
+  --switch-background-color: white;
+  --range-track-background-color: #a4aab3;
+  --range-track-background-color-active: var(--highlight-color);
+  --range-thumb-background-color: #fff;
+  --modal-background-color: rgba(0, 0, 0, 0.7);
+  --modal-text-color: #fff;
+  --alert-dialog-background-color: #f4f4f4;
+  --alert-dialog-text-color: #1f1f21;
+  --alert-dialog-button-color: var(--highlight-color);
+  --alert-dialog-separator-color: #ddd;
+  --dialog-background-color: #f4f4f4;
+  --dialog-text-color: var(--text-color);
+  --popover-background-color: white;
+  --popover-text-color: #1f1f21;
+  --action-sheet-title-color: #8f8e94;
+  --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+  --action-sheet-button-color: var(--highlight-color);
+  --action-sheet-button-destructive-color: #fe3824;
+  --action-sheet-button-background-color: rgba(255, 255, 255, 0.9);
+  --action-sheet-button-active-background-color: #e9e9e9;
+  --action-sheet-cancel-button-background-color: #fff;
+  --notification-background-color: #7A48A9;
+  --notification-color: white;
+  --search-input-background-color: rgba(3, 3, 3, 0.09);
+  --fab-text-color: #ffffff;
+  --fab-background-color: var(--highlight-color);
+  --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+  --card-background-color: white;
+  --card-text-color: #030303;
+  --toast-background-color: rgba(0, 0, 0, 0.8);
+  --toast-text-color: white;
+  --toast-button-text-color: white;
+  --select-input-color: var(--text-color);
+  --select-input-border-color: var(--border-color);
 
+  /* variables for Material Design components */
+  --material-background-color: #eceff1;
+  --material-text-color: var(--text-color);
+  --material-notification-background-color: #7A48A9;
+  --material-notification-color: white;
+  --material-switch-active-thumb-color: #37474f;
+  --material-switch-active-background-color: color-mod(#37474f a(50%));
+  --material-switch-inactive-thumb-color: #f1f1f1;
+  --material-switch-inactive-background-color: #b0afaf;
+  --material-range-track-color: #bdbdbd;
+  --material-range-thumb-color: #31313a;
+  --material-range-disabled-thumb-color: #b0b0b0;
+  --material-range-disabled-thumb-border-color: #eeeeee;
+  --material-range-zero-thumb-color: #f2f2f2;
+  --material-toolbar-background-color: #ffffff;
+  --material-toolbar-text-color: #31313a;
+  --material-toolbar-button-color: rgba(163,103,220,1);
+  --material-segment-background-color: #fafafa;
+  --material-segment-active-background-color: #c8c8c8;
+  --material-segment-text-color: color-mod(black a(38%));
+  --material-segment-active-text-color: #353535;
+  --material-button-background-color: rgba(170,107,228,1);
+  --material-button-text-color: #ffffff;
+  --material-button-disabled-background-color: color-mod(#4f4f4f a(26%));
+  --material-button-disabled-color: color-mod(black a(26%));
+  --material-flat-button-active-background-color: color-mod(#999 a(20%));
+  --material-list-background-color: #fff;
+  --material-list-item-separator-color: #eee;
+  --material-list-header-text-color: #757575;
+  --material-checkbox-active-color: #37474f;
+  --material-checkbox-inactive-color: #717171;
+  --material-checkbox-checkmark-color: #ffffff;
+  --material-radio-button-active-color: #37474f;
+  --material-radio-button-inactive-color: #717171;
+  --material-radio-button-disabled-color: #afafaf;
+  --material-text-input-text-color: #212121;
+  --material-text-input-active-color: #3d5afe;
+  --material-text-input-inactive-color: #afafaf;
+  --material-search-background-color: #fafafa;
+  --material-dialog-background-color: #ffffff;
+  --material-dialog-text-color: var(--material-text-color);
+  --material-alert-dialog-background-color: #ffffff;
+  --material-alert-dialog-title-color: #31313a;
+  --material-alert-dialog-content-color: rgba(49, 49, 58, 0.85);
+  --material-alert-dialog-button-color: #37474f;
+  --material-progress-bar-primary-color: rgba(83,60,105,1);
+  --material-progress-bar-secondary-color: rgba(142,98,183,1);
+  --material-progress-bar-background-color: transparent;
+  --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+  --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+  --material-progress-circle-background-color: transparent;
+  --material-tabbar-background-color: #ffffff;
+  --material-tabbar-text-color: #31313a;
+  --material-tabbar-highlight-text-color: #31313a;
+  --material-tabbar-highlight-color: rgba(49, 49, 58, 0.1);
+  --material-fab-text-color: #31313a;
+  --material-fab-background-color: #ffffff;
+  --material-fab-active-background-color: rgba(255, 255, 255, 0.75);
+  --material-card-background-color: white;
+  --material-card-text-color: rgba(0, 0, 0, 0.54);
+  --material-toast-background-color: rgba(0, 0, 0, 0.8);
+  --material-toast-text-color: white;
+  --material-toast-button-text-color: #bbdefb;
+  --material-select-input-color: var(--material-text-color);
+  --material-select-input-active-color: rgba(0, 0, 0, 0.15);
+  --material-select-input-inactive-color: rgba(0, 0, 0, 0.81);
+  --material-select-border-color: color-mod(black a(12%));
+  --material-popover-background-color: #fafafa;
+  --material-popover-text-color: var(--material-text-color);
+  --material-action-sheet-text-color: #686868;
 
+  /* others */
+  --tap-highlight-color: transparent;
+'''
+CSS_DARK = '''
+/* Custom Theme for Onsen UI 2.11.2 */
+  /* variables for iOS components */
+  --background-color: #0d0d0d;
+  --text-color: #fff;
+  --sub-text-color: #999;
+  --highlight-color: #ffa101;
+  --second-highlight-color: #da5926;
+  --border-color: #242424;
+  --button-background-color: var(--highlight-color);
+  --button-cta-background-color: var(--second-highlight-color);
+  --button-light-color: white;
+  --toolbar-background-color: #181818;
+  --toolbar-button-color: var(--highlight-color);
+  --toolbar-text-color: #fff;
+  --toolbar-border-color: #242424;
+  --button-bar-color: var(--highlight-color);
+  --button-bar-active-text-color: #fff;
+  --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+  --segment-color: var(--highlight-color);
+  --segment-active-text-color: #fff;
+  --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+  --list-background-color: #181818;
+  --list-header-background-color: #111;
+  --list-tap-active-background-color: #262626;
+  --list-item-chevron-color: #383833;
+  --progress-bar-color: var(--highlight-color);
+  --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+  --progress-bar-background-color: transparent;
+  --progress-circle-primary-color: var(--progress-bar-color);
+  --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+  --progress-circle-background-color: transparent;
+  --tabbar-background-color: #212121;
+  --tabbar-text-color: #aaa;
+  --tabbar-highlight-text-color: var(--highlight-color);
+  --tabbar-border-color: #0d0d0d;
+  --switch-highlight-color: #44db5e;
+  --switch-border-color: #666;
+  --switch-background-color: var(--background-color);
+  --range-track-background-color: #6b6f74;
+  --range-track-background-color-active: #bbb;
+  --range-thumb-background-color: #fff;
+  --modal-background-color: color-mod(black a(70%));
+  --modal-text-color: #fff;
+  --alert-dialog-background-color: #f4f4f4;
+  --alert-dialog-text-color: #1f1f21;
+  --alert-dialog-button-color: var(--highlight-color);
+  --alert-dialog-separator-color: #ddd;
+  --dialog-background-color: #0d0d0d;
+  --dialog-text-color: #1f1f21;
+  --popover-background-color: #242424;
+  --popover-text-color: var(--text-color);
+  --action-sheet-title-color: #8f8e94;
+  --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+  --action-sheet-button-color: var(--highlight-color);
+  --action-sheet-button-destructive-color: #fe3824;
+  --action-sheet-button-background-color: rgba(255, 255, 255, 0.9);
+  --action-sheet-button-active-background-color: #e9e9e9;
+  --action-sheet-cancel-button-background-color: #fff;
+  --notification-background-color: #fe3824;
+  --notification-color: white;
+  --search-input-background-color: color-mod(white a(9%));
+  --fab-text-color: #ffffff;
+  --fab-background-color: var(--highlight-color);
+  --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+  --card-background-color: var(--border-color);
+  --card-text-color: var(--text-color);
+  --toast-background-color: #ccc;
+  --toast-text-color: #000;
+  --toast-button-text-color: #000;
+  --select-input-color: var(--text-color);
+  --select-input-border-color: var(--border-color);
+
+  /* variables for Material Design components */
+  --material-background-color: #303030;
+  --material-text-color: #ffffff;
+  --material-notification-background-color: #f50057;
+  --material-notification-color: white;
+  --material-switch-active-thumb-color: #ffc107;
+  --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+  --material-switch-inactive-thumb-color: #bdbdbd;
+  --material-switch-inactive-background-color: color-mod(white a(30%));
+  --material-range-track-color: #525252;
+  --material-range-thumb-color: #cecec5;
+  --material-range-disabled-thumb-color: #4f4f4f;
+  --material-range-disabled-thumb-border-color: #303030;
+  --material-range-zero-thumb-color: #0d0d0d;
+  --material-toolbar-background-color: #212121;
+  --material-toolbar-text-color: #ffffff;
+  --material-toolbar-button-color: var(--toolbar-button-color);
+  --material-segment-background-color: #292929;
+  --material-segment-active-background-color: #404040;
+  --material-segment-text-color: color-mod(#fff a(62%));
+  --material-segment-active-text-color: #cacaca;
+  --material-button-background-color: #d68600;
+  --material-button-text-color: #ffffff;
+  --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+  --material-button-disabled-color: color-mod(white a(74%));
+  --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+  --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+  --material-list-item-separator-color: color-mod(white a(12%));
+  --material-list-header-text-color: #8a8a8a;
+  --material-checkbox-active-color: #fff;
+  --material-checkbox-inactive-color: #717171;
+  --material-checkbox-checkmark-color: #000;
+  --material-radio-button-active-color: #ffa101;
+  --material-radio-button-inactive-color: #8e8e8e;
+  --material-radio-button-disabled-color: #505050;
+  --material-text-input-text-color: color-mod(#fff a(75%));
+  --material-text-input-active-color: color-mod(#fff a(75%));
+  --material-text-input-inactive-color: color-mod(#fff a(30%));
+  --material-search-background-color: #424242;
+  --material-dialog-background-color: #424242;
+  --material-dialog-text-color: var(--material-text-color);
+  --material-alert-dialog-background-color: #424242;
+  --material-alert-dialog-title-color: white;
+  --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+  --material-alert-dialog-button-color: #d68600;
+  --material-progress-bar-primary-color: #d68600;
+  --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+  --material-progress-bar-background-color: transparent;
+  --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+  --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+  --material-progress-circle-background-color: transparent;
+  --material-tabbar-background-color: var(--material-toolbar-background-color);
+  --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+  --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
+  --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+  --material-fab-text-color: #31313a;
+  --material-fab-background-color: #ffffff;
+  --material-fab-active-background-color: color-mod(white a(75%));
+  --material-card-background-color: #424242;
+  --material-card-text-color: color-mod(white a(46%));
+  --material-toast-background-color: #ccc;
+  --material-toast-text-color: #000;
+  --material-toast-button-text-color: #583905;
+  --material-select-input-color: var(--material-text-color);
+  --material-select-input-active-color: color-mod(white a(85%));
+  --material-select-input-inactive-color: color-mod(white a(19%));
+  --material-select-border-color: color-mod(white a(88%));
+  --material-popover-background-color: var(--material-alert-dialog-background-color);
+  --material-popover-text-color: var(--material-text-color);
+  --material-action-sheet-text-color: #686868;
+
+  /* others */
+  --tap-highlight-color: transparent;
+'''
+CSS_HEAVYMETA = '''
+ /* variables for iOS components */
+  --background-color: #98314A;
+  --text-color: #fff;
+  --sub-text-color: #999;
+  --highlight-color: #31B09C;
+  --second-highlight-color: rgba(133,230,215,1);
+  --border-color: rgba(210,110,134,1);
+  --button-background-color: var(--highlight-color);
+  --button-cta-background-color: var(--second-highlight-color);
+  --button-light-color: white;
+  --toolbar-background-color: #181818;
+  --toolbar-button-color: var(--highlight-color);
+  --toolbar-text-color: #fff;
+  --toolbar-border-color: #242424;
+  --button-bar-color: rgba(106,224,205,1);
+  --button-bar-active-text-color: #fff;
+  --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+  --segment-color: rgba(99,188,174,1);
+  --segment-active-text-color: #fff;
+  --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+  --list-background-color: #181818;
+  --list-header-background-color: #111;
+  --list-tap-active-background-color: #262626;
+  --list-item-chevron-color: #383833;
+  --progress-bar-color: var(--highlight-color);
+  --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+  --progress-bar-background-color: transparent;
+  --progress-circle-primary-color: var(--progress-bar-color);
+  --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+  --progress-circle-background-color: transparent;
+  --tabbar-background-color: #212121;
+  --tabbar-text-color: #aaa;
+  --tabbar-highlight-text-color: var(--highlight-color);
+  --tabbar-border-color: #0d0d0d;
+  --switch-highlight-color: #44db5e;
+  --switch-border-color: #666;
+  --switch-background-color: var(--background-color);
+  --range-track-background-color: #6b6f74;
+  --range-track-background-color-active: #bbb;
+  --range-thumb-background-color: #fff;
+  --modal-background-color: color-mod(black a(70%));
+  --modal-text-color: #fff;
+  --alert-dialog-background-color: #f4f4f4;
+  --alert-dialog-text-color: #1f1f21;
+  --alert-dialog-button-color: var(--highlight-color);
+  --alert-dialog-separator-color: #ddd;
+  --dialog-background-color: #0d0d0d;
+  --dialog-text-color: #1f1f21;
+  --popover-background-color: #242424;
+  --popover-text-color: var(--text-color);
+  --action-sheet-title-color: #8f8e94;
+  --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+  --action-sheet-button-color: var(--highlight-color);
+  --action-sheet-button-destructive-color: #fe3824;
+  --action-sheet-button-background-color: rgba(255, 255, 255, 0.9);
+  --action-sheet-button-active-background-color: #e9e9e9;
+  --action-sheet-cancel-button-background-color: #fff;
+  --notification-background-color: #fe3824;
+  --notification-color: white;
+  --search-input-background-color: color-mod(white a(9%));
+  --fab-text-color: #ffffff;
+  --fab-background-color: var(--highlight-color);
+  --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+  --card-background-color: var(--border-color);
+  --card-text-color: var(--text-color);
+  --toast-background-color: #ccc;
+  --toast-text-color: #000;
+  --toast-button-text-color: #000;
+  --select-input-color: var(--text-color);
+  --select-input-border-color: var(--border-color);
+
+  /* variables for Material Design components */
+  --material-background-color: #98314A;
+  --material-text-color: #ffffff;
+  --material-notification-background-color: #f50057;
+  --material-notification-color: white;
+  --material-switch-active-thumb-color: rgba(212,102,128,1);
+  --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+  --material-switch-inactive-thumb-color: #bdbdbd;
+  --material-switch-inactive-background-color: color-mod(white a(30%));
+  --material-range-track-color: #525252;
+  --material-range-thumb-color: #cecec5;
+  --material-range-disabled-thumb-color: #4f4f4f;
+  --material-range-disabled-thumb-border-color: #303030;
+  --material-range-zero-thumb-color: #0d0d0d;
+  --material-toolbar-background-color: #212121;
+  --material-toolbar-text-color: #ffffff;
+  --material-toolbar-button-color: var(--toolbar-button-color);
+  --material-segment-background-color: #292929;
+  --material-segment-active-background-color: #404040;
+  --material-segment-text-color: color-mod(#fff a(62%));
+  --material-segment-active-text-color: #cacaca;
+  --material-button-background-color: #d68600;
+  --material-button-text-color: #ffffff;
+  --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+  --material-button-disabled-color: color-mod(white a(74%));
+  --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+  --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+  --material-list-item-separator-color: color-mod(white a(12%));
+  --material-list-header-text-color: #8a8a8a;
+  --material-checkbox-active-color: #fff;
+  --material-checkbox-inactive-color: #717171;
+  --material-checkbox-checkmark-color: #000;
+  --material-radio-button-active-color: #31B09C;
+  --material-radio-button-inactive-color: #8e8e8e;
+  --material-radio-button-disabled-color: #505050;
+  --material-text-input-text-color: color-mod(#fff a(75%));
+  --material-text-input-active-color: color-mod(#fff a(75%));
+  --material-text-input-inactive-color: color-mod(#fff a(30%));
+  --material-search-background-color: #424242;
+  --material-dialog-background-color: #424242;
+  --material-dialog-text-color: var(--material-text-color);
+  --material-alert-dialog-background-color: #424242;
+  --material-alert-dialog-title-color: white;
+  --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+  --material-alert-dialog-button-color: #d68600;
+  --material-progress-bar-primary-color: #31B09C;
+  --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+  --material-progress-bar-background-color: transparent;
+  --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+  --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+  --material-progress-circle-background-color: transparent;
+  --material-tabbar-background-color: var(--material-toolbar-background-color);
+  --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+  --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
+  --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+  --material-fab-text-color: #31313a;
+  --material-fab-background-color: #ffffff;
+  --material-fab-active-background-color: color-mod(white a(75%));
+  --material-card-background-color: #424242;
+  --material-card-text-color: color-mod(white a(46%));
+  --material-toast-background-color: #ccc;
+  --material-toast-text-color: #000;
+  --material-toast-button-text-color: #583905;
+  --material-select-input-color: var(--material-text-color);
+  --material-select-input-active-color: color-mod(white a(85%));
+  --material-select-input-inactive-color: color-mod(white a(19%));
+  --material-select-border-color: color-mod(white a(88%));
+  --material-popover-background-color: var(--material-alert-dialog-background-color);
+  --material-popover-text-color: var(--material-text-color);
+  --material-action-sheet-text-color: #686868;
+
+  /* others */
+  --tap-highlight-color: transparent;
+'''
+CSS_CRIMSON = '''
+  /* variables for iOS components */
+  --background-color: rgba(84,25,39,1);
+  --text-color: rgba(230,41,41,1);
+  --sub-text-color: rgba(212,88,88,1);
+  --highlight-color: rgba(255,17,17,1);
+  --second-highlight-color: rgba(241,70,70,1);
+  --border-color: rgba(138,8,39,1);
+  --button-background-color: var(--highlight-color);
+  --button-cta-background-color: var(--second-highlight-color);
+  --button-light-color: white;
+  --toolbar-background-color: #181818;
+  --toolbar-button-color: var(--highlight-color);
+  --toolbar-text-color: rgba(222,0,0,1);
+  --toolbar-border-color: #242424;
+  --button-bar-color: hsl(0,65.55%,64.70%);
+  --button-bar-active-text-color: #fff;
+  --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+  --segment-color: hsl(0,39.91%,56.27%);
+  --segment-active-text-color: #fff;
+  --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+  --list-background-color: #181818;
+  --list-header-background-color: #111;
+  --list-tap-active-background-color: #262626;
+  --list-item-chevron-color: #383833;
+  --progress-bar-color: var(--highlight-color);
+  --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+  --progress-bar-background-color: transparent;
+  --progress-circle-primary-color: var(--progress-bar-color);
+  --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+  --progress-circle-background-color: transparent;
+  --tabbar-background-color: #212121;
+  --tabbar-text-color: #aaa;
+  --tabbar-highlight-text-color: var(--highlight-color);
+  --tabbar-border-color: #0d0d0d;
+  --switch-highlight-color: #44db5e;
+  --switch-border-color: #666;
+  --switch-background-color: var(--background-color);
+  --range-track-background-color: #6b6f74;
+  --range-track-background-color-active: #bbb;
+  --range-thumb-background-color: #fff;
+  --modal-background-color: color-mod(black a(70%));
+  --modal-text-color: #fff;
+  --alert-dialog-background-color: rgba(212,172,172,1);
+  --alert-dialog-text-color: #1f1f21;
+  --alert-dialog-button-color: var(--highlight-color);
+  --alert-dialog-separator-color: #ddd;
+  --dialog-background-color: #0d0d0d;
+  --dialog-text-color: #1f1f21;
+  --popover-background-color: #242424;
+  --popover-text-color: var(--text-color);
+  --action-sheet-title-color: rgba(231,10,10,1);
+  --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+  --action-sheet-button-color: var(--highlight-color);
+  --action-sheet-button-destructive-color: #fe3824;
+  --action-sheet-button-background-color: rgba(231,203,203,0.9);
+  --action-sheet-button-active-background-color: #D4ACAC;
+  --action-sheet-cancel-button-background-color: rgba(244,225,225,1);
+  --notification-background-color: #fe3824;
+  --notification-color: white;
+  --search-input-background-color: color-mod(white a(9%));
+  --fab-text-color: #ffffff;
+  --fab-background-color: var(--highlight-color);
+  --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+  --card-background-color: var(--border-color);
+  --card-text-color: var(--text-color);
+  --toast-background-color: rgba(255,118,118,1);
+  --toast-text-color: #830404;
+  --toast-button-text-color: #000;
+  --select-input-color: var(--text-color);
+  --select-input-border-color: var(--border-color);
+
+  /* variables for Material Design components */
+  --material-background-color: #541927;
+  --material-text-color: #E62929;
+  --material-notification-background-color: #f50057;
+  --material-notification-color: white;
+  --material-switch-active-thumb-color: rgba(212,102,128,1);
+  --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+  --material-switch-inactive-thumb-color: #bdbdbd;
+  --material-switch-inactive-background-color: color-mod(white a(30%));
+  --material-range-track-color: #525252;
+  --material-range-thumb-color: #cecec5;
+  --material-range-disabled-thumb-color: #4f4f4f;
+  --material-range-disabled-thumb-border-color: #303030;
+  --material-range-zero-thumb-color: #0d0d0d;
+  --material-toolbar-background-color: #212121;
+  --material-toolbar-text-color: rgba(236,4,4,1);
+  --material-toolbar-button-color: var(--toolbar-button-color);
+  --material-segment-background-color: hsl(360,0.00%,16.07%);
+  --material-segment-active-background-color: #404040;
+  --material-segment-text-color: color-mod(#fff a(62%));
+  --material-segment-active-text-color: #cacaca;
+  --material-button-background-color: hsl(0,100.00%,41.96%);
+  --material-button-text-color: #ffffff;
+  --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+  --material-button-disabled-color: color-mod(white a(74%));
+  --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+  --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+  --material-list-item-separator-color: color-mod(white a(12%));
+  --material-list-header-text-color: #8a8a8a;
+  --material-checkbox-active-color: #fff;
+  --material-checkbox-inactive-color: #717171;
+  --material-checkbox-checkmark-color: #000;
+  --material-radio-button-active-color: hsl(0,56.44%,44.11%);
+  --material-radio-button-inactive-color: #8e8e8e;
+  --material-radio-button-disabled-color: #505050;
+  --material-text-input-text-color: color-mod(#fff a(75%));
+  --material-text-input-active-color: color-mod(#fff a(75%));
+  --material-text-input-inactive-color: color-mod(#fff a(30%));
+  --material-search-background-color: #424242;
+  --material-dialog-background-color: #424242;
+  --material-dialog-text-color: var(--material-text-color);
+  --material-alert-dialog-background-color: rgba(149,38,38,1);
+  --material-alert-dialog-title-color: white;
+  --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+  --material-alert-dialog-button-color: hsl(0,100.00%,41.96%);
+  --material-progress-bar-primary-color: hsl(0,56.44%,44.11%);
+  --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+  --material-progress-bar-background-color: transparent;
+  --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+  --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+  --material-progress-circle-background-color: transparent;
+  --material-tabbar-background-color: var(--material-toolbar-background-color);
+  --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+  --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
+  --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+  --material-fab-text-color: #31313a;
+  --material-fab-background-color: #ffffff;
+  --material-fab-active-background-color: color-mod(white a(75%));
+  --material-card-background-color: #424242;
+  --material-card-text-color: color-mod(white a(46%));
+  --material-toast-background-color: #FF7676;
+  --material-toast-text-color: #830404;
+  --material-toast-button-text-color: rgba(131,4,4,1);
+  --material-select-input-color: var(--material-text-color);
+  --material-select-input-active-color: color-mod(white a(85%));
+  --material-select-input-inactive-color: color-mod(white a(19%));
+  --material-select-border-color: color-mod(white a(88%));
+  --material-popover-background-color: var(--material-alert-dialog-background-color);
+  --material-popover-text-color: var(--material-text-color);
+  --material-action-sheet-text-color: rgba(208,79,79,1);
+
+  /* others */
+  --tap-highlight-color: transparent;
+'''
+CSS_BLUE = '''
+  /* variables for iOS components */
+  --background-color: hsl(208.94,54.11%,21.37%);
+  --text-color: hsl(218.35,82.90%,67.84%);
+  --sub-text-color: hsl(223.06,59.04%,58.82%);
+  --highlight-color: rgba(104,142,239,1);
+  --second-highlight-color: rgba(34,80,220,1);
+  --border-color: hsl(218.35,89.04%,28.62%);
+  --button-background-color: var(--highlight-color);
+  --button-cta-background-color: rgba(52,94,224,1);
+  --button-light-color: white;
+  --toolbar-background-color: #181818;
+  --toolbar-button-color: var(--highlight-color);
+  --toolbar-text-color: hsl(208.94,100.00%,43.52%);
+  --toolbar-border-color: #242424;
+  --button-bar-color: hsl(216,65.55%,64.70%);
+  --button-bar-active-text-color: #fff;
+  --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+  --segment-color: hsl(199.53,39.90%,56.27%);
+  --segment-active-text-color: #fff;
+  --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+  --list-background-color: #181818;
+  --list-header-background-color: #111;
+  --list-tap-active-background-color: #262626;
+  --list-item-chevron-color: #383833;
+  --progress-bar-color: var(--highlight-color);
+  --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+  --progress-bar-background-color: transparent;
+  --progress-circle-primary-color: var(--progress-bar-color);
+  --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+  --progress-circle-background-color: transparent;
+  --tabbar-background-color: #212121;
+  --tabbar-text-color: #aaa;
+  --tabbar-highlight-text-color: var(--highlight-color);
+  --tabbar-border-color: #0d0d0d;
+  --switch-highlight-color: #44db5e;
+  --switch-border-color: #666;
+  --switch-background-color: var(--background-color);
+  --range-track-background-color: #6b6f74;
+  --range-track-background-color-active: #bbb;
+  --range-thumb-background-color: #fff;
+  --modal-background-color: color-mod(black a(70%));
+  --modal-text-color: #fff;
+  --alert-dialog-background-color: hsl(211.29,31.74%,75.29%);
+  --alert-dialog-text-color: #1f1f21;
+  --alert-dialog-button-color: var(--highlight-color);
+  --alert-dialog-separator-color: hsl(230.12,0.00%,86.66%);
+  --dialog-background-color: #0d0d0d;
+  --dialog-text-color: #1f1f21;
+  --popover-background-color: #242424;
+  --popover-text-color: var(--text-color);
+  --action-sheet-title-color: hsl(213.65,91.69%,47.25%);
+  --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+  --action-sheet-button-color: var(--highlight-color);
+  --action-sheet-button-destructive-color: hsl(220.71,99.08%,56.86%);
+  --action-sheet-button-background-color: hsl(218.35,36.84%,85.09%);
+  --action-sheet-button-active-background-color: hsl(216,31.74%,75.29%);
+  --action-sheet-cancel-button-background-color: hsl(216,46.33%,91.96%);
+  --notification-background-color: hsl(220.71,99.09%,56.86%);
+  --notification-color: white;
+  --search-input-background-color: color-mod(white a(9%));
+  --fab-text-color: #ffffff;
+  --fab-background-color: var(--highlight-color);
+  --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+  --card-background-color: rgba(44,81,146,1);
+  --card-text-color: hsl(208.94,62.56%,66.47%);
+  --toast-background-color: hsl(218.35,100.00%,73.13%);
+  --toast-text-color: hsl(213.65,94.07%,26.47%);
+  --toast-button-text-color: #000;
+  --select-input-color: var(--text-color);
+  --select-input-border-color: var(--border-color);
+
+  /* variables for Material Design components */
+  --material-background-color: hsl(213.65,54.11%,21.37%);
+  --material-text-color: hsl(220.71,65.11%,66.27%);
+  --material-notification-background-color: hsl(227.76,100.00%,48.03%);
+  --material-notification-color: white;
+  --material-switch-active-thumb-color: hsl(208.94,56.12%,61.56%);
+  --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+  --material-switch-inactive-thumb-color: #bdbdbd;
+  --material-switch-inactive-background-color: color-mod(white a(30%));
+  --material-range-track-color: #525252;
+  --material-range-thumb-color: #cecec5;
+  --material-range-disabled-thumb-color: #4f4f4f;
+  --material-range-disabled-thumb-border-color: #303030;
+  --material-range-zero-thumb-color: #0d0d0d;
+  --material-toolbar-background-color: #212121;
+  --material-toolbar-text-color: hsl(216,96.66%,47.05%);
+  --material-toolbar-button-color: var(--toolbar-button-color);
+  --material-segment-background-color: hsl(360,0.00%,16.07%);
+  --material-segment-active-background-color: #404040;
+  --material-segment-text-color: color-mod(#fff a(62%));
+  --material-segment-active-text-color: #cacaca;
+  --material-button-background-color: hsl(225.41,30.57%,47.45%);
+  --material-button-text-color: hsl(201.88,0.00%,64.42%);
+  --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+  --material-button-disabled-color: color-mod(white a(74%));
+  --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+  --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+  --material-list-item-separator-color: color-mod(white a(12%));
+  --material-list-header-text-color: #8a8a8a;
+  --material-checkbox-active-color: #fff;
+  --material-checkbox-inactive-color: #717171;
+  --material-checkbox-checkmark-color: #000;
+  --material-radio-button-active-color: rgba(138,144,202,1);
+  --material-radio-button-inactive-color: #8e8e8e;
+  --material-radio-button-disabled-color: #505050;
+  --material-text-input-text-color: color-mod(#fff a(75%));
+  --material-text-input-active-color: color-mod(#fff a(75%));
+  --material-text-input-inactive-color: color-mod(#fff a(30%));
+  --material-search-background-color: #424242;
+  --material-dialog-background-color: rgba(35,38,56,1);
+  --material-dialog-text-color: var(--material-text-color);
+  --material-alert-dialog-background-color: rgba(126,149,192,1);
+  --material-alert-dialog-title-color: white;
+  --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+  --material-alert-dialog-button-color: hsl(213.65,100.00%,41.96%);
+  --material-progress-bar-primary-color: hsl(230.12,56.44%,44.11%);
+  --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+  --material-progress-bar-background-color: transparent;
+  --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+  --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+  --material-progress-circle-background-color: transparent;
+  --material-tabbar-background-color: var(--material-toolbar-background-color);
+  --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+  --material-tabbar-highlight-text-color: hsl(208.94,96.66%,47.05%);
+  --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+  --material-fab-text-color: #31313a;
+  --material-fab-background-color: #ffffff;
+  --material-fab-active-background-color: color-mod(white a(75%));
+  --material-card-background-color: #424242;
+  --material-card-text-color: color-mod(white a(46%));
+  --material-toast-background-color: hsl(218.35,100.00%,73.13%);
+  --material-toast-text-color: hsl(220.71,94.07%,26.47%);
+  --material-toast-button-text-color: hsl(204.24,94.07%,26.47%);
+  --material-select-input-color: var(--material-text-color);
+  --material-select-input-active-color: color-mod(white a(85%));
+  --material-select-input-inactive-color: color-mod(white a(19%));
+  --material-select-border-color: color-mod(white a(88%));
+  --material-popover-background-color: hsl(218.35,59.35%,36.65%);
+  --material-popover-text-color: var(--material-text-color);
+  --material-action-sheet-text-color: hsl(218.35,57.84%,56.27%);
+
+  /* others */
+  --tap-highlight-color: transparent;
+'''
+CSS_JADED = '''
+  /* variables for iOS components */
+  --background-color: hsl(88.94,54.11%,21.37%);
+  --text-color: rgba(202,225,164,1);
+  --sub-text-color: #8A9C6A;
+  --highlight-color: #8A9C6A;
+  --second-highlight-color: #8A9C6A;
+  --border-color: hsl(77.18,89.04%,28.62%);
+  --button-background-color: var(--highlight-color);
+  --button-cta-background-color: hsl(86.59,73.50%,54.11%);
+  --button-light-color: white;
+  --toolbar-background-color: #181818;
+  --toolbar-button-color: var(--highlight-color);
+  --toolbar-text-color: hsl(81.88,100.00%,43.52%);
+  --toolbar-border-color: #242424;
+  --button-bar-color: hsl(86.59,65.55%,64.70%);
+  --button-bar-active-text-color: rgba(235,252,194,1);
+  --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+  --segment-color: hsl(81.88,39.90%,56.27%);
+  --segment-active-text-color: #fff;
+  --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+  --list-background-color: #181818;
+  --list-header-background-color: #111;
+  --list-tap-active-background-color: #262626;
+  --list-item-chevron-color: #383833;
+  --progress-bar-color: var(--highlight-color);
+  --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+  --progress-bar-background-color: transparent;
+  --progress-circle-primary-color: var(--progress-bar-color);
+  --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+  --progress-circle-background-color: transparent;
+  --tabbar-background-color: #212121;
+  --tabbar-text-color: #aaa;
+  --tabbar-highlight-text-color: var(--highlight-color);
+  --tabbar-border-color: #0d0d0d;
+  --switch-highlight-color: #44db5e;
+  --switch-border-color: #666;
+  --switch-background-color: var(--background-color);
+  --range-track-background-color: #6b6f74;
+  --range-track-background-color-active: #bbb;
+  --range-thumb-background-color: #fff;
+  --modal-background-color: color-mod(black a(70%));
+  --modal-text-color: #fff;
+  --alert-dialog-background-color: rgba(209,216,196,1);
+  --alert-dialog-text-color: #1f1f21;
+  --alert-dialog-button-color: var(--highlight-color);
+  --alert-dialog-separator-color: hsl(230.12,0.00%,86.66%);
+  --dialog-background-color: rgba(183,204,152,1);
+  --dialog-text-color: hsl(86.59,3.12%,12.54%);
+  --popover-background-color: #242424;
+  --popover-text-color: var(--text-color);
+  --action-sheet-title-color: rgba(255,255,255,1);
+  --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+  --action-sheet-button-color: var(--highlight-color);
+  --action-sheet-button-destructive-color: rgba(255,255,255,1);
+  --action-sheet-button-background-color: rgba(190,202,176,1);
+  --action-sheet-button-active-background-color: rgba(166,190,153,1);
+  --action-sheet-cancel-button-background-color: rgba(219,225,212,1);
+  --notification-background-color: rgba(149,160,127,1);
+  --notification-color: white;
+  --search-input-background-color: color-mod(white a(9%));
+  --fab-text-color: #ffffff;
+  --fab-background-color: var(--highlight-color);
+  --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+  --card-background-color: hsl(74.82,53.68%,37.25%);
+  --card-text-color: hsl(70.12,62.56%,66.47%);
+  --toast-background-color: hsl(79.53,100.00%,73.13%);
+  --toast-text-color: hsl(81.88,94.07%,26.47%);
+  --toast-button-text-color: #000;
+  --select-input-color: var(--text-color);
+  --select-input-border-color: var(--border-color);
+
+  /* variables for Material Design components */
+  --material-background-color: hsl(72.47,54.11%,21.37%);
+  --material-text-color: #8A9C6A;
+  --material-notification-background-color: #95A07F;
+  --material-notification-color: white;
+  --material-switch-active-thumb-color: hsl(86.59,56.12%,61.56%);
+  --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+  --material-switch-inactive-thumb-color: #bdbdbd;
+  --material-switch-inactive-background-color: color-mod(white a(30%));
+  --material-range-track-color: #525252;
+  --material-range-thumb-color: #cecec5;
+  --material-range-disabled-thumb-color: #4f4f4f;
+  --material-range-disabled-thumb-border-color: #303030;
+  --material-range-zero-thumb-color: #0d0d0d;
+  --material-toolbar-background-color: #212121;
+  --material-toolbar-text-color: hsl(79.53,96.66%,47.05%);
+  --material-toolbar-button-color: var(--toolbar-button-color);
+  --material-segment-background-color: hsl(360,0.00%,16.07%);
+  --material-segment-active-background-color: #404040;
+  --material-segment-text-color: color-mod(#fff a(62%));
+  --material-segment-active-text-color: #cacaca;
+  --material-button-background-color: hsl(86.59,30.57%,47.45%);
+  --material-button-text-color: rgba(255,255,255,1);
+  --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+  --material-button-disabled-color: color-mod(white a(74%));
+  --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+  --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+  --material-list-item-separator-color: color-mod(white a(12%));
+  --material-list-header-text-color: #8a8a8a;
+  --material-checkbox-active-color: #fff;
+  --material-checkbox-inactive-color: #717171;
+  --material-checkbox-checkmark-color: #000;
+  --material-radio-button-active-color: rgba(138,144,202,1);
+  --material-radio-button-inactive-color: #8e8e8e;
+  --material-radio-button-disabled-color: #505050;
+  --material-text-input-text-color: color-mod(#fff a(75%));
+  --material-text-input-active-color: color-mod(#fff a(75%));
+  --material-text-input-inactive-color: color-mod(#fff a(30%));
+  --material-search-background-color: #424242;
+  --material-dialog-background-color: hsl(77.18,23.07%,17.84%);
+  --material-dialog-text-color: var(--material-text-color);
+  --material-alert-dialog-background-color: #D1D8C4;
+  --material-alert-dialog-title-color: white;
+  --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+  --material-alert-dialog-button-color: rgba(86,120,14,1);
+  --material-progress-bar-primary-color: hsl(81.88,56.44%,44.11%);
+  --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+  --material-progress-bar-background-color: transparent;
+  --material-progress-circle-primary-color: hsl(81.88,56.44%,44.11%);
+  --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+  --material-progress-circle-background-color: transparent;
+  --material-tabbar-background-color: var(--material-toolbar-background-color);
+  --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+  --material-tabbar-highlight-text-color: hsl(77.18,96.66%,47.05%);
+  --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+  --material-fab-text-color: #31313a;
+  --material-fab-background-color: #ffffff;
+  --material-fab-active-background-color: color-mod(white a(75%));
+  --material-card-background-color: hsl(81.88,0.00%,25.88%);
+  --material-card-text-color: color-mod(white a(46%));
+  --material-toast-background-color: hsl(77.18,100.00%,73.13%);
+  --material-toast-text-color: hsl(74.82,94.07%,26.47%);
+  --material-toast-button-text-color: hsl(77.18,94.07%,26.47%);
+  --material-select-input-color: var(--material-text-color);
+  --material-select-input-active-color: color-mod(white a(85%));
+  --material-select-input-inactive-color: color-mod(white a(19%));
+  --material-select-border-color: color-mod(white a(88%));
+  --material-popover-background-color: rgba(194,205,176,1);
+  --material-popover-text-color: var(--material-text-color);
+  --material-action-sheet-text-color: hsl(84.24,57.84%,56.27%);
+
+  /* others */
+  --tap-highlight-color: transparent;
+'''
+CSS_GOLDEN = '''
+  /* variables for iOS components */
+  --background-color: #C6A122;
+  --text-color: rgba(255,217,50,1);
+  --sub-text-color: rgba(241,241,241,1);
+  --highlight-color: rgba(140,112,64,1);
+  --second-highlight-color: rgba(255,208,0,1);
+  --border-color: rgba(130,117,11,1);
+  --button-background-color: rgba(0,0,0,1);
+  --button-cta-background-color: rgba(46,39,6,1);
+  --button-light-color: rgba(221,221,221,1);
+  --toolbar-background-color: #181818;
+  --toolbar-button-color: var(--highlight-color);
+  --toolbar-text-color: #fff;
+  --toolbar-border-color: #242424;
+  --button-bar-color: rgba(114,77,13,1);
+  --button-bar-active-text-color: rgba(249,249,249,1);
+  --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+  --segment-color: var(--highlight-color);
+  --segment-active-text-color: #fff;
+  --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+  --list-background-color: #181818;
+  --list-header-background-color: #111;
+  --list-tap-active-background-color: #262626;
+  --list-item-chevron-color: #383833;
+  --progress-bar-color: var(--highlight-color);
+  --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+  --progress-bar-background-color: transparent;
+  --progress-circle-primary-color: var(--progress-bar-color);
+  --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+  --progress-circle-background-color: transparent;
+  --tabbar-background-color: #212121;
+  --tabbar-text-color: #aaa;
+  --tabbar-highlight-text-color: var(--highlight-color);
+  --tabbar-border-color: #0d0d0d;
+  --switch-highlight-color: #44db5e;
+  --switch-border-color: #666;
+  --switch-background-color: var(--background-color);
+  --range-track-background-color: #6b6f74;
+  --range-track-background-color-active: #bbb;
+  --range-thumb-background-color: #fff;
+  --modal-background-color: color-mod(black a(70%));
+  --modal-text-color: #fff;
+  --alert-dialog-background-color: rgba(0,0,0,1);
+  --alert-dialog-text-color: rgba(204,168,84,1);
+  --alert-dialog-button-color: var(--highlight-color);
+  --alert-dialog-separator-color: rgba(247,216,75,0.42);
+  --dialog-background-color: #0d0d0d;
+  --dialog-text-color: #1f1f21;
+  --popover-background-color: #242424;
+  --popover-text-color: var(--text-color);
+  --action-sheet-title-color: #8f8e94;
+  --action-sheet-button-separator-color: rgba(255,198,0,0.41);
+  --action-sheet-button-color: rgba(255,160,1,1);
+  --action-sheet-button-destructive-color: #fe3824;
+  --action-sheet-button-background-color: rgba(5,5,5,0.9);
+  --action-sheet-button-active-background-color: rgba(77,77,77,1);
+  --action-sheet-cancel-button-background-color: rgba(129,129,129,1);
+  --notification-background-color: rgba(0,0,0,1);
+  --notification-color: white;
+  --search-input-background-color: color-mod(white a(9%));
+  --fab-text-color: #ffffff;
+  --fab-background-color: var(--highlight-color);
+  --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+  --card-background-color: var(--border-color);
+  --card-text-color: rgba(255,168,0,1);
+  --toast-background-color: #ccc;
+  --toast-text-color: #000;
+  --toast-button-text-color: #000;
+  --select-input-color: var(--text-color);
+  --select-input-border-color: var(--border-color);
+
+  /* variables for Material Design components */
+  --material-background-color: rgba(198,161,34,1);
+  --material-text-color: rgba(255,255,255,1);
+  --material-notification-background-color: rgba(0,0,0,1);
+  --material-notification-color: white;
+  --material-switch-active-thumb-color: #ffc107;
+  --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+  --material-switch-inactive-thumb-color: #bdbdbd;
+  --material-switch-inactive-background-color: color-mod(white a(30%));
+  --material-range-track-color: #525252;
+  --material-range-thumb-color: #cecec5;
+  --material-range-disabled-thumb-color: #4f4f4f;
+  --material-range-disabled-thumb-border-color: #303030;
+  --material-range-zero-thumb-color: #0d0d0d;
+  --material-toolbar-background-color: #212121;
+  --material-toolbar-text-color: #ffffff;
+  --material-toolbar-button-color: var(--toolbar-button-color);
+  --material-segment-background-color: #292929;
+  --material-segment-active-background-color: #404040;
+  --material-segment-text-color: color-mod(#fff a(62%));
+  --material-segment-active-text-color: #cacaca;
+  --material-button-background-color: rgba(0,0,0,1);
+  --material-button-text-color: rgba(242,242,242,1);
+  --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+  --material-button-disabled-color: color-mod(white a(74%));
+  --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+  --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+  --material-list-item-separator-color: color-mod(white a(12%));
+  --material-list-header-text-color: #8a8a8a;
+  --material-checkbox-active-color: #fff;
+  --material-checkbox-inactive-color: #717171;
+  --material-checkbox-checkmark-color: #000;
+  --material-radio-button-active-color: #ffa101;
+  --material-radio-button-inactive-color: #8e8e8e;
+  --material-radio-button-disabled-color: #505050;
+  --material-text-input-text-color: color-mod(#fff a(75%));
+  --material-text-input-active-color: color-mod(#fff a(75%));
+  --material-text-input-inactive-color: color-mod(#fff a(30%));
+  --material-search-background-color: #424242;
+  --material-dialog-background-color: #424242;
+  --material-dialog-text-color: var(--material-text-color);
+  --material-alert-dialog-background-color: #424242;
+  --material-alert-dialog-title-color: white;
+  --material-alert-dialog-content-color: rgba(175,174,174,1);
+  --material-alert-dialog-button-color: #d68600;
+  --material-progress-bar-primary-color: #FFA000;
+  --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+  --material-progress-bar-background-color: transparent;
+  --material-progress-circle-primary-color: rgba(255,160,0,1);
+  --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+  --material-progress-circle-background-color: transparent;
+  --material-tabbar-background-color: var(--material-toolbar-background-color);
+  --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+  --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
+  --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+  --material-fab-text-color: #31313a;
+  --material-fab-background-color: #ffffff;
+  --material-fab-active-background-color: color-mod(white a(75%));
+  --material-card-background-color: #424242;
+  --material-card-text-color: color-mod(white a(46%));
+  --material-toast-background-color: #ccc;
+  --material-toast-text-color: #000;
+  --material-toast-button-text-color: #583905;
+  --material-select-input-color: var(--material-text-color);
+  --material-select-input-active-color: color-mod(white a(85%));
+  --material-select-input-inactive-color: color-mod(white a(19%));
+  --material-select-border-color: color-mod(white a(88%));
+  --material-popover-background-color: var(--material-alert-dialog-background-color);
+  --material-popover-text-color: var(--material-text-color);
+  --material-action-sheet-text-color: #686868;
+
+  /* others */
+  --tap-highlight-color: transparent;
+'''
+CSS_MANDARIN = '''
+  /* variables for iOS components */
+  --background-color: rgba(237,145,78,1);
+  --text-color: rgba(255,255,255,1);
+  --sub-text-color: rgba(255,218,166,1);
+  --highlight-color: rgba(140,112,64,1);
+  --second-highlight-color: rgba(255,134,71,1);
+  --border-color: rgba(255,200,93,0.54);
+  --button-background-color: #213A01;
+  --button-cta-background-color: rgba(46,39,6,1);
+  --button-light-color: rgba(195,195,195,1);
+  --toolbar-background-color: #181818;
+  --toolbar-button-color: hsl(140.71,37.25%,40.00%);
+  --toolbar-text-color: rgba(255,128,0,1);
+  --toolbar-border-color: #242424;
+  --button-bar-color: hsl(143.06,79.52%,24.90%);
+  --button-bar-active-text-color: rgba(255,128,0,1);
+  --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+  --segment-color: var(--highlight-color);
+  --segment-active-text-color: #fff;
+  --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+  --list-background-color: rgba(255,128,0,1);
+  --list-header-background-color: rgba(25,64,0,1);
+  --list-tap-active-background-color: #262626;
+  --list-item-chevron-color: #383833;
+  --progress-bar-color: var(--highlight-color);
+  --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+  --progress-bar-background-color: transparent;
+  --progress-circle-primary-color: var(--progress-bar-color);
+  --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+  --progress-circle-background-color: transparent;
+  --tabbar-background-color: #212121;
+  --tabbar-text-color: rgba(1,105,53,1);
+  --tabbar-highlight-text-color: #FF8E09;
+  --tabbar-border-color: #0d0d0d;
+  --switch-highlight-color: #44db5e;
+  --switch-border-color: #666;
+  --switch-background-color: var(--background-color);
+  --range-track-background-color: #6b6f74;
+  --range-track-background-color-active: #bbb;
+  --range-thumb-background-color: #fff;
+  --modal-background-color: color-mod(black a(70%));
+  --modal-text-color: #fff;
+  --alert-dialog-background-color: rgba(23,36,0,1);
+  --alert-dialog-text-color: rgba(204,168,84,1);
+  --alert-dialog-button-color: var(--highlight-color);
+  --alert-dialog-separator-color: rgba(255,98,0,0.67);
+  --dialog-background-color: #0d0d0d;
+  --dialog-text-color: #1f1f21;
+  --popover-background-color: rgba(19,43,0,1);
+  --popover-text-color: var(--text-color);
+  --action-sheet-title-color: #8f8e94;
+  --action-sheet-button-separator-color: rgba(255,198,0,0.53);
+  --action-sheet-button-color: rgba(255,160,1,1);
+  --action-sheet-button-destructive-color: #fe3824;
+  --action-sheet-button-background-color: rgba(5,5,5,0.9);
+  --action-sheet-button-active-background-color: rgba(39,39,39,1);
+  --action-sheet-cancel-button-background-color: rgba(129,129,129,1);
+  --notification-background-color: rgba(0,0,0,1);
+  --notification-color: white;
+  --search-input-background-color: color-mod(white a(9%));
+  --fab-text-color: #ffffff;
+  --fab-background-color: var(--highlight-color);
+  --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+  --card-background-color: rgba(37,54,2,1);
+  --card-text-color: rgba(255,168,0,1);
+  --toast-background-color: #A5B7AB;
+  --toast-text-color: #000;
+  --toast-button-text-color: #000;
+  --select-input-color: var(--text-color);
+  --select-input-border-color: var(--border-color);
+
+  /* variables for Material Design components */
+  --material-background-color: #ED914E;
+  --material-text-color: rgba(255,255,255,1);
+  --material-notification-background-color: rgba(0,0,0,1);
+  --material-notification-color: white;
+  --material-switch-active-thumb-color: hsl(27.76,100.00%,51.36%);
+  --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+  --material-switch-inactive-thumb-color: #bdbdbd;
+  --material-switch-inactive-background-color: color-mod(white a(30%));
+  --material-range-track-color: #525252;
+  --material-range-thumb-color: #cecec5;
+  --material-range-disabled-thumb-color: #4f4f4f;
+  --material-range-disabled-thumb-border-color: #303030;
+  --material-range-zero-thumb-color: #0d0d0d;
+  --material-toolbar-background-color: #212121;
+  --material-toolbar-text-color: rgba(255,138,0,1);
+  --material-toolbar-button-color: var(--toolbar-button-color);
+  --material-segment-background-color: #292929;
+  --material-segment-active-background-color: #404040;
+  --material-segment-text-color: color-mod(#fff a(62%));
+  --material-segment-active-text-color: #cacaca;
+  --material-button-background-color: rgba(33,58,1,1);
+  --material-button-text-color: rgba(255,99,0,1);
+  --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+  --material-button-disabled-color: color-mod(white a(74%));
+  --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+  --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+  --material-list-item-separator-color: color-mod(white a(12%));
+  --material-list-header-text-color: #8a8a8a;
+  --material-checkbox-active-color: #fff;
+  --material-checkbox-inactive-color: rgba(28,86,0,1);
+  --material-checkbox-checkmark-color: #1C5600;
+  --material-radio-button-active-color: #ffa101;
+  --material-radio-button-inactive-color: #8e8e8e;
+  --material-radio-button-disabled-color: #505050;
+  --material-text-input-text-color: color-mod(#fff a(75%));
+  --material-text-input-active-color: color-mod(#fff a(75%));
+  --material-text-input-inactive-color: color-mod(#fff a(30%));
+  --material-search-background-color: #424242;
+  --material-dialog-background-color: #424242;
+  --material-dialog-text-color: var(--material-text-color);
+  --material-alert-dialog-background-color: #424242;
+  --material-alert-dialog-title-color: rgba(7,7,7,1);
+  --material-alert-dialog-content-color: rgba(175,174,174,1);
+  --material-alert-dialog-button-color: hsl(27.76,100.00%,41.96%);
+  --material-progress-bar-primary-color: #FFA000;
+  --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+  --material-progress-bar-background-color: transparent;
+  --material-progress-circle-primary-color: rgba(255,160,0,1);
+  --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+  --material-progress-circle-background-color: transparent;
+  --material-tabbar-background-color: var(--material-toolbar-background-color);
+  --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+  --material-tabbar-highlight-text-color: #FF8E09;
+  --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+  --material-fab-text-color: #31313a;
+  --material-fab-background-color: #ffffff;
+  --material-fab-active-background-color: color-mod(white a(75%));
+  --material-card-background-color: rgba(44,54,18,1);
+  --material-card-text-color: color-mod(white a(46%));
+  --material-toast-background-color: rgba(165,183,171,1);
+  --material-toast-text-color: #000;
+  --material-toast-button-text-color: #583905;
+  --material-select-input-color: var(--material-text-color);
+  --material-select-input-active-color: color-mod(white a(85%));
+  --material-select-input-inactive-color: color-mod(white a(19%));
+  --material-select-border-color: color-mod(white a(88%));
+  --material-popover-background-color: #132B00;
+  --material-popover-text-color: var(--material-text-color);
+  --material-action-sheet-text-color: #686868;
+
+  /* others */
+  --tap-highlight-color: transparent;
+'''
+CSS_OGONBATTO = '''
+  /* variables for iOS components */
+  --background-color: #0d0d0d;
+  --text-color: #fff;
+  --sub-text-color: #999;
+  --highlight-color: rgba(122,72,169,1);
+  --second-highlight-color: rgba(159,122,193,1);
+  --border-color: #242424;
+  --button-background-color: var(--highlight-color);
+  --button-cta-background-color: var(--second-highlight-color);
+  --button-light-color: white;
+  --toolbar-background-color: #181818;
+  --toolbar-button-color: var(--highlight-color);
+  --toolbar-text-color: #fff;
+  --toolbar-border-color: #242424;
+  --button-bar-color: var(--highlight-color);
+  --button-bar-active-text-color: #fff;
+  --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+  --segment-color: var(--highlight-color);
+  --segment-active-text-color: #fff;
+  --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+  --list-background-color: #181818;
+  --list-header-background-color: #111;
+  --list-tap-active-background-color: #262626;
+  --list-item-chevron-color: #383833;
+  --progress-bar-color: var(--highlight-color);
+  --progress-bar-secondary-color: rgba(174,119,224,1);
+  --progress-bar-background-color: transparent;
+  --progress-circle-primary-color: var(--progress-bar-color);
+  --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+  --progress-circle-background-color: transparent;
+  --tabbar-background-color: #212121;
+  --tabbar-text-color: #aaa;
+  --tabbar-highlight-text-color: var(--highlight-color);
+  --tabbar-border-color: #0d0d0d;
+  --switch-highlight-color: rgba(210,199,92,1);
+  --switch-border-color: #666;
+  --switch-background-color: var(--background-color);
+  --range-track-background-color: #6b6f74;
+  --range-track-background-color-active: #bbb;
+  --range-thumb-background-color: #fff;
+  --modal-background-color: color-mod(black a(70%));
+  --modal-text-color: #fff;
+  --alert-dialog-background-color: #f4f4f4;
+  --alert-dialog-text-color: #1f1f21;
+  --alert-dialog-button-color: var(--highlight-color);
+  --alert-dialog-separator-color: #ddd;
+  --dialog-background-color: #0d0d0d;
+  --dialog-text-color: #1f1f21;
+  --popover-background-color: #242424;
+  --popover-text-color: var(--text-color);
+  --action-sheet-title-color: #8f8e94;
+  --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+  --action-sheet-button-color: var(--highlight-color);
+  --action-sheet-button-destructive-color: #fe3824;
+  --action-sheet-button-background-color: rgba(255, 255, 255, 0.9);
+  --action-sheet-button-active-background-color: #e9e9e9;
+  --action-sheet-cancel-button-background-color: #fff;
+  --notification-background-color: #7A48A9;
+  --notification-color: white;
+  --search-input-background-color: color-mod(white a(9%));
+  --fab-text-color: #ffffff;
+  --fab-background-color: var(--highlight-color);
+  --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+  --card-background-color: var(--border-color);
+  --card-text-color: var(--text-color);
+  --toast-background-color: #ccc;
+  --toast-text-color: #000;
+  --toast-button-text-color: #000;
+  --select-input-color: var(--text-color);
+  --select-input-border-color: var(--border-color);
+
+  /* variables for Material Design components */
+  --material-background-color: #303030;
+  --material-text-color: #ffffff;
+  --material-notification-background-color: #7A48A9;
+  --material-notification-color: white;
+  --material-switch-active-thumb-color: #ffc107;
+  --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+  --material-switch-inactive-thumb-color: #bdbdbd;
+  --material-switch-inactive-background-color: color-mod(white a(30%));
+  --material-range-track-color: #525252;
+  --material-range-thumb-color: #cecec5;
+  --material-range-disabled-thumb-color: #4f4f4f;
+  --material-range-disabled-thumb-border-color: #303030;
+  --material-range-zero-thumb-color: #0d0d0d;
+  --material-toolbar-background-color: #212121;
+  --material-toolbar-text-color: #ffffff;
+  --material-toolbar-button-color: rgba(163,103,220,1);
+  --material-segment-background-color: #292929;
+  --material-segment-active-background-color: #404040;
+  --material-segment-text-color: color-mod(#fff a(62%));
+  --material-segment-active-text-color: #cacaca;
+  --material-button-background-color: rgba(170,107,228,1);
+  --material-button-text-color: #ffffff;
+  --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+  --material-button-disabled-color: color-mod(white a(74%));
+  --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+  --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+  --material-list-item-separator-color: color-mod(white a(12%));
+  --material-list-header-text-color: #8a8a8a;
+  --material-checkbox-active-color: #fff;
+  --material-checkbox-inactive-color: #717171;
+  --material-checkbox-checkmark-color: #000;
+  --material-radio-button-active-color: #ffa101;
+  --material-radio-button-inactive-color: #8e8e8e;
+  --material-radio-button-disabled-color: #505050;
+  --material-text-input-text-color: color-mod(#fff a(75%));
+  --material-text-input-active-color: color-mod(#fff a(75%));
+  --material-text-input-inactive-color: color-mod(#fff a(30%));
+  --material-search-background-color: #424242;
+  --material-dialog-background-color: #424242;
+  --material-dialog-text-color: var(--material-text-color);
+  --material-alert-dialog-background-color: #424242;
+  --material-alert-dialog-title-color: white;
+  --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+  --material-alert-dialog-button-color: #d68600;
+  --material-progress-bar-primary-color: rgba(83,60,105,1);
+  --material-progress-bar-secondary-color: rgba(142,98,183,1);
+  --material-progress-bar-background-color: transparent;
+  --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+  --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+  --material-progress-circle-background-color: transparent;
+  --material-tabbar-background-color: var(--material-toolbar-background-color);
+  --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+  --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
+  --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+  --material-fab-text-color: #31313a;
+  --material-fab-background-color: #ffffff;
+  --material-fab-active-background-color: color-mod(white a(75%));
+  --material-card-background-color: #424242;
+  --material-card-text-color: color-mod(white a(46%));
+  --material-toast-background-color: #ccc;
+  --material-toast-text-color: #000;
+  --material-toast-button-text-color: #583905;
+  --material-select-input-color: var(--material-text-color);
+  --material-select-input-active-color: color-mod(white a(85%));
+  --material-select-input-inactive-color: color-mod(white a(19%));
+  --material-select-border-color: color-mod(white a(88%));
+  --material-popover-background-color: var(--material-alert-dialog-background-color);
+  --material-popover-text-color: var(--material-text-color);
+  --material-action-sheet-text-color: #686868;
+
+  /* others */
+  --tap-highlight-color: transparent;
+'''
+CSS_VAMPIRE = '''
+  /* variables for iOS components */
+  --background-color: #0d0d0d;
+  --text-color: #B8BCE8;
+  --sub-text-color: #999;
+  --highlight-color: rgba(136,115,208,1);
+  --second-highlight-color: #da5926;
+  --border-color: #242424;
+  --button-background-color: rgba(255,1,1,0.85);
+  --button-cta-background-color: hsl(0,70.86%,50.19%);
+  --button-light-color: white;
+  --toolbar-background-color: #181818;
+  --toolbar-button-color: var(--highlight-color);
+  --toolbar-text-color: #fff;
+  --toolbar-border-color: #242424;
+  --button-bar-color: hsl(0,100.00%,50.20%);
+  --button-bar-active-text-color: #B8BCE8;
+  --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+  --segment-color: var(--highlight-color);
+  --segment-active-text-color: #fff;
+  --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+  --list-background-color: #181818;
+  --list-header-background-color: #111;
+  --list-tap-active-background-color: #262626;
+  --list-item-chevron-color: hsl(0,100.00%,76.48%);
+  --progress-bar-color: var(--highlight-color);
+  --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+  --progress-bar-background-color: transparent;
+  --progress-circle-primary-color: var(--progress-bar-color);
+  --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+  --progress-circle-background-color: transparent;
+  --tabbar-background-color: #212121;
+  --tabbar-text-color: #aaa;
+  --tabbar-highlight-text-color: var(--highlight-color);
+  --tabbar-border-color: #0d0d0d;
+  --switch-highlight-color: #44db5e;
+  --switch-border-color: #666;
+  --switch-background-color: var(--background-color);
+  --range-track-background-color: #6b6f74;
+  --range-track-background-color-active: #bbb;
+  --range-thumb-background-color: #fff;
+  --modal-background-color: color-mod(black a(70%));
+  --modal-text-color: #fff;
+  --alert-dialog-background-color: rgba(102,102,142,1);
+  --alert-dialog-text-color: rgba(168,160,238,1);
+  --alert-dialog-button-color: rgba(198,97,97,1);
+  --alert-dialog-separator-color: rgba(251,0,0,0.48);
+  --dialog-background-color: #0d0d0d;
+  --dialog-text-color: #1f1f21;
+  --popover-background-color: #242424;
+  --popover-text-color: var(--text-color);
+  --action-sheet-title-color: #8f8e94;
+  --action-sheet-button-separator-color: rgba(255,0,0,0.29);
+  --action-sheet-button-color: var(--highlight-color);
+  --action-sheet-button-destructive-color: #fe3824;
+  --action-sheet-button-background-color: rgba(73,71,95,0.9);
+  --action-sheet-button-active-background-color: rgba(59,61,99,1);
+  --action-sheet-cancel-button-background-color: rgba(76,72,108,1);
+  --notification-background-color: rgba(255,24,0,1);
+  --notification-color: rgba(15,15,15,1);
+  --search-input-background-color: color-mod(white a(9%));
+  --fab-text-color: #ffffff;
+  --fab-background-color: var(--highlight-color);
+  --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+  --card-background-color: var(--border-color);
+  --card-text-color: var(--text-color);
+  --toast-background-color: #ccc;
+  --toast-text-color: #000;
+  --toast-button-text-color: #000;
+  --select-input-color: var(--text-color);
+  --select-input-border-color: var(--border-color);
+
+  /* variables for Material Design components */
+  --material-background-color: #303030;
+  --material-text-color: #B8BCE8;
+  --material-notification-background-color: rgba(255,0,91,1);
+  --material-notification-color: rgba(0,0,0,1);
+  --material-switch-active-thumb-color: hsl(256,50.10%,59.39%);
+  --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+  --material-switch-inactive-thumb-color: #bdbdbd;
+  --material-switch-inactive-background-color: color-mod(white a(30%));
+  --material-range-track-color: #525252;
+  --material-range-thumb-color: #cecec5;
+  --material-range-disabled-thumb-color: #4f4f4f;
+  --material-range-disabled-thumb-border-color: #303030;
+  --material-range-zero-thumb-color: #0d0d0d;
+  --material-toolbar-background-color: #212121;
+  --material-toolbar-text-color: #ffffff;
+  --material-toolbar-button-color: var(--toolbar-button-color);
+  --material-segment-background-color: #292929;
+  --material-segment-active-background-color: #404040;
+  --material-segment-text-color: color-mod(#fff a(62%));
+  --material-segment-active-text-color: #cacaca;
+  --material-button-background-color: hsl(0,100.00%,41.96%);
+  --material-button-text-color: rgba(184,188,232,1);
+  --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+  --material-button-disabled-color: color-mod(white a(74%));
+  --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+  --material-list-background-color: rgba(37,31,31,1);
+  --material-list-item-separator-color: rgba(255,0,0,1);
+  --material-list-header-text-color: rgba(255,0,0,1);
+  --material-checkbox-active-color: #fff;
+  --material-checkbox-inactive-color: #717171;
+  --material-checkbox-checkmark-color: #000;
+  --material-radio-button-active-color: hsl(0,100.00%,50.20%);
+  --material-radio-button-inactive-color: #8e8e8e;
+  --material-radio-button-disabled-color: #505050;
+  --material-text-input-text-color: color-mod(#fff a(75%));
+  --material-text-input-active-color: color-mod(#fff a(75%));
+  --material-text-input-inactive-color: color-mod(#fff a(30%));
+  --material-search-background-color: #424242;
+  --material-dialog-background-color: #424242;
+  --material-dialog-text-color: var(--material-text-color);
+  --material-alert-dialog-background-color: #424242;
+  --material-alert-dialog-title-color: rgba(203,110,110,1);
+  --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+  --material-alert-dialog-button-color: rgba(166,161,209,1);
+  --material-progress-bar-primary-color: hsl(0,100.00%,50.00%);
+  --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+  --material-progress-bar-background-color: transparent;
+  --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+  --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+  --material-progress-circle-background-color: transparent;
+  --material-tabbar-background-color: var(--material-toolbar-background-color);
+  --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+  --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
+  --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+  --material-fab-text-color: #31313a;
+  --material-fab-background-color: #ffffff;
+  --material-fab-active-background-color: color-mod(white a(75%));
+  --material-card-background-color: #424242;
+  --material-card-text-color: color-mod(white a(46%));
+  --material-toast-background-color: #ccc;
+  --material-toast-text-color: #000;
+  --material-toast-button-text-color: #583905;
+  --material-select-input-color: var(--material-text-color);
+  --material-select-input-active-color: color-mod(white a(85%));
+  --material-select-input-inactive-color: color-mod(white a(19%));
+  --material-select-border-color: color-mod(white a(88%));
+  --material-popover-background-color: var(--material-alert-dialog-background-color);
+  --material-popover-text-color: var(--material-text-color);
+  --material-action-sheet-text-color: #686868;
+
+  /* others */
+  --tap-highlight-color: rgba(148,153,255,0.37);
+'''
 
 SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
 
@@ -120,29 +1580,49 @@ class SiteDataHandler:
 
       '''
 
-      self.css_themes = {'light': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsen-css-components.min.css',
+      self.css_themes = {'light': CSS_LIGHT,
 
-                         'dark' : 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmYjopsBQRefVoWCt3HfmWVZkFkZDQRqkLUw55PEG5aFqj/onsen-css-components.min.css',
+                         'dark' : CSS_DARK,
 
-                         'heavymeta': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmaDkumresYJzesdXdBqmnyPVe1atbN8FrZt2KQx954T2D/onsen-css-components.min.css',
+                         'heavymeta': CSS_HEAVYMETA,
 
-                         'crimson-tide': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmRcB5edDD1yXJEFxBVXgNmZ9TzbaM9tUT4XaoKV5d6gB6/onsen-css-components.min.css',
+                         'crimson-tide': CSS_CRIMSON,
 
-                         'deep-blue': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmdNVb1YqDB9FeKon6Amv1saXNF7NckA1nhLEqEkJgiBTK/onsen-css-components.min.css',
+                         'deep-blue': CSS_BLUE,
 
-                         'golden-crown': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmenBnDtv3i7mxeMXrQuqs9P5fzpH57obCZMpDSGNtsY2f/onsen-css-components.min.css',
+                         'golden-crown': CSS_GOLDEN,
 
-                         'somewhat-jaded': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmRRgg2LdP48LwbBLELGgpAxn4GVU1d1NaccPbNStgLxdE/onsen-css-components.min.css',
+                         'somewhat-jaded': CSS_JADED,
 
-                         'mandarin-logos': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmRaWxkfNxSRLpnVUmcDtZQvNBRUmJHYyuUG5QzLg6XRyn/onsen-css-components.min.css',
+                         'mandarin-logos': CSS_MANDARIN,
 
-                         'ogon-batto': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmTwvJqFD39MMFG6ovvuPG3neBG278PFLUbga6CUPYgrnw/onsen-css-components.min.css',
+                         'ogon-batto': CSS_OGONBATTO,
 
-                         'vexxed-vampire': 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmfQczjcDcKPr2X3nypWBnsFcKfMuZ2GVonm6YFaihTCkS/onsen-css-components.min.css'}
+                         'vexxed-vampire': CSS_VAMPIRE}
 
-      self.css_components = 'https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsen-css-components.min.css'
+      self.css_components = CSS_DARK
 
-      self.settings = {'css_components':self.css_components, 'uiFramework':'onsen', 'pageType':'splitter', 'menuSide':'right', 'style':'default', 'row_pad':5, 'deployType':'Pintheon', 'theme':'light', 'siteName':'dist', 'mediaDir':'_resources', 'description':'', 'siteID': uuid.uuid4().hex, 'customTheme':'', 'pintheon_access_token':'', 'backend_end_point':'https://127.0.0.1:9999', 'backend_meta_data':'', 'backend_timeout':100, 'nft_site_type':'None', 'nft_type':'None', 'nft_metadata_standard':'None', 'nft_start_supply':1024, 'nft_contract':'', 'site_metadata':self.opensea_metadata, 'project_name': os.path.basename(self.filePath), 'deploy_type': 'Pintheon', 'private_key': ''}
+      # Font system
+      self.popular_google_fonts = {
+          'Sans Serif': [
+              'Roboto', 'Open Sans', 'Lato', 'Inter', 'Source Sans Pro',
+              'Ubuntu', 'Nunito', 'Work Sans', 'PT Sans', 'Raleway'
+          ],
+          'Serif': [
+              'Merriweather', 'Playfair Display', 'Lora', 'Crimson Text',
+              'Source Serif Pro', 'Libre Baskerville', 'Noto Serif'
+          ],
+          'Display': [
+              'Montserrat', 'Oswald', 'Poppins', 'Bebas Neue', 'Abril Fatface',
+              'Pacifico', 'Dancing Script', 'Great Vibes'
+          ],
+          'Monospace': [
+              'Roboto Mono', 'Source Code Pro', 'Fira Code', 'JetBrains Mono',
+              'Inconsolata', 'Space Mono'
+          ]
+      }
+
+      self.settings = {'css_components':self.css_components, 'uiFramework':'onsen', 'pageType':'splitter', 'menuSide':'right', 'style':'default', 'row_pad':5, 'deployType':'Pintheon', 'theme':'light', 'siteName':'dist', 'mediaDir':'_resources', 'description':'', 'siteID': uuid.uuid4().hex, 'customTheme':'', 'pintheon_access_token':'', 'backend_end_point':'https://127.0.0.1:9999', 'backend_timeout':100, 'nft_site_type':'None', 'nft_type':'None', 'nft_metadata_standard':'None', 'nft_start_supply':1024, 'nft_contract':'', 'site_metadata':self.opensea_metadata, 'project_name': os.path.basename(self.filePath), 'deploy_type': 'Pintheon', 'private_key': '', 'customFonts':{'primary':{'family':'Roboto', 'source':'google', 'weights':[300, 400, 500, 700], 'fallback':'Arial, sans-serif'}, 'heading':{'family':'Montserrat', 'source':'google', 'weights':[400, 600, 700], 'fallback':'Helvetica, Arial, sans-serif'}}, 'fontSettings':{'enableCustomFonts':True, 'fontDisplay':'swap'}}
 
       self.authors = {}
 
@@ -240,7 +1720,15 @@ class SiteDataHandler:
 
           self.metaData = data['metaData']
 
-          self.settings = data['settings']
+          # Merge loaded settings with defaults to preserve new features
+          loaded_settings = data['settings']
+          for key, value in self.settings.items():
+              if key not in loaded_settings:
+                  loaded_settings[key] = value
+          self.settings = loaded_settings
+          
+          # Ensure font settings are properly initialized
+          self._ensureFontSettings()
 
           self.authors = data['authors']
 
@@ -363,6 +1851,8 @@ class SiteDataHandler:
 
       self.deployHandler = W3DeployHandler.W3DeployHandler(self.filePath, self.debugPath, self.resourcePath, self.settings)
 
+      # Ensure font settings are properly initialized
+      self._ensureFontSettings()
 
       self.saveData()
 
@@ -1028,9 +2518,9 @@ class SiteDataHandler:
 
            if page_name and page_name in self.pageList:
 
-               # Create Onsen UI button
+               # Create Onsen UI button with correct navigation type
 
-               button = self._createNavigationButton(link, page_name)
+               button = self._createNavigationButton(link, page_name, self.settings['pageType'])
 
                link.replace_with(button)
 
@@ -1040,7 +2530,7 @@ class SiteDataHandler:
 
 
 
-   def _createNavigationButton(self, link_element, page_name):
+   def _createNavigationButton(self, link_element, page_name, navigation_type):
 
        """Create a functional navigation button from a link"""
 
@@ -1066,11 +2556,27 @@ class SiteDataHandler:
 
        
 
+       # Generate correct navigation function based on navigation type
+
+       if navigation_type == 'tabs':
+
+           onclick_function = f"fn.goToTabByName('{page_name}')"
+
+       elif navigation_type == 'carousel':
+
+           onclick_function = f"fn.goToPageByName('{page_name}')"
+
+       else:  # splitter mode (default)
+
+           onclick_function = f"fn.load('{page_name}.html')"
+
+       
+
        # Create Onsen UI button with navigation
 
        button_html = f"""
 
-       <ons-button onclick="fn.load('{page_name}.html')" modifier="{button_style}" class="home-nav-button">
+       <ons-button onclick="{onclick_function}" modifier="{button_style}" class="home-nav-button">
 
            {text}
 
@@ -1084,7 +2590,7 @@ class SiteDataHandler:
 
 
 
-   def _createNavigationButtonEnhanced(self, link_element, page_name):
+   def _createNavigationButtonEnhanced(self, link_element, page_name, navigation_type):
 
        """Create a functional navigation button with enhanced styling"""
 
@@ -1128,11 +2634,27 @@ class SiteDataHandler:
 
        
 
+       # Generate correct navigation function based on navigation type
+
+       if navigation_type == 'tabs':
+
+           onclick_function = f"fn.goToTabByName('{page_name}')"
+
+       elif navigation_type == 'carousel':
+
+           onclick_function = f"fn.goToPageByName('{page_name}')"
+
+       else:  # splitter mode (default)
+
+           onclick_function = f"fn.load('{page_name}.html')"
+
+       
+
        # Create button with size and style
 
        button_html = f"""
 
-       <ons-button onclick="fn.load('{page_name}.html')" modifier="{button_style}" size="{button_size}" class="home-nav-button">
+       <ons-button onclick="{onclick_function}" modifier="{button_style}" size="{button_size}" class="home-nav-button">
 
            {text}
 
@@ -1166,9 +2688,9 @@ class SiteDataHandler:
 
            if page_name and page_name in self.pageList:
 
-               # Create functional button
+               # Create functional button with correct navigation type
 
-               button = self._createNavigationButtonEnhanced(link, page_name)
+               button = self._createNavigationButtonEnhanced(link, page_name, self.settings['pageType'])
 
                link.replace_with(button)
 
@@ -2331,3 +3853,206 @@ class SiteDataHandler:
    def onCloseData(self):
 
        shutil.copy(self.dataFilePath, self.dataBakFilePath)
+
+   def _ensureFontSettings(self):
+       """Ensure font settings are properly initialized"""
+       if 'customFonts' not in self.settings:
+           self.settings['customFonts'] = {
+               'primary': {'family': 'Roboto', 'source': 'google', 'weights': [300, 400, 500, 700], 'fallback': 'Arial, sans-serif'},
+               'heading': {'family': 'Montserrat', 'source': 'google', 'weights': [400, 600, 700], 'fallback': 'Helvetica, Arial, sans-serif'}
+           }
+       
+       if 'fontSettings' not in self.settings:
+           self.settings['fontSettings'] = {'enableCustomFonts': True, 'fontDisplay': 'swap'}
+
+   # Font management methods
+   def getAvailableFonts(self):
+       """Return categorized list of available fonts"""
+       return self.popular_google_fonts
+
+   def getFontCategories(self):
+       """Return font category names"""
+       return list(self.popular_google_fonts.keys())
+
+   def getFontsInCategory(self, category):
+       """Return fonts in specific category"""
+       return self.popular_google_fonts.get(category, [])
+   
+   def getFontSettings(self):
+       """Get font settings safely"""
+       self._ensureFontSettings()
+       return self.settings.get('fontSettings', {})
+   
+   def getCustomFonts(self):
+       """Get custom fonts safely"""
+       self._ensureFontSettings()
+       return self.settings.get('customFonts', {})
+   
+   def resetFontSettings(self):
+       """Reset font settings to defaults"""
+       self.settings['customFonts'] = {
+           'primary': {'family': 'Roboto', 'source': 'google', 'weights': [300, 400, 500, 700], 'fallback': 'Arial, sans-serif'},
+           'heading': {'family': 'Montserrat', 'source': 'google', 'weights': [400, 600, 700], 'fallback': 'Helvetica, Arial, sans-serif'}
+       }
+       self.settings['fontSettings'] = {'enableCustomFonts': True, 'fontDisplay': 'swap'}
+       self.saveData()
+   
+   def validateFontSettings(self):
+       """Validate that font settings are complete and valid"""
+       self._ensureFontSettings()
+       
+       # Check if all required keys exist
+       required_font_keys = ['family', 'source', 'weights', 'fallback']
+       required_settings_keys = ['enableCustomFonts', 'fontDisplay']
+       
+       for font_type in ['primary', 'heading']:
+           if font_type not in self.settings['customFonts']:
+               return False
+           for key in required_font_keys:
+               if key not in self.settings['customFonts'][font_type]:
+                   return False
+       
+       for key in required_settings_keys:
+           if key not in self.settings['fontSettings']:
+               return False
+       
+       return True
+   
+   def getFontSetting(self, key, default=None):
+       """Get a specific font setting with default fallback"""
+       self._ensureFontSettings()
+       return self.settings.get('fontSettings', {}).get(key, default)
+   
+   def getCustomFont(self, font_type, key, default=None):
+       """Get a specific custom font setting with default fallback"""
+       self._ensureFontSettings()
+       return self.settings.get('customFonts', {}).get(font_type, {}).get(key, default)
+   
+   def areCustomFontsEnabled(self):
+       """Check if custom fonts are enabled"""
+       return self.getFontSetting('enableCustomFonts', False)
+   
+   def getFontDisplay(self):
+       """Get font display setting"""
+       return self.getFontSetting('fontDisplay', 'swap')
+   
+   def getFontFamily(self, font_type):
+       """Get font family for specific type (primary, heading)"""
+       return self.getCustomFont(font_type, 'family', 'Arial')
+   
+   def getFontWeights(self, font_type):
+       """Get font weights for specific type (primary, heading)"""
+       return self.getCustomFont(font_type, 'weights', [400])
+   
+   def getFontFallback(self, font_type):
+       """Get font fallback for specific type (primary, heading)"""
+       return self.getCustomFont(font_type, 'fallback', 'sans-serif')
+   
+   def isGoogleFont(self, font_type):
+       """Check if a font type is using Google Fonts"""
+       return self.getCustomFont(font_type, 'source', '') == 'google'
+   
+   def getGoogleFontsCSS(self):
+       """Get Google Fonts CSS links for enabled fonts"""
+       if not self.areCustomFontsEnabled():
+           return []
+       
+       css_links = []
+       font_display = self.getFontDisplay()
+       
+       # Primary font
+       if self.isGoogleFont('primary'):
+           primary_family = self.getFontFamily('primary')
+           if primary_family:
+               css_links.append(f"https://fonts.googleapis.com/css2?family={primary_family.replace(' ', '+')}:wght@300;400;500;700&display={font_display}")
+       
+       # Heading font
+       if self.isGoogleFont('heading'):
+           heading_family = self.getFontFamily('heading')
+           if heading_family:
+               css_links.append(f"https://fonts.googleapis.com/css2?family={heading_family.replace(' ', '+')}:wght@400;600;700&display={font_display}")
+       
+       return css_links
+   
+   def getFontCSSVariables(self):
+       """Get CSS variables for font application"""
+       if not self.areCustomFontsEnabled():
+           return {
+               '--font-primary': 'Arial, sans-serif',
+               '--font-heading': 'Helvetica, Arial, sans-serif'
+           }
+       
+       return {
+           '--font-primary': f"'{self.getFontFamily('primary')}', {self.getFontFallback('primary')}",
+           '--font-heading': f"'{self.getFontFamily('heading')}', {self.getFontFallback('heading')}"
+       }
+   
+
+   
+   def getSafeFontSettings(self):
+       """Get font settings with safe defaults for template rendering"""
+       self._ensureFontSettings()
+       return {
+           'fontSettings': {
+               'enableCustomFonts': self.settings.get('fontSettings', {}).get('enableCustomFonts', False),
+               'fontDisplay': self.settings.get('fontSettings', {}).get('fontDisplay', 'swap')
+           },
+           'customFonts': {
+               'primary': {
+                   'family': self.settings.get('customFonts', {}).get('primary', {}).get('family', 'Roboto'),
+                   'source': self.settings.get('customFonts', {}).get('primary', {}).get('source', 'google'),
+                   'weights': self.settings.get('customFonts', {}).get('primary', {}).get('weights', [300, 400, 500, 700]),
+                   'fallback': self.settings.get('customFonts', {}).get('primary', {}).get('fallback', 'Arial, sans-serif')
+               },
+                              'heading': {
+                   'family': self.settings.get('customFonts', {}).get('heading', {}).get('family', 'Montserrat'),
+                   'source': self.settings.get('customFonts', {}).get('heading', {}).get('source', 'google'),
+                   'weights': self.settings.get('customFonts', {}).get('heading', {}).get('weights', [400, 600, 700]),
+                   'fallback': self.settings.get('customFonts', {}).get('heading', {}).get('fallback', 'Helvetica, Arial, sans-serif')
+               }
+           }
+       }
+   
+   def getTemplateFontData(self):
+       """Get font data formatted for template rendering with safe defaults"""
+       return self.getSafeFontSettings()
+   
+
+
+   def validateFont(self, font_name):
+       """Check if font is in our curated list"""
+       for category in self.popular_google_fonts.values():
+           if font_name in category:
+               return True
+       return False
+
+   def setFont(self, font_type, font_family, font_weights=None):
+       """Set font for specific type (primary, heading)"""
+       self.setFontFamily(font_type, font_family)
+       if font_weights:
+           self.setFontWeights(font_type, font_weights)
+   
+   def setFontFamily(self, font_type, font_family):
+       """Set font family for specific type (primary, heading)"""
+       self.updateCustomFont(font_type, 'family', font_family)
+   
+   def setFontWeights(self, font_type, font_weights):
+       """Set font weights for specific type (primary, heading)"""
+       self.updateCustomFont(font_type, 'weights', font_weights)
+
+   def setFontSettings(self, enable_custom_fonts, font_display='swap'):
+       """Update font settings"""
+       self.updateFontSetting('enableCustomFonts', enable_custom_fonts)
+       self.updateFontSetting('fontDisplay', font_display)
+   
+   def updateFontSetting(self, setting, value):
+       """Update a specific font setting using the same pattern as updateSetting"""
+       if 'fontSettings' in self.settings:
+           self.settings['fontSettings'][setting] = value
+           self.saveData()
+   
+   def updateCustomFont(self, font_type, setting, value):
+       """Update a specific custom font setting using the same pattern as updateSetting"""
+       if 'customFonts' in self.settings and font_type in self.settings['customFonts']:
+           self.settings['customFonts'][font_type][setting] = value
+           self.saveData()

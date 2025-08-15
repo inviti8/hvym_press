@@ -4,8 +4,23 @@
   <meta charset="UTF-8">
   <link rel="shortcut icon" type="image/x-icon" href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmcJLBGNFb2UKFy3jspNfHk8wFCjhSsBDaQ2tWrASQBSYE" />
   <title>{{data.settings.siteName}}</title>
-  <link rel="stylesheet" href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsenui.min.css">
-  <link rel="stylesheet" href="{{data.settings.css_components}}">
+  <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">
+  <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">
+  <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>
+  
+  <!-- Google Fonts Loading -->
+  {% if data.settings.fontSettings.enableCustomFonts %}
+    {% if data.settings.customFonts.primary.source == 'google' %}
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family={{data.settings.customFonts.primary.family|replace(' ', '+')}}:wght@300;400;500;700&display={{data.settings.fontSettings.fontDisplay}}" rel="stylesheet">
+    {% endif %}
+    
+    {% if data.settings.customFonts.heading.source == 'google' %}
+      <link href="https://fonts.googleapis.com/css2?family={{data.settings.customFonts.heading.family|replace(' ', '+')}}:wght@400;600;700&display={{data.settings.fontSettings.fontDisplay}}" rel="stylesheet">
+    {% endif %}
+  {% endif %}
+  
   <script src="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/js/onsenui.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/approvejs/3.1.2/approve.min.js" integrity="sha512-TmhOO3rUu5WfsLdsw9H1pB/p5/A/KnhydCuLNGlZoukfUUopMmA2sq6DWR9E+acuLB1DBk2A8cq63f7JMwHgVQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script type="module">
@@ -19,9 +34,40 @@
     window.fn.load = function (page) {
       var menu = document.getElementById('menu');
       var myNavigator = document.getElementById('myNavigator');
+      var tabbar = document.querySelector('ons-tabbar');
+      var carousel = document.getElementById('carousel');
     
-      menu.close();
-      myNavigator.resetToPage(page, { animation: 'fade' });
+      // Handle different navigation types
+      if (myNavigator) {
+        // Standard navigator (splitter mode)
+        if (menu) {
+          menu.close();
+        }
+        myNavigator.resetToPage(page, { animation: 'fade' });
+      } else if (tabbar) {
+        // Tabs mode - extract page name and switch tabs
+        var pageName = page.replace('.html', '');
+        var targetTab = document.querySelector('ons-tab[page="' + pageName + '.html"]');
+        if (targetTab) {
+          tabbar.setActiveTab(targetTab);
+        } else {
+          console.warn('fn.load: Target tab not found for page:', page);
+        }
+      } else if (carousel) {
+        // Carousel mode - extract page name and switch carousel
+        var pageName = page.replace('.html', '');
+        // Find carousel item index for the page
+        var carouselItems = carousel.querySelectorAll('ons-carousel-item');
+        for (var i = 0; i < carouselItems.length; i++) {
+          var item = carouselItems[i];
+          if (item.querySelector('[data-page-name="' + pageName + '"]')) {
+            carousel.setActiveIndex(i);
+            break;
+          }
+        }
+      } else {
+        console.warn('fn.load: No navigation component found, cannot load page:', page);
+      }
     };
 
     window.fn.showDialog = function(id) {
@@ -149,18 +195,153 @@
       window.fn.prev = function() {
         var carousel = document.getElementById('carousel');
         carousel.prev();
+        fn.updateCarouselTitle();
       };
 
       window.fn.next = function() {
         var carousel = document.getElementById('carousel');
         carousel.next();
+        fn.updateCarouselTitle();
       };
-      {% endif %}
 
-    });
+      window.fn.goToHome = function() {
+        var carousel = document.getElementById('carousel');
+        if (carousel) {
+          carousel.setActiveIndex(0);
+          fn.updateCarouselTitle();
+        }
+      };
+
+      window.fn.goToPage = function(index) {
+        var carousel = document.getElementById('carousel');
+        if (carousel) {
+          carousel.setActiveIndex(index);
+          fn.updateCarouselTitle();
+        }
+      };
+
+      window.fn.goToPageByName = function(pageName) {
+        var carousel = document.getElementById('carousel');
+        if (carousel) {
+          // Find the page index by name
+          var pageIndex = -1;
+          {% if data.hasHomePage %}
+          if (pageName === 'home') {
+            pageIndex = 0;
+          } else {
+          {% endif %}
+          {% for page in data.pages %}
+            if (pageName === '{{page.title}}') {
+              pageIndex = {% if data.hasHomePage %}{{loop.index}}{% else %}{{loop.index0}}{% endif %};
+            }
+          {% endfor %}
+          {% if data.hasHomePage %}
+          }
+          {% endif %}
+          
+          if (pageIndex >= 0) {
+            carousel.setActiveIndex(pageIndex);
+            fn.updateCarouselTitle();
+          }
+        }
+      };
+
+      window.fn.updateCarouselTitle = function() {
+        var carousel = document.getElementById('carousel');
+        var titleElement = document.getElementById('carousel-title');
+        if (carousel && titleElement) {
+          var currentIndex = carousel.getActiveIndex();
+          var titles = [
+            {% if data.hasHomePage %}
+            '{{data.homePage.title}}',
+            {% endif %}
+            {% for page in data.pages %}
+            '{{page.title}}'{% if not loop.last %},{% endif %}
+            {% endfor %}
+          ];
+          
+          if (titles[currentIndex]) {
+            titleElement.textContent = titles[currentIndex];
+          }
+        }
+      };
+
+             // Add event listener for carousel changes
+       var carousel = document.getElementById('carousel');
+       if (carousel) {
+         carousel.addEventListener('postchange', function() {
+           fn.updateCarouselTitle();
+         });
+       }
+              {% endif %}
+ 
+       {% if data.settings.pageType == 'tabs' %}
+       window.fn.goToTabByName = function(pageName) {
+         var tabbar = document.querySelector('ons-tabbar');
+         if (tabbar) {
+           // Find the tab index by name
+           var tabIndex = -1;
+           {% if data.hasHomePage %}
+           if (pageName === 'home') {
+             tabIndex = 0;
+           } else {
+           {% endif %}
+           {% for page in data.pages %}
+             if (pageName === '{{page.title}}') {
+               tabIndex = {% if data.hasHomePage %}{{loop.index}}{% else %}{{loop.index0}}{% endif %};
+             }
+           {% endfor %}
+           {% if data.hasHomePage %}
+           }
+           {% endif %}
+           
+           if (tabIndex >= 0) {
+             tabbar.setActiveTab(tabIndex);
+           }
+         }
+       };
+       {% endif %}
+ 
+               
+ 
+     });
 
   </script>
   <style>
+    /* Font CSS Variables */
+    :root {
+      {% if data.settings.fontSettings.enableCustomFonts %}
+        --font-primary: '{{data.settings.customFonts.primary.family}}', {{data.settings.customFonts.primary.fallback}};
+        --font-heading: '{{data.settings.customFonts.heading.family}}', {{data.settings.customFonts.heading.fallback}};
+      {% else %}
+        --font-primary: Arial, sans-serif;
+        --font-heading: Helvetica, Arial, sans-serif;
+      {% endif %}
+
+      {{data.settings.css_components}}
+    }
+
+    /* Apply fonts throughout the template */
+    body { 
+        font-family: var(--font-primary); 
+    }
+    
+    h1, h2, h3, h4, h5, h6 { 
+        font-family: var(--font-heading); 
+    }
+    
+    .hero-title { 
+        font-family: var(--font-heading); 
+    }
+    
+    .hero-subtitle { 
+        font-family: var(--font-heading); 
+    }
+    
+    .title { 
+        font-family: var(--font-heading); 
+    }
+    
     textarea {
         border: none;
         overflow: auto;
@@ -172,6 +353,7 @@
     }
     ons-list{
       opacity: 90%;
+      border-radius: 15px !important;
     }
     ons-row{
         padding: {{data.settings.row_pad}}%;
@@ -179,12 +361,16 @@
     ons-col, ons-card{
         min-width: 350px;
         margin: 0 auto;
+        border-radius: 15px !important;
     }
     video {
       /* override other styles to make responsive */
       width: 100%    !important;
       height: auto   !important;
     }
+    button {
+          border-radius: 6px !important;
+      }
     .menu_icon{
       padding-right: 10px;
     }
@@ -269,13 +455,18 @@
       .hero-title {
           font-size: 3rem;
           margin-bottom: 1rem;
-          text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+          text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
       }
 
       .hero-subtitle {
           font-size: 1.2rem;
           margin-bottom: 2rem;
-          text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      }
+
+      .hero-cta {
+          margin: 0.5rem;
+          border-radius: 6px !important;
       }
 
       .home-navigation {
@@ -289,19 +480,54 @@
 
       .home-nav-button {
           margin: 0.5rem;
+          border-radius: 6px !important;
       }
 
       .home-content {
-          padding: 2rem;
-          max-width: 800px;
-          margin: 0 auto;
-      }
-    </style>
+           padding: 2rem;
+           max-width: 800px;
+           margin: 0 auto;
+       }
+
+       /* Carousel-specific styles for proper scrolling */
+       .carousel-content-container {
+           height: calc(100vh - 120px); /* Account for toolbar height */
+           overflow-y: auto;
+           overflow-x: hidden;
+           padding: 20px;
+           -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+       }
+
+       .carousel-item-content {
+           min-height: 100%;
+           position: relative;
+       }
+
+       /* Ensure fab buttons are always visible and clickable */
+       .carousel-fab {
+           position: relative !important;
+           z-index: 1000 !important;
+           touch-action: manipulation !important;
+           pointer-events: auto !important;
+           -webkit-touch-callout: none !important;
+           -webkit-user-select: none !important;
+           -khtml-user-select: none !important;
+           -moz-user-select: none !important;
+           -ms-user-select: none !important;
+           user-select: none !important;
+       }
+       
+       /* Disable carousel touch events on interactive elements */
+       .carousel-fab * {
+           pointer-events: auto !important;
+           touch-action: manipulation !important;
+       }
+     </style>
 
 </head>
 <body>
 {% if data.settings.pageType == 'splitter' %}
-<!-- partial:index.partial.html -->
+<!-- Splitter Navigation Structure -->
 <ons-splitter>
   <ons-splitter-side id="menu" side="left" width="220px" collapse swipeable>
     <ons-page>
@@ -341,33 +567,24 @@
 
 {% if data.settings.pageType == 'tabs' %}
 {% if data.hasHomePage %}
-<ons-navigator id="myNavigator" page="home.html" hide-toolbar=true>
+<ons-navigator id="myNavigator" hide-toolbar=true>
 {% else %}
 <ons-navigator id="myNavigator" page="{{data.pages[0].title}}.html" hide-toolbar=true>
 {% endif %}
   <ons-page>
     <ons-tabbar swipeable position="auto">
+      {% if data.hasHomePage %}
+        <ons-tab page="tabs-home.html" label="Home" icon="md-home" active></ons-tab>
+      {% endif %}
       {% for page in data.pages %}
-        {% if loop.index == 0 %}
-          {% if page.icon != 'none' %}
-            {% if page.use_text %}
-      <ons-tab page="{{page.title}}.html" label="{{page.title}}" icon="{{page.icon}}" active></ons-tab>
-            {% else %}
-      <ons-tab page="{{page.title}}.html" icon="{{page.icon}}" active></ons-tab>
-            {% endif %}
+        {% if page.icon != 'none' %}
+          {% if page.use_text %}
+      <ons-tab page="{{page.title}}.html" label="{{page.title}}" icon="{{page.icon}}"></ons-tab>
           {% else %}
-      <ons-tab page="{{page.title}}.html" label="{{page.title}}" active></ons-tab>    
+      <ons-tab page="{{page.title}}.html" icon="{{page.icon}}"></ons-tab>
           {% endif %}
         {% else %}
-          {% if page.icon != 'none' %}
-              {% if page.use_text %}
-      <ons-tab page="{{page.title}}.html" label="{{page.title}}" icon="{{page.icon}}"></ons-tab>
-              {% else %}
-      <ons-tab page="{{page.title}}.html" icon="{{page.icon}}"></ons-tab>
-              {% endif %}
-          {% else %}
       <ons-tab page="{{page.title}}.html" label="{{page.title}}"></ons-tab> 
-          {% endif %}
         {% endif %}
       {% endfor %}
     </ons-tabbar>
@@ -376,170 +593,468 @@
 {% endif %}
 
 {% if data.settings.pageType == 'carousel' %}
-<ons-splitter>
-  <ons-splitter-content>
-    {% if data.hasHomePage %}
-      <ons-navigator id="myNavigator" page="home.html"></ons-navigator>
-    {% else %}
-      <ons-navigator id="myNavigator" page="{{data.pages[0].title}}.html"></ons-navigator>
-    {% endif %}
-  </ons-splitter-content>
-</ons-splitter>
-
-<template id="{{data.pages[0].title}}.html">
-<ons-page>
-  <ons-toolbar>
-    <div class="left">
-      <ons-toolbar-button onclick="fn.prev()">
-          <ons-icon icon="md-chevron-left"></ons-icon>
-      </ons-toolbar-button>
+<ons-navigator id="myNavigator" page="carousel-home.html">
+  <ons-page>
+    <ons-toolbar modifier="{{data.settings.style}}">
+      <div class="left">
+        <ons-toolbar-button onclick="fn.prev()">
+            <ons-icon icon="md-chevron-left"></ons-icon>
+        </ons-toolbar-button>
+        {% if data.hasHomePage %}
+        <ons-toolbar-button onclick="fn.goToHome()">
+            <ons-icon icon="md-home"></ons-icon>
+        </ons-toolbar-button>
+        {% endif %}
       </div>
-      <div class="center"></div>
+      <div class="center">
+        <span id="carousel-title">
+          {% if data.hasHomePage %}
+            {{data.homePage.title}}
+          {% else %}
+            {{data.pages[0].title}}
+          {% endif %}
+        </span>
+      </div>
       <div class="right">
         <ons-toolbar-button onclick="fn.next()">
            <ons-icon icon="md-chevron-right"></ons-icon>
       </ons-toolbar-button>
     </div>
-  </ons-toolbar>
-  <ons-carousel fullscreen swipeable auto-scroll overscrollable id="carousel">
-    {% for page in data.pages %}
+    </ons-toolbar>
+    
+    <ons-carousel fullscreen swipeable auto-scroll overscrollable id="carousel">
+    {% if data.hasHomePage %}
     <ons-carousel-item>
-      <div style="text-align: center">
-      <ons-row>
-        {% for column in page.content.columns %}
-           <ons-col width="{{page.content.widths[loop.index0]}}%">
-                {% for card in column %}
-                {% if card.type == 'Form' %}
-                  {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
-                    {% if card.use_color%}
-                    <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}" style="background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
-                    {% else %}
-                    <ons-card modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
-                    {% endif %}
-                  {% else %}
-                <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}">
+      <div class="carousel-content-container">
+        <div class="carousel-item-content" style="text-align: center">
+          <ons-row>
+            <ons-col width="100%">
+              {% if data.homePage.content.hero_title or data.homePage.content.hero_image %}
+              <div class="hero-section" {% if data.homePage.content.hero_image %}style="background-image: url('{{data.homePage.content.hero_image}}')"{% endif %}>
+                <div class="hero-content">
+                  {% if data.homePage.content.hero_title %}
+                  <h1 class="hero-title">{{data.homePage.content.hero_title}}</h1>
                   {% endif %}
-                    <div class="title">
-                      {{card.name}}
-                    </div>
-                      <div>
-                        {% if card.use_color%}
-                        <ons-list style="background-color: {{card.color}};" modifier="{{card.border}}">
-                        {% else %}
-                        <ons-list modifier="{{card.border}}">
-                        {% endif %}
-                          <ons-list-item>
-                              <div class="form_container">
-                                <br />
-                                {{card.html}}
-                              {% if card.form_id != ""%}
-                              <form class="gform" id="form_{{card.name}}" method="post" action="https://script.google.com/macros/s/{{card.form_id}}/exec">
-                                {% if card.use_color%}
-                                <ons-list style="background-color: {{card.color}};">
-                                {% else %}
-                                  <ons-list class="form_list">
-                                {% endif %}
-                                  {% for input in card.form_data %}
-                                  <ons-list-item class="form_list_item">
-                                    <ons-input class="form_input" id="{{input}}" name="{{input}}" modifier="underbar" placeholder="{{input}}" float></ons-input>
-                                  </ons-list-item>
-                                  {% endfor %}
-                                </ons-list>
-                                <button class="form_list button--large button" id="submit" type="submit">{{card.form_btn_txt}}</button>
-                                </form>
-                                {{card.form_html}}
-                              {% else %}
-                              <p>FORM ID IS NOT SET!!!</p>
-                              {% endif %}
-                              </div>
-                          </ons-list-item>
-                        </ons-list>
-                      </div>
-                    </ons-card>
-                {% else %}
-                {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
-                    {% if card.use_color%}
-                    <ons-card modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
-                    {% else %}
-                    <ons-card modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
-                    {% endif %}
-                  {% else %}
-                    {% if card.use_color%}
-                    <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}};" modifier="{{data.settings.style}}">
-                    {% else %}
-                    <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;" modifier="{{data.settings.style}}">
-                    {% endif %}
+                  {% if data.homePage.content.hero_subtitle %}
+                  <p class="hero-subtitle">{{data.homePage.content.hero_subtitle}}</p>
                   {% endif %}
-                    <div class="title">
-                      {{card.name}}
-                    </div>
-                      <div class="content">
-                        {% if card.use_color%}
-                        <ons-list style="background-color: {{card.color}};" modifier="{{card.border}}">
-                        {% else %}
-                        <ons-list modifier="{{card.border}}">
-                        {% endif %}
-                          {% if card.type == 'Expandable' %}
-                          <ons-list-item expandable>
-                          {% else %}
-                          <ons-list-item expandable expanded class="list-item list-item--expandable expanded ">
-                          {% endif %}
-                          {% if card.use_thumb %}
-                            {% if card.author_img != '' %}
-                            <div class="left">
-                              <img class="list-item__thumbnail" src="{{card.author_img}}">
-                              <p class="list-item__subtitle author">{{card.author}}</p>
-                            </div>
-                              {% endif %}
-                            {% endif %}
-                            <div class="expandable-content">
-                              <div class="article">
-                                <br />
-                                {{card.html}}
-                                  {% if card.use_color%}
-                                  <ons-list style="background-color: {{card.color}};">
-                                  {% else %}
-                                  <ons-list>
-                                  {% endif %}
-                                </ons-list>
-                                {{card.form_html}}
-                              </div>
-                              <ons-fab onclick="myNavigator.pushPage('nav_{{card.name}}.html')" modifier="{{data.settings.style}}">
-                                <ons-icon icon="fa-chevron-left"></ons-icon>
-                              </ons-fab>
-                            </div>
-                          </ons-list-item>
-                        </ons-list>
-                      </div>
-                    </ons-card>
-                {% endif %}
+                  {% if data.homePage.content.cta_button.text %}
+                  <ons-button onclick="fn.goToPage(1)" modifier="large" class="hero-cta">
+                    {{data.homePage.content.cta_button.text}}
+                  </ons-button>
+                  {% endif %}
+                </div>
+              </div>
+              {% endif %}
+              
+              {% if data.homePage.navigation %}
+              <div class="home-navigation">
+                {% for nav_item in data.homePage.navigation %}
+                  {% if nav_item.page in data.pageList %}
+                  <ons-button onclick="fn.goToPageByName('{{nav_item.page}}')" modifier="{{nav_item.style or 'primary'}}" class="home-nav-button">
+                    {{nav_item.text}}
+                  </ons-button>
+                  {% endif %}
                 {% endfor %}
-           </ons-col>
-        {% endfor %}
-       </ons-row>
-    </div>
+              </div>
+              {% endif %}
+              
+              <div class="home-content">
+                {{data.homePage.content.html|safe}}
+              </div>
+            </ons-col>
+          </ons-row>
+        </div>
+      </div>
     </ons-carousel-item>
-    {% endfor %}
-  </ons-carousel>
-</ons-page>
+    {% endif %}
+        {% for page in data.pages %}
+    <ons-carousel-item>
+      <div class="carousel-content-container">
+        <div class="carousel-item-content" style="text-align: center">
+          <ons-row>
+            {% for column in page.content.columns %}
+               <ons-col width="{{page.content.widths[loop.index0]}}%">
+                    {% for card in column %}
+                    {% if card.type == 'Form' %}
+                      {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
+                        {% if card.use_color%}
+                        <ons-card data-card-name="{{card.name}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}" style="background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                        {% else %}
+                        <ons-card data-card-name="{{card.name}}" modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                        {% endif %}
+                      {% else %}
+                    <ons-card data-card-name="{{card.name}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}">
+                      {% endif %}
+                        <div class="title">
+                          {{card.name}}
+                        </div>
+                          <div>
+                            {% if card.use_color%}
+                            <ons-list style="background-color: {{card.color}};" modifier="{{card.border}}">
+                            {% else %}
+                            <ons-list modifier="{{card.border}}">
+                            {% endif %}
+                              <ons-list-item>
+                                  <div class="form_container">
+                                    <br />
+                                    {{card.html}}
+                                  {% if card.form_id != ""%}
+                                  <form class="gform" id="form_{{card.name}}" method="post" action="https://script.google.com/macros/s/{{card.form_id}}/exec">
+                                    {% if card.use_color%}
+                                    <ons-list style="background-color: {{card.color}};">
+                                    {% else %}
+                                      <ons-list class="form_list">
+                                    {% endif %}
+                                      {% for input in card.form_data %}
+                                      <ons-list-item class="form_list_item">
+                                        <ons-input class="form_input" id="{{input}}" name="{{input}}" modifier="underbar" placeholder="{{input}}" float></ons-input>
+                                      </ons-list-item>
+                                      {% endfor %}
+                                    </ons-list>
+                                    <button class="form_list button--large button" id="submit" type="submit">{{card.form_btn_txt}}</button>
+                                    </form>
+                                    {{card.form_html}}
+                                  {% else %}
+                                  <p>FORM ID IS NOT SET!!!</p>
+                                  {% endif %}
+                                  </div>
+                              </ons-list-item>
+                            </ons-list>
+                          </div>
+                        </ons-card>
+                    {% else %}
+                    {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
+                        {% if card.use_color%}
+                        <ons-card data-card-name="{{card.name}}" modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                        {% else %}
+                        <ons-card data-card-name="{{card.name}}" modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                        {% endif %}
+                      {% else %}
+                        {% if card.use_color%}
+                        <ons-card data-card-name="{{card.name}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}};" modifier="{{data.settings.style}}">
+                        {% else %}
+                        <ons-card data-card-name="{{card.name}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;" modifier="{{data.settings.style}}">
+                        {% endif %}
+                      {% endif %}
+                        <div class="title">
+                          {{card.name}}
+                        </div>
+                          <div class="content">
+                            {% if card.use_color%}
+                            <ons-list style="background-color: {{card.color}};" modifier="{{card.border}}">
+                            {% else %}
+                            <ons-list modifier="{{card.border}}">
+                            {% endif %}
+                              {% if card.type == 'Expandable' %}
+                              <ons-list-item expandable>
+                              {% else %}
+                              <ons-list-item expandable expanded class="list-item list-item--expandable expanded ">
+                              {% endif %}
+                              {% if card.use_thumb %}
+                                {% if card.author_img != '' %}
+                                <div class="left">
+                                  <img class="list-item__thumbnail" src="{{card.author_img}}">
+                                  <p class="list-item__subtitle author">{{card.author}}</p>
+                                </div>
+                                  {% endif %}
+                                {% endif %}
+                                <div class="expandable-content">
+                                  <div class="article">
+                                    <br />
+                                    {{card.html}}
+                                      {% if card.use_color%}
+                                      <ons-list style="background-color: {{card.color}};">
+                                      {% else %}
+                                      <ons-list>
+                                      {% endif %}
+                                    </ons-list>
+                                    {{card.form_html}}
+                                  </div>
+                                    <ons-fab onclick="myNavigator.pushPage('nav_{{card.name}}.html')" modifier="{{data.settings.style}}">
+                                      <ons-icon icon="fa-chevron-left"></ons-icon>
+                                    </ons-fab>
+                                  </div>
+                                </ons-list-item>
+                              </ons-list>
+                            </div>
+                          </ons-card>
+                    {% endif %}
+                    {% endfor %}
+               </ons-col>
+            {% endfor %}
+           </ons-row>
+         </div>
+      </div>
+    </ons-carousel-item>
+         {% endfor %}
+   </ons-carousel>
+   </ons-page>
+ </ons-navigator>
+ {% endif %}
+
+<!-- Carousel Home Page Template -->
+{% if data.settings.pageType == 'carousel' %}
+<template id="carousel-home.html">
+  <ons-page>
+    <ons-toolbar modifier="{{data.settings.style}}">
+      <div class="left">
+        <ons-toolbar-button onclick="fn.prev()">
+            <ons-icon icon="md-chevron-left"></ons-icon>
+        </ons-toolbar-button>
+        {% if data.hasHomePage %}
+        <ons-toolbar-button onclick="fn.goToHome()">
+            <ons-icon icon="md-home"></ons-icon>
+        </ons-toolbar-button>
+        {% endif %}
+      </div>
+      <div class="center">
+        <span id="carousel-title">
+          {% if data.hasHomePage %}
+            {{data.homePage.title}}
+          {% else %}
+            {{data.pages[0].title}}
+          {% endif %}
+        </span>
+      </div>
+      <div class="right">
+        <ons-toolbar-button onclick="fn.next()">
+           <ons-icon icon="md-chevron-right"></ons-icon>
+      </ons-toolbar-button>
+    </div>
+    </ons-toolbar>
+    
+    <ons-carousel fullscreen swipeable auto-scroll overscrollable id="carousel">
+      {% if data.hasHomePage %}
+      <ons-carousel-item>
+        <div class="carousel-content-container">
+          <div class="carousel-item-content" style="text-align: center">
+            <ons-row>
+              <ons-col width="100%">
+                {% if data.homePage.content.hero_title or data.homePage.content.hero_image %}
+                <div class="hero-section" {% if data.homePage.content.hero_image %}style="background-image: url('{{data.homePage.content.hero_image}}')"{% endif %}>
+                  <div class="hero-content">
+                    {% if data.homePage.content.hero_title %}
+                    <h1 class="hero-title">{{data.homePage.content.hero_title}}</h1>
+                    {% endif %}
+                    {% if data.homePage.content.hero_subtitle %}
+                    <p class="hero-subtitle">{{data.homePage.content.hero_subtitle}}</p>
+                    {% endif %}
+                    {% if data.homePage.content.cta_button.text %}
+                    <ons-button onclick="fn.goToPage(1)" modifier="large" class="hero-cta">
+                      {{data.homePage.content.cta_button.text}}
+                    </ons-button>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endif %}
+                
+                {% if data.homePage.navigation %}
+                <div class="home-navigation">
+                  {% for nav_item in data.homePage.navigation %}
+                    {% if nav_item.page in data.pageList %}
+                    <ons-button onclick="fn.goToPageByName('{{nav_item.page}}')" modifier="{{nav_item.style or 'primary'}}" class="home-nav-button">
+                      {{nav_item.text}}
+                    </ons-button>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                {% endif %}
+                
+                <div class="home-content">
+                  {{data.homePage.content.html|safe}}
+                </div>
+              </ons-col>
+            </ons-row>
+          </div>
+        </div>
+      </ons-carousel-item>
+      {% endif %}
+      {% for page in data.pages %}
+      <ons-carousel-item>
+        <div class="carousel-content-container">
+          <div class="carousel-item-content" style="text-align: center">
+            <ons-row>
+              {% for column in page.content.columns %}
+                 <ons-col width="{{page.content.widths[loop.index0]}}%">
+                      {% for card in column %}
+                      {% if card.type == 'Form' %}
+                        {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
+                          {% if card.use_color%}
+                          <ons-card data-card-name="{{card.name}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}" style="background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                          {% else %}
+                          <ons-card data-card-name="{{card.name}}" modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                          {% endif %}
+                        {% else %}
+                      <ons-card data-card-name="{{card.name}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}">
+                        {% endif %}
+                          <div class="title">
+                            {{card.name}}
+                          </div>
+                            <div>
+                              {% if card.use_color%}
+                              <ons-list style="background-color: {{card.color}};" modifier="{{card.border}}">
+                              {% else %}
+                              <ons-list modifier="{{card.border}}">
+                              {% endif %}
+                                <ons-list-item>
+                                    <div class="form_container">
+                                      <br />
+                                      {{card.html}}
+                                    {% if card.form_id != ""%}
+                                    <form class="gform" id="form_{{card.name}}" method="post" action="https://script.google.com/s/{{card.form_id}}/exec">
+                                      {% if card.use_color%}
+                                      <ons-list style="background-color: {{card.color}};">
+                                      {% else %}
+                                        <ons-list class="form_list">
+                                      {% endif %}
+                                        {% for input in card.form_data %}
+                                        <ons-list-item class="form_list_item">
+                                          <ons-input class="form_input" id="{{input}}" name="{{input}}" modifier="underbar" placeholder="{{input}}" float></ons-input>
+                                        </ons-list-item>
+                                        {% endfor %}
+                                      </ons-list>
+                                      <button class="form_list button--large button" id="submit" type="submit">{{card.form_btn_txt}}</button>
+                                    </form>
+                                    {{card.form_html}}
+                                  {% else %}
+                                  <p>FORM ID IS NOT SET!!!</p>
+                                  {% endif %}
+                                  </div>
+                              </ons-list-item>
+                            </ons-list>
+                          </div>
+                        </ons-card>
+                      {% else %}
+                      {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
+                        {% if card.use_color%}
+                        <ons-card data-card-name="{{card.name}}" modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                        {% else %}
+                        <ons-card data-card-name="{{card.name}}" modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                        {% endif %}
+                      {% else %}
+                        {% if card.use_color%}
+                        <ons-card data-card-name="{{card.name}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}};" modifier="{{data.settings.style}}">
+                        {% else %}
+                        <ons-card data-card-name="{{card.name}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;" modifier="{{data.settings.style}}">
+                        {% endif %}
+                      {% endif %}
+                        <div class="title">
+                          {{card.name}}
+                        </div>
+                          <div class="content">
+                            {% if card.type == 'Expandable' %}
+                            <ons-list-item expandable>
+                            {% else %}
+                            <ons-list-item expandable expanded class="list-item list-item--expandable expanded ">
+                            {% endif %}
+                            {% if card.use_thumb %}
+                              {% if card.author_img != '' %}
+                              <div class="left">
+                                <img class="list-item__thumbnail" src="{{card.author_img}}">
+                                <p class="list-item__subtitle author">{{card.author}}</p>
+                              </div>
+                                {% endif %}
+                              {% endif %}
+                              <div class="expandable-content">
+                                <div class="article">
+                                  <br />
+                                  {{card.html}}
+                                    {% if card.use_color%}
+                                    <ons-list style="background-color: {{card.color}};">
+                                    {% else %}
+                                    <ons-list>
+                                    {% endif %}
+                                  </ons-list>
+                                  {{card.form_html}}
+                                </div>
+                                  <ons-fab onclick="myNavigator.pushPage('nav_{{card.name}}.html')" modifier="{{data.settings.style}}">
+                                    <ons-icon icon="fa-chevron-left"></ons-icon>
+                                  </ons-fab>
+                                </div>
+                              </ons-list-item>
+                            </ons-list>
+                          </div>
+                        </ons-card>
+                      {% endif %}
+                      {% endfor %}
+                 </ons-col>
+              {% endfor %}
+             </ons-row>
+           </div>
+        </div>
+      </ons-carousel-item>
+      {% endfor %}
+    </ons-carousel>
+  </ons-page>
 </template>
 {% endif %}
 
-<!-- Home Page Template (available for all page types) -->
-{% if data.hasHomePage %}
-<template id="home.html">
+<!-- Tabs Home Page Template -->
+{% if data.settings.pageType == 'tabs' %}
+<template id="tabs-home.html">
   <ons-page>
+
     <ons-toolbar modifier="{{data.settings.style}}">
       <div class="center">
         {{data.homePage.title}}
       </div>
-      {% if data.settings.pageType == 'splitter' %}
+    </ons-toolbar>
+    
+    <!-- Hero Section (if configured) -->
+    {% if data.homePage.content.hero_title or data.homePage.content.hero_image %}
+    <div class="hero-section" {% if data.homePage.content.hero_image %}style="background-image: url('{{data.homePage.content.hero_image}}')"{% endif %}>
+      <div class="hero-content">
+        {% if data.homePage.content.hero_title %}
+        <h1 class="hero-title">{{data.homePage.content.hero_title}}</h1>
+        {% endif %}
+        {% if data.homePage.content.hero_subtitle %}
+        <p class="hero-subtitle">{{data.homePage.content.hero_subtitle}}</p>
+        {% endif %}
+        {% if data.homePage.content.cta_button.text %}
+        <ons-button onclick="fn.goToTabByName('{{data.pages[0].title}}')" modifier="large" class="hero-cta">
+          {{data.homePage.content.cta_button.text}}
+        </ons-button>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+    
+    <!-- Navigation Buttons (from frontmatter) -->
+    {% if data.homePage.navigation %}
+    <div class="home-navigation">
+      {% for nav_item in data.homePage.navigation %}
+        {% if nav_item.page in data.pageList %}
+        <ons-button onclick="fn.goToTabByName('{{nav_item.page}}')" modifier="{{nav_item.style or 'primary'}}" class="home-nav-button">
+          {{nav_item.text}}
+        </ons-button>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Main Content (processed markdown) -->
+    <div class="home-content">
+      {{data.homePage.content.html|safe}}
+    </div>
+  </ons-page>
+</template>
+{% endif %}
+
+<!-- Home Page Template (for splitter mode only) -->
+{% if data.hasHomePage and data.settings.pageType == 'splitter' %}
+<template id="home.html">
+  <ons-page>
+
+    <ons-toolbar modifier="{{data.settings.style}}">
+      <div class="center">
+        {{data.homePage.title}}
+      </div>
       <div class="left">
         <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
           <ons-icon icon="md-menu"></ons-icon>
         </ons-toolbar-button>
       </div>
-      {% endif %}
     </ons-toolbar>
     
     <!-- Hero Section (if configured) -->
@@ -606,12 +1121,12 @@
                 {% if card.type == 'Form' %}
                   {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
                     {% if card.use_color%}
-                    <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}" style="background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                    <ons-card data-card-name="{{card.name}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}" style="background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
                     {% else %}
-                    <ons-card modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                    <ons-card data-card-name="{{card.name}}" modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
                     {% endif %}
                   {% else %}
-                <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}">
+                <ons-card data-card-name="{{card.name}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;"  modifier="{{data.settings.style}}">
                   {% endif %}
                     <div class="title">
                       {{card.name}}
@@ -653,15 +1168,15 @@
                 {% else %}
                 {% if card.bg_img != 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAC4jAAAuIwF4pT92AAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==' %}
                     {% if card.use_color%}
-                    <ons-card modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                    <ons-card data-card-name="{{card.name}}" modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}}; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
                     {% else %}
-                    <ons-card modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
+                    <ons-card data-card-name="{{card.name}}" modifier="{{data.settings.style}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background: url('{{card.bg_img}}'); background-position:center; background-repeat:no-repeat; background-size:cover;">
                     {% endif %}
                   {% else %}
                     {% if card.use_color%}
-                    <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}};" modifier="{{data.settings.style}}">
+                    <ons-card data-card-name="{{card.name}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px; background-color: {{card.color}};" modifier="{{data.settings.style}}">
                     {% else %}
-                    <ons-card style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;" modifier="{{data.settings.style}}">
+                    <ons-card data-card-name="{{card.name}}" style="max-width:{{card.max_width}}%;  margin:0 auto; margin-bottom: 5px;" modifier="{{data.settings.style}}">
                     {% endif %}
                   {% endif %}
                     <div class="title">
@@ -698,14 +1213,14 @@
                                 </ons-list>
                                 {{card.form_html}}
                               </div>
-                              <ons-fab onclick="myNavigator.pushPage('nav_{{card.name}}.html')" modifier="{{data.settings.style}}">
-                                <ons-icon icon="fa-chevron-left"></ons-icon>
-                              </ons-fab>
-                            </div>
-                          </ons-list-item>
-                        </ons-list>
-                      </div>
-                    </ons-card>
+                               <ons-fab onclick="myNavigator.pushPage('nav_{{card.name}}.html')" modifier="{{data.settings.style}}">
+                                 <ons-icon icon="fa-chevron-left"></ons-icon>
+                               </ons-fab>
+                             </div>
+                           </ons-list-item>
+                         </ons-list>
+                       </div>
+                     </ons-card>
                 {% endif %}
                 {% endfor %}
            </ons-col>
