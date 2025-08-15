@@ -350,6 +350,7 @@
     }
     ons-list{
       opacity: 90%;
+      border-radius: 15px !important;
     }
     ons-row{
         padding: {{data.settings.row_pad}}%;
@@ -357,12 +358,16 @@
     ons-col, ons-card{
         min-width: 350px;
         margin: 0 auto;
+        border-radius: 15px !important;
     }
     video {
       /* override other styles to make responsive */
       width: 100%    !important;
       height: auto   !important;
     }
+    button {
+          border-radius: 6px !important;
+      }
     .menu_icon{
       padding-right: 10px;
     }
@@ -456,6 +461,11 @@
           text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
       }
 
+      .hero-cta {
+          margin: 0.5rem;
+          border-radius: 6px !important;
+      }
+
       .home-navigation {
           text-align: center;
           padding: 2rem;
@@ -467,9 +477,10 @@
 
       .home-nav-button {
           margin: 0.5rem;
+          border-radius: 6px !important;
       }
 
-             .home-content {
+      .home-content {
            padding: 2rem;
            max-width: 800px;
            margin: 0 auto;
