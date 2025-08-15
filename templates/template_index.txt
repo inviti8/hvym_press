@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <link rel="shortcut icon" type="image/x-icon" href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmcJLBGNFb2UKFy3jspNfHk8wFCjhSsBDaQ2tWrASQBSYE" />
   <title>{{data.settings.siteName}}</title>
-  <link rel="stylesheet" href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsenui.min.css">
-  <link rel="stylesheet" href="{{data.settings.css_components}}">
+  <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">
+  <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">
+  <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>
   
   <!-- Google Fonts Loading -->
   {% if data.settings.fontSettings.enableCustomFonts %}
@@ -316,6 +317,8 @@
         --font-primary: Arial, sans-serif;
         --font-heading: Helvetica, Arial, sans-serif;
       {% endif %}
+
+      {{data.settings.css_components}}
     }
 
     /* Apply fonts throughout the template */
@@ -452,13 +455,13 @@
       .hero-title {
           font-size: 3rem;
           margin-bottom: 1rem;
-          text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+          text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
       }
 
       .hero-subtitle {
           font-size: 1.2rem;
           margin-bottom: 2rem;
-          text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
       }
 
       .hero-cta {
