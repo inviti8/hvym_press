@@ -290,7 +290,7 @@ def newFileData(f_path, f, full_path, data, file_type='.md'):
 
     data.updateFile(f_path, f, 'Default', True)
 
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.5, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"",  'metadata':json.dumps(DATA.opensea_metadata), 'file_type': file_type})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.0, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"",  'metadata':json.dumps(DATA.opensea_metadata), 'file_type': file_type})
 
     data.updateArticleHTML(f_path, f, full_path)
 
@@ -535,11 +535,11 @@ def process_markdown_file(file_path, file_name, parent_folder, data):
 
     file_extension = pathlib.Path(file_name).suffix
 
-    
-
     if file_extension == '.md':
-
-        newMdFile(file_name, file_name, file_path, data)
+        if parent_folder in data.articleData and file_name in data.articleData[parent_folder]:
+            data.updateArticleHTML(parent_folder, file_name, file_path)
+        else:
+            newMdFile(file_name, file_name, file_path, data)
 
         return True
 
@@ -1205,7 +1205,7 @@ def do_open_set_article_data(f_path, f_name, window):
 
     d = popup_set_article_data(f_path, f_name, data, colData, window)
 
-    
+    print(d)
 
     if(d != None):
 
