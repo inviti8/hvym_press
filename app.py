@@ -478,12 +478,11 @@ def updateFolderData(first_run, data):
 
 def refreshSiteData(data):
 
+    data.refreshCss()
+
     site_data = data.generateSiteData()
 
     data.refreshDebugMedia()
-
-    data.refreshCss()
-
 
 
     return site_data
@@ -2150,7 +2149,7 @@ ui_settings_layout = [[sg.Frame('UI Settings', [
 
                [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='SETTING-theme', font=font)],
 
-               [name('Custom CSS'), sg.Input(default_text=DATA.settings['customTheme'], s=20, right_click_menu=['&Right', css_input_dropdown], enable_events=True, k='SETTING-customTheme', font=font), sg.FolderBrowse(font=font)]
+               [name('Custom CSS'), sg.Input(default_text=DATA.settings['customTheme'], s=20, right_click_menu=['&Right', css_input_dropdown], enable_events=True, k='SETTING-customTheme', font=font), sg.FileBrowse(font=font)]
 
                ], relief='sunken', expand_y=True, expand_x=True, font=font)]]
 
