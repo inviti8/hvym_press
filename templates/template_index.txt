@@ -362,7 +362,7 @@
         min-width: 350px;
         margin: 0 auto;
     }
-    ons-card{
+    ons-card, img{
         border-radius: 15px !important;
     }
     video {

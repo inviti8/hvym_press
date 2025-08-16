@@ -190,7 +190,7 @@ class MarkdownHandler:
        try:
            with open(filePath, 'r', encoding="utf-8") as file:
                md_file = file.read()
-           
+           md_file = md_file.replace('../_resources', './_resources')
            # Convert markdown to HTML
            html = markdown.markdown(md_file)
            
