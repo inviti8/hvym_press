@@ -26,6 +26,7 @@ class MarkdownHandler:
    def __init__(self, filePath, deployerManifest=None):
        self.filePath = filePath
        self.deployerManifest = deployerManifest
+       self.mediaDir = '_resources'  # Default fallback
        
    def _deployedURL(self, href):
        """
@@ -77,6 +78,10 @@ class MarkdownHandler:
        print(f"DEBUG: Original href: {href}, extracted filename: {filename}, decoded filename: {decoded_filename}")
        print(f"DEBUG: Manifest keys: {list(media_files.keys())}")
        return href
+   
+   def setMediaDir(self, media_dir):
+       """Set the configurable media directory name"""
+       self.mediaDir = media_dir
    
    def _handleImgTags(self, html):
         """
@@ -151,12 +156,12 @@ class MarkdownHandler:
        links = soup.findAll('a')
         
        for img in imgs:
-           if 'src' in img and '../' in img['src']:
-               img['src'] = img['src'].replace('../', './')  
+           if 'src' in img and f'../{self.mediaDir}/' in img['src']:
+               img['src'] = img['src'].replace(f'../{self.mediaDir}/', f'./{self.mediaDir}/')  
 
        for link in links:
-           if ('src' in link and ('.mp3' in link['src'] or '.mp4' in link['src'])) and ('src' in img and '../' in img['src']):
-               link['src'] = link['src'].replace('../', './')
+           if 'src' in link and ('.mp3' in link['src'] or '.mp4' in link['src']) and f'../{self.mediaDir}/' in link['src']:
+               link['src'] = link['src'].replace(f'../{self.mediaDir}/', f'./{self.mediaDir}/')
 
        return soup.decode(formatter='html')
    
@@ -190,7 +195,10 @@ class MarkdownHandler:
        try:
            with open(filePath, 'r', encoding="utf-8") as file:
                md_file = file.read()
-           md_file = md_file.replace('../_resources', './_resources')
+           # Fix image paths in markdown BEFORE conversion (for local deployment)
+           # Use configurable media directory
+           md_file = md_file.replace(f'../{self.mediaDir}/', f'./{self.mediaDir}/')
+           
            # Convert markdown to HTML
            html = markdown.markdown(md_file)
            
@@ -212,11 +220,11 @@ class MarkdownHandler:
         output = self._renderTemplate(template_file, data)
         
         # Debug: Check if the rendered output contains media links
-        if '../_resources/' in output:
+        if f'../{self.mediaDir}/' in output:
             print(f"DEBUG: Rendered template still contains local media links!")
             # Find and show examples
             import re
-            media_links = re.findall(r'\.\./_resources/[^"\s]+', output)
+            media_links = re.findall(f'\\.\\./{re.escape(self.mediaDir)}/[^"\\s]+', output)
             if media_links:
                 print(f"DEBUG: Found local media links in template: {media_links[:3]}...")
         else:
@@ -226,7 +234,7 @@ class MarkdownHandler:
         output = self._shortenMediaLinks(output)
         
         # Debug: Check after shortening (output is still string)
-        if '../_resources/' in output:
+        if f'../{self.mediaDir}/' in output:
             print(f"DEBUG: After shortening, still contains local media links!")
         else:
             print(f"DEBUG: After shortening, no local media links found")
