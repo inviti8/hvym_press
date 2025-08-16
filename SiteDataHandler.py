@@ -1,17 +1,8 @@
 # -*- coding: utf-8 -*-
-
 """
-
 Created on Mon Oct 10 11:18:11 2022
-
-
-
 @author: meta-cronos
-
-
-
 Initialize with and object containing folder-objects, each containing and array
-
 with .md files contained in the folder:
 
     {
@@ -22,2905 +13,4345 @@ with .md files contained in the folder:
 
      }
 
-
-
-
-
 """
+
 
 import os
 
+
 import json
+
 
 import time
 
+
 import uuid
+
 
 import pickle
 
+
 import shutil
+
 
 import ffmpy
 
+
 import jsonpickle
+
 
 from pathlib import Path
 
+
 from bs4 import BeautifulSoup
+
 
 from mrkdwn_analysis import MarkdownAnalyzer
 
+
 from jinja2 import Environment, FileSystemLoader
+
 
 from collections import deque
 
+
 from hvym_stellar import *
+
 
 from stellar_sdk import Keypair
 
-CSS_LIGHT = ''' 
+
+CSS_LIGHT = """ 
+
 /* Custom Theme for Onsen UI 2.11.2 */
 
+
+
   /* variables for iOS components */
+
   --background-color: #efeff4;
+
   --text-color: #1f1f21;
+
   --sub-text-color: #999;
+
   --highlight-color: rgba(122,72,169,1);
+
   --second-highlight-color: rgba(159,122,193,1);
+
   --border-color: #ccc;
+
   --button-background-color: var(--highlight-color);
+
   --button-cta-background-color: var(--second-highlight-color);
+
   --toolbar-background-color: #fafafa;
+
   --toolbar-button-color: var(--highlight-color);
+
   --toolbar-text-color: #1f1f21;
+
   --toolbar-border-color: #b2b2b2;
+
   --button-bar-color: var(--highlight-color);
+
   --button-bar-active-text-color: #fff;
+
   --button-bar-active-background-color: color-mod(var(--button-bar-color) tint(70%));
+
   --button-light-color: black;
+
   --segment-color: var(--highlight-color);
+
   --segment-active-text-color: #fff;
+
   --segment-active-background-color: color-mod(var(--segment-color) tint(70%));
+
   --list-background-color: #fff;
+
   --list-header-background-color: #eee;
+
   --list-tap-active-background-color: #d9d9d9;
+
   --list-item-chevron-color: #c7c7cc;
+
   --progress-bar-color: var(--highlight-color);
+
   --progress-bar-secondary-color: rgba(174,119,224,1);
+
   --progress-bar-background-color: transparent;
+
   --progress-circle-primary-color: var(--highlight-color);
+
   --progress-circle-secondary-color: #65adff;
+
   --progress-circle-background-color: transparent;
+
   --tabbar-background-color: #fafafa;
+
   --tabbar-text-color: #999;
+
   --tabbar-highlight-text-color: var(--highlight-color);
+
   --tabbar-border-color: #ccc;
+
   --switch-highlight-color: rgba(210,199,92,1);
+
   --switch-border-color: #e5e5e5;
+
   --switch-background-color: white;
+
   --range-track-background-color: #a4aab3;
+
   --range-track-background-color-active: var(--highlight-color);
+
   --range-thumb-background-color: #fff;
+
   --modal-background-color: rgba(0, 0, 0, 0.7);
+
   --modal-text-color: #fff;
+
   --alert-dialog-background-color: #f4f4f4;
+
   --alert-dialog-text-color: #1f1f21;
+
   --alert-dialog-button-color: var(--highlight-color);
+
   --alert-dialog-separator-color: #ddd;
+
   --dialog-background-color: #f4f4f4;
+
   --dialog-text-color: var(--text-color);
+
   --popover-background-color: white;
+
   --popover-text-color: #1f1f21;
+
   --action-sheet-title-color: #8f8e94;
+
   --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+
   --action-sheet-button-color: var(--highlight-color);
+
   --action-sheet-button-destructive-color: #fe3824;
+
   --action-sheet-button-background-color: rgba(255, 255, 255, 0.9);
+
   --action-sheet-button-active-background-color: #e9e9e9;
+
   --action-sheet-cancel-button-background-color: #fff;
+
   --notification-background-color: #7A48A9;
+
   --notification-color: white;
+
   --search-input-background-color: rgba(3, 3, 3, 0.09);
+
   --fab-text-color: #ffffff;
+
   --fab-background-color: var(--highlight-color);
+
   --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+
   --card-background-color: white;
+
   --card-text-color: #030303;
+
   --toast-background-color: rgba(0, 0, 0, 0.8);
+
   --toast-text-color: white;
+
   --toast-button-text-color: white;
+
   --select-input-color: var(--text-color);
+
   --select-input-border-color: var(--border-color);
 
+
+
   /* variables for Material Design components */
+
   --material-background-color: #eceff1;
+
   --material-text-color: var(--text-color);
+
   --material-notification-background-color: #7A48A9;
+
   --material-notification-color: white;
+
   --material-switch-active-thumb-color: #37474f;
+
   --material-switch-active-background-color: color-mod(#37474f a(50%));
+
   --material-switch-inactive-thumb-color: #f1f1f1;
+
   --material-switch-inactive-background-color: #b0afaf;
+
   --material-range-track-color: #bdbdbd;
+
   --material-range-thumb-color: #31313a;
+
   --material-range-disabled-thumb-color: #b0b0b0;
+
   --material-range-disabled-thumb-border-color: #eeeeee;
+
   --material-range-zero-thumb-color: #f2f2f2;
+
   --material-toolbar-background-color: #ffffff;
+
   --material-toolbar-text-color: #31313a;
+
   --material-toolbar-button-color: rgba(163,103,220,1);
+
   --material-segment-background-color: #fafafa;
+
   --material-segment-active-background-color: #c8c8c8;
+
   --material-segment-text-color: color-mod(black a(38%));
+
   --material-segment-active-text-color: #353535;
+
   --material-button-background-color: rgba(170,107,228,1);
+
   --material-button-text-color: #ffffff;
+
   --material-button-disabled-background-color: color-mod(#4f4f4f a(26%));
+
   --material-button-disabled-color: color-mod(black a(26%));
+
   --material-flat-button-active-background-color: color-mod(#999 a(20%));
+
   --material-list-background-color: #fff;
+
   --material-list-item-separator-color: #eee;
+
   --material-list-header-text-color: #757575;
+
   --material-checkbox-active-color: #37474f;
+
   --material-checkbox-inactive-color: #717171;
+
   --material-checkbox-checkmark-color: #ffffff;
+
   --material-radio-button-active-color: #37474f;
+
   --material-radio-button-inactive-color: #717171;
+
   --material-radio-button-disabled-color: #afafaf;
+
   --material-text-input-text-color: #212121;
+
   --material-text-input-active-color: #3d5afe;
+
   --material-text-input-inactive-color: #afafaf;
+
   --material-search-background-color: #fafafa;
+
   --material-dialog-background-color: #ffffff;
+
   --material-dialog-text-color: var(--material-text-color);
+
   --material-alert-dialog-background-color: #ffffff;
+
   --material-alert-dialog-title-color: #31313a;
+
   --material-alert-dialog-content-color: rgba(49, 49, 58, 0.85);
+
   --material-alert-dialog-button-color: #37474f;
+
   --material-progress-bar-primary-color: rgba(83,60,105,1);
+
   --material-progress-bar-secondary-color: rgba(142,98,183,1);
+
   --material-progress-bar-background-color: transparent;
+
   --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+
   --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+
   --material-progress-circle-background-color: transparent;
+
   --material-tabbar-background-color: #ffffff;
+
   --material-tabbar-text-color: #31313a;
+
   --material-tabbar-highlight-text-color: #31313a;
+
   --material-tabbar-highlight-color: rgba(49, 49, 58, 0.1);
+
   --material-fab-text-color: #31313a;
+
   --material-fab-background-color: #ffffff;
+
   --material-fab-active-background-color: rgba(255, 255, 255, 0.75);
+
   --material-card-background-color: white;
+
   --material-card-text-color: rgba(0, 0, 0, 0.54);
+
   --material-toast-background-color: rgba(0, 0, 0, 0.8);
+
   --material-toast-text-color: white;
+
   --material-toast-button-text-color: #bbdefb;
+
   --material-select-input-color: var(--material-text-color);
+
   --material-select-input-active-color: rgba(0, 0, 0, 0.15);
+
   --material-select-input-inactive-color: rgba(0, 0, 0, 0.81);
+
   --material-select-border-color: color-mod(black a(12%));
+
   --material-popover-background-color: #fafafa;
+
   --material-popover-text-color: var(--material-text-color);
+
   --material-action-sheet-text-color: #686868;
 
+
+
   /* others */
+
   --tap-highlight-color: transparent;
-'''
-CSS_DARK = '''
+
+"""
+
+CSS_DARK = """
+
 /* Custom Theme for Onsen UI 2.11.2 */
+
   /* variables for iOS components */
+
   --background-color: #0d0d0d;
+
   --text-color: #fff;
+
   --sub-text-color: #999;
+
   --highlight-color: #ffa101;
+
   --second-highlight-color: #da5926;
+
   --border-color: #242424;
+
   --button-background-color: var(--highlight-color);
+
   --button-cta-background-color: var(--second-highlight-color);
+
   --button-light-color: white;
+
   --toolbar-background-color: #181818;
+
   --toolbar-button-color: var(--highlight-color);
+
   --toolbar-text-color: #fff;
+
   --toolbar-border-color: #242424;
+
   --button-bar-color: var(--highlight-color);
+
   --button-bar-active-text-color: #fff;
+
   --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+
   --segment-color: var(--highlight-color);
+
   --segment-active-text-color: #fff;
+
   --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+
   --list-background-color: #181818;
+
   --list-header-background-color: #111;
+
   --list-tap-active-background-color: #262626;
+
   --list-item-chevron-color: #383833;
+
   --progress-bar-color: var(--highlight-color);
+
   --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+
   --progress-bar-background-color: transparent;
+
   --progress-circle-primary-color: var(--progress-bar-color);
+
   --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+
   --progress-circle-background-color: transparent;
+
   --tabbar-background-color: #212121;
+
   --tabbar-text-color: #aaa;
+
   --tabbar-highlight-text-color: var(--highlight-color);
+
   --tabbar-border-color: #0d0d0d;
+
   --switch-highlight-color: #44db5e;
+
   --switch-border-color: #666;
+
   --switch-background-color: var(--background-color);
+
   --range-track-background-color: #6b6f74;
+
   --range-track-background-color-active: #bbb;
+
   --range-thumb-background-color: #fff;
+
   --modal-background-color: color-mod(black a(70%));
+
   --modal-text-color: #fff;
+
   --alert-dialog-background-color: #f4f4f4;
+
   --alert-dialog-text-color: #1f1f21;
+
   --alert-dialog-button-color: var(--highlight-color);
+
   --alert-dialog-separator-color: #ddd;
+
   --dialog-background-color: #0d0d0d;
+
   --dialog-text-color: #1f1f21;
+
   --popover-background-color: #242424;
+
   --popover-text-color: var(--text-color);
+
   --action-sheet-title-color: #8f8e94;
+
   --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+
   --action-sheet-button-color: var(--highlight-color);
+
   --action-sheet-button-destructive-color: #fe3824;
+
   --action-sheet-button-background-color: rgba(255, 255, 255, 0.9);
+
   --action-sheet-button-active-background-color: #e9e9e9;
+
   --action-sheet-cancel-button-background-color: #fff;
+
   --notification-background-color: #fe3824;
+
   --notification-color: white;
+
   --search-input-background-color: color-mod(white a(9%));
+
   --fab-text-color: #ffffff;
+
   --fab-background-color: var(--highlight-color);
+
   --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+
   --card-background-color: var(--border-color);
+
   --card-text-color: var(--text-color);
+
   --toast-background-color: #ccc;
+
   --toast-text-color: #000;
+
   --toast-button-text-color: #000;
+
   --select-input-color: var(--text-color);
+
   --select-input-border-color: var(--border-color);
 
+
+
   /* variables for Material Design components */
+
   --material-background-color: #303030;
+
   --material-text-color: #ffffff;
+
   --material-notification-background-color: #f50057;
+
   --material-notification-color: white;
+
   --material-switch-active-thumb-color: #ffc107;
+
   --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+
   --material-switch-inactive-thumb-color: #bdbdbd;
+
   --material-switch-inactive-background-color: color-mod(white a(30%));
+
   --material-range-track-color: #525252;
+
   --material-range-thumb-color: #cecec5;
+
   --material-range-disabled-thumb-color: #4f4f4f;
+
   --material-range-disabled-thumb-border-color: #303030;
+
   --material-range-zero-thumb-color: #0d0d0d;
+
   --material-toolbar-background-color: #212121;
+
   --material-toolbar-text-color: #ffffff;
+
   --material-toolbar-button-color: var(--toolbar-button-color);
+
   --material-segment-background-color: #292929;
+
   --material-segment-active-background-color: #404040;
+
   --material-segment-text-color: color-mod(#fff a(62%));
+
   --material-segment-active-text-color: #cacaca;
+
   --material-button-background-color: #d68600;
+
   --material-button-text-color: #ffffff;
+
   --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+
   --material-button-disabled-color: color-mod(white a(74%));
+
   --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+
   --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+
   --material-list-item-separator-color: color-mod(white a(12%));
+
   --material-list-header-text-color: #8a8a8a;
+
   --material-checkbox-active-color: #fff;
+
   --material-checkbox-inactive-color: #717171;
+
   --material-checkbox-checkmark-color: #000;
+
   --material-radio-button-active-color: #ffa101;
+
   --material-radio-button-inactive-color: #8e8e8e;
+
   --material-radio-button-disabled-color: #505050;
+
   --material-text-input-text-color: color-mod(#fff a(75%));
+
   --material-text-input-active-color: color-mod(#fff a(75%));
+
   --material-text-input-inactive-color: color-mod(#fff a(30%));
+
   --material-search-background-color: #424242;
+
   --material-dialog-background-color: #424242;
+
   --material-dialog-text-color: var(--material-text-color);
+
   --material-alert-dialog-background-color: #424242;
+
   --material-alert-dialog-title-color: white;
+
   --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+
   --material-alert-dialog-button-color: #d68600;
+
   --material-progress-bar-primary-color: #d68600;
+
   --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+
   --material-progress-bar-background-color: transparent;
+
   --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+
   --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+
   --material-progress-circle-background-color: transparent;
+
   --material-tabbar-background-color: var(--material-toolbar-background-color);
+
   --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+
   --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
+
   --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+
   --material-fab-text-color: #31313a;
+
   --material-fab-background-color: #ffffff;
+
   --material-fab-active-background-color: color-mod(white a(75%));
+
   --material-card-background-color: #424242;
+
   --material-card-text-color: color-mod(white a(46%));
+
   --material-toast-background-color: #ccc;
+
   --material-toast-text-color: #000;
+
   --material-toast-button-text-color: #583905;
+
   --material-select-input-color: var(--material-text-color);
+
   --material-select-input-active-color: color-mod(white a(85%));
+
   --material-select-input-inactive-color: color-mod(white a(19%));
+
   --material-select-border-color: color-mod(white a(88%));
+
   --material-popover-background-color: var(--material-alert-dialog-background-color);
+
   --material-popover-text-color: var(--material-text-color);
+
   --material-action-sheet-text-color: #686868;
 
+
+
   /* others */
+
   --tap-highlight-color: transparent;
-'''
-CSS_HEAVYMETA = '''
+
+"""
+
+CSS_HEAVYMETA = """
+
  /* variables for iOS components */
+
   --background-color: #98314A;
+
   --text-color: #fff;
+
   --sub-text-color: #999;
+
   --highlight-color: #31B09C;
+
   --second-highlight-color: rgba(133,230,215,1);
+
   --border-color: rgba(210,110,134,1);
+
   --button-background-color: var(--highlight-color);
+
   --button-cta-background-color: var(--second-highlight-color);
+
   --button-light-color: white;
+
   --toolbar-background-color: #181818;
+
   --toolbar-button-color: var(--highlight-color);
+
   --toolbar-text-color: #fff;
+
   --toolbar-border-color: #242424;
+
   --button-bar-color: rgba(106,224,205,1);
+
   --button-bar-active-text-color: #fff;
+
   --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+
   --segment-color: rgba(99,188,174,1);
+
   --segment-active-text-color: #fff;
+
   --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+
   --list-background-color: #181818;
+
   --list-header-background-color: #111;
+
   --list-tap-active-background-color: #262626;
+
   --list-item-chevron-color: #383833;
+
   --progress-bar-color: var(--highlight-color);
+
   --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+
   --progress-bar-background-color: transparent;
+
   --progress-circle-primary-color: var(--progress-bar-color);
+
   --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+
   --progress-circle-background-color: transparent;
+
   --tabbar-background-color: #212121;
+
   --tabbar-text-color: #aaa;
+
   --tabbar-highlight-text-color: var(--highlight-color);
+
   --tabbar-border-color: #0d0d0d;
+
   --switch-highlight-color: #44db5e;
+
   --switch-border-color: #666;
+
   --switch-background-color: var(--background-color);
+
   --range-track-background-color: #6b6f74;
+
   --range-track-background-color-active: #bbb;
+
   --range-thumb-background-color: #fff;
+
   --modal-background-color: color-mod(black a(70%));
+
   --modal-text-color: #fff;
+
   --alert-dialog-background-color: #f4f4f4;
+
   --alert-dialog-text-color: #1f1f21;
+
   --alert-dialog-button-color: var(--highlight-color);
+
   --alert-dialog-separator-color: #ddd;
+
   --dialog-background-color: #0d0d0d;
+
   --dialog-text-color: #1f1f21;
+
   --popover-background-color: #242424;
+
   --popover-text-color: var(--text-color);
+
   --action-sheet-title-color: #8f8e94;
+
   --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+
   --action-sheet-button-color: var(--highlight-color);
+
   --action-sheet-button-destructive-color: #fe3824;
+
   --action-sheet-button-background-color: rgba(255, 255, 255, 0.9);
+
   --action-sheet-button-active-background-color: #e9e9e9;
+
   --action-sheet-cancel-button-background-color: #fff;
+
   --notification-background-color: #fe3824;
+
   --notification-color: white;
+
   --search-input-background-color: color-mod(white a(9%));
+
   --fab-text-color: #ffffff;
+
   --fab-background-color: var(--highlight-color);
+
   --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+
   --card-background-color: var(--border-color);
+
   --card-text-color: var(--text-color);
+
   --toast-background-color: #ccc;
+
   --toast-text-color: #000;
+
   --toast-button-text-color: #000;
+
   --select-input-color: var(--text-color);
+
   --select-input-border-color: var(--border-color);
 
+
+
   /* variables for Material Design components */
+
   --material-background-color: #98314A;
+
   --material-text-color: #ffffff;
+
   --material-notification-background-color: #f50057;
+
   --material-notification-color: white;
+
   --material-switch-active-thumb-color: rgba(212,102,128,1);
+
   --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+
   --material-switch-inactive-thumb-color: #bdbdbd;
+
   --material-switch-inactive-background-color: color-mod(white a(30%));
+
   --material-range-track-color: #525252;
+
   --material-range-thumb-color: #cecec5;
+
   --material-range-disabled-thumb-color: #4f4f4f;
+
   --material-range-disabled-thumb-border-color: #303030;
+
   --material-range-zero-thumb-color: #0d0d0d;
+
   --material-toolbar-background-color: #212121;
+
   --material-toolbar-text-color: #ffffff;
+
   --material-toolbar-button-color: var(--toolbar-button-color);
+
   --material-segment-background-color: #292929;
+
   --material-segment-active-background-color: #404040;
+
   --material-segment-text-color: color-mod(#fff a(62%));
+
   --material-segment-active-text-color: #cacaca;
+
   --material-button-background-color: #d68600;
+
   --material-button-text-color: #ffffff;
+
   --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+
   --material-button-disabled-color: color-mod(white a(74%));
+
   --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+
   --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+
   --material-list-item-separator-color: color-mod(white a(12%));
+
   --material-list-header-text-color: #8a8a8a;
+
   --material-checkbox-active-color: #fff;
+
   --material-checkbox-inactive-color: #717171;
+
   --material-checkbox-checkmark-color: #000;
+
   --material-radio-button-active-color: #31B09C;
+
   --material-radio-button-inactive-color: #8e8e8e;
+
   --material-radio-button-disabled-color: #505050;
+
   --material-text-input-text-color: color-mod(#fff a(75%));
+
   --material-text-input-active-color: color-mod(#fff a(75%));
+
   --material-text-input-inactive-color: color-mod(#fff a(30%));
+
   --material-search-background-color: #424242;
+
   --material-dialog-background-color: #424242;
+
   --material-dialog-text-color: var(--material-text-color);
+
   --material-alert-dialog-background-color: #424242;
+
   --material-alert-dialog-title-color: white;
+
   --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+
   --material-alert-dialog-button-color: #d68600;
+
   --material-progress-bar-primary-color: #31B09C;
+
   --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+
   --material-progress-bar-background-color: transparent;
+
   --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+
   --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+
   --material-progress-circle-background-color: transparent;
+
   --material-tabbar-background-color: var(--material-toolbar-background-color);
+
   --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+
   --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
+
   --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+
   --material-fab-text-color: #31313a;
+
   --material-fab-background-color: #ffffff;
+
   --material-fab-active-background-color: color-mod(white a(75%));
+
   --material-card-background-color: #424242;
+
   --material-card-text-color: color-mod(white a(46%));
+
   --material-toast-background-color: #ccc;
+
   --material-toast-text-color: #000;
+
   --material-toast-button-text-color: #583905;
+
   --material-select-input-color: var(--material-text-color);
+
   --material-select-input-active-color: color-mod(white a(85%));
+
   --material-select-input-inactive-color: color-mod(white a(19%));
+
   --material-select-border-color: color-mod(white a(88%));
+
   --material-popover-background-color: var(--material-alert-dialog-background-color);
+
   --material-popover-text-color: var(--material-text-color);
+
   --material-action-sheet-text-color: #686868;
 
+
+
   /* others */
+
   --tap-highlight-color: transparent;
-'''
-CSS_CRIMSON = '''
+
+"""
+
+CSS_CRIMSON = """
+
   /* variables for iOS components */
+
   --background-color: rgba(84,25,39,1);
+
   --text-color: rgba(230,41,41,1);
+
   --sub-text-color: rgba(212,88,88,1);
+
   --highlight-color: rgba(255,17,17,1);
+
   --second-highlight-color: rgba(241,70,70,1);
+
   --border-color: rgba(138,8,39,1);
+
   --button-background-color: var(--highlight-color);
+
   --button-cta-background-color: var(--second-highlight-color);
+
   --button-light-color: white;
+
   --toolbar-background-color: #181818;
+
   --toolbar-button-color: var(--highlight-color);
+
   --toolbar-text-color: rgba(222,0,0,1);
+
   --toolbar-border-color: #242424;
+
   --button-bar-color: hsl(0,65.55%,64.70%);
+
   --button-bar-active-text-color: #fff;
+
   --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+
   --segment-color: hsl(0,39.91%,56.27%);
+
   --segment-active-text-color: #fff;
+
   --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+
   --list-background-color: #181818;
+
   --list-header-background-color: #111;
+
   --list-tap-active-background-color: #262626;
+
   --list-item-chevron-color: #383833;
+
   --progress-bar-color: var(--highlight-color);
+
   --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+
   --progress-bar-background-color: transparent;
+
   --progress-circle-primary-color: var(--progress-bar-color);
+
   --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+
   --progress-circle-background-color: transparent;
+
   --tabbar-background-color: #212121;
+
   --tabbar-text-color: #aaa;
+
   --tabbar-highlight-text-color: var(--highlight-color);
+
   --tabbar-border-color: #0d0d0d;
+
   --switch-highlight-color: #44db5e;
+
   --switch-border-color: #666;
+
   --switch-background-color: var(--background-color);
+
   --range-track-background-color: #6b6f74;
+
   --range-track-background-color-active: #bbb;
+
   --range-thumb-background-color: #fff;
+
   --modal-background-color: color-mod(black a(70%));
+
   --modal-text-color: #fff;
+
   --alert-dialog-background-color: rgba(212,172,172,1);
+
   --alert-dialog-text-color: #1f1f21;
+
   --alert-dialog-button-color: var(--highlight-color);
+
   --alert-dialog-separator-color: #ddd;
+
   --dialog-background-color: #0d0d0d;
+
   --dialog-text-color: #1f1f21;
+
   --popover-background-color: #242424;
+
   --popover-text-color: var(--text-color);
+
   --action-sheet-title-color: rgba(231,10,10,1);
+
   --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+
   --action-sheet-button-color: var(--highlight-color);
+
   --action-sheet-button-destructive-color: #fe3824;
+
   --action-sheet-button-background-color: rgba(231,203,203,0.9);
+
   --action-sheet-button-active-background-color: #D4ACAC;
+
   --action-sheet-cancel-button-background-color: rgba(244,225,225,1);
+
   --notification-background-color: #fe3824;
+
   --notification-color: white;
+
   --search-input-background-color: color-mod(white a(9%));
+
   --fab-text-color: #ffffff;
+
   --fab-background-color: var(--highlight-color);
+
   --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+
   --card-background-color: var(--border-color);
+
   --card-text-color: var(--text-color);
+
   --toast-background-color: rgba(255,118,118,1);
+
   --toast-text-color: #830404;
+
   --toast-button-text-color: #000;
+
   --select-input-color: var(--text-color);
+
   --select-input-border-color: var(--border-color);
 
+
+
   /* variables for Material Design components */
+
   --material-background-color: #541927;
+
   --material-text-color: #E62929;
+
   --material-notification-background-color: #f50057;
+
   --material-notification-color: white;
+
   --material-switch-active-thumb-color: rgba(212,102,128,1);
+
   --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+
   --material-switch-inactive-thumb-color: #bdbdbd;
+
   --material-switch-inactive-background-color: color-mod(white a(30%));
+
   --material-range-track-color: #525252;
+
   --material-range-thumb-color: #cecec5;
+
   --material-range-disabled-thumb-color: #4f4f4f;
+
   --material-range-disabled-thumb-border-color: #303030;
+
   --material-range-zero-thumb-color: #0d0d0d;
+
   --material-toolbar-background-color: #212121;
+
   --material-toolbar-text-color: rgba(236,4,4,1);
+
   --material-toolbar-button-color: var(--toolbar-button-color);
+
   --material-segment-background-color: hsl(360,0.00%,16.07%);
+
   --material-segment-active-background-color: #404040;
+
   --material-segment-text-color: color-mod(#fff a(62%));
+
   --material-segment-active-text-color: #cacaca;
+
   --material-button-background-color: hsl(0,100.00%,41.96%);
+
   --material-button-text-color: #ffffff;
+
   --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+
   --material-button-disabled-color: color-mod(white a(74%));
+
   --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+
   --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+
   --material-list-item-separator-color: color-mod(white a(12%));
+
   --material-list-header-text-color: #8a8a8a;
+
   --material-checkbox-active-color: #fff;
+
   --material-checkbox-inactive-color: #717171;
+
   --material-checkbox-checkmark-color: #000;
+
   --material-radio-button-active-color: hsl(0,56.44%,44.11%);
+
   --material-radio-button-inactive-color: #8e8e8e;
+
   --material-radio-button-disabled-color: #505050;
+
   --material-text-input-text-color: color-mod(#fff a(75%));
+
   --material-text-input-active-color: color-mod(#fff a(75%));
+
   --material-text-input-inactive-color: color-mod(#fff a(30%));
+
   --material-search-background-color: #424242;
+
   --material-dialog-background-color: #424242;
+
   --material-dialog-text-color: var(--material-text-color);
+
   --material-alert-dialog-background-color: rgba(149,38,38,1);
+
   --material-alert-dialog-title-color: white;
+
   --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+
   --material-alert-dialog-button-color: hsl(0,100.00%,41.96%);
+
   --material-progress-bar-primary-color: hsl(0,56.44%,44.11%);
+
   --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+
   --material-progress-bar-background-color: transparent;
+
   --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+
   --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+
   --material-progress-circle-background-color: transparent;
+
   --material-tabbar-background-color: var(--material-toolbar-background-color);
+
   --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+
   --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
+
   --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+
   --material-fab-text-color: #31313a;
+
   --material-fab-background-color: #ffffff;
+
   --material-fab-active-background-color: color-mod(white a(75%));
+
   --material-card-background-color: #424242;
+
   --material-card-text-color: color-mod(white a(46%));
+
   --material-toast-background-color: #FF7676;
+
   --material-toast-text-color: #830404;
+
   --material-toast-button-text-color: rgba(131,4,4,1);
+
   --material-select-input-color: var(--material-text-color);
+
   --material-select-input-active-color: color-mod(white a(85%));
+
   --material-select-input-inactive-color: color-mod(white a(19%));
+
   --material-select-border-color: color-mod(white a(88%));
+
   --material-popover-background-color: var(--material-alert-dialog-background-color);
+
   --material-popover-text-color: var(--material-text-color);
+
   --material-action-sheet-text-color: rgba(208,79,79,1);
 
+
+
   /* others */
+
   --tap-highlight-color: transparent;
-'''
-CSS_BLUE = '''
+
+"""
+
+CSS_BLUE = """
+
   /* variables for iOS components */
+
   --background-color: hsl(208.94,54.11%,21.37%);
+
   --text-color: hsl(218.35,82.90%,67.84%);
+
   --sub-text-color: hsl(223.06,59.04%,58.82%);
+
   --highlight-color: rgba(104,142,239,1);
+
   --second-highlight-color: rgba(34,80,220,1);
+
   --border-color: hsl(218.35,89.04%,28.62%);
+
   --button-background-color: var(--highlight-color);
+
   --button-cta-background-color: rgba(52,94,224,1);
+
   --button-light-color: white;
+
   --toolbar-background-color: #181818;
+
   --toolbar-button-color: var(--highlight-color);
+
   --toolbar-text-color: hsl(208.94,100.00%,43.52%);
+
   --toolbar-border-color: #242424;
+
   --button-bar-color: hsl(216,65.55%,64.70%);
+
   --button-bar-active-text-color: #fff;
+
   --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+
   --segment-color: hsl(199.53,39.90%,56.27%);
+
   --segment-active-text-color: #fff;
+
   --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+
   --list-background-color: #181818;
+
   --list-header-background-color: #111;
+
   --list-tap-active-background-color: #262626;
+
   --list-item-chevron-color: #383833;
+
   --progress-bar-color: var(--highlight-color);
+
   --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+
   --progress-bar-background-color: transparent;
+
   --progress-circle-primary-color: var(--progress-bar-color);
+
   --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+
   --progress-circle-background-color: transparent;
+
   --tabbar-background-color: #212121;
+
   --tabbar-text-color: #aaa;
+
   --tabbar-highlight-text-color: var(--highlight-color);
+
   --tabbar-border-color: #0d0d0d;
+
   --switch-highlight-color: #44db5e;
+
   --switch-border-color: #666;
+
   --switch-background-color: var(--background-color);
+
   --range-track-background-color: #6b6f74;
+
   --range-track-background-color-active: #bbb;
+
   --range-thumb-background-color: #fff;
+
   --modal-background-color: color-mod(black a(70%));
+
   --modal-text-color: #fff;
+
   --alert-dialog-background-color: hsl(211.29,31.74%,75.29%);
+
   --alert-dialog-text-color: #1f1f21;
+
   --alert-dialog-button-color: var(--highlight-color);
+
   --alert-dialog-separator-color: hsl(230.12,0.00%,86.66%);
+
   --dialog-background-color: #0d0d0d;
+
   --dialog-text-color: #1f1f21;
+
   --popover-background-color: #242424;
+
   --popover-text-color: var(--text-color);
+
   --action-sheet-title-color: hsl(213.65,91.69%,47.25%);
+
   --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+
   --action-sheet-button-color: var(--highlight-color);
+
   --action-sheet-button-destructive-color: hsl(220.71,99.08%,56.86%);
+
   --action-sheet-button-background-color: hsl(218.35,36.84%,85.09%);
+
   --action-sheet-button-active-background-color: hsl(216,31.74%,75.29%);
+
   --action-sheet-cancel-button-background-color: hsl(216,46.33%,91.96%);
+
   --notification-background-color: hsl(220.71,99.09%,56.86%);
+
   --notification-color: white;
+
   --search-input-background-color: color-mod(white a(9%));
+
   --fab-text-color: #ffffff;
+
   --fab-background-color: var(--highlight-color);
+
   --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+
   --card-background-color: rgba(44,81,146,1);
+
   --card-text-color: hsl(208.94,62.56%,66.47%);
+
   --toast-background-color: hsl(218.35,100.00%,73.13%);
+
   --toast-text-color: hsl(213.65,94.07%,26.47%);
+
   --toast-button-text-color: #000;
+
   --select-input-color: var(--text-color);
+
   --select-input-border-color: var(--border-color);
 
+
+
   /* variables for Material Design components */
+
   --material-background-color: hsl(213.65,54.11%,21.37%);
+
   --material-text-color: hsl(220.71,65.11%,66.27%);
+
   --material-notification-background-color: hsl(227.76,100.00%,48.03%);
+
   --material-notification-color: white;
+
   --material-switch-active-thumb-color: hsl(208.94,56.12%,61.56%);
+
   --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+
   --material-switch-inactive-thumb-color: #bdbdbd;
+
   --material-switch-inactive-background-color: color-mod(white a(30%));
+
   --material-range-track-color: #525252;
+
   --material-range-thumb-color: #cecec5;
+
   --material-range-disabled-thumb-color: #4f4f4f;
+
   --material-range-disabled-thumb-border-color: #303030;
+
   --material-range-zero-thumb-color: #0d0d0d;
+
   --material-toolbar-background-color: #212121;
+
   --material-toolbar-text-color: hsl(216,96.66%,47.05%);
+
   --material-toolbar-button-color: var(--toolbar-button-color);
+
   --material-segment-background-color: hsl(360,0.00%,16.07%);
+
   --material-segment-active-background-color: #404040;
+
   --material-segment-text-color: color-mod(#fff a(62%));
+
   --material-segment-active-text-color: #cacaca;
+
   --material-button-background-color: hsl(225.41,30.57%,47.45%);
+
   --material-button-text-color: hsl(201.88,0.00%,64.42%);
+
   --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+
   --material-button-disabled-color: color-mod(white a(74%));
+
   --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+
   --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+
   --material-list-item-separator-color: color-mod(white a(12%));
+
   --material-list-header-text-color: #8a8a8a;
+
   --material-checkbox-active-color: #fff;
+
   --material-checkbox-inactive-color: #717171;
+
   --material-checkbox-checkmark-color: #000;
+
   --material-radio-button-active-color: rgba(138,144,202,1);
+
   --material-radio-button-inactive-color: #8e8e8e;
+
   --material-radio-button-disabled-color: #505050;
+
   --material-text-input-text-color: color-mod(#fff a(75%));
+
   --material-text-input-active-color: color-mod(#fff a(75%));
+
   --material-text-input-inactive-color: color-mod(#fff a(30%));
+
   --material-search-background-color: #424242;
+
   --material-dialog-background-color: rgba(35,38,56,1);
+
   --material-dialog-text-color: var(--material-text-color);
+
   --material-alert-dialog-background-color: rgba(126,149,192,1);
+
   --material-alert-dialog-title-color: white;
+
   --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+
   --material-alert-dialog-button-color: hsl(213.65,100.00%,41.96%);
+
   --material-progress-bar-primary-color: hsl(230.12,56.44%,44.11%);
+
   --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+
   --material-progress-bar-background-color: transparent;
+
   --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+
   --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+
   --material-progress-circle-background-color: transparent;
+
   --material-tabbar-background-color: var(--material-toolbar-background-color);
+
   --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+
   --material-tabbar-highlight-text-color: hsl(208.94,96.66%,47.05%);
+
   --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+
   --material-fab-text-color: #31313a;
+
   --material-fab-background-color: #ffffff;
+
   --material-fab-active-background-color: color-mod(white a(75%));
+
   --material-card-background-color: #424242;
+
   --material-card-text-color: color-mod(white a(46%));
+
   --material-toast-background-color: hsl(218.35,100.00%,73.13%);
+
   --material-toast-text-color: hsl(220.71,94.07%,26.47%);
+
   --material-toast-button-text-color: hsl(204.24,94.07%,26.47%);
+
   --material-select-input-color: var(--material-text-color);
+
   --material-select-input-active-color: color-mod(white a(85%));
+
   --material-select-input-inactive-color: color-mod(white a(19%));
+
   --material-select-border-color: color-mod(white a(88%));
+
   --material-popover-background-color: hsl(218.35,59.35%,36.65%);
+
   --material-popover-text-color: var(--material-text-color);
+
   --material-action-sheet-text-color: hsl(218.35,57.84%,56.27%);
 
+
+
   /* others */
+
   --tap-highlight-color: transparent;
-'''
-CSS_JADED = '''
+
+"""
+
+CSS_JADED = """
+
   /* variables for iOS components */
+
   --background-color: hsl(88.94,54.11%,21.37%);
+
   --text-color: rgba(202,225,164,1);
+
   --sub-text-color: #8A9C6A;
+
   --highlight-color: #8A9C6A;
+
   --second-highlight-color: #8A9C6A;
+
   --border-color: hsl(77.18,89.04%,28.62%);
+
   --button-background-color: var(--highlight-color);
+
   --button-cta-background-color: hsl(86.59,73.50%,54.11%);
+
   --button-light-color: white;
+
   --toolbar-background-color: #181818;
+
   --toolbar-button-color: var(--highlight-color);
+
   --toolbar-text-color: hsl(81.88,100.00%,43.52%);
+
   --toolbar-border-color: #242424;
+
   --button-bar-color: hsl(86.59,65.55%,64.70%);
+
   --button-bar-active-text-color: rgba(235,252,194,1);
+
   --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+
   --segment-color: hsl(81.88,39.90%,56.27%);
+
   --segment-active-text-color: #fff;
+
   --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+
   --list-background-color: #181818;
+
   --list-header-background-color: #111;
+
   --list-tap-active-background-color: #262626;
+
   --list-item-chevron-color: #383833;
+
   --progress-bar-color: var(--highlight-color);
+
   --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+
   --progress-bar-background-color: transparent;
+
   --progress-circle-primary-color: var(--progress-bar-color);
+
   --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+
   --progress-circle-background-color: transparent;
+
   --tabbar-background-color: #212121;
+
   --tabbar-text-color: #aaa;
+
   --tabbar-highlight-text-color: var(--highlight-color);
+
   --tabbar-border-color: #0d0d0d;
+
   --switch-highlight-color: #44db5e;
+
   --switch-border-color: #666;
+
   --switch-background-color: var(--background-color);
+
   --range-track-background-color: #6b6f74;
+
   --range-track-background-color-active: #bbb;
+
   --range-thumb-background-color: #fff;
+
   --modal-background-color: color-mod(black a(70%));
+
   --modal-text-color: #fff;
+
   --alert-dialog-background-color: rgba(209,216,196,1);
+
   --alert-dialog-text-color: #1f1f21;
+
   --alert-dialog-button-color: var(--highlight-color);
+
   --alert-dialog-separator-color: hsl(230.12,0.00%,86.66%);
+
   --dialog-background-color: rgba(183,204,152,1);
+
   --dialog-text-color: hsl(86.59,3.12%,12.54%);
+
   --popover-background-color: #242424;
+
   --popover-text-color: var(--text-color);
+
   --action-sheet-title-color: rgba(255,255,255,1);
+
   --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+
   --action-sheet-button-color: var(--highlight-color);
+
   --action-sheet-button-destructive-color: rgba(255,255,255,1);
+
   --action-sheet-button-background-color: rgba(190,202,176,1);
+
   --action-sheet-button-active-background-color: rgba(166,190,153,1);
+
   --action-sheet-cancel-button-background-color: rgba(219,225,212,1);
+
   --notification-background-color: rgba(149,160,127,1);
+
   --notification-color: white;
+
   --search-input-background-color: color-mod(white a(9%));
+
   --fab-text-color: #ffffff;
+
   --fab-background-color: var(--highlight-color);
+
   --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+
   --card-background-color: hsl(74.82,53.68%,37.25%);
+
   --card-text-color: hsl(70.12,62.56%,66.47%);
+
   --toast-background-color: hsl(79.53,100.00%,73.13%);
+
   --toast-text-color: hsl(81.88,94.07%,26.47%);
+
   --toast-button-text-color: #000;
+
   --select-input-color: var(--text-color);
+
   --select-input-border-color: var(--border-color);
 
+
+
   /* variables for Material Design components */
+
   --material-background-color: hsl(72.47,54.11%,21.37%);
+
   --material-text-color: #8A9C6A;
+
   --material-notification-background-color: #95A07F;
+
   --material-notification-color: white;
+
   --material-switch-active-thumb-color: hsl(86.59,56.12%,61.56%);
+
   --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+
   --material-switch-inactive-thumb-color: #bdbdbd;
+
   --material-switch-inactive-background-color: color-mod(white a(30%));
+
   --material-range-track-color: #525252;
+
   --material-range-thumb-color: #cecec5;
+
   --material-range-disabled-thumb-color: #4f4f4f;
+
   --material-range-disabled-thumb-border-color: #303030;
+
   --material-range-zero-thumb-color: #0d0d0d;
+
   --material-toolbar-background-color: #212121;
+
   --material-toolbar-text-color: hsl(79.53,96.66%,47.05%);
+
   --material-toolbar-button-color: var(--toolbar-button-color);
+
   --material-segment-background-color: hsl(360,0.00%,16.07%);
+
   --material-segment-active-background-color: #404040;
+
   --material-segment-text-color: color-mod(#fff a(62%));
+
   --material-segment-active-text-color: #cacaca;
+
   --material-button-background-color: hsl(86.59,30.57%,47.45%);
+
   --material-button-text-color: rgba(255,255,255,1);
+
   --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+
   --material-button-disabled-color: color-mod(white a(74%));
+
   --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+
   --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+
   --material-list-item-separator-color: color-mod(white a(12%));
+
   --material-list-header-text-color: #8a8a8a;
+
   --material-checkbox-active-color: #fff;
+
   --material-checkbox-inactive-color: #717171;
+
   --material-checkbox-checkmark-color: #000;
+
   --material-radio-button-active-color: rgba(138,144,202,1);
+
   --material-radio-button-inactive-color: #8e8e8e;
+
   --material-radio-button-disabled-color: #505050;
+
   --material-text-input-text-color: color-mod(#fff a(75%));
+
   --material-text-input-active-color: color-mod(#fff a(75%));
+
   --material-text-input-inactive-color: color-mod(#fff a(30%));
+
   --material-search-background-color: #424242;
+
   --material-dialog-background-color: hsl(77.18,23.07%,17.84%);
+
   --material-dialog-text-color: var(--material-text-color);
+
   --material-alert-dialog-background-color: #D1D8C4;
+
   --material-alert-dialog-title-color: white;
+
   --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+
   --material-alert-dialog-button-color: rgba(86,120,14,1);
+
   --material-progress-bar-primary-color: hsl(81.88,56.44%,44.11%);
+
   --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+
   --material-progress-bar-background-color: transparent;
+
   --material-progress-circle-primary-color: hsl(81.88,56.44%,44.11%);
+
   --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+
   --material-progress-circle-background-color: transparent;
+
   --material-tabbar-background-color: var(--material-toolbar-background-color);
+
   --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+
   --material-tabbar-highlight-text-color: hsl(77.18,96.66%,47.05%);
+
   --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+
   --material-fab-text-color: #31313a;
+
   --material-fab-background-color: #ffffff;
+
   --material-fab-active-background-color: color-mod(white a(75%));
+
   --material-card-background-color: hsl(81.88,0.00%,25.88%);
+
   --material-card-text-color: color-mod(white a(46%));
+
   --material-toast-background-color: hsl(77.18,100.00%,73.13%);
+
   --material-toast-text-color: hsl(74.82,94.07%,26.47%);
+
   --material-toast-button-text-color: hsl(77.18,94.07%,26.47%);
+
   --material-select-input-color: var(--material-text-color);
+
   --material-select-input-active-color: color-mod(white a(85%));
+
   --material-select-input-inactive-color: color-mod(white a(19%));
+
   --material-select-border-color: color-mod(white a(88%));
+
   --material-popover-background-color: rgba(194,205,176,1);
+
   --material-popover-text-color: var(--material-text-color);
+
   --material-action-sheet-text-color: hsl(84.24,57.84%,56.27%);
 
+
+
   /* others */
+
   --tap-highlight-color: transparent;
-'''
-CSS_GOLDEN = '''
+
+"""
+
+CSS_GOLDEN = """
+
   /* variables for iOS components */
+
   --background-color: #C6A122;
+
   --text-color: rgba(255,217,50,1);
+
   --sub-text-color: rgba(241,241,241,1);
+
   --highlight-color: rgba(140,112,64,1);
+
   --second-highlight-color: rgba(255,208,0,1);
+
   --border-color: rgba(130,117,11,1);
+
   --button-background-color: rgba(0,0,0,1);
+
   --button-cta-background-color: rgba(46,39,6,1);
+
   --button-light-color: rgba(221,221,221,1);
+
   --toolbar-background-color: #181818;
+
   --toolbar-button-color: var(--highlight-color);
+
   --toolbar-text-color: #fff;
+
   --toolbar-border-color: #242424;
+
   --button-bar-color: rgba(114,77,13,1);
+
   --button-bar-active-text-color: rgba(249,249,249,1);
+
   --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+
   --segment-color: var(--highlight-color);
+
   --segment-active-text-color: #fff;
+
   --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+
   --list-background-color: #181818;
+
   --list-header-background-color: #111;
+
   --list-tap-active-background-color: #262626;
+
   --list-item-chevron-color: #383833;
+
   --progress-bar-color: var(--highlight-color);
+
   --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+
   --progress-bar-background-color: transparent;
+
   --progress-circle-primary-color: var(--progress-bar-color);
+
   --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+
   --progress-circle-background-color: transparent;
+
   --tabbar-background-color: #212121;
+
   --tabbar-text-color: #aaa;
+
   --tabbar-highlight-text-color: var(--highlight-color);
+
   --tabbar-border-color: #0d0d0d;
+
   --switch-highlight-color: #44db5e;
+
   --switch-border-color: #666;
+
   --switch-background-color: var(--background-color);
+
   --range-track-background-color: #6b6f74;
+
   --range-track-background-color-active: #bbb;
+
   --range-thumb-background-color: #fff;
+
   --modal-background-color: color-mod(black a(70%));
+
   --modal-text-color: #fff;
+
   --alert-dialog-background-color: rgba(0,0,0,1);
+
   --alert-dialog-text-color: rgba(204,168,84,1);
+
   --alert-dialog-button-color: var(--highlight-color);
+
   --alert-dialog-separator-color: rgba(247,216,75,0.42);
+
   --dialog-background-color: #0d0d0d;
+
   --dialog-text-color: #1f1f21;
+
   --popover-background-color: #242424;
+
   --popover-text-color: var(--text-color);
+
   --action-sheet-title-color: #8f8e94;
+
   --action-sheet-button-separator-color: rgba(255,198,0,0.41);
+
   --action-sheet-button-color: rgba(255,160,1,1);
+
   --action-sheet-button-destructive-color: #fe3824;
+
   --action-sheet-button-background-color: rgba(5,5,5,0.9);
+
   --action-sheet-button-active-background-color: rgba(77,77,77,1);
+
   --action-sheet-cancel-button-background-color: rgba(129,129,129,1);
+
   --notification-background-color: rgba(0,0,0,1);
+
   --notification-color: white;
+
   --search-input-background-color: color-mod(white a(9%));
+
   --fab-text-color: #ffffff;
+
   --fab-background-color: var(--highlight-color);
+
   --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+
   --card-background-color: var(--border-color);
+
   --card-text-color: rgba(255,168,0,1);
+
   --toast-background-color: #ccc;
+
   --toast-text-color: #000;
+
   --toast-button-text-color: #000;
+
   --select-input-color: var(--text-color);
+
   --select-input-border-color: var(--border-color);
 
+
+
   /* variables for Material Design components */
+
   --material-background-color: rgba(198,161,34,1);
+
   --material-text-color: rgba(255,255,255,1);
+
   --material-notification-background-color: rgba(0,0,0,1);
+
   --material-notification-color: white;
+
   --material-switch-active-thumb-color: #ffc107;
+
   --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+
   --material-switch-inactive-thumb-color: #bdbdbd;
+
   --material-switch-inactive-background-color: color-mod(white a(30%));
+
   --material-range-track-color: #525252;
+
   --material-range-thumb-color: #cecec5;
+
   --material-range-disabled-thumb-color: #4f4f4f;
+
   --material-range-disabled-thumb-border-color: #303030;
+
   --material-range-zero-thumb-color: #0d0d0d;
+
   --material-toolbar-background-color: #212121;
+
   --material-toolbar-text-color: #ffffff;
+
   --material-toolbar-button-color: var(--toolbar-button-color);
+
   --material-segment-background-color: #292929;
+
   --material-segment-active-background-color: #404040;
+
   --material-segment-text-color: color-mod(#fff a(62%));
+
   --material-segment-active-text-color: #cacaca;
+
   --material-button-background-color: rgba(0,0,0,1);
+
   --material-button-text-color: rgba(242,242,242,1);
+
   --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+
   --material-button-disabled-color: color-mod(white a(74%));
+
   --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+
   --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+
   --material-list-item-separator-color: color-mod(white a(12%));
+
   --material-list-header-text-color: #8a8a8a;
+
   --material-checkbox-active-color: #fff;
+
   --material-checkbox-inactive-color: #717171;
+
   --material-checkbox-checkmark-color: #000;
+
   --material-radio-button-active-color: #ffa101;
+
   --material-radio-button-inactive-color: #8e8e8e;
+
   --material-radio-button-disabled-color: #505050;
+
   --material-text-input-text-color: color-mod(#fff a(75%));
+
   --material-text-input-active-color: color-mod(#fff a(75%));
+
   --material-text-input-inactive-color: color-mod(#fff a(30%));
+
   --material-search-background-color: #424242;
+
   --material-dialog-background-color: #424242;
+
   --material-dialog-text-color: var(--material-text-color);
+
   --material-alert-dialog-background-color: #424242;
+
   --material-alert-dialog-title-color: white;
+
   --material-alert-dialog-content-color: rgba(175,174,174,1);
+
   --material-alert-dialog-button-color: #d68600;
+
   --material-progress-bar-primary-color: #FFA000;
+
   --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+
   --material-progress-bar-background-color: transparent;
+
   --material-progress-circle-primary-color: rgba(255,160,0,1);
+
   --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+
   --material-progress-circle-background-color: transparent;
+
   --material-tabbar-background-color: var(--material-toolbar-background-color);
+
   --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+
   --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
+
   --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+
   --material-fab-text-color: #31313a;
+
   --material-fab-background-color: #ffffff;
+
   --material-fab-active-background-color: color-mod(white a(75%));
+
   --material-card-background-color: #424242;
+
   --material-card-text-color: color-mod(white a(46%));
+
   --material-toast-background-color: #ccc;
+
   --material-toast-text-color: #000;
+
   --material-toast-button-text-color: #583905;
+
   --material-select-input-color: var(--material-text-color);
+
   --material-select-input-active-color: color-mod(white a(85%));
+
   --material-select-input-inactive-color: color-mod(white a(19%));
+
   --material-select-border-color: color-mod(white a(88%));
+
   --material-popover-background-color: var(--material-alert-dialog-background-color);
+
   --material-popover-text-color: var(--material-text-color);
+
   --material-action-sheet-text-color: #686868;
 
+
+
   /* others */
+
   --tap-highlight-color: transparent;
-'''
-CSS_MANDARIN = '''
+
+"""
+
+CSS_MANDARIN = """
+
   /* variables for iOS components */
+
   --background-color: rgba(237,145,78,1);
+
   --text-color: rgba(255,255,255,1);
+
   --sub-text-color: rgba(255,218,166,1);
+
   --highlight-color: rgba(140,112,64,1);
+
   --second-highlight-color: rgba(255,134,71,1);
+
   --border-color: rgba(255,200,93,0.54);
+
   --button-background-color: #213A01;
+
   --button-cta-background-color: rgba(46,39,6,1);
+
   --button-light-color: rgba(195,195,195,1);
+
   --toolbar-background-color: #181818;
+
   --toolbar-button-color: hsl(140.71,37.25%,40.00%);
+
   --toolbar-text-color: rgba(255,128,0,1);
+
   --toolbar-border-color: #242424;
+
   --button-bar-color: hsl(143.06,79.52%,24.90%);
+
   --button-bar-active-text-color: rgba(255,128,0,1);
+
   --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+
   --segment-color: var(--highlight-color);
+
   --segment-active-text-color: #fff;
+
   --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+
   --list-background-color: rgba(255,128,0,1);
+
   --list-header-background-color: rgba(25,64,0,1);
+
   --list-tap-active-background-color: #262626;
+
   --list-item-chevron-color: #383833;
+
   --progress-bar-color: var(--highlight-color);
+
   --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+
   --progress-bar-background-color: transparent;
+
   --progress-circle-primary-color: var(--progress-bar-color);
+
   --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+
   --progress-circle-background-color: transparent;
+
   --tabbar-background-color: #212121;
+
   --tabbar-text-color: rgba(1,105,53,1);
+
   --tabbar-highlight-text-color: #FF8E09;
+
   --tabbar-border-color: #0d0d0d;
+
   --switch-highlight-color: #44db5e;
+
   --switch-border-color: #666;
+
   --switch-background-color: var(--background-color);
+
   --range-track-background-color: #6b6f74;
+
   --range-track-background-color-active: #bbb;
+
   --range-thumb-background-color: #fff;
+
   --modal-background-color: color-mod(black a(70%));
+
   --modal-text-color: #fff;
+
   --alert-dialog-background-color: rgba(23,36,0,1);
+
   --alert-dialog-text-color: rgba(204,168,84,1);
+
   --alert-dialog-button-color: var(--highlight-color);
+
   --alert-dialog-separator-color: rgba(255,98,0,0.67);
+
   --dialog-background-color: #0d0d0d;
+
   --dialog-text-color: #1f1f21;
+
   --popover-background-color: rgba(19,43,0,1);
+
   --popover-text-color: var(--text-color);
+
   --action-sheet-title-color: #8f8e94;
+
   --action-sheet-button-separator-color: rgba(255,198,0,0.53);
+
   --action-sheet-button-color: rgba(255,160,1,1);
+
   --action-sheet-button-destructive-color: #fe3824;
+
   --action-sheet-button-background-color: rgba(5,5,5,0.9);
+
   --action-sheet-button-active-background-color: rgba(39,39,39,1);
+
   --action-sheet-cancel-button-background-color: rgba(129,129,129,1);
+
   --notification-background-color: rgba(0,0,0,1);
+
   --notification-color: white;
+
   --search-input-background-color: color-mod(white a(9%));
+
   --fab-text-color: #ffffff;
+
   --fab-background-color: var(--highlight-color);
+
   --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+
   --card-background-color: rgba(37,54,2,1);
+
   --card-text-color: rgba(255,168,0,1);
+
   --toast-background-color: #A5B7AB;
+
   --toast-text-color: #000;
+
   --toast-button-text-color: #000;
+
   --select-input-color: var(--text-color);
+
   --select-input-border-color: var(--border-color);
 
+
+
   /* variables for Material Design components */
+
   --material-background-color: #ED914E;
+
   --material-text-color: rgba(255,255,255,1);
+
   --material-notification-background-color: rgba(0,0,0,1);
+
   --material-notification-color: white;
+
   --material-switch-active-thumb-color: hsl(27.76,100.00%,51.36%);
+
   --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+
   --material-switch-inactive-thumb-color: #bdbdbd;
+
   --material-switch-inactive-background-color: color-mod(white a(30%));
+
   --material-range-track-color: #525252;
+
   --material-range-thumb-color: #cecec5;
+
   --material-range-disabled-thumb-color: #4f4f4f;
+
   --material-range-disabled-thumb-border-color: #303030;
+
   --material-range-zero-thumb-color: #0d0d0d;
+
   --material-toolbar-background-color: #212121;
+
   --material-toolbar-text-color: rgba(255,138,0,1);
+
   --material-toolbar-button-color: var(--toolbar-button-color);
+
   --material-segment-background-color: #292929;
+
   --material-segment-active-background-color: #404040;
+
   --material-segment-text-color: color-mod(#fff a(62%));
+
   --material-segment-active-text-color: #cacaca;
+
   --material-button-background-color: rgba(33,58,1,1);
+
   --material-button-text-color: rgba(255,99,0,1);
+
   --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+
   --material-button-disabled-color: color-mod(white a(74%));
+
   --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+
   --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+
   --material-list-item-separator-color: color-mod(white a(12%));
+
   --material-list-header-text-color: #8a8a8a;
+
   --material-checkbox-active-color: #fff;
+
   --material-checkbox-inactive-color: rgba(28,86,0,1);
+
   --material-checkbox-checkmark-color: #1C5600;
+
   --material-radio-button-active-color: #ffa101;
+
   --material-radio-button-inactive-color: #8e8e8e;
+
   --material-radio-button-disabled-color: #505050;
+
   --material-text-input-text-color: color-mod(#fff a(75%));
+
   --material-text-input-active-color: color-mod(#fff a(75%));
+
   --material-text-input-inactive-color: color-mod(#fff a(30%));
+
   --material-search-background-color: #424242;
+
   --material-dialog-background-color: #424242;
+
   --material-dialog-text-color: var(--material-text-color);
+
   --material-alert-dialog-background-color: #424242;
+
   --material-alert-dialog-title-color: rgba(7,7,7,1);
+
   --material-alert-dialog-content-color: rgba(175,174,174,1);
+
   --material-alert-dialog-button-color: hsl(27.76,100.00%,41.96%);
+
   --material-progress-bar-primary-color: #FFA000;
+
   --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+
   --material-progress-bar-background-color: transparent;
+
   --material-progress-circle-primary-color: rgba(255,160,0,1);
+
   --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+
   --material-progress-circle-background-color: transparent;
+
   --material-tabbar-background-color: var(--material-toolbar-background-color);
+
   --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+
   --material-tabbar-highlight-text-color: #FF8E09;
+
   --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+
   --material-fab-text-color: #31313a;
+
   --material-fab-background-color: #ffffff;
+
   --material-fab-active-background-color: color-mod(white a(75%));
+
   --material-card-background-color: rgba(44,54,18,1);
+
   --material-card-text-color: color-mod(white a(46%));
+
   --material-toast-background-color: rgba(165,183,171,1);
+
   --material-toast-text-color: #000;
+
   --material-toast-button-text-color: #583905;
+
   --material-select-input-color: var(--material-text-color);
+
   --material-select-input-active-color: color-mod(white a(85%));
+
   --material-select-input-inactive-color: color-mod(white a(19%));
+
   --material-select-border-color: color-mod(white a(88%));
+
   --material-popover-background-color: #132B00;
+
   --material-popover-text-color: var(--material-text-color);
+
   --material-action-sheet-text-color: #686868;
 
+
+
   /* others */
+
   --tap-highlight-color: transparent;
-'''
-CSS_OGONBATTO = '''
+
+"""
+
+CSS_OGONBATTO = """
+
   /* variables for iOS components */
+
   --background-color: #0d0d0d;
+
   --text-color: #fff;
+
   --sub-text-color: #999;
+
   --highlight-color: rgba(122,72,169,1);
+
   --second-highlight-color: rgba(159,122,193,1);
+
   --border-color: #242424;
+
   --button-background-color: var(--highlight-color);
+
   --button-cta-background-color: var(--second-highlight-color);
+
   --button-light-color: white;
+
   --toolbar-background-color: #181818;
+
   --toolbar-button-color: var(--highlight-color);
+
   --toolbar-text-color: #fff;
+
   --toolbar-border-color: #242424;
+
   --button-bar-color: var(--highlight-color);
+
   --button-bar-active-text-color: #fff;
+
   --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+
   --segment-color: var(--highlight-color);
+
   --segment-active-text-color: #fff;
+
   --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+
   --list-background-color: #181818;
+
   --list-header-background-color: #111;
+
   --list-tap-active-background-color: #262626;
+
   --list-item-chevron-color: #383833;
+
   --progress-bar-color: var(--highlight-color);
+
   --progress-bar-secondary-color: rgba(174,119,224,1);
+
   --progress-bar-background-color: transparent;
+
   --progress-circle-primary-color: var(--progress-bar-color);
+
   --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+
   --progress-circle-background-color: transparent;
+
   --tabbar-background-color: #212121;
+
   --tabbar-text-color: #aaa;
+
   --tabbar-highlight-text-color: var(--highlight-color);
+
   --tabbar-border-color: #0d0d0d;
+
   --switch-highlight-color: rgba(210,199,92,1);
+
   --switch-border-color: #666;
+
   --switch-background-color: var(--background-color);
+
   --range-track-background-color: #6b6f74;
+
   --range-track-background-color-active: #bbb;
+
   --range-thumb-background-color: #fff;
+
   --modal-background-color: color-mod(black a(70%));
+
   --modal-text-color: #fff;
+
   --alert-dialog-background-color: #f4f4f4;
+
   --alert-dialog-text-color: #1f1f21;
+
   --alert-dialog-button-color: var(--highlight-color);
+
   --alert-dialog-separator-color: #ddd;
+
   --dialog-background-color: #0d0d0d;
+
   --dialog-text-color: #1f1f21;
+
   --popover-background-color: #242424;
+
   --popover-text-color: var(--text-color);
+
   --action-sheet-title-color: #8f8e94;
+
   --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+
   --action-sheet-button-color: var(--highlight-color);
+
   --action-sheet-button-destructive-color: #fe3824;
+
   --action-sheet-button-background-color: rgba(255, 255, 255, 0.9);
+
   --action-sheet-button-active-background-color: #e9e9e9;
+
   --action-sheet-cancel-button-background-color: #fff;
+
   --notification-background-color: #7A48A9;
+
   --notification-color: white;
+
   --search-input-background-color: color-mod(white a(9%));
+
   --fab-text-color: #ffffff;
+
   --fab-background-color: var(--highlight-color);
+
   --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+
   --card-background-color: var(--border-color);
+
   --card-text-color: var(--text-color);
+
   --toast-background-color: #ccc;
+
   --toast-text-color: #000;
+
   --toast-button-text-color: #000;
+
   --select-input-color: var(--text-color);
+
   --select-input-border-color: var(--border-color);
 
+
+
   /* variables for Material Design components */
+
   --material-background-color: #303030;
+
   --material-text-color: #ffffff;
+
   --material-notification-background-color: #7A48A9;
+
   --material-notification-color: white;
+
   --material-switch-active-thumb-color: #ffc107;
+
   --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+
   --material-switch-inactive-thumb-color: #bdbdbd;
+
   --material-switch-inactive-background-color: color-mod(white a(30%));
+
   --material-range-track-color: #525252;
+
   --material-range-thumb-color: #cecec5;
+
   --material-range-disabled-thumb-color: #4f4f4f;
+
   --material-range-disabled-thumb-border-color: #303030;
+
   --material-range-zero-thumb-color: #0d0d0d;
+
   --material-toolbar-background-color: #212121;
+
   --material-toolbar-text-color: #ffffff;
+
   --material-toolbar-button-color: rgba(163,103,220,1);
+
   --material-segment-background-color: #292929;
+
   --material-segment-active-background-color: #404040;
+
   --material-segment-text-color: color-mod(#fff a(62%));
+
   --material-segment-active-text-color: #cacaca;
+
   --material-button-background-color: rgba(170,107,228,1);
+
   --material-button-text-color: #ffffff;
+
   --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+
   --material-button-disabled-color: color-mod(white a(74%));
+
   --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+
   --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+
   --material-list-item-separator-color: color-mod(white a(12%));
+
   --material-list-header-text-color: #8a8a8a;
+
   --material-checkbox-active-color: #fff;
+
   --material-checkbox-inactive-color: #717171;
+
   --material-checkbox-checkmark-color: #000;
+
   --material-radio-button-active-color: #ffa101;
+
   --material-radio-button-inactive-color: #8e8e8e;
+
   --material-radio-button-disabled-color: #505050;
+
   --material-text-input-text-color: color-mod(#fff a(75%));
+
   --material-text-input-active-color: color-mod(#fff a(75%));
+
   --material-text-input-inactive-color: color-mod(#fff a(30%));
+
   --material-search-background-color: #424242;
+
   --material-dialog-background-color: #424242;
+
   --material-dialog-text-color: var(--material-text-color);
+
   --material-alert-dialog-background-color: #424242;
+
   --material-alert-dialog-title-color: white;
+
   --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+
   --material-alert-dialog-button-color: #d68600;
+
   --material-progress-bar-primary-color: rgba(83,60,105,1);
+
   --material-progress-bar-secondary-color: rgba(142,98,183,1);
+
   --material-progress-bar-background-color: transparent;
+
   --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+
   --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+
   --material-progress-circle-background-color: transparent;
+
   --material-tabbar-background-color: var(--material-toolbar-background-color);
+
   --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+
   --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
+
   --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+
   --material-fab-text-color: #31313a;
+
   --material-fab-background-color: #ffffff;
+
   --material-fab-active-background-color: color-mod(white a(75%));
+
   --material-card-background-color: #424242;
+
   --material-card-text-color: color-mod(white a(46%));
+
   --material-toast-background-color: #ccc;
+
   --material-toast-text-color: #000;
+
   --material-toast-button-text-color: #583905;
+
   --material-select-input-color: var(--material-text-color);
+
   --material-select-input-active-color: color-mod(white a(85%));
+
   --material-select-input-inactive-color: color-mod(white a(19%));
+
   --material-select-border-color: color-mod(white a(88%));
+
   --material-popover-background-color: var(--material-alert-dialog-background-color);
+
   --material-popover-text-color: var(--material-text-color);
+
   --material-action-sheet-text-color: #686868;
 
+
+
   /* others */
+
   --tap-highlight-color: transparent;
-'''
-CSS_VAMPIRE = '''
+
+"""
+
+CSS_VAMPIRE = """
+
   /* variables for iOS components */
+
   --background-color: #0d0d0d;
+
   --text-color: #B8BCE8;
+
   --sub-text-color: #999;
+
   --highlight-color: rgba(136,115,208,1);
+
   --second-highlight-color: #da5926;
+
   --border-color: #242424;
+
   --button-background-color: rgba(255,1,1,0.85);
+
   --button-cta-background-color: hsl(0,70.86%,50.19%);
+
   --button-light-color: white;
+
   --toolbar-background-color: #181818;
+
   --toolbar-button-color: var(--highlight-color);
+
   --toolbar-text-color: #fff;
+
   --toolbar-border-color: #242424;
+
   --button-bar-color: hsl(0,100.00%,50.20%);
+
   --button-bar-active-text-color: #B8BCE8;
+
   --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+
   --segment-color: var(--highlight-color);
+
   --segment-active-text-color: #fff;
+
   --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+
   --list-background-color: #181818;
+
   --list-header-background-color: #111;
+
   --list-tap-active-background-color: #262626;
+
   --list-item-chevron-color: hsl(0,100.00%,76.48%);
+
   --progress-bar-color: var(--highlight-color);
+
   --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+
   --progress-bar-background-color: transparent;
+
   --progress-circle-primary-color: var(--progress-bar-color);
+
   --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+
   --progress-circle-background-color: transparent;
+
   --tabbar-background-color: #212121;
+
   --tabbar-text-color: #aaa;
+
   --tabbar-highlight-text-color: var(--highlight-color);
+
   --tabbar-border-color: #0d0d0d;
+
   --switch-highlight-color: #44db5e;
+
   --switch-border-color: #666;
+
   --switch-background-color: var(--background-color);
+
   --range-track-background-color: #6b6f74;
+
   --range-track-background-color-active: #bbb;
+
   --range-thumb-background-color: #fff;
+
   --modal-background-color: color-mod(black a(70%));
+
   --modal-text-color: #fff;
+
   --alert-dialog-background-color: rgba(102,102,142,1);
+
   --alert-dialog-text-color: rgba(168,160,238,1);
+
   --alert-dialog-button-color: rgba(198,97,97,1);
+
   --alert-dialog-separator-color: rgba(251,0,0,0.48);
+
   --dialog-background-color: #0d0d0d;
+
   --dialog-text-color: #1f1f21;
+
   --popover-background-color: #242424;
+
   --popover-text-color: var(--text-color);
+
   --action-sheet-title-color: #8f8e94;
+
   --action-sheet-button-separator-color: rgba(255,0,0,0.29);
+
   --action-sheet-button-color: var(--highlight-color);
+
   --action-sheet-button-destructive-color: #fe3824;
+
   --action-sheet-button-background-color: rgba(73,71,95,0.9);
+
   --action-sheet-button-active-background-color: rgba(59,61,99,1);
+
   --action-sheet-cancel-button-background-color: rgba(76,72,108,1);
+
   --notification-background-color: rgba(255,24,0,1);
+
   --notification-color: rgba(15,15,15,1);
+
   --search-input-background-color: color-mod(white a(9%));
+
   --fab-text-color: #ffffff;
+
   --fab-background-color: var(--highlight-color);
+
   --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+
   --card-background-color: var(--border-color);
+
   --card-text-color: var(--text-color);
+
   --toast-background-color: #ccc;
+
   --toast-text-color: #000;
+
   --toast-button-text-color: #000;
+
   --select-input-color: var(--text-color);
+
   --select-input-border-color: var(--border-color);
 
+
+
   /* variables for Material Design components */
+
   --material-background-color: #303030;
+
   --material-text-color: #B8BCE8;
+
   --material-notification-background-color: rgba(255,0,91,1);
+
   --material-notification-color: rgba(0,0,0,1);
+
   --material-switch-active-thumb-color: hsl(256,50.10%,59.39%);
+
   --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+
   --material-switch-inactive-thumb-color: #bdbdbd;
+
   --material-switch-inactive-background-color: color-mod(white a(30%));
+
   --material-range-track-color: #525252;
+
   --material-range-thumb-color: #cecec5;
+
   --material-range-disabled-thumb-color: #4f4f4f;
+
   --material-range-disabled-thumb-border-color: #303030;
+
   --material-range-zero-thumb-color: #0d0d0d;
+
   --material-toolbar-background-color: #212121;
+
   --material-toolbar-text-color: #ffffff;
+
   --material-toolbar-button-color: var(--toolbar-button-color);
+
   --material-segment-background-color: #292929;
+
   --material-segment-active-background-color: #404040;
+
   --material-segment-text-color: color-mod(#fff a(62%));
+
   --material-segment-active-text-color: #cacaca;
+
   --material-button-background-color: hsl(0,100.00%,41.96%);
+
   --material-button-text-color: rgba(184,188,232,1);
+
   --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+
   --material-button-disabled-color: color-mod(white a(74%));
+
   --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+
   --material-list-background-color: rgba(37,31,31,1);
+
   --material-list-item-separator-color: rgba(255,0,0,1);
+
   --material-list-header-text-color: rgba(255,0,0,1);
+
   --material-checkbox-active-color: #fff;
+
   --material-checkbox-inactive-color: #717171;
+
   --material-checkbox-checkmark-color: #000;
+
   --material-radio-button-active-color: hsl(0,100.00%,50.20%);
+
   --material-radio-button-inactive-color: #8e8e8e;
+
   --material-radio-button-disabled-color: #505050;
+
   --material-text-input-text-color: color-mod(#fff a(75%));
+
   --material-text-input-active-color: color-mod(#fff a(75%));
+
   --material-text-input-inactive-color: color-mod(#fff a(30%));
+
   --material-search-background-color: #424242;
+
   --material-dialog-background-color: #424242;
+
   --material-dialog-text-color: var(--material-text-color);
+
   --material-alert-dialog-background-color: #424242;
+
   --material-alert-dialog-title-color: rgba(203,110,110,1);
+
   --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+
   --material-alert-dialog-button-color: rgba(166,161,209,1);
+
   --material-progress-bar-primary-color: hsl(0,100.00%,50.00%);
+
   --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+
   --material-progress-bar-background-color: transparent;
+
   --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+
   --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+
   --material-progress-circle-background-color: transparent;
+
   --material-tabbar-background-color: var(--material-toolbar-background-color);
+
   --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+
   --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
+
   --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+
   --material-fab-text-color: #31313a;
+
   --material-fab-background-color: #ffffff;
+
   --material-fab-active-background-color: color-mod(white a(75%));
+
   --material-card-background-color: #424242;
+
   --material-card-text-color: color-mod(white a(46%));
+
   --material-toast-background-color: #ccc;
+
   --material-toast-text-color: #000;
+
   --material-toast-button-text-color: #583905;
+
   --material-select-input-color: var(--material-text-color);
+
   --material-select-input-active-color: color-mod(white a(85%));
+
   --material-select-input-inactive-color: color-mod(white a(19%));
+
   --material-select-border-color: color-mod(white a(88%));
+
   --material-popover-background-color: var(--material-alert-dialog-background-color);
+
   --material-popover-text-color: var(--material-text-color);
+
   --material-action-sheet-text-color: #686868;
 
-  /* others */
-  --tap-highlight-color: rgba(148,153,255,0.37);
-'''
 
-SCRIPT_DIR = os.path.abspath( os.path.dirname( __file__ ) )
+
+  /* others */
+
+  --tap-highlight-color: rgba(148,153,255,0.37);
+
+"""
+
+
+SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
+
 
 HOME_PATH = str(Path.home())
 
-file_loader = FileSystemLoader('templates')
+
+file_loader = FileSystemLoader("templates")
+
 
 env = Environment(loader=file_loader)
 
 
-
-
-
 class SiteDataHandler:
+    "Class for handling site data."
 
-   'Class for handling site data.'
+    def __init__(self, filePath, MarkdownHandler, W3DeployHandler):
 
-   def __init__(self, filePath, MarkdownHandler, W3DeployHandler):
+        self.filePath = filePath
 
-      self.filePath = filePath
+        self.distPath = os.path.join(SCRIPT_DIR, "dist")
 
-      self.resourcePath = os.path.join(self.filePath, '_resources')
+        self.pageList = []
 
-      self.distPath = os.path.join(SCRIPT_DIR, 'dist')
+        self.folders = {}
 
-      self.pageList = []
+        self.folderData = {}
 
-      self.folders = {}
+        self.pageData = {}
 
-      self.folderData = {}
+        self.columnWidths = {}
 
-      self.pageData = {}
+        self.articleData = {}
 
-      self.columnWidths = {}
+        self.articleOrder = {}
 
-      self.articleData = {}
+        self.formData = {}
 
-      self.articleOrder= {}
+        self.metaData = {}
 
-      self.formData = {}
+        self.opensea_metadata = """{
 
-      self.metaData = {}
 
-      self.opensea_metadata = '''{
 
   "description": "", 
 
+
+
   "external_url": "", 
+
+
 
   "image": "", 
 
+
+
   "name": "",
+
+
 
   "attributes": []
 
+
+
 }
 
-      '''
 
-      self.css_themes = {'light': CSS_LIGHT,
 
-                         'dark' : CSS_DARK,
+      """
+
+        self.css_themes = {
+            "light": CSS_LIGHT,
+            "dark": CSS_DARK,
+            "heavymeta": CSS_HEAVYMETA,
+            "crimson-tide": CSS_CRIMSON,
+            "deep-blue": CSS_BLUE,
+            "golden-crown": CSS_GOLDEN,
+            "somewhat-jaded": CSS_JADED,
+            "mandarin-logos": CSS_MANDARIN,
+            "ogon-batto": CSS_OGONBATTO,
+            "vexxed-vampire": CSS_VAMPIRE,
+        }
+
+        self.css_components = CSS_DARK
+
+        # Font system
+
+        self.popular_google_fonts = {
+            "Sans Serif": [
+                "Roboto",
+                "Open Sans",
+                "Lato",
+                "Inter",
+                "Source Sans Pro",
+                "Ubuntu",
+                "Nunito",
+                "Work Sans",
+                "PT Sans",
+                "Raleway",
+            ],
+            "Serif": [
+                "Merriweather",
+                "Playfair Display",
+                "Lora",
+                "Crimson Text",
+                "Source Serif Pro",
+                "Libre Baskerville",
+                "Noto Serif",
+            ],
+            "Display": [
+                "Montserrat",
+                "Oswald",
+                "Poppins",
+                "Bebas Neue",
+                "Abril Fatface",
+                "Pacifico",
+                "Dancing Script",
+                "Great Vibes",
+            ],
+            "Monospace": [
+                "Roboto Mono",
+                "Source Code Pro",
+                "Fira Code",
+                "JetBrains Mono",
+                "Inconsolata",
+                "Space Mono",
+            ],
+        }
+
+        self.settings = {
+            "css_components": self.css_components,
+            "uiFramework": "onsen",
+            "pageType": "splitter",
+            "menuSide": "right",
+            "style": "default",
+            "row_pad": 5,
+            "deployType": "Pintheon",
+            "theme": "light",
+            "siteName": "dist",
+            "mediaDir": "_resources",
+            "description": "",
+            "siteID": uuid.uuid4().hex,
+            "customTheme": "",
+            "pintheon_access_token": "",
+            "backend_end_point": "https://127.0.0.1:9999",
+            "backend_timeout": 100,
+            "nft_site_type": "None",
+            "nft_type": "None",
+            "nft_metadata_standard": "None",
+            "nft_start_supply": 1024,
+            "nft_contract": "",
+            "site_metadata": self.opensea_metadata,
+            "project_name": os.path.basename(self.filePath),
+            "deploy_type": "Pintheon",
+            "private_key": "",
+            "customFonts": {
+                "primary": {
+                    "family": "Roboto",
+                    "source": "google",
+                    "weights": [300, 400, 500, 700],
+                    "fallback": "Arial, sans-serif",
+                },
+                "heading": {
+                    "family": "Montserrat",
+                    "source": "google",
+                    "weights": [400, 600, 700],
+                    "fallback": "Helvetica, Arial, sans-serif",
+                },
+            },
+            "fontSettings": {"enableCustomFonts": True, "fontDisplay": "swap"},
+        }
 
-                         'heavymeta': CSS_HEAVYMETA,
+        # Set resourcePath after settings is initialized
 
-                         'crimson-tide': CSS_CRIMSON,
+        self.resourcePath = os.path.join(
+            self.filePath, self.settings.get("mediaDir", "_resources")
+        )
 
-                         'deep-blue': CSS_BLUE,
+        self.authors = {}
 
-                         'golden-crown': CSS_GOLDEN,
+        self.uiFramework = ["onsen"]
 
-                         'somewhat-jaded': CSS_JADED,
+        self.navigation = ["splitter", "tabs", "carousel"]
 
-                         'mandarin-logos': CSS_MANDARIN,
+        self.themes = list(self.css_themes.keys())
 
-                         'ogon-batto': CSS_OGONBATTO,
+        self.styles = ["default", "material"]
 
-                         'vexxed-vampire': CSS_VAMPIRE}
+        self.deployTypes = ["Pintheon"]
 
-      self.css_components = CSS_DARK
+        self.nftTypes = ["None", "Dero", "Beam"]
 
-      # Font system
-      self.popular_google_fonts = {
-          'Sans Serif': [
-              'Roboto', 'Open Sans', 'Lato', 'Inter', 'Source Sans Pro',
-              'Ubuntu', 'Nunito', 'Work Sans', 'PT Sans', 'Raleway'
-          ],
-          'Serif': [
-              'Merriweather', 'Playfair Display', 'Lora', 'Crimson Text',
-              'Source Serif Pro', 'Libre Baskerville', 'Noto Serif'
-          ],
-          'Display': [
-              'Montserrat', 'Oswald', 'Poppins', 'Bebas Neue', 'Abril Fatface',
-              'Pacifico', 'Dancing Script', 'Great Vibes'
-          ],
-          'Monospace': [
-              'Roboto Mono', 'Source Code Pro', 'Fira Code', 'JetBrains Mono',
-              'Inconsolata', 'Space Mono'
-          ]
-      }
+        self.nftMetadata_standards = ["None", "Opensea"]
 
-      self.settings = {'css_components':self.css_components, 'uiFramework':'onsen', 'pageType':'splitter', 'menuSide':'right', 'style':'default', 'row_pad':5, 'deployType':'Pintheon', 'theme':'light', 'siteName':'dist', 'mediaDir':'_resources', 'description':'', 'siteID': uuid.uuid4().hex, 'customTheme':'', 'pintheon_access_token':'', 'backend_end_point':'https://127.0.0.1:9999', 'backend_timeout':100, 'nft_site_type':'None', 'nft_type':'None', 'nft_metadata_standard':'None', 'nft_start_supply':1024, 'nft_contract':'', 'site_metadata':self.opensea_metadata, 'project_name': os.path.basename(self.filePath), 'deploy_type': 'Pintheon', 'private_key': '', 'customFonts':{'primary':{'family':'Roboto', 'source':'google', 'weights':[300, 400, 500, 700], 'fallback':'Arial, sans-serif'}, 'heading':{'family':'Montserrat', 'source':'google', 'weights':[400, 600, 700], 'fallback':'Helvetica, Arial, sans-serif'}}, 'fontSettings':{'enableCustomFonts':True, 'fontDisplay':'swap'}}
+        self.nftSiteTypes = ["None", "Site-NFT", "Collection-Minter"]
 
-      self.authors = {}
+        self.nftStartSupply = 1024
 
-      self.uiFramework = ['onsen']
+        self.dataFilePath = os.path.join(filePath, "site.data")
 
-      self.navigation = ['splitter', 'tabs', 'carousel']
+        self.dataBakFilePath = os.path.join(filePath, "siteBak.data")
 
-      self.themes = list(self.css_themes.keys())
+        self.fileExists = False
 
-      self.styles = ['default', 'material']
+        self.resourcesExist = False
 
-      self.deployTypes = ['Pintheon']
+        self.oldFolders = []
 
-      self.nftTypes = ['None', 'Dero', 'Beam']
+        self.oldDataFolders = []
 
-      self.nftMetadata_standards = ['None', 'Opensea']
+        self.oldDataKeys = []
 
-      self.nftSiteTypes = ['None', 'Site-NFT', 'Collection-Minter']
+        self.templateDebug = "template_index.txt"
 
-      self.nftStartSupply = 1024
+        self.markdownHandler = MarkdownHandler.MarkdownHandler(filePath)
 
-      self.dataFilePath = os.path.join(filePath, 'site.data')
+        self.markdownHandler.setMediaDir(self.settings.get("mediaDir", "_resources"))
 
-      self.dataBakFilePath = os.path.join(filePath, 'siteBak.data')
+        self.debugPath = os.path.join(SCRIPT_DIR, "serve")
 
-      self.fileExists = False
+        self.debugResourcePath = os.path.join(
+            SCRIPT_DIR, "serve", self.settings["mediaDir"]
+        )
 
-      self.resourcesExist = False
+        self.images = {}
 
-      self.oldFolders = []
+        self.videos = {}
 
-      self.oldDataFolders = []
+        self.audio = {}
 
-      self.oldDataKeys = []
+        self.gltf = {}
 
-      self.templateDebug = 'template_index.txt'
+        self.folderPathList = {}
 
-      self.markdownHandler = MarkdownHandler.MarkdownHandler(filePath)
+        self.mdPathList = {}
 
-      self.debugPath = os.path.join(SCRIPT_DIR, 'serve')
+        self.mdFileList = {}
 
-      self.debugResourcePath = os.path.join(SCRIPT_DIR, 'serve', self.settings['mediaDir'])
+        self.gatherMedia()
 
-      self.images = {}
+        if os.path.isdir(self.resourcePath):
 
-      self.videos = {}
+            self.resourcesExist = True
 
-      self.audio = {}
+        if os.path.isfile(self.dataFilePath):
 
-      self.gltf = {}
+            dataFile = open(self.dataFilePath, "rb")
 
-      self.folderPathList = {}
+            data = pickle.load(dataFile)
 
-      self.mdPathList = {}
+            if self.settings["siteName"] != "" or self.settings["siteName"] != "dist":
 
-      self.mdFileList = {}
+                self.distPath = self.distPath.replace("dist", self.settings["siteName"])
 
-      self.gatherMedia()
+            self.pageList = data["pageList"]
 
-      
+            self.folders = data["folders"]
 
-      if(os.path.isdir(self.resourcePath)):
+            self.folderData = data["folderData"]
 
-          self.resourcesExist = True
+            self.pageData = data["pageData"]
 
-      
+            self.columnWidths = data["columnWidths"]
 
-      if os.path.isfile(self.dataFilePath):
+            self.articleData = data["articleData"]
 
-          dataFile = open(self.dataFilePath, 'rb')
+            self.articleOrder = data["articleOrder"]
 
-          data = pickle.load(dataFile)
+            self.formData = data["formData"]
 
-          if self.settings['siteName'] != '' or self.settings['siteName'] != 'dist':
+            self.metaData = data["metaData"]
 
-              self.distPath = self.distPath.replace('dist', self.settings['siteName'])
+            # Merge loaded settings with defaults to preserve new features
 
-              
+            loaded_settings = data["settings"]
 
-          self.pageList = data['pageList']
+            for key, value in self.settings.items():
 
-          self.folders = data['folders']
+                if key not in loaded_settings:
 
-          self.folderData = data['folderData']
+                    loaded_settings[key] = value
 
-          self.pageData = data['pageData']
+            self.settings = loaded_settings
 
-          self.columnWidths = data['columnWidths']
+            # Ensure font settings are properly initialized
 
-          self.articleData = data['articleData']
+            self._ensureFontSettings()
 
-          self.articleOrder = data['articleOrder']
+            self.authors = data["authors"]
 
-          self.formData = data['formData']
+            self.css_components = self.css_themes[self.settings["theme"]]
 
-          self.metaData = data['metaData']
+            self.fileExists = True
 
-          # Merge loaded settings with defaults to preserve new features
-          loaded_settings = data['settings']
-          for key, value in self.settings.items():
-              if key not in loaded_settings:
-                  loaded_settings[key] = value
-          self.settings = loaded_settings
-          
-          # Ensure font settings are properly initialized
-          self._ensureFontSettings()
+            self.debugResourcePath = os.path.join(
+                SCRIPT_DIR, "serve", self.settings["mediaDir"]
+            )
 
-          self.authors = data['authors']
+            self.images = data["media"]["images"]
 
-          self.css_components = self.css_themes[self.settings['theme']]
+            self.videos = data["media"]["videos"]
 
-          self.fileExists = True
+            self.audio = data["media"]["audio"]
 
-          self.debugResourcePath = os.path.join(SCRIPT_DIR, 'serve', self.settings['mediaDir'])
+            self.gltf = data["media"]["gltf"]
 
-          self.images = data['media']['images']
+            self.folderPathList = data["folderPathList"]
 
-          self.videos = data['media']['videos']
+            self.mdPathList = data["mdPathList"]
 
-          self.audio = data['media']['audio']
+            self.mdFileList = data["mdFileList"]
 
-          self.gltf = data['media']['gltf']
+        if os.path.isfile(self.dataBakFilePath):
 
-          self.folderPathList = data['folderPathList']
+            dataFile = open(self.dataBakFilePath, "rb")
 
-          self.mdPathList = data['mdPathList']
+            data = pickle.load(dataFile)
 
-          self.mdFileList = data['mdFileList']
+            self._old_pageList = data["pageList"]
 
+            self._old_folders = data["folders"]
 
+            self._old_folderData = data["folderData"]
 
-      if os.path.isfile(self.dataBakFilePath):
+            self._old_pageData = data["pageData"]
 
-          dataFile = open(self.dataBakFilePath, 'rb')
+            self._old_columnWidths = data["columnWidths"]
 
-          data = pickle.load(dataFile)
+            self._old_articleData = data["articleData"]
 
-          self._old_pageList = data['pageList']
+            self._old_articleOrder = data["articleOrder"]
 
-          self._old_folders = data['folders']
+            self._old_formData = data["formData"]
 
-          self._old_folderData = data['folderData']
+            self._old_metaData = data["metaData"]
 
-          self._old_pageData = data['pageData']
+            self._old_settings = data["settings"]
 
-          self._old_columnWidths = data['columnWidths']
+            self._old_authors = data["authors"]
 
-          self._old_articleData = data['articleData']
+            self._old_css_components = data["css_components"]
 
-          self._old_articleOrder = data['articleOrder']
+            self._old_fileExists = True
 
-          self._old_formData = data['formData']
+            self._old_images = data["media"]["images"]
 
-          self._old_metaData = data['metaData']
+            self._old_videos = data["media"]["videos"]
 
-          self._old_settings = data['settings']
+            self._old_audio = data["media"]["audio"]
 
-          self._old_authors = data['authors']
+            self._old_gltf = data["media"]["gltf"]
 
-          self._old_css_components = data['css_components']
+            self._old_folderPathList = data["folderPathList"]
 
-          self._old_fileExists = True
+            self._old_mdPathList = data["mdPathList"]
 
-          self._old_images = data['media']['images']
+            self._old_mdFileList = data["mdFileList"]
 
-          self._old_videos = data['media']['videos']
+        if not os.path.isdir(self.debugResourcePath):
 
-          self._old_audio = data['media']['audio']
+            print("Create media folder")
 
-          self._old_gltf = data['media']['gltf']
+            os.makedirs(self.debugResourcePath)
 
-          self._old_folderPathList = data['folderPathList']
+            print(self.debugResourcePath)
 
-          self._old_mdPathList = data['mdPathList']
+            print(os.path.isdir(self.debugResourcePath))
 
-          self._old_mdFileList = data['mdFileList']
+        if not os.path.isfile(self.dataBakFilePath):
 
+            self.keys = Keypair.random()
 
+            self.keys_25519 = Stellar25519KeyPair(self.keys)
 
+            self.pub25519 = self.keys_25519.public_key()
 
+            self.updateSetting("private_key", self.keys.secret)
 
-      if not os.path.isdir(self.debugResourcePath):
+            self.updateSetting("25519_pub", self.pub25519)
 
-          print('Create media folder')
+            self.settings["private_key"] = self.keys.secret
 
-          os.makedirs(self.debugResourcePath)
+            self.firstRun = True
 
-          print(self.debugResourcePath)
+        else:
 
-          print(os.path.isdir(self.debugResourcePath))
+            self.keys = Keypair.from_secret(self.settings["private_key"])
 
+            self.keys_25519 = Stellar25519KeyPair(self.keys)
 
+            self.pub25519 = self.keys_25519.public_key()
 
-      if not os.path.isfile(self.dataBakFilePath):
+            self.firstRun = False
 
-          self.keys = Keypair.random()
+        home_info = self.detectHomePage()
 
-          self.keys_25519 = Stellar25519KeyPair(self.keys)
+        if home_info["exists"]:
 
-          self.pub25519 = self.keys_25519.public_key()
+            self.hasHomePage = True
 
-          self.updateSetting('private_key', self.keys.secret)
+        else:
 
-          self.updateSetting('25519_pub', self.pub25519)
+            self.hasHomePage = False
 
-          self.settings['private_key'] = self.keys.secret
+        self.deployHandler = W3DeployHandler.W3DeployHandler(
+            self.filePath, self.debugPath, self.resourcePath, self.settings
+        )
 
-          self.firstRun = True
+        # Ensure font settings are properly initialized
 
-      else:
+        self._ensureFontSettings()
 
-          self.keys = Keypair.from_secret(self.settings['private_key'])
+        self.saveData()
 
-          self.keys_25519 = Stellar25519KeyPair(self.keys)
+    def _reorder_list(self, l, list_element, index):
 
-          self.pub25519 = self.keys_25519.public_key()
+        i = l.index(list_element)
 
-          self.firstRun = False
+        tmp1 = []
 
-      home_info = self.detectHomePage()
+        tmp2 = []
 
-      if home_info['exists']:
-        self.hasHomePage = True
-      else:
-        self.hasHomePage = False
+        for a in l:
 
-      self.deployHandler = W3DeployHandler.W3DeployHandler(self.filePath, self.debugPath, self.resourcePath, self.settings)
+            tmp1.append(a)
 
-      # Ensure font settings are properly initialized
-      self._ensureFontSettings()
+            tmp2.append(a)
 
-      self.saveData()
+        items = deque(tmp1)
 
-   
+        items.rotate(index)
 
-   def _reorder_list(self, l, list_element, index):
+        tmp1 = list(items)
 
-      i = l.index(list_element)
+        j = tmp1.index(list_element)
 
-      tmp1 = []
+        tmp2.insert(j, tmp2.pop(i))
 
-      tmp2 = []
+        return tmp2
 
-      for a in l:
+    def movePageUp(self, page):
 
-           tmp1.append(a)
+        self.pageList = self._reorder_list(self.pageList, page, -1)
 
-           tmp2.append(a)
+    def movePageDown(self, page):
 
+        self.pageList = self._reorder_list(self.pageList, page, 1)
 
+    def addFolderPath(self, folder, path):
 
-      items = deque(tmp1)
+        self.folderPathList[folder] = path
 
-      items.rotate(index)
+    def updateFolderData(self, folder):
 
-      tmp1 = list(items)
+        articleList = []
 
-      j = tmp1.index(list_element)
+        for a in self.articleData[folder].keys():
 
+            articleList.append(a)
 
+        self.folderData[folder] = {"articleList": articleList}
 
-      tmp2.insert(j, tmp2.pop(i))
+    def addMdPath(self, file, path):
 
-      return tmp2
+        analyzer = MarkdownAnalyzer(path)
 
-   
+        self.mdPathList[file] = path
 
-   def movePageUp(self, page):
+        self.mdFileList[file] = analyzer.identify_links()
 
-       self.pageList = self._reorder_list(self.pageList, page, -1)
+    def renderStaticPage(self, template_file, data):
+        """
 
 
 
-   def movePageDown(self, page):
+        Render the static page with media links already replaced.
 
-       self.pageList = self._reorder_list(self.pageList, page, 1)
 
-      
 
-   def addFolderPath(self, folder, path):
+        First renders to serve folder, then copies to dist folder for deployment.
 
-       self.folderPathList[folder] = path
 
 
+        """
 
-   def updateFolderData(self, folder):
+        # Render to serve folder first
 
-       articleList = []
+        target_path = os.path.join(SCRIPT_DIR, "serve")
 
-       for a in self.articleData[folder].keys():
+        page_path = os.path.join(target_path, "index.html")
 
-           articleList.append(a)
+        self.markdownHandler.renderPageTemplate(template_file, data, page_path)
 
+        # Ensure dist folder exists and copy the rendered file there
 
+        if hasattr(self, "distPath") and self.distPath:
 
-       self.folderData[folder] = {'articleList': articleList}
+            import shutil
 
+            os.makedirs(self.distPath, exist_ok=True)
 
+            dist_index_path = os.path.join(self.distPath, "index.html")
 
-   def addMdPath(self, file, path):
+            # Copy the rendered index.html to dist folder
 
-       analyzer = MarkdownAnalyzer(path)
+            try:
 
-       self.mdPathList[file] = path
+                shutil.copy2(page_path, dist_index_path)
 
-       self.mdFileList[file] = analyzer.identify_links()
+                print(f"Copied rendered index.html to dist folder: {dist_index_path}")
 
-           
+            except Exception as e:
 
-   def renderStaticPage(self, template_file, data):
+                print(f"Warning: Could not copy to dist folder: {e}")
 
-       """
+        else:
 
-       Render the static page with media links already replaced.
+            print("Warning: No distPath configured, cannot copy rendered file")
 
-       First renders to serve folder, then copies to dist folder for deployment.
+    def generateFormData(self, page, article):
 
-       """
+        result = []
 
-       # Render to serve folder first
+        form_data = self.formData[page][article]
 
-       target_path = os.path.join(SCRIPT_DIR, 'serve')
+        for k in form_data["formType"].keys():
 
-       page_path = os.path.join(target_path,'index.html')
+            if form_data["formType"][k] == True:
 
+                result.append(k)
 
+        return result
 
-       self.markdownHandler.renderPageTemplate(template_file, data, page_path)
+    def generatePageData(self, page):
 
-       
+        result = {
+            "title": None,
+            "icon": None,
+            "use_text": True,
+            "max_height": None,
+            "columns": None,
+            "footer_height": None,
+            "content": {"columns": [], "widths": self.columnWidths[page]},
+        }
 
-       # Ensure dist folder exists and copy the rendered file there
+        for k in self.pageData[page].keys():
 
-       if hasattr(self, 'distPath') and self.distPath:
+            result[k] = self.pageData[page][k]
 
-           import shutil
+        columns = int(self.pageData[page]["columns"])
 
-           os.makedirs(self.distPath, exist_ok=True)
+        for idx in range(0, columns):
 
-           dist_index_path = os.path.join(self.distPath, 'index.html')
+            result["content"]["columns"].append([])
 
-           
+        for k in self.folderData[page]["articleList"]:
 
-           # Copy the rendered index.html to dist folder
+            article_data = {
+                "column": None,
+                "type": None,
+                "style": None,
+                "border": None,
+                "max_width": "90",
+                "author": None,
+                "use_thumb": None,
+                "html": None,
+                "height": None,
+                "author_img": None,
+                "bg_img": None,
+                "form_data": [],
+                "form_html": "",
+                "form_btn_txt": "",
+                "form_response": "",
+                "form_id": "",
+                "images": [],
+                "videos": [],
+                "nft_start_supply": 1024,
+                "contract": "",
+                "metadata_link": "",
+                "metadata": json.dumps(self.opensea_metadata),
+                "file_type": None,
+            }
 
-           try:
+            props = self.articleData[page][k].keys()
 
-               shutil.copy2(page_path, dist_index_path)
+            for prop in props:
 
-               print(f"Copied rendered index.html to dist folder: {dist_index_path}")
+                article_data[prop] = self.articleData[page][k][prop]
 
-           except Exception as e:
+            # Debug: Check what HTML content we have
 
-               print(f"Warning: Could not copy to dist folder: {e}")
+            if "html" in article_data and article_data["html"]:
 
-       else:
+                print(
+                    f"DEBUG: Article '{k}' HTML content preview: {article_data['html'][:200]}..."
+                )
 
-           print("Warning: No distPath configured, cannot copy rendered file")
+                # Check if it contains media links
 
-           
+                media_dir = self.settings.get("mediaDir", "_resources")
 
-   def generateFormData(self, page, article):
+                if f"../{media_dir}/" in article_data["html"]:
 
-       result = []
+                    print(f"DEBUG: Article '{k}' still contains local media links!")
 
-       form_data = self.formData[page][article]
+                else:
 
-       
+                    print(
+                        f"DEBUG: Article '{k}' HTML appears to have media links replaced"
+                    )
 
-       for k in form_data['formType'].keys():
+            author = self.articleData[page][k]["author"]
 
-           if form_data['formType'][k] == True:
+            author_img = self.authors[author]
 
-               result.append(k)
+            article_data["author_img"] = author_img
 
-           
+            if article_data["type"] == "Form":
 
-       return result
+                article_data["form_data"] = self.generateFormData(page, k)
 
-           
+                article_data["form_html"] = self.formData[page][k]["customHtml"]
 
-   def generatePageData(self, page):
+                article_data["form_btn_txt"] = self.formData[page][k]["btn_txt"]
 
-       result = {'title':None, 'icon':None, 'use_text':True, 'max_height':None, 'columns':None, 'footer_height':None, 'content':{'columns':[], 'widths':self.columnWidths[page]}}
+                article_data["form_response"] = self.formData[page][k]["response"]
 
-       for k in self.pageData[page].keys():
+                article_data["form_id"] = self.formData[page][k]["form_id"]
 
-           result[k] = self.pageData[page][k]
+            index = int(article_data["column"]) - 1
 
-       
+            result["content"]["columns"][index].append(article_data)
 
-       columns = int(self.pageData[page]['columns'])
+        return result
 
-       for idx in range(0, columns):
+    def generateSiteData(self):
 
-           result['content']['columns'].append([])
+        result = {"pages": [], "settings": self.settings}
 
-       
+        # Check for home page first (READ-ONLY operation)
 
-       for k in self.folderData[page]['articleList']:
+        home_info = self.detectHomePage()
 
-           article_data = { 'column':None, 'type':None, 'style':None, 'border':None, 'max_width':'90', 'author':None, 'use_thumb':None, 'html':None, 'height':None, 'author_img':None, 'bg_img':None, 'form_data':[], 'form_html':"", 'form_btn_txt':"", 'form_response':"", 'form_id':"", 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"", 'metadata':json.dumps(self.opensea_metadata), 'file_type': None}
+        if home_info["exists"]:
 
-           
+            self.hasHomePage = True
 
-           props = self.articleData[page][k].keys()
+            # Generate home page data without touching existing structures
 
-           
+            result["homePage"] = self.generateHomePageData(home_info)
 
-           for prop in props:
+            result["hasHomePage"] = True
 
-               article_data[prop] = self.articleData[page][k][prop]
+        else:
 
-           
+            self.hasHomePage = False
 
-           # Debug: Check what HTML content we have
+            result["hasHomePage"] = False
 
-           if 'html' in article_data and article_data['html']:
+        # Generate regular page data (existing logic unchanged)
 
-               print(f"DEBUG: Article '{k}' HTML content preview: {article_data['html'][:200]}...")
+        for page in self.pageList:
 
-               # Check if it contains media links
+            page_data = self.generatePageData(page)
 
-               if '../_resources/' in article_data['html']:
+            result["pages"].append(page_data)
 
-                   print(f"DEBUG: Article '{k}' still contains local media links!")
+        return result
 
-               else:
+    def detectHomePage(self):
+        """Detect if a home page exists and return its configuration
 
-                   print(f"DEBUG: Article '{k}' HTML appears to have media links replaced")
 
-               
 
-           author = self.articleData[page][k]['author']
 
-           author_img = self.authors[author]
 
-           article_data['author_img'] = author_img
 
 
+        IMPORTANT: Home page detection ONLY looks in the base project folder (self.filePath),
 
-           if article_data['type'] == 'Form':
 
-               article_data['form_data'] = self.generateFormData(page, k)
 
-               article_data['form_html'] = self.formData[page][k]['customHtml']
+        NOT in subfolders. This ensures home pages are project-level landing pages.
 
-               article_data['form_btn_txt'] = self.formData[page][k]['btn_txt']
 
-               article_data['form_response'] = self.formData[page][k]['response']
 
-               article_data['form_id'] = self.formData[page][k]['form_id']
 
-           index = int(article_data['column'])-1
 
-           result['content']['columns'][index].append(article_data)
 
-           
 
-       return result    
+        Example project structure:
 
-  
 
-   def generateSiteData(self):
 
-       result = {'pages':[], 'settings':self.settings}
+        project/
 
-       
 
-       # Check for home page first (READ-ONLY operation)
 
-       home_info = self.detectHomePage()
+        ├── section1/
 
-       if home_info['exists']:
 
-           self.hasHomePage = True
-           # Generate home page data without touching existing structures
-           result['homePage'] = self.generateHomePageData(home_info)
 
-           result['hasHomePage'] = True
+        │   ├── hello.md
 
-       else:
-           self.hasHomePage = False
-           result['hasHomePage'] = False
 
-       
 
-       # Generate regular page data (existing logic unchanged)
+        │   └── Info.md
 
-       for page in self.pageList:
 
-          page_data = self.generatePageData(page)
 
-          result['pages'].append(page_data)
+        ├── section2/
 
-           
 
-       return result
 
-   
+        │   ├── About.md
 
-   def detectHomePage(self):
 
-       """Detect if a home page exists and return its configuration
 
-       
+        │   ├── Tutorial1.md
 
-       IMPORTANT: Home page detection ONLY looks in the base project folder (self.filePath),
 
-       NOT in subfolders. This ensures home pages are project-level landing pages.
 
-       
+        │   └── Tutorial2.md
 
-       Example project structure:
 
-       project/
 
-       ├── section1/
+        ├── _resources/
 
-       │   ├── hello.md
 
-       │   └── Info.md
 
-       ├── section2/
+        │   ├── hello.png
 
-       │   ├── About.md
 
-       │   ├── Tutorial1.md
 
-       │   └── Tutorial2.md
+        │   └── cat.jpg
 
-       ├── _resources/
 
-       │   ├── hello.png
 
-       │   └── cat.jpg
+        └── home.md  ← This is detected as the home page
 
-       └── home.md  ← This is detected as the home page
 
-       """
 
-       home_candidates = ['home.md', 'index.md', 'landing.md', 'welcome.md']
+        """
 
-       
+        home_candidates = ["home.md", "index.md", "landing.md", "welcome.md"]
 
-       # CRITICAL: Only check in base project folder, not subfolders
+        # CRITICAL: Only check in base project folder, not subfolders
 
-       for candidate in home_candidates:
+        for candidate in home_candidates:
 
-           candidate_path = os.path.join(self.filePath, candidate)
+            candidate_path = os.path.join(self.filePath, candidate)
 
-           if os.path.exists(candidate_path):
+            if os.path.exists(candidate_path):
 
-               return {
+                return {
+                    "exists": True,
+                    "filename": candidate,
+                    "path": candidate_path,
+                    "type": "markdown",
+                    "location": "base_folder",
+                }
 
-                   'exists': True,
+        return {"exists": False, "type": "none", "location": "none"}
 
-                   'filename': candidate,
+    def isHomePageEnabled(self):
+        """Check if home page functionality is enabled"""
 
-                   'path': candidate_path,
+        return self.detectHomePage()["exists"]
 
-                   'type': 'markdown',
+    def validateHomePageLocation(self, file_path):
+        """Validate that a potential home page is in the correct location
 
-                   'location': 'base_folder'
 
-               }
 
-       
 
-       return {'exists': False, 'type': 'none', 'location': 'none'}
 
 
 
-   def isHomePageEnabled(self):
+        Args:
 
-       """Check if home page functionality is enabled"""
 
-       return self.detectHomePage()['exists']
 
+            file_path (str): Path to the file to validate
 
 
-   def validateHomePageLocation(self, file_path):
 
-       """Validate that a potential home page is in the correct location
 
-       
 
-       Args:
 
-           file_path (str): Path to the file to validate
 
-           
+        Returns:
 
-       Returns:
 
-           bool: True if file is in base project folder, False otherwise
 
-       """
+            bool: True if file is in base project folder, False otherwise
 
-       # Ensure the file is directly in the base project folder
 
-       file_dir = os.path.dirname(file_path)
 
-       return os.path.abspath(file_dir) == os.path.abspath(self.filePath)
+        """
 
+        # Ensure the file is directly in the base project folder
 
+        file_dir = os.path.dirname(file_path)
 
-   def extractFrontmatter(self, markdown_content):
+        return os.path.abspath(file_dir) == os.path.abspath(self.filePath)
 
-       """Extract YAML frontmatter from markdown content"""
+    def extractFrontmatter(self, markdown_content):
+        """Extract YAML frontmatter from markdown content"""
 
-       import re
+        import re
 
-       import yaml
+        import yaml
 
-       
+        # Pattern for YAML frontmatter: --- at start and end
 
-       # Pattern for YAML frontmatter: --- at start and end
+        frontmatter_pattern = r"^---\s*\n(.*?)\n---\s*\n"
 
-       frontmatter_pattern = r'^---\s*\n(.*?)\n---\s*\n'
+        match = re.match(frontmatter_pattern, markdown_content, re.DOTALL)
 
-       match = re.match(frontmatter_pattern, markdown_content, re.DOTALL)
+        if match:
 
-       
+            try:
 
-       if match:
+                frontmatter = yaml.safe_load(match.group(1))
 
-           try:
+                content = markdown_content[match.end() :]
 
-               frontmatter = yaml.safe_load(match.group(1))
+                return frontmatter, content
 
-               content = markdown_content[match.end():]
+            except yaml.YAMLError as e:
 
-               return frontmatter, content
+                print(f"Warning: Invalid frontmatter in home page: {e}")
 
-           except yaml.YAMLError as e:
+                return {}, markdown_content
 
-               print(f"Warning: Invalid frontmatter in home page: {e}")
+        return {}, markdown_content
 
-               return {}, markdown_content
+    def generateHomePageData(self, home_info):
+        """Generate home page data from markdown file"""
 
-       
+        try:
 
-       return {}, markdown_content
+            with open(home_info["path"], "r", encoding="utf-8") as f:
 
+                markdown_content = f.read()
 
+            # Extract frontmatter and content
 
-   def generateHomePageData(self, home_info):
+            frontmatter, content = self.extractFrontmatter(markdown_content)
 
-       """Generate home page data from markdown file"""
+            # Convert to HTML (will include frontmatter, we'll filter it out)
 
-       try:
+            html_content = self.markdownHandler.generateHTML(home_info["path"])
 
-           with open(home_info['path'], 'r', encoding='utf-8') as f:
+            # Remove frontmatter from HTML if it exists
 
-               markdown_content = f.read()
+            # The MarkdownHandler processes the entire file, so we need to filter out the frontmatter
 
-           
+            # Look for the start of actual content (after the frontmatter)
 
-           # Extract frontmatter and content
+            if "<h1>" in html_content:
 
-           frontmatter, content = self.extractFrontmatter(markdown_content)
+                # Find the first <h1> tag and start from there
 
-           
+                h1_start = html_content.find("<h1>")
 
-           # Convert to HTML (will include frontmatter, we'll filter it out)
+                html_content = html_content[h1_start:]
 
-           html_content = self.markdownHandler.generateHTML(home_info['path'])
+            elif "<h2>" in html_content:
 
-           
+                # Fallback to <h2> if no <h1>
 
-           # Remove frontmatter from HTML if it exists
+                h2_start = html_content.find("<h2>")
 
-           # The MarkdownHandler processes the entire file, so we need to filter out the frontmatter
+                html_content = html_content[h2_start:]
 
-           # Look for the start of actual content (after the frontmatter)
+            # Process the HTML content for navigation links (convert regular links to nav-links)
 
-           if '<h1>' in html_content:
+            processed_html = self.processHomePageContentHTML(html_content)
 
-               # Find the first <h1> tag and start from there
+            # Apply navigation link processing to HTML
 
-               h1_start = html_content.find('<h1>')
+            final_html = self.processHomePageNavigation(processed_html)
 
-               html_content = html_content[h1_start:]
+            return {
+                "type": "home",
+                "title": frontmatter.get("title", "Home"),
+                "description": frontmatter.get("description", ""),
+                "layout": frontmatter.get("layout", "hero"),
+                "content": {
+                    "markdown": content,
+                    "html": final_html,
+                    "hero_title": frontmatter.get("hero_title", ""),
+                    "hero_subtitle": frontmatter.get("hero_subtitle", ""),
+                    "hero_image": frontmatter.get("hero_image", ""),
+                    "cta_button": frontmatter.get("cta_button", {}),
+                },
+                "navigation": frontmatter.get("navigation", []),
+                "seo": frontmatter.get("seo", {}),
+                "source": "markdown",
+                "filename": home_info["filename"],
+            }
 
-           elif '<h2>' in html_content:
+        except Exception as e:
 
-               # Fallback to <h2> if no <h1>
+            print(f"Error generating home page data: {e}")
 
-               h2_start = html_content.find('<h2>')
+            return None
 
-               html_content = html_content[h2_start:]
+    def processHomePageContent(self, markdown_content):
+        """Process markdown content for navigation links"""
 
-           
+        import re
 
-           # Process the HTML content for navigation links (convert regular links to nav-links)
+        # Pattern for links that might be page references
 
-           processed_html = self.processHomePageContentHTML(html_content)
+        link_pattern = r"\[([^\]]+)\]\(([^)]+)\)"
 
-           
+        def process_link(match):
 
-           # Apply navigation link processing to HTML
+            text = match.group(1)
 
-           final_html = self.processHomePageNavigation(processed_html)
+            href = match.group(2)
 
-           
+            # Check if this looks like a page reference
 
-           return {
+            if self._isPageReference(href):
 
-               'type': 'home',
+                # Mark for special processing (we'll handle this in HTML)
 
-               'title': frontmatter.get('title', 'Home'),
+                return f'<a href="#nav:{href}" class="nav-link" data-page="{href}">{text}</a>'
 
-               'description': frontmatter.get('description', ''),
+            else:
 
-               'layout': frontmatter.get('layout', 'hero'),
+                # Keep as regular markdown link
 
-               'content': {
+                return match.group(0)
 
-                   'markdown': content,
+        return re.sub(link_pattern, process_link, markdown_content)
 
-                   'html': final_html,
+    def processHomePageContentHTML(self, html_content):
+        """Process HTML content to convert regular links to navigation links"""
 
-                   'hero_title': frontmatter.get('hero_title', ''),
+        import re
 
-                   'hero_subtitle': frontmatter.get('hero_subtitle', ''),
+        # Pattern for HTML links that might be page references
 
-                   'hero_image': frontmatter.get('hero_image', ''),
+        link_pattern = r'<a href="([^"]+)">([^<]+)</a>'
 
-                   'cta_button': frontmatter.get('cta_button', {})
+        def process_link(match):
 
-               },
+            href = match.group(1)
 
-               'navigation': frontmatter.get('navigation', []),
+            text = match.group(2)
 
-               'seo': frontmatter.get('seo', {}),
+            # Check if this looks like a page reference
 
-               'source': 'markdown',
+            if self._isPageReference(href):
 
-               'filename': home_info['filename']
+                # Convert to navigation link format
 
-           }
+                return f'<a href="#nav:{href}" class="nav-link" data-page="{href}">{text}</a>'
 
-           
+            else:
 
-       except Exception as e:
+                # Keep as regular link
 
-           print(f"Error generating home page data: {e}")
+                return match.group(0)
 
-           return None
+        return re.sub(link_pattern, process_link, html_content)
 
+    def _isPageReference(self, href):
+        """Check if href is a reference to a site page"""
 
+        # Remove common prefixes and file extensions
 
-   def processHomePageContent(self, markdown_content):
+        clean_href = (
+            href.lstrip("#")
+            .lstrip("/")
+            .lstrip("./")
+            .replace(".html", "")
+            .replace(".md", "")
+        )
 
-       """Process markdown content for navigation links"""
+        # Check if it matches a page title (case-insensitive)
 
-       import re
+        for page in self.pageList:
 
-       
+            if clean_href.lower() == page.lower():
 
-       # Pattern for links that might be page references
+                return True
 
-       link_pattern = r'\[([^\]]+)\]\(([^)]+)\)'
+        # For testing purposes, also check against common section names
 
-       
+        # This allows the home page to work even when pageList is empty
 
-       def process_link(match):
+        test_sections = ["HEAVYMETA Blog", "IPFS Gateway 2023"]
 
-           text = match.group(1)
+        for section in test_sections:
 
-           href = match.group(2)
+            if clean_href.lower() == section.lower():
 
-           
+                return True
 
-           # Check if this looks like a page reference
+        return False
 
-           if self._isPageReference(href):
+    def processHomePageNavigation(self, html_content):
+        """Process HTML content to convert navigation links to functional buttons"""
 
-               # Mark for special processing (we'll handle this in HTML)
+        soup = BeautifulSoup(html_content, "html.parser")
 
-               return f'<a href="#nav:{href}" class="nav-link" data-page="{href}">{text}</a>'
+        # Find all navigation links
 
-           else:
+        nav_links = soup.find_all("a", class_="nav-link")
 
-               # Keep as regular markdown link
+        for link in nav_links:
 
-               return match.group(0)
+            page_name = link.get("data-page", "")
 
-       
+            if page_name and page_name in self.pageList:
 
-       return re.sub(link_pattern, process_link, markdown_content)
+                # Create Onsen UI button with correct navigation type
 
+                button = self._createNavigationButton(
+                    link, page_name, self.settings["pageType"]
+                )
 
+                link.replace_with(button)
 
-   def processHomePageContentHTML(self, html_content):
+        return str(soup)
 
-       """Process HTML content to convert regular links to navigation links"""
+    def _createNavigationButton(self, link_element, page_name, navigation_type):
+        """Create a functional navigation button from a link"""
 
-       import re
+        # Extract text and styling from original link
 
-       
+        text = link_element.get_text()
 
-       # Pattern for HTML links that might be page references
+        classes = link_element.get("class", [])
 
-       link_pattern = r'<a href="([^"]+)">([^<]+)</a>'
+        # Determine button style based on classes or default to primary
 
-       
+        button_style = "primary"
 
-       def process_link(match):
+        if "secondary" in classes:
 
-           href = match.group(1)
+            button_style = "secondary"
 
-           text = match.group(2)
+        elif "outline" in classes:
 
-           
+            button_style = "outline"
 
-           # Check if this looks like a page reference
+        # Generate correct navigation function based on navigation type
 
-           if self._isPageReference(href):
+        if navigation_type == "tabs":
 
-               # Convert to navigation link format
+            onclick_function = f"fn.goToTabByName('{page_name}')"
 
-               return f'<a href="#nav:{href}" class="nav-link" data-page="{href}">{text}</a>'
+        elif navigation_type == "carousel":
 
-           else:
+            onclick_function = f"fn.goToPageByName('{page_name}')"
 
-               # Keep as regular link
+        else:  # splitter mode (default)
 
-               return match.group(0)
+            onclick_function = f"fn.load('{page_name}.html')"
 
-       
+        # Create Onsen UI button with navigation
 
-       return re.sub(link_pattern, process_link, html_content)
+        button_html = f"""
 
 
-
-   def _isPageReference(self, href):
-
-       """Check if href is a reference to a site page"""
-
-       # Remove common prefixes and file extensions
-
-       clean_href = href.lstrip('#').lstrip('/').lstrip('./').replace('.html', '').replace('.md', '')
-
-       
-
-       # Check if it matches a page title (case-insensitive)
-
-       for page in self.pageList:
-
-           if clean_href.lower() == page.lower():
-
-               return True
-
-       
-
-       # For testing purposes, also check against common section names
-
-       # This allows the home page to work even when pageList is empty
-
-       test_sections = ['HEAVYMETA Blog', 'IPFS Gateway 2023']
-
-       for section in test_sections:
-
-           if clean_href.lower() == section.lower():
-
-               return True
-
-       
-
-       return False
-
-
-
-   def processHomePageNavigation(self, html_content):
-
-       """Process HTML content to convert navigation links to functional buttons"""
-
-       soup = BeautifulSoup(html_content, 'html.parser')
-
-       
-
-       # Find all navigation links
-
-       nav_links = soup.find_all('a', class_='nav-link')
-
-       
-
-       for link in nav_links:
-
-           page_name = link.get('data-page', '')
-
-           if page_name and page_name in self.pageList:
-
-               # Create Onsen UI button with correct navigation type
-
-               button = self._createNavigationButton(link, page_name, self.settings['pageType'])
-
-               link.replace_with(button)
-
-       
-
-       return str(soup)
-
-
-
-   def _createNavigationButton(self, link_element, page_name, navigation_type):
-
-       """Create a functional navigation button from a link"""
-
-       # Extract text and styling from original link
-
-       text = link_element.get_text()
-
-       classes = link_element.get('class', [])
-
-       
-
-       # Determine button style based on classes or default to primary
-
-       button_style = 'primary'
-
-       if 'secondary' in classes:
-
-           button_style = 'secondary'
-
-       elif 'outline' in classes:
-
-           button_style = 'outline'
-
-       
-
-       # Generate correct navigation function based on navigation type
-
-       if navigation_type == 'tabs':
-
-           onclick_function = f"fn.goToTabByName('{page_name}')"
-
-       elif navigation_type == 'carousel':
-
-           onclick_function = f"fn.goToPageByName('{page_name}')"
-
-       else:  # splitter mode (default)
-
-           onclick_function = f"fn.load('{page_name}.html')"
-
-       
-
-       # Create Onsen UI button with navigation
-
-       button_html = f"""
 
        <ons-button onclick="{onclick_function}" modifier="{button_style}" class="home-nav-button">
 
+
+
            {text}
+
+
 
        </ons-button>
 
+
+
        """
 
-       
+        return BeautifulSoup(button_html, "html.parser").find("ons-button")
 
-       return BeautifulSoup(button_html, 'html.parser').find('ons-button')
+    def _createNavigationButtonEnhanced(self, link_element, page_name, navigation_type):
+        """Create a functional navigation button with enhanced styling"""
+
+        # Extract text and styling from original link
+
+        text = link_element.get_text()
+
+        classes = link_element.get("class", [])
+
+        # Enhanced button style detection
+
+        button_style = "primary"
+
+        button_size = "default"
+
+        if "secondary" in classes:
+
+            button_style = "secondary"
+
+        elif "outline" in classes:
+
+            button_style = "outline"
+
+        elif "quiet" in classes:
+
+            button_style = "quiet"
+
+        if "large" in classes:
+
+            button_size = "large"
+
+        elif "small" in classes:
+
+            button_size = "small"
+
+        # Generate correct navigation function based on navigation type
+
+        if navigation_type == "tabs":
+
+            onclick_function = f"fn.goToTabByName('{page_name}')"
+
+        elif navigation_type == "carousel":
+
+            onclick_function = f"fn.goToPageByName('{page_name}')"
+
+        else:  # splitter mode (default)
+
+            onclick_function = f"fn.load('{page_name}.html')"
+
+        # Create button with size and style
+
+        button_html = f"""
 
 
-
-   def _createNavigationButtonEnhanced(self, link_element, page_name, navigation_type):
-
-       """Create a functional navigation button with enhanced styling"""
-
-       # Extract text and styling from original link
-
-       text = link_element.get_text()
-
-       classes = link_element.get('class', [])
-
-       
-
-       # Enhanced button style detection
-
-       button_style = 'primary'
-
-       button_size = 'default'
-
-       
-
-       if 'secondary' in classes:
-
-           button_style = 'secondary'
-
-       elif 'outline' in classes:
-
-           button_style = 'outline'
-
-       elif 'quiet' in classes:
-
-           button_style = 'quiet'
-
-       
-
-       if 'large' in classes:
-
-           button_size = 'large'
-
-       elif 'small' in classes:
-
-           button_size = 'small'
-
-       
-
-       # Generate correct navigation function based on navigation type
-
-       if navigation_type == 'tabs':
-
-           onclick_function = f"fn.goToTabByName('{page_name}')"
-
-       elif navigation_type == 'carousel':
-
-           onclick_function = f"fn.goToPageByName('{page_name}')"
-
-       else:  # splitter mode (default)
-
-           onclick_function = f"fn.load('{page_name}.html')"
-
-       
-
-       # Create button with size and style
-
-       button_html = f"""
 
        <ons-button onclick="{onclick_function}" modifier="{button_style}" size="{button_size}" class="home-nav-button">
 
+
+
            {text}
+
+
 
        </ons-button>
 
+
+
        """
 
-       
+        return BeautifulSoup(button_html, "html.parser").find("ons-button")
 
-       return BeautifulSoup(button_html, 'html.parser').find('ons-button')
+    def processHomePageNavigationEnhanced(self, html_content):
+        """Process HTML content with fallback handling"""
 
+        soup = BeautifulSoup(html_content, "html.parser")
 
+        # Find all navigation links
 
-   def processHomePageNavigationEnhanced(self, html_content):
+        nav_links = soup.find_all("a", class_="nav-link")
 
-       """Process HTML content with fallback handling"""
+        for link in nav_links:
 
-       soup = BeautifulSoup(html_content, 'html.parser')
+            page_name = link.get("data-page", "")
 
-       
+            if page_name and page_name in self.pageList:
 
-       # Find all navigation links
+                # Create functional button with correct navigation type
 
-       nav_links = soup.find_all('a', class_='nav-link')
+                button = self._createNavigationButtonEnhanced(
+                    link, page_name, self.settings["pageType"]
+                )
 
-       
+                link.replace_with(button)
 
-       for link in nav_links:
+            else:
 
-           page_name = link.get('data-page', '')
+                # Fallback: convert to regular link with warning
 
-           if page_name and page_name in self.pageList:
+                if page_name:
 
-               # Create functional button with correct navigation type
+                    print(
+                        f"Warning: Page '{page_name}' not found, keeping as regular link"
+                    )
 
-               button = self._createNavigationButtonEnhanced(link, page_name, self.settings['pageType'])
+                    link["href"] = f"#{page_name}"
 
-               link.replace_with(button)
+                    link["class"] = ["nav-link", "nav-link-fallback"]
 
-           else:
+        return str(soup)
 
-               # Fallback: convert to regular link with warning
+    def safeDataUpdate(self, operation_name, update_function, *args, **kwargs):
+        """Safely execute data updates with rollback capability"""
 
-               if page_name:
+        # Create backup of current state
 
-                   print(f"Warning: Page '{page_name}' not found, keeping as regular link")
+        backup_state = self._createDataBackup()
 
-                   link['href'] = f"#{page_name}"
+        try:
 
-                   link['class'] = ['nav-link', 'nav-link-fallback']
+            # Execute the update
 
-       
+            result = update_function(*args, **kwargs)
 
-       return str(soup)
+            # Validate data consistency
 
+            if not self._validateDataConsistency():
 
+                raise ValueError(
+                    f"Data consistency check failed after {operation_name}"
+                )
 
-   def safeDataUpdate(self, operation_name, update_function, *args, **kwargs):
+            # Log successful update
 
-       """Safely execute data updates with rollback capability"""
+            print(f"SUCCESS: {operation_name} completed successfully")
 
-       # Create backup of current state
+            return result
 
-       backup_state = self._createDataBackup()
+        except Exception as e:
 
-       
+            # Rollback on failure
 
-       try:
+            print(f"ERROR: {operation_name} failed, rolling back: {e}")
 
-           # Execute the update
+            self._restoreDataBackup(backup_state)
 
-           result = update_function(*args, **kwargs)
+            raise
 
-           
+    def _createDataBackup(self):
+        """Create a backup of critical data structures"""
 
-           # Validate data consistency
+        return {
+            "pageList": self.pageList.copy(),
+            "articleData": self.articleData.copy(),
+            "folderData": self.folderData.copy(),
+            "folderPathList": self.folderPathList.copy(),
+            "mdPathList": self.mdPathList.copy(),
+        }
 
-           if not self._validateDataConsistency():
+    def _restoreDataBackup(self, backup_state):
+        """Restore data structures from backup"""
 
-               raise ValueError(f"Data consistency check failed after {operation_name}")
+        self.pageList = backup_state["pageList"]
 
-           
+        self.articleData = backup_state["articleData"]
 
-           # Log successful update
+        self.folderData = backup_state["folderData"]
 
-           print(f"SUCCESS: {operation_name} completed successfully")
+        self.folderPathList = backup_state["folderPathList"]
 
-           return result
+        self.mdPathList = backup_state["mdPathList"]
 
-           
+        print("Data structures restored from backup")
 
-       except Exception as e:
+    def _validateDataConsistency(self):
+        """Validate that data structures are consistent"""
 
-           # Rollback on failure
+        try:
 
-           print(f"ERROR: {operation_name} failed, rolling back: {e}")
+            # Check that all pages in pageList have corresponding data
 
-           self._restoreDataBackup(backup_state)
+            for page in self.pageList:
 
-           raise
+                if page not in self.folderPathList:
 
+                    print(f"WARNING: Page '{page}' missing from folderPathList")
 
+                    return False
 
-   def _createDataBackup(self):
+                if page not in self.folderData:
 
-       """Create a backup of critical data structures"""
+                    print(f"WARNING: Page '{page}' missing from folderData")
 
-       return {
+                    return False
 
-           'pageList': self.pageList.copy(),
+            # Check that folderData and articleData are consistent
 
-           'articleData': self.articleData.copy(),
+            for page in self.folderData:
 
-           'folderData': self.folderData.copy(),
+                if page not in self.pageList:
 
-           'folderPathList': self.folderPathList.copy(),
+                    print(f"WARNING: Folder '{page}' in folderData but not in pageList")
 
-           'mdPathList': self.mdPathList.copy()
+                    return False
 
-       }
+            return True
 
+        except Exception as e:
 
+            print(f"ERROR: Data consistency check failed: {e}")
 
-   def _restoreDataBackup(self, backup_state):
+            return False
 
-       """Restore data structures from backup"""
+    def baseFolder(self, f_path):
 
-       self.pageList = backup_state['pageList']
+        sep = os.path.sep
 
-       self.articleData = backup_state['articleData']
+        arr = f_path.split(sep)
 
-       self.folderData = backup_state['folderData']
+        return arr[len(arr) - 2]
 
-       self.folderPathList = backup_state['folderPathList']
+    def addFolder(self, folder, selfData):
 
-       self.mdPathList = backup_state['mdPathList']
+        result = False
 
-       print("Data structures restored from backup")
+        if folder not in selfData:
 
+            selfData[folder] = {}
 
+            result = True
 
-   def _validateDataConsistency(self):
+        return result
 
-       """Validate that data structures are consistent"""
+    def addPageAll(self, folder):
 
-       try:
+        result = False
 
-           # Check that all pages in pageList have corresponding data
+        if self.addFolder(folder, self.pageData):
 
-           for page in self.pageList:
+            result = True
 
-               if page not in self.folderPathList:
+        if self.addFolder(folder, self.columnWidths):
 
-                   print(f"WARNING: Page '{page}' missing from folderPathList")
+            result = True
 
-                   return False
+        return result
 
-               if page not in self.folderData:
+    def addFolderAll(self, folder):
 
-                   print(f"WARNING: Page '{page}' missing from folderData")
+        result = False
 
-                   return False
+        if self.addFolder(folder, self.folders):
 
-           
+            result = True
 
-           # Check that folderData and articleData are consistent
+        if self.addFolder(folder, self.pageData):
 
-           for page in self.folderData:
+            result = True
 
-               if page not in self.pageList:
+        if self.addFolder(folder, self.columnWidths):
 
-                   print(f"WARNING: Folder '{page}' in folderData but not in pageList")
+            result = True
 
-                   return False
+        if self.addFolder(folder, self.articleData):
 
-           
+            result = True
 
-           return True
+        if self.addFolder(folder, self.formData):
 
-       except Exception as e:
+            result = True
 
-           print(f"ERROR: Data consistency check failed: {e}")
+        if self.addFolder(folder, self.metaData):
 
-           return False
+            result = True
 
-   
+        return result
 
-   def baseFolder(self, f_path):
-
-       sep = os.path.sep
-
-       arr = f_path.split(sep)
-
-       return(arr[len(arr)-2])
-
-   
-
-   def addFolder(self, folder, selfData):
-
-       result = False
-
-       if(folder not in selfData):
-
-           selfData[folder] = {}
-
-           result = True
-
-           
-
-       return result
-
-           
-
-   def addPageAll(self, folder):
-
-       result = False
-
-       if self.addFolder(folder, self.pageData):
-
-           result = True
-
-       if self.addFolder(folder, self.columnWidths):
-
-           result = True
-
-           
-
-       return result
-
-       
-
-   def addFolderAll(self, folder):
-
-       result = False
-
-       if self.addFolder(folder, self.folders):
-
-           result = True
-
-       if self.addFolder(folder, self.pageData):
-
-           result = True
-
-       if self.addFolder(folder, self.columnWidths):
-
-           result = True
-
-       if self.addFolder(folder, self.articleData):
-
-           result = True
-
-       if self.addFolder(folder, self.formData):
-
-           result = True
-
-       if self.addFolder(folder, self.metaData):
-
-           result = True
-
-           
-
-       return result
-
-   
-
-   def hasNoFolder(self, folder):
+    def hasNoFolder(self, folder):
 
         result = False
 
@@ -2928,39 +4359,31 @@ class SiteDataHandler:
 
             result = True
 
-            
+        return result
+
+    def hasNoFileFolder(self, folder):
+
+        result = False
+
+        if folder not in self.folders:
+
+            result = True
+
+        if folder not in self.articleData:
+
+            result = True
+
+        if folder not in self.formData:
+
+            result = True
+
+        if folder not in self.metaData:
+
+            result = True
 
         return result
 
-    
-
-   def hasNoFileFolder(self, folder):
-
-       result = False
-
-       if folder not in self.folders:
-
-           result = True
-
-       if folder not in self.articleData:
-
-           result = True
-
-       if folder not in self.formData:
-
-           result = True
-
-       if folder not in self.metaData:
-
-           result = True
-
-           
-
-       return result
-
-   
-
-   def hasNoFile(self, folder, path):
+    def hasNoFile(self, folder, path):
 
         result = False
 
@@ -2980,95 +4403,77 @@ class SiteDataHandler:
 
             result = True
 
-            
-
         return result
 
-     
+    def pruneFiles(self):
 
-   def pruneFiles(self):
+        if not self.firstRun:
 
-       if not self.firstRun:
+            for k, path in self._old_mdPathList.items():
 
-        for k, path in self._old_mdPathList.items():
+                if not os.path.isfile(path):
 
-           if not os.path.isfile(path):
+                    f_name = os.path.basename(path)
 
-               f_name = os.path.basename(path)
+                    basepath = path.replace(f_name, "")
 
-               basepath = path.replace(f_name, '')
+                    f_path = self.baseFolder(basepath)
 
-               f_path = self.baseFolder(basepath)
+                    self.oldDataFolders.append(f_path)
 
-               self.oldDataFolders.append(f_path)
+                    self.oldDataKeys.append(f_name)
 
-               self.oldDataKeys.append(f_name)
+                    print(f_path + " is added to old folders")
 
-               print(f_path+" is added to old folders")
+                    print(f_name + " is added to old data keys")
 
-               print(f_name+" is added to old data keys")
+                    for f, obj in self._old_mdFileList[k].items():
 
-               
+                        print(obj)
 
-               for f, obj in self._old_mdFileList[k].items():
+    def pruneFolders(self):
 
-                   print(obj)
+        if not self.firstRun:
 
+            for k, path in self._old_folderPathList.items():
 
+                if not os.path.isdir(path):
 
-   def pruneFolders(self):
+                    self.oldFolders.append(k)
 
-       if not self.firstRun:
+                    print(k + " is added to old folders")
 
-        for k, path in self._old_folderPathList.items():
+    def deleteFolder(self, folder, selfData):
 
-           if not os.path.isdir(path):
+        if folder in selfData.keys():
 
-               self.oldFolders.append(k)
+            selfData.pop(folder)
 
-               print(k+" is added to old folders")              
+            print("deleting folder: " + folder)
 
-       
+    def deleteFile(self, folder, path, selfData):
 
-   def deleteFolder(self, folder, selfData):
+        if folder in selfData.keys() and path in selfData[folder].keys():
 
-       if folder in selfData.keys():
+            print("deleting: " + path + " from " + folder)
 
-           selfData.pop(folder)
+            selfData[folder].pop(path)
 
-           print("deleting folder: "+folder)
+    def cloneDirectory(self, source, target):
 
-       
+        if os.path.isdir(source) and os.path.isdir(target):
 
-   def deleteFile(self, folder, path, selfData):
+            source_files = os.listdir(source)
 
-       if folder in selfData.keys() and path in selfData[folder].keys():
+            target_files = os.listdir(target)
 
-           print("deleting: "+path+" from "+folder)
+            for f in target_files:
 
-           selfData[folder].pop(path)
+                f_path = os.path.join(target, f)
 
-           
+                os.remove(f_path)
 
-   def cloneDirectory(self, source, target):
-
-       if os.path.isdir(source) and os.path.isdir(target):
-
-        source_files = os.listdir(source)
-
-        target_files = os.listdir(target)
-
-        
-
-        for f in target_files:
-
-            f_path = os.path.join(target, f)
-
-            os.remove(f_path)
-
-            
-
-        for f in source_files:
+            for f in source_files:
 
                 src_path = os.path.join(source, f)
 
@@ -3076,382 +4481,345 @@ class SiteDataHandler:
 
                 shutil.copy(src_path, dst_path)
 
-            
+    def convertVideos(self, folder):
 
-   def convertVideos(self, folder):
+        if shutil.which("ffmpeg") == False:
 
-       if shutil.which('ffmpeg') == False:
+            return
 
-           return
-
-       
-
-       files = os.listdir(folder)
-
-       
-
-       for f in files:
-
-           if '.mp4' in f:
-
-               print(f)
-
-               in_file = os.path.join(folder, f)
-
-               out_file = in_file.replace('.mp4', '_$$$.mp4')
-
-               if os.path.isfile(in_file):
-
-                   ff = ffmpy.FFmpeg(
-
-                       inputs={in_file: None},
-
-                       outputs={out_file: '-brand mp42 -pix_fmt yuv420p -y'}
-
-                   )
-
-                   ff.run()
-
-                   os.remove(in_file)
-
-                   os.rename(out_file, in_file)
-
-
-
-            
-
-   def setCss(self, theme):
-
-       self.css_components = self.css_themes[theme]
-
-       self.settings['css_components'] = self.css_components
-
-       self.settings['theme'] = theme
-
-       self.saveData()
-
-
-
-
-
-   def resetCss(self):
-
-       self.settings['css_components'] = self.css_components
-
-       self.saveData()
-
-       
-
-            
-
-   def refreshCss(self):
-
-       if os.path.isfile(self.settings['customTheme']):
-           
-           file = os.path.basename(self.settings['customTheme'])
-
-           if 'theme.css' in file:
-               with open(self.settings['customTheme'], 'r') as f:
-                   txt = ''
-                   line = f.readline()
-    
-                   while line:
-                    txt += line
-                    line = f.readline()
-
-                   arr = txt.split('{')[1].split('}')
-                   css = arr[0]
-                   self.settings['css_components']  = css
-
-                   self.saveData()
-           else:
-                print('Invalid Css file')
-       else:
-           print('Invalid Css file')
-
-               
-
-   def deleteDist(self):
-
-       print('deleteDist')
-
-       siteName = self.settings['siteName']
-
-       dist = os.path.basename(os.path.normpath(self.distPath))
-
-       
-
-       if (siteName !=  '' and siteName not in self.distPath) or dist != siteName:
-
-           self.distPath = self.distPath.replace(dist, self.settings['siteName'])
-
-       
-
-       if self.distPath != SCRIPT_DIR and os.path.isdir(self.distPath):
-
-           target_files = os.listdir(self.distPath)
-
-           
-
-           for f in target_files:
-
-               f_path = os.path.join(self.distPath, f)
-
-               if os.path.isfile(f_path) and self.distPath != SCRIPT_DIR:
-
-                   os.remove(f_path)
-
-               
-
-           shutil.rmtree(self.distPath)
-
-
-
-            
-
-   def refereshDist(self):
-
-       self.deleteDist()
-
-       shutil.copytree(self.debugPath, self.distPath)
-
-   
-
-   def refreshDebugMedia(self):
-
-       self.cloneDirectory(self.resourcePath, self.debugResourcePath)
-
-       self.convertVideos(self.debugResourcePath)
-
-        
-
-   def deleteOldFiles(self):
-
-       idx = 0
-
-
-
-       for folder in self.oldDataFolders:
-
-           path = self.oldDataKeys[idx]
-
-           self.deleteFile(folder, path, self.folders)
-
-           self.deleteFile(folder, path, self.articleData)
-
-           self.deleteFile(folder, path, self.formData)
-
-           self.deleteFile(folder, path, self.metaData)
-
-           self.deleteFile(folder, path, self.pageData)
-
-           if folder in self.folderData and path in self.folderData[folder]['articleList']:
-
-               self.folderData[folder]['articleList'].pop(self.folderData[folder]['articleList'].index(path))
-
-           
-
-       for folder in self.oldFolders:
-
-           self.deleteFolder(folder, self.folderData)
-
-           self.deleteFolder(folder, self.folders)
-
-           self.deleteFolder(folder, self.pageData)
-
-           self.deleteFolder(folder, self.columnWidths)
-
-           self.deleteFolder(folder, self.articleData)
-
-           self.deleteFolder(folder, self.formData)
-
-           self.deleteFolder(folder, self.metaData)
-
-           
-
-           # CRITICAL FIX: Also remove from pageList and folderPathList
-
-           if folder in self.pageList:
-
-               self.pageList.remove(folder)
-
-               print(f"Removed deleted folder '{folder}' from pageList")
-
-           if folder in self.folderPathList:
-
-               self.folderPathList.pop(folder, None)
-
-               print(f"Removed deleted folder '{folder}' from folderPathList")
-
-           
-
-       self.oldDataFolders.clear()
-
-       self.oldDataKeys.clear()
-
-       self.oldFolders.clear()
-
-       
-
-   def mediaSaved(self, file_name):
-
-       result = False
-
-       if file_name in self.images.keys() or file_name in self.videos.keys() or file_name in self.audio.keys() or file_name in self.gltf.keys():
-
-           result = True
-
-           
-
-       return result 
-
-
-
-   def mediaOutOfDate(self, file_name, m_type):
-
-       result = False
-
-       media = {'images':self.images, 'videos':self.videos, 'audio':self.audio, 'gltf':self.gltf}
-
-
-
-       if file_name in media[m_type].keys():
-
-           path = media[m_type][file_name]['path']
-
-           time_stamp = media[m_type][file_name]['time_stamp']
-
-               
-
-           if self.fileIsNew(path, time_stamp):
-
-               result = True
-
-               
-
-       return result
-
-       
-
-   def fileList(self, ext):
-
-       result = {}
-
-       if os.path.isdir(self.resourcePath):
-
-        media = {'images':self.images, 'videos':self.videos, 'audio':self.audio, 'gltf':self.gltf}
-
-        files = os.listdir(self.resourcePath)
-
-        m_type = 'image'
-
-        
-
-        if ext == '.mp4':
-
-            m_type = 'video'
-
-        elif ext == '.mp3':
-
-            m_type = 'audio'
-
-        elif ext == '.gltf':
-
-            m_type = '3d'
-
-        
+        files = os.listdir(folder)
 
         for f in files:
 
-            f_path = os.path.join(self.resourcePath, f)
+            if ".mp4" in f:
 
-            t_stamp = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(f_path)))
+                print(f)
 
-            obj = {'type':m_type, 'path':f_path, 'cid':None, 'time_stamp':t_stamp}
+                in_file = os.path.join(folder, f)
 
-            key = 'images'
+                out_file = in_file.replace(".mp4", "_$$$.mp4")
 
+                if os.path.isfile(in_file):
 
+                    ff = ffmpy.FFmpeg(
+                        inputs={in_file: None},
+                        outputs={out_file: "-brand mp42 -pix_fmt yuv420p -y"},
+                    )
 
-            if m_type == 'video':
+                    ff.run()
 
-                key = 'videos'
+                    os.remove(in_file)
 
-            elif m_type == 'audio':
+                    os.rename(out_file, in_file)
 
-                key = 'audio'
+    def setCss(self, theme):
 
-            elif m_type == '3d':
+        self.css_components = self.css_themes[theme]
 
-                key = 'gltf'
+        self.settings["css_components"] = self.css_components
 
-                
+        self.settings["theme"] = theme
 
-            if os.path.isfile(f_path) and ext in f:
+        self.saveData()
 
-                if self.mediaSaved(f) == False or self.mediaOutOfDate(f, key) == True:
+    def resetCss(self):
 
-                    result[f] = obj
+        self.settings["css_components"] = self.css_components
 
+        self.saveData()
 
+    def refreshCss(self):
 
-                else:
+        if os.path.isfile(self.settings["customTheme"]):
 
-                    if m_type == 'image':
+            file = os.path.basename(self.settings["customTheme"])
 
-                        result[f] = media['images'][f]
+            if "theme.css" in file:
 
-                    elif m_type == 'video':
+                with open(self.settings["customTheme"], "r") as f:
 
-                        result[f] = media['videos'][f]
+                    txt = ""
 
-                    elif m_type == 'audio':
+                    line = f.readline()
 
-                        result[f] = media['audio'][f]
+                    while line:
 
-                    elif m_type == '3d':
+                        txt += line
 
-                        result[f] = media['gltf'][f]
+                        line = f.readline()
 
-               
+                    arr = txt.split("{")[1].split("}")
 
-       return result
+                    css = arr[0]
 
-   
+                    self.settings["css_components"] = css
 
-   def fileIsNew(self, filePath, time_stamp):
+                    self.saveData()
 
-       result = False
+            else:
 
-       t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(filePath)))
+                print("Invalid Css file")
 
-       latest = max((t, time_stamp))
+        else:
 
-       
+            print("Invalid Css file")
 
-       if t == latest and t != time_stamp:
+    def deleteDist(self):
 
-           result = True
+        print("deleteDist")
 
-       
+        siteName = self.settings["siteName"]
 
-       return result
+        dist = os.path.basename(os.path.normpath(self.distPath))
 
-   
+        if (siteName != "" and siteName not in self.distPath) or dist != siteName:
 
-   def setDeployFolder(self, folder):
+            self.distPath = self.distPath.replace(dist, self.settings["siteName"])
 
-       self.deployHandler.deployFolderName = folder
+        if self.distPath != SCRIPT_DIR and os.path.isdir(self.distPath):
 
-   
+            target_files = os.listdir(self.distPath)
 
-   def deployMedia(self, usefullPath=False, askPermission=True):
+            for f in target_files:
 
+                f_path = os.path.join(self.distPath, f)
+
+                if os.path.isfile(f_path) and self.distPath != SCRIPT_DIR:
+
+                    os.remove(f_path)
+
+            shutil.rmtree(self.distPath)
+
+    def refereshDist(self):
+
+        self.deleteDist()
+
+        shutil.copytree(self.debugPath, self.distPath)
+
+    def refreshDebugMedia(self):
+
+        self.cloneDirectory(self.resourcePath, self.debugResourcePath)
+
+        self.convertVideos(self.debugResourcePath)
+
+    def deleteOldFiles(self):
+
+        idx = 0
+
+        for folder in self.oldDataFolders:
+
+            path = self.oldDataKeys[idx]
+
+            self.deleteFile(folder, path, self.folders)
+
+            self.deleteFile(folder, path, self.articleData)
+
+            self.deleteFile(folder, path, self.formData)
+
+            self.deleteFile(folder, path, self.metaData)
+
+            self.deleteFile(folder, path, self.pageData)
+
+            if (
+                folder in self.folderData
+                and path in self.folderData[folder]["articleList"]
+            ):
+
+                self.folderData[folder]["articleList"].pop(
+                    self.folderData[folder]["articleList"].index(path)
+                )
+
+        for folder in self.oldFolders:
+
+            self.deleteFolder(folder, self.folderData)
+
+            self.deleteFolder(folder, self.folders)
+
+            self.deleteFolder(folder, self.pageData)
+
+            self.deleteFolder(folder, self.columnWidths)
+
+            self.deleteFolder(folder, self.articleData)
+
+            self.deleteFolder(folder, self.formData)
+
+            self.deleteFolder(folder, self.metaData)
+
+            # CRITICAL FIX: Also remove from pageList and folderPathList
+
+            if folder in self.pageList:
+
+                self.pageList.remove(folder)
+
+                print(f"Removed deleted folder '{folder}' from pageList")
+
+            if folder in self.folderPathList:
+
+                self.folderPathList.pop(folder, None)
+
+                print(f"Removed deleted folder '{folder}' from folderPathList")
+
+        self.oldDataFolders.clear()
+
+        self.oldDataKeys.clear()
+
+        self.oldFolders.clear()
+
+    def mediaSaved(self, file_name):
+
+        result = False
+
+        if (
+            file_name in self.images.keys()
+            or file_name in self.videos.keys()
+            or file_name in self.audio.keys()
+            or file_name in self.gltf.keys()
+        ):
+
+            result = True
+
+        return result
+
+    def mediaOutOfDate(self, file_name, m_type):
+
+        result = False
+
+        media = {
+            "images": self.images,
+            "videos": self.videos,
+            "audio": self.audio,
+            "gltf": self.gltf,
+        }
+
+        if file_name in media[m_type].keys():
+
+            path = media[m_type][file_name]["path"]
+
+            time_stamp = media[m_type][file_name]["time_stamp"]
+
+            if self.fileIsNew(path, time_stamp):
+
+                result = True
+
+        return result
+
+    def fileList(self, ext):
+
+        result = {}
+
+        if os.path.isdir(self.resourcePath):
+
+            media = {
+                "images": self.images,
+                "videos": self.videos,
+                "audio": self.audio,
+                "gltf": self.gltf,
+            }
+
+            files = os.listdir(self.resourcePath)
+
+            m_type = "image"
+
+            if ext == ".mp4":
+
+                m_type = "video"
+
+            elif ext == ".mp3":
+
+                m_type = "audio"
+
+            elif ext == ".gltf":
+
+                m_type = "3d"
+
+            for f in files:
+
+                f_path = os.path.join(self.resourcePath, f)
+
+                t_stamp = time.strftime(
+                    "%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(f_path))
+                )
+
+                obj = {
+                    "type": m_type,
+                    "path": f_path,
+                    "cid": None,
+                    "time_stamp": t_stamp,
+                }
+
+                key = "images"
+
+                if m_type == "video":
+
+                    key = "videos"
+
+                elif m_type == "audio":
+
+                    key = "audio"
+
+                elif m_type == "3d":
+
+                    key = "gltf"
+
+                if os.path.isfile(f_path) and ext in f:
+
+                    if (
+                        self.mediaSaved(f) == False
+                        or self.mediaOutOfDate(f, key) == True
+                    ):
+
+                        result[f] = obj
+
+                    else:
+
+                        if m_type == "image":
+
+                            result[f] = media["images"][f]
+
+                        elif m_type == "video":
+
+                            result[f] = media["videos"][f]
+
+                        elif m_type == "audio":
+
+                            result[f] = media["audio"][f]
+
+                        elif m_type == "3d":
+
+                            result[f] = media["gltf"][f]
+
+        return result
+
+    def fileIsNew(self, filePath, time_stamp):
+
+        result = False
+
+        t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(filePath)))
+
+        latest = max((t, time_stamp))
+
+        if t == latest and t != time_stamp:
+
+            result = True
+
+        return result
+
+    def setDeployFolder(self, folder):
+
+        self.deployHandler.deployFolderName = folder
+
+    def deployMedia(self, usefullPath=False, askPermission=True):
         """
+
+
 
         Deploy all media files from the media folder.
 
+
+
         Returns a tuple (media_cid, status) for backward compatibility.
+
+
 
         """
 
@@ -3463,27 +4831,22 @@ class SiteDataHandler:
 
             self.refreshDebugMedia()
 
-
-
-            if os.path.isdir(self.debugResourcePath) and len(os.listdir(self.debugResourcePath)) > 0:
+            if (
+                os.path.isdir(self.debugResourcePath)
+                and len(os.listdir(self.debugResourcePath)) > 0
+            ):
 
                 deployFolder = self.debugResourcePath
-
-            
 
             if self.deployHandler.manifest != None:
 
                 self.markdownHandler.deployerManifest = self.deployHandler.manifest
-
-
 
             # Use the new simplified media upload method
 
             media_manifest = self.deployHandler.uploadMediaFiles(deployFolder)
 
             self.deployHandler.saveData()
-
-            
 
             # For backward compatibility, return a tuple
 
@@ -3493,13 +4856,9 @@ class SiteDataHandler:
 
                 first_file = next(iter(media_manifest.values()))
 
-                return (first_file['cid'], 'media_deployed')
-
-            
+                return (first_file["cid"], "media_deployed")
 
             return (None, None)
-
-            
 
         except Exception as e:
 
@@ -3507,547 +4866,625 @@ class SiteDataHandler:
 
             return (None, None)
 
-    
+    def deploySite(self, usefullPath=False, askPermission=True):
+        """
 
-   def deploySite(self, usefullPath=False, askPermission=True):
 
-       """
 
-       Deploy the built site to IPFS.
+        Deploy the built site to IPFS.
 
-       Returns a tuple of (cid, url) or (None, None) on failure.
 
-       """
 
-       try:
+        Returns a tuple of (cid, url) or (None, None) on failure.
 
-           # Validate that we have a distribution path
 
-           if not hasattr(self, 'distPath') or not self.distPath:
 
-               print("Error: No distribution path configured")
+        """
 
-               return (None, None)
+        try:
 
-           
+            # Validate that we have a distribution path
 
-           if not os.path.exists(self.distPath):
+            if not hasattr(self, "distPath") or not self.distPath:
 
-               print(f"Error: Distribution directory does not exist: {self.distPath}")
+                print("Error: No distribution path configured")
 
-               return (None, None)
+                return (None, None)
 
-           
+            if not os.path.exists(self.distPath):
 
-           if not os.path.isdir(self.distPath):
+                print(f"Error: Distribution directory does not exist: {self.distPath}")
 
-               print(f"Error: Distribution path is not a directory: {self.distPath}")
+                return (None, None)
 
-               return (None, None)
+            if not os.path.isdir(self.distPath):
 
-           
+                print(f"Error: Distribution path is not a directory: {self.distPath}")
 
-           if self.deployHandler.manifest != None:
+                return (None, None)
 
-               self.markdownHandler.deployerManifest = self.deployHandler.manifest
+            if self.deployHandler.manifest != None:
 
-               
+                self.markdownHandler.deployerManifest = self.deployHandler.manifest
 
-           # Use the new simplified site deployment method
+            # Use the new simplified site deployment method
 
-           result = self.deployHandler.deploySite(self.distPath)
+            result = self.deployHandler.deploySite(self.distPath)
 
-           self.deployHandler.saveData()
+            self.deployHandler.saveData()
 
-           
+            return result
 
-           return result
+        except Exception as e:
 
-           
+            print(f"Error: Site deployment failed: {e}")
 
-       except Exception as e:
+            return (None, None)
 
-           print(f"Error: Site deployment failed: {e}")
+    def gatherMedia(self):
 
-           return (None, None)
+        self.images = self.fileList(".png")
 
-           
+        self.videos = self.fileList(".mp4")
 
-   def gatherMedia(self):
+        self.audio = self.fileList(".mp3")
 
-       self.images = self.fileList('.png')
+        self.gltfs = self.fileList(".gltf")
 
-       self.videos = self.fileList('.mp4')
+        return {
+            "images": self.images,
+            "videos": self.videos,
+            "audio": self.audio,
+            "gltf": self.gltf,
+        }
 
-       self.audio = self.fileList('.mp3')
+    def updateData(self, folder, path, selfData, data):
 
-       self.gltfs = self.fileList('.gltf')
+        if folder in selfData:
 
-       
+            selfData[folder][path] = data
 
-       return{'images':self.images, 'videos':self.videos, 'audio':self.audio, 'gltf':self.gltf}
+        else:
 
-           
+            self.addFolder(folder, self.folders)
 
-   def updateData(self, folder, path, selfData, data):
+            self.updateData(folder, path, selfData, data)
 
-       if(folder in selfData):
+    def updateFile(self, folder, path, uiType, active=True):
 
-           selfData[folder][path] = data
+        if folder in self.folders:
 
-       else:
+            data = {"path": path, "type": uiType, "active": active}
 
-           self.addFolder(folder, self.folders)
+            self.updateData(folder, path, self.folders, data)
 
-           self.updateData(folder, path, selfData, data)
+        else:
 
-           
+            self.addFolder(folder, self.folders)
 
-   def updateFile(self, folder, path, uiType, active=True):
+            self.updateFile(folder, path, uiType, active)
 
-       if(folder in self.folders):
+    def updatePageData(self, folder, data):
 
-           data = {'path':path, "type":uiType, "active":active}
+        if folder in self.pageData:
 
-           self.updateData(folder, path, self.folders, data)
+            self.pageData[folder] = data
 
-       else:
+        else:
 
-           self.addFolder(folder, self.folders)
+            self.addFolder(folder, self.pageData)
 
-           self.updateFile(folder, path, uiType, active)         
+            self.updatePageData(folder, data)
 
-           
+    def updateColumnWidths(self, folder, data):
 
-   def updatePageData(self, folder, data):
+        if folder in self.columnWidths:
 
-       if(folder in self.pageData):
+            self.columnWidths[folder] = data
 
-           self.pageData[folder] = data
+        else:
 
-       else:
+            self.addFolder(folder, self.columnWidths)
 
-           self.addFolder(folder, self.pageData)
+            self.updateColumnWidths(folder, data)
 
-           self.updatePageData(folder, data)
+    def moveArticleUp(self, page, article):
 
-           
+        self.folderData[page]["articleList"] = self._reorder_list(
+            self.folderData[page]["articleList"], article, -1
+        )
 
-   def updateColumnWidths(self, folder, data):
+    def moveArticleDown(self, page, article):
 
-       if(folder in self.columnWidths):
+        self.folderData[page]["articleList"] = self._reorder_list(
+            self.folderData[page]["articleList"], article, 1
+        )
 
-           self.columnWidths[folder] = data
+    def updateArticleData(self, folder, path, data):
 
-       else:
+        if folder in self.articleData:
 
-           self.addFolder(folder, self.columnWidths)
+            self.updateData(folder, path, self.articleData, data)
 
-           self.updateColumnWidths(folder, data)
+        else:
 
+            self.addFolder(folder, self.articleData)
 
+            self.updateArticleData(folder, path, data)
 
-   def moveArticleUp(self, page, article):
+    def updateArticleHTML(self, folder, path, filePath):
 
-       self.folderData[page]['articleList'] = self._reorder_list(self.folderData[page]['articleList'], article, -1)
+        if folder in self.articleData:
 
+            t = time.strftime(
+                "%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(filePath))
+            )
 
+            if self.deployHandler.manifest != None:
 
-   def moveArticleDown(self, page, article):
+                self.markdownHandler.deployerManifest = self.deployHandler.manifest
 
-       self.folderData[page]['articleList'] = self._reorder_list(self.folderData[page]['articleList'], article, 1)
+            self.articleData[folder][path]["html"] = self.markdownHandler.generateHTML(
+                filePath
+            )
 
-           
+            self.articleData[folder][path]["time_stamp"] = t
 
-   def updateArticleData(self, folder, path, data):
+    def updateAllArticleHTML(self, folder):
 
-       if(folder in self.articleData):
+        files = os.listdir(folder)
 
-           self.updateData(folder, path, self.articleData, data)
+        for f in files:
 
-       else:
+            fullname = os.path.join(folder, f)
 
-           self.addFolder(folder, self.articleData)
+            f_name = os.path.basename(f)
 
-           self.updateArticleData(folder, path, data)
+            f_path = self.baseFolder(fullname.replace(f_name, ""))
 
-   
+            if os.path.isdir(fullname):
 
-   def updateArticleHTML(self, folder, path, filePath):
+                self.updateAllArticleHTML(fullname)
 
-       if(folder in self.articleData):
+            else:
 
-           t = time.strftime("%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(filePath)))
+                self.updateArticleHTML(f_path, f_name, fullname)
 
-           
+    def updateMediaFiles(self, folder, path, filePath):
 
-           if self.deployHandler.manifest != None:
+        if folder in self.articleData:
 
-               self.markdownHandler.deployerManifest = self.deployHandler.manifest
+            html = self.articleData[folder][path]["html"]
 
-           
+            media = self.gatherMedia()
 
-           self.articleData[folder][path]['html'] = self.markdownHandler.generateHTML(filePath)
+            soup = BeautifulSoup(html, "html.parser")
 
-           self.articleData[folder][path]['time_stamp'] = t
+            html_imgs = soup.find_all("img")
 
-           
+            html_vids = soup.find_all("video")
 
-   def updateAllArticleHTML(self, folder):
+            for image in media["images"]:
 
-       files = os.listdir(folder)
+                i_name = os.path.basename(image)
 
-       
+                # TODO: Complete implementation for media file updates
 
-       for f in files:
+    def updateFormData(self, folder, path, data):
 
-           fullname = os.path.join(folder, f)
+        if folder in self.formData:
 
-           f_name = os.path.basename(f)
+            self.updateData(folder, path, self.formData, data)
 
-           f_path = self.baseFolder(fullname.replace(f_name, ''))
+        else:
 
-           
+            self.addFolder(folder, self.formData)
 
-           if os.path.isdir(fullname):
+            self.updateFormData(folder, path, data)
 
-               self.updateAllArticleHTML(fullname)
+    def updateMetaData(self, folder, path, data):
 
-           else:
+        if folder in self.metaData:
 
-               self.updateArticleHTML(f_path, f_name, fullname)
+            self.updateData(folder, path, self.metaData, data)
 
-          
+        else:
 
-   def updateMediaFiles(self, folder, path, filePath):
+            self.addFolder(folder, self.metaData)
 
-       if(folder in self.articleData):
+            self.updateMetaData(folder, path, data)
 
-           html = self.articleData[folder][path]['html']
+    def updateSetting(self, setting, value):
 
-           media = self.gatherMedia()
+        self.settings[setting] = value
 
-           soup = BeautifulSoup(html, 'html.parser')
+        self.saveData()
 
-           html_imgs = soup.find_all('img')
+    def getData(self, folder, path, selfData):
 
-           html_vids = soup.find_all('video')
+        result = None
 
-           
+        if folder in selfData.keys() and path in selfData[folder].keys():
 
-           for image in media['images']:
+            result = selfData[folder][path]
 
-               i_name = os.path.basename(image)
+        return result
 
-               # TODO: Complete implementation for media file updates
+    def addAuthor(self, name, img):
 
-           
+        if name not in self.authors.keys():
 
-   def updateFormData(self, folder, path, data):
+            self.authors[name] = img
 
-       if(folder in self.formData):
+    def updateAuthor(self, name, img):
 
-           self.updateData(folder, path, self.formData, data)
+        if name in self.authors.keys():
 
-       else:
+            self.authors[name] = img
 
-           self.addFolder(folder, self.formData)
+    def deleteAuthor(self, author):
 
-           self.updateFormData(folder, path, data)
+        for page in self.pageList:
 
-           
+            for k in self.articleData[page]:
 
-   def updateMetaData(self, folder, path, data):
+                if self.articleData[page][k]["author"] == author:
 
-       if(folder in self.metaData):
+                    self.articleData["author"] = "anonymous"
 
-           self.updateData(folder, path, self.metaData, data)
+    def getJsonData(self):
 
-       else:
+        dataFile = open(self.dataFilePath, "rb")
 
-           self.addFolder(folder, self.metaData)
+        data = pickle.load(dataFile)
 
-           self.updateMetaData(folder, path, data)
+        json_obj = jsonpickle.encode(data)
 
-           
+        print(json_obj)
 
-   def updateSetting(self, setting, value):
+    def saveData(self):
 
-       self.settings[setting] = value
+        file = open(self.dataFilePath, "wb")
 
-       self.saveData()
+        data = {
+            "pageList": self.pageList,
+            "folders": self.folders,
+            "folderData": self.folderData,
+            "pageData": self.pageData,
+            "columnWidths": self.columnWidths,
+            "articleData": self.articleData,
+            "articleOrder": self.articleOrder,
+            "formData": self.formData,
+            "metaData": self.metaData,
+            "settings": self.settings,
+            "authors": self.authors,
+            "css_components": self.css_components,
+            "media": self.gatherMedia(),
+            "folderPathList": self.folderPathList,
+            "mdPathList": self.mdPathList,
+            "mdFileList": self.mdFileList,
+        }
 
-       
+        pickle.dump(data, file)
 
-   def getData(self, folder, path, selfData):
+        file.close()
 
-       result = None
+    def onCloseData(self):
 
-       if(folder in selfData.keys() and path in selfData[folder].keys()):
+        shutil.copy(self.dataFilePath, self.dataBakFilePath)
 
-           result = selfData[folder][path]
+    def _ensureFontSettings(self):
+        """Ensure font settings are properly initialized"""
 
-           
+        if "customFonts" not in self.settings:
 
-       return result
+            self.settings["customFonts"] = {
+                "primary": {
+                    "family": "Roboto",
+                    "source": "google",
+                    "weights": [300, 400, 500, 700],
+                    "fallback": "Arial, sans-serif",
+                },
+                "heading": {
+                    "family": "Montserrat",
+                    "source": "google",
+                    "weights": [400, 600, 700],
+                    "fallback": "Helvetica, Arial, sans-serif",
+                },
+            }
 
-   
+        if "fontSettings" not in self.settings:
 
-   def addAuthor(self, name, img):
+            self.settings["fontSettings"] = {
+                "enableCustomFonts": True,
+                "fontDisplay": "swap",
+            }
 
-       if name not in self.authors.keys():
+    # Font management methods
 
-           self.authors[name] = img
+    def getAvailableFonts(self):
+        """Return categorized list of available fonts"""
 
-           
+        return self.popular_google_fonts
 
-   def updateAuthor(self, name, img):
+    def getFontCategories(self):
+        """Return font category names"""
 
-       if name in self.authors.keys():
+        return list(self.popular_google_fonts.keys())
 
-           self.authors[name] = img
+    def getFontsInCategory(self, category):
+        """Return fonts in specific category"""
 
-           
+        return self.popular_google_fonts.get(category, [])
 
-   def deleteAuthor(self, author):
+    def getFontSettings(self):
+        """Get font settings safely"""
 
-       for page in self.pageList:
+        self._ensureFontSettings()
 
-           for k in self.articleData[page]:
+        return self.settings.get("fontSettings", {})
 
-               if self.articleData[page][k]['author'] == author:
+    def getCustomFonts(self):
+        """Get custom fonts safely"""
 
-                   self.articleData['author'] = "anonymous"          
+        self._ensureFontSettings()
 
-                  
+        return self.settings.get("customFonts", {})
 
-   def getJsonData(self):
+    def resetFontSettings(self):
+        """Reset font settings to defaults"""
 
-       dataFile = open(self.dataFilePath, 'rb')
+        self.settings["customFonts"] = {
+            "primary": {
+                "family": "Roboto",
+                "source": "google",
+                "weights": [300, 400, 500, 700],
+                "fallback": "Arial, sans-serif",
+            },
+            "heading": {
+                "family": "Montserrat",
+                "source": "google",
+                "weights": [400, 600, 700],
+                "fallback": "Helvetica, Arial, sans-serif",
+            },
+        }
 
-       data = pickle.load(dataFile)
+        self.settings["fontSettings"] = {
+            "enableCustomFonts": True,
+            "fontDisplay": "swap",
+        }
 
-       json_obj = jsonpickle.encode(data)
+        self.saveData()
 
-       print(json_obj)
+    def validateFontSettings(self):
+        """Validate that font settings are complete and valid"""
 
-           
+        self._ensureFontSettings()
 
-   def saveData(self):
+        # Check if all required keys exist
 
-       file = open(self.dataFilePath, 'wb')
+        required_font_keys = ["family", "source", "weights", "fallback"]
 
-       data = {'pageList':self.pageList, 'folders':self.folders, 'folderData':self.folderData, 'pageData':self.pageData, 'columnWidths':self.columnWidths, 'articleData':self.articleData, 'articleOrder':self.articleOrder, 'formData':self.formData, 'metaData':self.metaData,'settings':self.settings, 'authors':self.authors, 'css_components':self.css_components, 'media':self.gatherMedia(), 'folderPathList': self.folderPathList, 'mdPathList': self.mdPathList, 'mdFileList': self.mdFileList}
+        required_settings_keys = ["enableCustomFonts", "fontDisplay"]
 
-       pickle.dump(data, file)
+        for font_type in ["primary", "heading"]:
 
-       file.close()
+            if font_type not in self.settings["customFonts"]:
 
+                return False
 
+            for key in required_font_keys:
 
-   def onCloseData(self):
+                if key not in self.settings["customFonts"][font_type]:
 
-       shutil.copy(self.dataFilePath, self.dataBakFilePath)
+                    return False
 
-   def _ensureFontSettings(self):
-       """Ensure font settings are properly initialized"""
-       if 'customFonts' not in self.settings:
-           self.settings['customFonts'] = {
-               'primary': {'family': 'Roboto', 'source': 'google', 'weights': [300, 400, 500, 700], 'fallback': 'Arial, sans-serif'},
-               'heading': {'family': 'Montserrat', 'source': 'google', 'weights': [400, 600, 700], 'fallback': 'Helvetica, Arial, sans-serif'}
-           }
-       
-       if 'fontSettings' not in self.settings:
-           self.settings['fontSettings'] = {'enableCustomFonts': True, 'fontDisplay': 'swap'}
+        for key in required_settings_keys:
 
-   # Font management methods
-   def getAvailableFonts(self):
-       """Return categorized list of available fonts"""
-       return self.popular_google_fonts
+            if key not in self.settings["fontSettings"]:
 
-   def getFontCategories(self):
-       """Return font category names"""
-       return list(self.popular_google_fonts.keys())
+                return False
 
-   def getFontsInCategory(self, category):
-       """Return fonts in specific category"""
-       return self.popular_google_fonts.get(category, [])
-   
-   def getFontSettings(self):
-       """Get font settings safely"""
-       self._ensureFontSettings()
-       return self.settings.get('fontSettings', {})
-   
-   def getCustomFonts(self):
-       """Get custom fonts safely"""
-       self._ensureFontSettings()
-       return self.settings.get('customFonts', {})
-   
-   def resetFontSettings(self):
-       """Reset font settings to defaults"""
-       self.settings['customFonts'] = {
-           'primary': {'family': 'Roboto', 'source': 'google', 'weights': [300, 400, 500, 700], 'fallback': 'Arial, sans-serif'},
-           'heading': {'family': 'Montserrat', 'source': 'google', 'weights': [400, 600, 700], 'fallback': 'Helvetica, Arial, sans-serif'}
-       }
-       self.settings['fontSettings'] = {'enableCustomFonts': True, 'fontDisplay': 'swap'}
-       self.saveData()
-   
-   def validateFontSettings(self):
-       """Validate that font settings are complete and valid"""
-       self._ensureFontSettings()
-       
-       # Check if all required keys exist
-       required_font_keys = ['family', 'source', 'weights', 'fallback']
-       required_settings_keys = ['enableCustomFonts', 'fontDisplay']
-       
-       for font_type in ['primary', 'heading']:
-           if font_type not in self.settings['customFonts']:
-               return False
-           for key in required_font_keys:
-               if key not in self.settings['customFonts'][font_type]:
-                   return False
-       
-       for key in required_settings_keys:
-           if key not in self.settings['fontSettings']:
-               return False
-       
-       return True
-   
-   def getFontSetting(self, key, default=None):
-       """Get a specific font setting with default fallback"""
-       self._ensureFontSettings()
-       return self.settings.get('fontSettings', {}).get(key, default)
-   
-   def getCustomFont(self, font_type, key, default=None):
-       """Get a specific custom font setting with default fallback"""
-       self._ensureFontSettings()
-       return self.settings.get('customFonts', {}).get(font_type, {}).get(key, default)
-   
-   def areCustomFontsEnabled(self):
-       """Check if custom fonts are enabled"""
-       return self.getFontSetting('enableCustomFonts', False)
-   
-   def getFontDisplay(self):
-       """Get font display setting"""
-       return self.getFontSetting('fontDisplay', 'swap')
-   
-   def getFontFamily(self, font_type):
-       """Get font family for specific type (primary, heading)"""
-       return self.getCustomFont(font_type, 'family', 'Arial')
-   
-   def getFontWeights(self, font_type):
-       """Get font weights for specific type (primary, heading)"""
-       return self.getCustomFont(font_type, 'weights', [400])
-   
-   def getFontFallback(self, font_type):
-       """Get font fallback for specific type (primary, heading)"""
-       return self.getCustomFont(font_type, 'fallback', 'sans-serif')
-   
-   def isGoogleFont(self, font_type):
-       """Check if a font type is using Google Fonts"""
-       return self.getCustomFont(font_type, 'source', '') == 'google'
-   
-   def getGoogleFontsCSS(self):
-       """Get Google Fonts CSS links for enabled fonts"""
-       if not self.areCustomFontsEnabled():
-           return []
-       
-       css_links = []
-       font_display = self.getFontDisplay()
-       
-       # Primary font
-       if self.isGoogleFont('primary'):
-           primary_family = self.getFontFamily('primary')
-           if primary_family:
-               css_links.append(f"https://fonts.googleapis.com/css2?family={primary_family.replace(' ', '+')}:wght@300;400;500;700&display={font_display}")
-       
-       # Heading font
-       if self.isGoogleFont('heading'):
-           heading_family = self.getFontFamily('heading')
-           if heading_family:
-               css_links.append(f"https://fonts.googleapis.com/css2?family={heading_family.replace(' ', '+')}:wght@400;600;700&display={font_display}")
-       
-       return css_links
-   
-   def getFontCSSVariables(self):
-       """Get CSS variables for font application"""
-       if not self.areCustomFontsEnabled():
-           return {
-               '--font-primary': 'Arial, sans-serif',
-               '--font-heading': 'Helvetica, Arial, sans-serif'
-           }
-       
-       return {
-           '--font-primary': f"'{self.getFontFamily('primary')}', {self.getFontFallback('primary')}",
-           '--font-heading': f"'{self.getFontFamily('heading')}', {self.getFontFallback('heading')}"
-       }
-   
+        return True
 
-   
-   def getSafeFontSettings(self):
-       """Get font settings with safe defaults for template rendering"""
-       self._ensureFontSettings()
-       return {
-           'fontSettings': {
-               'enableCustomFonts': self.settings.get('fontSettings', {}).get('enableCustomFonts', False),
-               'fontDisplay': self.settings.get('fontSettings', {}).get('fontDisplay', 'swap')
-           },
-           'customFonts': {
-               'primary': {
-                   'family': self.settings.get('customFonts', {}).get('primary', {}).get('family', 'Roboto'),
-                   'source': self.settings.get('customFonts', {}).get('primary', {}).get('source', 'google'),
-                   'weights': self.settings.get('customFonts', {}).get('primary', {}).get('weights', [300, 400, 500, 700]),
-                   'fallback': self.settings.get('customFonts', {}).get('primary', {}).get('fallback', 'Arial, sans-serif')
-               },
-                              'heading': {
-                   'family': self.settings.get('customFonts', {}).get('heading', {}).get('family', 'Montserrat'),
-                   'source': self.settings.get('customFonts', {}).get('heading', {}).get('source', 'google'),
-                   'weights': self.settings.get('customFonts', {}).get('heading', {}).get('weights', [400, 600, 700]),
-                   'fallback': self.settings.get('customFonts', {}).get('heading', {}).get('fallback', 'Helvetica, Arial, sans-serif')
-               }
-           }
-       }
-   
-   def getTemplateFontData(self):
-       """Get font data formatted for template rendering with safe defaults"""
-       return self.getSafeFontSettings()
-   
+    def getFontSetting(self, key, default=None):
+        """Get a specific font setting with default fallback"""
 
+        self._ensureFontSettings()
 
-   def validateFont(self, font_name):
-       """Check if font is in our curated list"""
-       for category in self.popular_google_fonts.values():
-           if font_name in category:
-               return True
-       return False
+        return self.settings.get("fontSettings", {}).get(key, default)
 
-   def setFont(self, font_type, font_family, font_weights=None):
-       """Set font for specific type (primary, heading)"""
-       self.setFontFamily(font_type, font_family)
-       if font_weights:
-           self.setFontWeights(font_type, font_weights)
-   
-   def setFontFamily(self, font_type, font_family):
-       """Set font family for specific type (primary, heading)"""
-       self.updateCustomFont(font_type, 'family', font_family)
-   
-   def setFontWeights(self, font_type, font_weights):
-       """Set font weights for specific type (primary, heading)"""
-       self.updateCustomFont(font_type, 'weights', font_weights)
+    def getCustomFont(self, font_type, key, default=None):
+        """Get a specific custom font setting with default fallback"""
 
-   def setFontSettings(self, enable_custom_fonts, font_display='swap'):
-       """Update font settings"""
-       self.updateFontSetting('enableCustomFonts', enable_custom_fonts)
-       self.updateFontSetting('fontDisplay', font_display)
-   
-   def updateFontSetting(self, setting, value):
-       """Update a specific font setting using the same pattern as updateSetting"""
-       if 'fontSettings' in self.settings:
-           self.settings['fontSettings'][setting] = value
-           self.saveData()
-   
-   def updateCustomFont(self, font_type, setting, value):
-       """Update a specific custom font setting using the same pattern as updateSetting"""
-       if 'customFonts' in self.settings and font_type in self.settings['customFonts']:
-           self.settings['customFonts'][font_type][setting] = value
-           self.saveData()
+        self._ensureFontSettings()
+
+        return self.settings.get("customFonts", {}).get(font_type, {}).get(key, default)
+
+    def areCustomFontsEnabled(self):
+        """Check if custom fonts are enabled"""
+
+        return self.getFontSetting("enableCustomFonts", False)
+
+    def getFontDisplay(self):
+        """Get font display setting"""
+
+        return self.getFontSetting("fontDisplay", "swap")
+
+    def getFontFamily(self, font_type):
+        """Get font family for specific type (primary, heading)"""
+
+        return self.getCustomFont(font_type, "family", "Arial")
+
+    def getFontWeights(self, font_type):
+        """Get font weights for specific type (primary, heading)"""
+
+        return self.getCustomFont(font_type, "weights", [400])
+
+    def getFontFallback(self, font_type):
+        """Get font fallback for specific type (primary, heading)"""
+
+        return self.getCustomFont(font_type, "fallback", "sans-serif")
+
+    def isGoogleFont(self, font_type):
+        """Check if a font type is using Google Fonts"""
+
+        return self.getCustomFont(font_type, "source", "") == "google"
+
+    def getGoogleFontsCSS(self):
+        """Get Google Fonts CSS links for enabled fonts"""
+
+        if not self.areCustomFontsEnabled():
+
+            return []
+
+        css_links = []
+
+        font_display = self.getFontDisplay()
+
+        # Primary font
+
+        if self.isGoogleFont("primary"):
+
+            primary_family = self.getFontFamily("primary")
+
+            if primary_family:
+
+                css_links.append(
+                    f"https://fonts.googleapis.com/css2?family={primary_family.replace(' ', '+')}:wght@300;400;500;700&display={font_display}"
+                )
+
+        # Heading font
+
+        if self.isGoogleFont("heading"):
+
+            heading_family = self.getFontFamily("heading")
+
+            if heading_family:
+
+                css_links.append(
+                    f"https://fonts.googleapis.com/css2?family={heading_family.replace(' ', '+')}:wght@400;600;700&display={font_display}"
+                )
+
+        return css_links
+
+    def getFontCSSVariables(self):
+        """Get CSS variables for font application"""
+
+        if not self.areCustomFontsEnabled():
+
+            return {
+                "--font-primary": "Arial, sans-serif",
+                "--font-heading": "Helvetica, Arial, sans-serif",
+            }
+
+        return {
+            "--font-primary": f"'{self.getFontFamily('primary')}', {self.getFontFallback('primary')}",
+            "--font-heading": f"'{self.getFontFamily('heading')}', {self.getFontFallback('heading')}",
+        }
+
+    def getSafeFontSettings(self):
+        """Get font settings with safe defaults for template rendering"""
+
+        self._ensureFontSettings()
+
+        return {
+            "fontSettings": {
+                "enableCustomFonts": self.settings.get("fontSettings", {}).get(
+                    "enableCustomFonts", False
+                ),
+                "fontDisplay": self.settings.get("fontSettings", {}).get(
+                    "fontDisplay", "swap"
+                ),
+            },
+            "customFonts": {
+                "primary": {
+                    "family": self.settings.get("customFonts", {})
+                    .get("primary", {})
+                    .get("family", "Roboto"),
+                    "source": self.settings.get("customFonts", {})
+                    .get("primary", {})
+                    .get("source", "google"),
+                    "weights": self.settings.get("customFonts", {})
+                    .get("primary", {})
+                    .get("weights", [300, 400, 500, 700]),
+                    "fallback": self.settings.get("customFonts", {})
+                    .get("primary", {})
+                    .get("fallback", "Arial, sans-serif"),
+                },
+                "heading": {
+                    "family": self.settings.get("customFonts", {})
+                    .get("heading", {})
+                    .get("family", "Montserrat"),
+                    "source": self.settings.get("customFonts", {})
+                    .get("heading", {})
+                    .get("source", "google"),
+                    "weights": self.settings.get("customFonts", {})
+                    .get("heading", {})
+                    .get("weights", [400, 600, 700]),
+                    "fallback": self.settings.get("customFonts", {})
+                    .get("heading", {})
+                    .get("fallback", "Helvetica, Arial, sans-serif"),
+                },
+            },
+        }
+
+    def getTemplateFontData(self):
+        """Get font data formatted for template rendering with safe defaults"""
+
+        return self.getSafeFontSettings()
+
+    def validateFont(self, font_name):
+        """Check if font is in our curated list"""
+
+        for category in self.popular_google_fonts.values():
+
+            if font_name in category:
+
+                return True
+
+        return False
+
+    def setFont(self, font_type, font_family, font_weights=None):
+        """Set font for specific type (primary, heading)"""
+
+        self.setFontFamily(font_type, font_family)
+
+        if font_weights:
+
+            self.setFontWeights(font_type, font_weights)
+
+    def setFontFamily(self, font_type, font_family):
+        """Set font family for specific type (primary, heading)"""
+
+        self.updateCustomFont(font_type, "family", font_family)
+
+    def setFontWeights(self, font_type, font_weights):
+        """Set font weights for specific type (primary, heading)"""
+
+        self.updateCustomFont(font_type, "weights", font_weights)
+
+    def setFontSettings(self, enable_custom_fonts, font_display="swap"):
+        """Update font settings"""
+
+        self.updateFontSetting("enableCustomFonts", enable_custom_fonts)
+
+        self.updateFontSetting("fontDisplay", font_display)
+
+    def updateFontSetting(self, setting, value):
+        """Update a specific font setting using the same pattern as updateSetting"""
+
+        if "fontSettings" in self.settings:
+
+            self.settings["fontSettings"][setting] = value
+
+            self.saveData()
+
+    def updateCustomFont(self, font_type, setting, value):
+        """Update a specific custom font setting using the same pattern as updateSetting"""
+
+        if "customFonts" in self.settings and font_type in self.settings["customFonts"]:
+
+            self.settings["customFonts"][font_type][setting] = value
+
+            self.saveData()
