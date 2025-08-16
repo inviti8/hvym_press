@@ -13,7 +13,7 @@ class TreeData(sg.TreeData):
         super().__init__()
 
     def move(self, key1, key2):
-        if key1 == '':
+        if key1 == "":
             return False
         node = self.tree_dict[key1]
         parent1_node = self.tree_dict[node.parent]
@@ -23,10 +23,12 @@ class TreeData(sg.TreeData):
         return True
 
     def delete(self, key):
-        if key == '':
+        if key == "":
             return False
         node = self.tree_dict[key]
-        key_list = [key, ]
+        key_list = [
+            key,
+        ]
         parent_node = self.tree_dict[node.parent]
         parent_node.children.remove(node)
         while key_list != []:
@@ -36,16 +38,30 @@ class TreeData(sg.TreeData):
                 del self.tree_dict[item]
             key_list = temp
         return True
-    
+
     def delete_tree(self):
         for k in self.tree_dict.keys():
             node = self.tree_dict[k]
             parent_node = self.tree_dict[node.parent]
             if node in parent_node.children:
                 parent_node.children.remove(node)
-                
-    
-def Tree(treedata, headings, auto_size_cols, num_rows, col0_width, key, font, row_height, show_expanded, expand_x, expand_y, enable_events, menu):
+
+
+def Tree(
+    treedata,
+    headings,
+    auto_size_cols,
+    num_rows,
+    col0_width,
+    key,
+    font,
+    row_height,
+    show_expanded,
+    expand_x,
+    expand_y,
+    enable_events,
+    menu,
+):
 
     return sg.Tree(
         data=treedata,
@@ -62,4 +78,5 @@ def Tree(treedata, headings, auto_size_cols, num_rows, col0_width, key, font, ro
         enable_events=enable_events,
         row_height=row_height,
         pad=(0, 0),
-        right_click_menu=menu)
+        right_click_menu=menu,
+    )
