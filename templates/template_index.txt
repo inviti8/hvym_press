@@ -353,7 +353,7 @@
     }
     ons-list{
       opacity: 90%;
-      border-radius: 15px !important;
+      border-radius: 6px !important;
     }
     ons-row{
         padding: {{data.settings.row_pad}}%;
@@ -361,6 +361,8 @@
     ons-col, ons-card{
         min-width: 350px;
         margin: 0 auto;
+    }
+    ons-card{
         border-radius: 15px !important;
     }
     video {

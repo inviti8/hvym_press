@@ -290,7 +290,7 @@ def newFileData(f_path, f, full_path, data, file_type='.md'):
 
     data.updateFile(f_path, f, 'Default', True)
 
-    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.5, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"",  'metadata':json.dumps(DATA.opensea_metadata), 'file_type': file_type})
+    data.updateArticleData(f_path, f, {'name':f_name, 'column':"1", 'type':"Block", 'style':"default", 'border':"default", 'bg_img_opacity':0.0, 'author':"anonymous", 'use_thumb':False, 'html':"", 'time_stamp':t, 'bg_img':empty_px, 'color':"#FFFFFF", 'rgb':(255, 255, 255), 'use_color':False, 'images':[], 'videos':[], 'nft_start_supply':1024, 'contract':"", 'metadata_link':"",  'metadata':json.dumps(DATA.opensea_metadata), 'file_type': file_type})
 
     data.updateArticleHTML(f_path, f, full_path)
 
@@ -478,12 +478,11 @@ def updateFolderData(first_run, data):
 
 def refreshSiteData(data):
 
+    data.refreshCss()
+
     site_data = data.generateSiteData()
 
     data.refreshDebugMedia()
-
-    data.refreshCss()
-
 
 
     return site_data
@@ -536,11 +535,11 @@ def process_markdown_file(file_path, file_name, parent_folder, data):
 
     file_extension = pathlib.Path(file_name).suffix
 
-    
-
     if file_extension == '.md':
-
-        newMdFile(file_name, file_name, file_path, data)
+        if parent_folder in data.articleData and file_name in data.articleData[parent_folder]:
+            data.updateArticleHTML(parent_folder, file_name, file_path)
+        else:
+            newMdFile(file_name, file_name, file_path, data)
 
         return True
 
@@ -1206,7 +1205,7 @@ def do_open_set_article_data(f_path, f_name, window):
 
     d = popup_set_article_data(f_path, f_name, data, colData, window)
 
-    
+    print(d)
 
     if(d != None):
 
@@ -2150,7 +2149,7 @@ ui_settings_layout = [[sg.Frame('UI Settings', [
 
                [name('Theme'), sg.Combo(DATA.themes, default_value=DATA.settings['theme'], s=(15,22), enable_events=True, readonly=True, k='SETTING-theme', font=font)],
 
-               [name('Custom CSS'), sg.Input(default_text=DATA.settings['customTheme'], s=20, right_click_menu=['&Right', css_input_dropdown], enable_events=True, k='SETTING-customTheme', font=font), sg.FolderBrowse(font=font)]
+               [name('Custom CSS'), sg.Input(default_text=DATA.settings['customTheme'], s=20, right_click_menu=['&Right', css_input_dropdown], enable_events=True, k='SETTING-customTheme', font=font), sg.FileBrowse(font=font)]
 
                ], relief='sunken', expand_y=True, expand_x=True, font=font)]]
 

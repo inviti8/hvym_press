@@ -3146,33 +3146,28 @@ class SiteDataHandler:
 
    def refreshCss(self):
 
-       if os.path.isdir(self.settings['customTheme']):
-
-           dist_css = os.path.join(self.distPath,'css', 'onsen-css-components.min.css')
-
-           dist_theme_css = os.path.join(self.distPath,'css', 'theme.css')
-
-               
-
-           f_name = 'onsen-css-components.min.css'
-
-           css_components = os.path.join(self.settings['customTheme'], f_name).replace('\\', '/')
-
+       if os.path.isfile(self.settings['customTheme']):
            
+           file = os.path.basename(self.settings['customTheme'])
 
-           url = self.deployHandler.pintheonCss(css_components)
+           if 'theme.css' in file:
+               with open(self.settings['customTheme'], 'r') as f:
+                   txt = ''
+                   line = f.readline()
+    
+                   while line:
+                    txt += line
+                    line = f.readline()
 
-           
+                   arr = txt.split('{')[1].split('}')
+                   css = arr[0]
+                   self.settings['css_components']  = css
 
-           if url != None:
-
-               self.settings['css_components'] = url
-
-               self.saveData()
-
+                   self.saveData()
            else:
-
-               print('Some issue uploading css.  Custom them not loaded.')
+                print('Invalid Css file')
+       else:
+           print('Invalid Css file')
 
                
 

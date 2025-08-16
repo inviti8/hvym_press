@@ -5,1089 +5,642 @@
 <meta charset="utf-8"/>
 <link href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmcJLBGNFb2UKFy3jspNfHk8wFCjhSsBDaQ2tWrASQBSYE" rel="shortcut icon" type="image/x-icon"/>
 <title>dist</title>
-<link href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/css/onsenui.min.css" rel="stylesheet"/>
-<link href="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmYjopsBQRefVoWCt3HfmWVZkFkZDQRqkLUw55PEG5aFqj/onsen-css-components.min.css" rel="stylesheet"/>
+<link href="https://unpkg.com/onsenui/css/onsenui.css" rel="stylesheet"/>
+<link href="https://unpkg.com/onsenui/css/onsen-css-components.min.css" rel="stylesheet"/>
+<script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>
 <!-- Google Fonts Loading -->
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
 <script src="https://sapphire-giant-butterfly-891.mypinata.cloud/ipfs/QmVVGPXEjSfhXfTkwu3p1grfmfXxRfqVFZHuWjJMsajqMJ/js/onsenui.min.js"></script>
 <script crossorigin="anonymous" integrity="sha512-TmhOO3rUu5WfsLdsw9H1pB/p5/A/KnhydCuLNGlZoukfUUopMmA2sq6DWR9E+acuLB1DBk2A8cq63f7JMwHgVQ==" referrerpolicy="no-referrer" src="https://cdnjs.cloudflare.com/ajax/libs/approvejs/3.1.2/approve.min.js"></script>
 <script type="module">
-
     window.fn = {};
 
-
-
     window.fn.open = function () {
-
       var menu = document.getElementById('menu');
-
       menu.open();
-
     };
-
     
-
     window.fn.load = function (page) {
-
       var menu = document.getElementById('menu');
-
       var myNavigator = document.getElementById('myNavigator');
-
+      var tabbar = document.querySelector('ons-tabbar');
+      var carousel = document.getElementById('carousel');
     
-
-      menu.close();
-
-      myNavigator.resetToPage(page, { animation: 'fade' });
-
+      // Handle different navigation types
+      if (myNavigator) {
+        // Standard navigator (splitter mode)
+        if (menu) {
+          menu.close();
+        }
+        myNavigator.resetToPage(page, { animation: 'fade' });
+      } else if (tabbar) {
+        // Tabs mode - extract page name and switch tabs
+        var pageName = page.replace('.html', '');
+        var targetTab = document.querySelector('ons-tab[page="' + pageName + '.html"]');
+        if (targetTab) {
+          tabbar.setActiveTab(targetTab);
+        } else {
+          console.warn('fn.load: Target tab not found for page:', page);
+        }
+      } else if (carousel) {
+        // Carousel mode - extract page name and switch carousel
+        var pageName = page.replace('.html', '');
+        // Find carousel item index for the page
+        var carouselItems = carousel.querySelectorAll('ons-carousel-item');
+        for (var i = 0; i < carouselItems.length; i++) {
+          var item = carouselItems[i];
+          if (item.querySelector('[data-page-name="' + pageName + '"]')) {
+            carousel.setActiveIndex(i);
+            break;
+          }
+        }
+      } else {
+        console.warn('fn.load: No navigation component found, cannot load page:', page);
+      }
     };
-
-
 
     window.fn.showDialog = function(id) {
-
       var dialog = document.getElementById(id);
 
-
-
       if (dialog) {
-
           dialog.show();
-
       } else {
-
         ons.createElement(id+'.html', { append: true })
-
           .then(function(dialog) {
-
               dialog.show();
-
             });
-
         }
-
     };
-
-
 
     window.fn.hideDialog = function(id) {
-
       document
-
         .getElementById(id)
-
         .hide();
-
     };
 
-
-
     window.fn.formStateHandler = function (form, state) {
-
         var buttons = form.querySelectorAll("button");
-
         for (var i = 0; i < buttons.length; i++) {
-
           buttons[i].disabled = state;
-
         }
-
     }
-
-
 
     window.fn.validateEmail = function (form) {
-
         var result = false;
 
-
-
         var rules = {
-
             required: true,
-
             email: true
-
         };
 
-
-
         var inputs = document.getElementsByTagName("input");
-
         var email = null;
 
-
-
         for (var i = 0; i < inputs.length; i++) {
-
             var input = inputs[i];
-
-
 
             if(input.name == "email"){
-
                 email = input;
-
                 break;
-
             }
-
         }
-
-
 
         if(email != null){
-
             result = approve.value(email.value, rules);
-
         }
-
-
 
         return result['approved'];
-
     }
 
-
-
     window.fn.validateFields = function (form) {
-
         var result = false;
-
         var results = []
 
-
-
         var rules = {
-
             required: true
-
         };
 
-
-
         var inputs = document.getElementsByTagName("input");
-
         var email = null;
 
-
-
         for (var i = 0; i < inputs.length; i++) {
-
             var input = inputs[i];
-
             results.push(approve.value(input.value, rules)['approved']);
-
         }
 
-
-
         for (var i = 0; i < results.length; i++) {
-
             var approved = results[i];
 
-
-
             if(approved == false){
-
                 break;
-
             }
-
-
 
             result = approved;
 
-
-
         }
-
-
-
 
 
         return result;
-
     }
 
-
-
     ons.ready(function() {
-
       var forms = document.getElementsByTagName("form");
 
-
-
       for (var i = 0; i < forms.length; i++) {
-
          var form = forms.item(i);
 
-
-
         form.onsubmit = function (e) {
-
             e.preventDefault();
-
             var fields_filled = fn.validateFields(form);
-
             var email_valid = fn.validateEmail(form);
 
-
-
             if(fields_filled){
-
                 if(email_valid){
-
                     fn.showDialog('loading');
-
                     fn.formStateHandler(form, true);
 
-
-
                     fetch(form.action, {
-
                         method: "post", 
-
                         body: new FormData(form)
-
                     }).then(response => {
-
                         var form_id = form.id
-
                         var dlg_id = form_id.replace("form_", "dlg_")
-
                         fn.hideDialog('loading');
-
                         fn.showDialog(dlg_id);
-
                         fn.formStateHandler(form, false);
-
                     });
 
-
-
                 }else{
-
                     alert('Email is invalid!');
-
                 }
-
-
 
             }else{
-
                 alert('Some fields are empty!');
-
             }
-
         }
-
       }
 
-
-
       
-
       window.fn.prev = function() {
-
         var carousel = document.getElementById('carousel');
-
         carousel.prev();
-
         fn.updateCarouselTitle();
-
       };
-
-
 
       window.fn.next = function() {
-
         var carousel = document.getElementById('carousel');
-
         carousel.next();
-
         fn.updateCarouselTitle();
-
       };
-
-
 
       window.fn.goToHome = function() {
-
         var carousel = document.getElementById('carousel');
-
         if (carousel) {
-
           carousel.setActiveIndex(0);
-
           fn.updateCarouselTitle();
-
         }
-
       };
-
-
 
       window.fn.goToPage = function(index) {
-
         var carousel = document.getElementById('carousel');
-
         if (carousel) {
-
           carousel.setActiveIndex(index);
-
           fn.updateCarouselTitle();
-
         }
-
       };
-
-
 
       window.fn.goToPageByName = function(pageName) {
-
         var carousel = document.getElementById('carousel');
-
         if (carousel) {
-
           // Find the page index by name
-
           var pageIndex = -1;
-
           
-
           if (pageName === 'home') {
-
             pageIndex = 0;
-
           } else {
-
           
-
           
-
             if (pageName === 'IPFS Gateway 2023') {
-
               pageIndex = 1;
-
             }
-
           
-
             if (pageName === 'HEAVYMETA Blog') {
-
               pageIndex = 2;
-
             }
-
           
-
           
-
           }
-
           
-
           
-
           if (pageIndex >= 0) {
-
             carousel.setActiveIndex(pageIndex);
-
             fn.updateCarouselTitle();
-
           }
-
         }
-
       };
-
-
 
       window.fn.updateCarouselTitle = function() {
-
         var carousel = document.getElementById('carousel');
-
         var titleElement = document.getElementById('carousel-title');
-
         if (carousel && titleElement) {
-
           var currentIndex = carousel.getActiveIndex();
-
           var titles = [
-
             
-
             'Welcome to HVYM Press Test Site',
-
             
-
             
-
             'IPFS Gateway 2023',
-
             
-
             'HEAVYMETA Blog'
-
             
-
           ];
-
           
-
           if (titles[currentIndex]) {
-
             titleElement.textContent = titles[currentIndex];
-
           }
-
         }
-
       };
 
-
-
              // Add event listener for carousel changes
-
        var carousel = document.getElementById('carousel');
-
        if (carousel) {
-
          carousel.addEventListener('postchange', function() {
-
            fn.updateCarouselTitle();
-
          });
-
-         
-
-         // Setup button handling to prevent carousel swiping conflicts
-
-         fn.setupCarouselButtonHandling();
-
        }
-
               
-
  
-
        
-
  
-
                
-
-        window.fn.showExpandedArticle = function(cardName) {
-
-          // For carousel mode, we'll show the expanded article in a modal/dialog
-
-          // This provides a better user experience than trying to navigate away from the carousel
-
-          var card = document.querySelector('[data-card-name="' + cardName + '"]');
-
-          if (card) {
-
-            // Find the card content and show it in a modal
-
-            var cardContent = card.querySelector('.article');
-
-            if (cardContent) {
-
-              // Create and show a modal with the expanded content
-
-              var modal = document.createElement('ons-modal');
-
-              modal.innerHTML = `
-
-                <div style="padding: 20px; max-height: 80vh; overflow-y: auto;">
-
-                  <h2>${cardName}</h2>
-
-                  <div>${cardContent.innerHTML}</div>
-
-                  <br><br>
-
-                  <ons-button onclick="this.closest('ons-modal').hide()">Close</ons-button>
-
-                </div>
-
-              `;
-
-              document.body.appendChild(modal);
-
-              modal.show();
-
-            }
-
-          }
-
-        };
-
-
-
-        // Add event listeners to prevent carousel swiping when interacting with buttons
-
-        window.fn.setupCarouselButtonHandling = function() {
-
-          var carousel = document.getElementById('carousel');
-
-          if (carousel) {
-
-            // Find all fab buttons and other interactive elements
-
-            var interactiveElements = carousel.querySelectorAll('ons-fab, ons-button, button, input, textarea, select');
-
-            
-
-            interactiveElements.forEach(function(element) {
-
-              // For fab buttons, completely replace the onclick handling
-
-              if (element.tagName === 'ONS-FAB') {
-
-                // Remove the original onclick attribute
-
-                var originalOnclick = element.getAttribute('onclick');
-
-                element.removeAttribute('onclick');
-
-                
-
-                // Add a more robust click handler
-
-                element.addEventListener('click', function(e) {
-
-                  e.stopPropagation();
-
-                  e.preventDefault();
-
-                  
-
-                  // Extract the function name from the original onclick
-
-                  if (originalOnclick && originalOnclick.includes('fn.showExpandedArticle')) {
-
-                    var match = originalOnclick.match(/fn\.showExpandedArticle\('([^']+)'\)/);
-
-                    if (match) {
-
-                      fn.showExpandedArticle(match[1]);
-
-                    }
-
-                  }
-
-                }, { passive: false });
-
-                
-
-                // Also handle touch events specifically
-
-                element.addEventListener('touchstart', function(e) {
-
-                  e.stopPropagation();
-
-                  e.preventDefault();
-
-                }, { passive: false });
-
-                
-
-                element.addEventListener('touchend', function(e) {
-
-                  e.stopPropagation();
-
-                  e.preventDefault();
-
-                }, { passive: false });
-
-              } else {
-
-                // For other interactive elements, prevent event propagation
-
-                element.addEventListener('touchstart', function(e) {
-
-                  e.stopPropagation();
-
-                }, { passive: false });
-
-                
-
-                element.addEventListener('mousedown', function(e) {
-
-                  e.stopPropagation();
-
-                });
-
-              }
-
-            });
-
-            
-
-            // Temporarily disable carousel swiping when touching interactive elements
-
-            interactiveElements.forEach(function(element) {
-
-              element.addEventListener('touchstart', function() {
-
-                if (carousel.swipeable) {
-
-                  carousel.swipeable = false;
-
-                  // Re-enable after a short delay
-
-                  setTimeout(function() {
-
-                    carousel.swipeable = true;
-
-                  }, 300);
-
-                }
-
-              });
-
-            });
-
-            
-
-            // Additional: Disable carousel swiping when fab buttons are touched
-
-            var fabButtons = carousel.querySelectorAll('ons-fab');
-
-            fabButtons.forEach(function(fab) {
-
-              fab.addEventListener('touchstart', function() {
-
-                carousel.swipeable = false;
-
-                setTimeout(function() {
-
-                  carousel.swipeable = true;
-
-                }, 500);
-
-              });
-
-            });
-
-          }
-
-        };
-
-        
-
  
-
      });
-
-
 
   </script>
 <style>
-
     /* Font CSS Variables */
-
     :root {
-
+      
+        --font-primary: 'Roboto', Arial, sans-serif;
+        --font-heading: 'Bebas Neue', Helvetica, Arial, sans-serif;
       
 
-        --font-primary: 'Source Sans Pro', Arial, sans-serif;
-
-        --font-heading: 'Oswald', Helvetica, Arial, sans-serif;
-
       
+  /* variables for iOS components */
+  --background-color: rgba(40,70,69,1);
+  --text-color: rgba(155,252,248,1);
+  --sub-text-color: #01FFF4;
+  --highlight-color: hsl(177.41,100.00%,50.20%);
+  --second-highlight-color: rgba(4,200,191,1);
+  --border-color: rgba(157,255,251,1);
+  --button-background-color: rgba(2,207,198,1);
+  --button-cta-background-color: var(--second-highlight-color);
+  --button-light-color: rgba(255,255,255,1);
+  --toolbar-background-color: #181818;
+  --toolbar-button-color: var(--highlight-color);
+  --toolbar-text-color: #fff;
+  --toolbar-border-color: #242424;
+  --button-bar-color: var(--highlight-color);
+  --button-bar-active-text-color: rgba(230,230,230,1);
+  --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
+  --segment-color: var(--highlight-color);
+  --segment-active-text-color: rgba(82,82,82,1);
+  --segment-active-background-color: color-mod(var(--segment-color) b(80%));
+  --list-background-color: #181818;
+  --list-header-background-color: #111;
+  --list-tap-active-background-color: #262626;
+  --list-item-chevron-color: #383833;
+  --progress-bar-color: hsl(165.65,100.00%,74.13%);
+  --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
+  --progress-bar-background-color: transparent;
+  --progress-circle-primary-color: var(--progress-bar-color);
+  --progress-circle-secondary-color: color-mod(var(--progress-bar-secondary-color) b(55%));
+  --progress-circle-background-color: transparent;
+  --tabbar-background-color: #212121;
+  --tabbar-text-color: #aaa;
+  --tabbar-highlight-text-color: var(--highlight-color);
+  --tabbar-border-color: #0d0d0d;
+  --switch-highlight-color: rgba(161,248,244,1);
+  --switch-border-color: #666;
+  --switch-background-color: var(--background-color);
+  --range-track-background-color: #6b6f74;
+  --range-track-background-color-active: #bbb;
+  --range-thumb-background-color: #fff;
+  --modal-background-color: color-mod(black a(70%));
+  --modal-text-color: #fff;
+  --alert-dialog-background-color: rgba(131,113,90,0.47);
+  --alert-dialog-text-color: rgba(252,252,252,1);
+  --alert-dialog-button-color: var(--highlight-color);
+  --alert-dialog-separator-color: #ddd;
+  --dialog-background-color: rgba(143,231,227,0.94);
+  --dialog-text-color: #1f1f21;
+  --popover-background-color: #242424;
+  --popover-text-color: var(--text-color);
+  --action-sheet-title-color: #8f8e94;
+  --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+  --action-sheet-button-color: var(--highlight-color);
+  --action-sheet-button-destructive-color: #fe3824;
+  --action-sheet-button-background-color: rgba(93,100,99,0.61);
+  --action-sheet-button-active-background-color: rgba(201,201,201,1);
+  --action-sheet-cancel-button-background-color: rgba(86,69,69,0.78);
+  --notification-background-color: #01FFF4;
+  --notification-color: rgba(75,75,75,1);
+  --search-input-background-color: color-mod(white a(9%));
+  --fab-text-color: rgba(68,68,68,1);
+  --fab-background-color: var(--highlight-color);
+  --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
+  --card-background-color: rgba(103,162,159,0.61);
+  --card-text-color: var(--text-color);
+  --toast-background-color: #ccc;
+  --toast-text-color: #000;
+  --toast-button-text-color: #000;
+  --select-input-color: var(--text-color);
+  --select-input-border-color: var(--border-color);
+
+  /* variables for Material Design components */
+  --material-background-color: rgba(54,45,45,1);
+  --material-text-color: rgba(255,255,255,1);
+  --material-notification-background-color: rgba(2,131,125,1);
+  --material-notification-color: white;
+  --material-switch-active-thumb-color: #01FFF4;
+  --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
+  --material-switch-inactive-thumb-color: #bdbdbd;
+  --material-switch-inactive-background-color: color-mod(white a(30%));
+  --material-range-track-color: #525252;
+  --material-range-thumb-color: #cecec5;
+  --material-range-disabled-thumb-color: #4f4f4f;
+  --material-range-disabled-thumb-border-color: #303030;
+  --material-range-zero-thumb-color: #0d0d0d;
+  --material-toolbar-background-color: #212121;
+  --material-toolbar-text-color: #ffffff;
+  --material-toolbar-button-color: var(--toolbar-button-color);
+  --material-segment-background-color: #292929;
+  --material-segment-active-background-color: #404040;
+  --material-segment-text-color: color-mod(#fff a(62%));
+  --material-segment-active-text-color: #cacaca;
+  --material-button-background-color: rgba(3,152,145,1);
+  --material-button-text-color: rgba(249,249,249,1);
+  --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
+  --material-button-disabled-color: color-mod(white a(74%));
+  --material-flat-button-active-background-color: color-mod(#666666 a(20%));
+  --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
+  --material-list-item-separator-color: color-mod(white a(12%));
+  --material-list-header-text-color: #8a8a8a;
+  --material-checkbox-active-color: #fff;
+  --material-checkbox-inactive-color: #717171;
+  --material-checkbox-checkmark-color: #000;
+  --material-radio-button-active-color: #01FFF4;
+  --material-radio-button-inactive-color: #8e8e8e;
+  --material-radio-button-disabled-color: #505050;
+  --material-text-input-text-color: color-mod(#fff a(75%));
+  --material-text-input-active-color: color-mod(#fff a(75%));
+  --material-text-input-inactive-color: color-mod(#fff a(30%));
+  --material-search-background-color: #424242;
+  --material-dialog-background-color: #424242;
+  --material-dialog-text-color: var(--material-text-color);
+  --material-alert-dialog-background-color: #424242;
+  --material-alert-dialog-title-color: white;
+  --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
+  --material-alert-dialog-button-color: rgba(3,170,163,1);
+  --material-progress-bar-primary-color: rgba(3,170,163,1);
+  --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
+  --material-progress-bar-background-color: transparent;
+  --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
+  --material-progress-circle-secondary-color: var(--material-progress-bar-secondary-color);
+  --material-progress-circle-background-color: transparent;
+  --material-tabbar-background-color: var(--material-toolbar-background-color);
+  --material-tabbar-text-color: color-mod(var(--material-toolbar-text-color) a(50%));
+  --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
+  --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
+  --material-fab-text-color: #31313a;
+  --material-fab-background-color: rgba(165,255,251,1);
+  --material-fab-active-background-color: color-mod(white a(75%));
+  --material-card-background-color: #424242;
+  --material-card-text-color: color-mod(white a(46%));
+  --material-toast-background-color: #ccc;
+  --material-toast-text-color: #000;
+  --material-toast-button-text-color: #583905;
+  --material-select-input-color: var(--material-text-color);
+  --material-select-input-active-color: color-mod(white a(85%));
+  --material-select-input-inactive-color: color-mod(white a(19%));
+  --material-select-border-color: color-mod(white a(88%));
+  --material-popover-background-color: var(--material-alert-dialog-background-color);
+  --material-popover-text-color: var(--material-text-color);
+  --material-action-sheet-text-color: #686868;
+
+  /* others */
+  --tap-highlight-color: transparent;
 
     }
-
-
 
     /* Apply fonts throughout the template */
-
     body { 
-
         font-family: var(--font-primary); 
-
     }
-
     
-
     h1, h2, h3, h4, h5, h6 { 
-
         font-family: var(--font-heading); 
-
     }
-
     
-
     .hero-title { 
-
         font-family: var(--font-heading); 
-
     }
-
     
-
     .hero-subtitle { 
-
         font-family: var(--font-heading); 
-
     }
-
     
-
     .title { 
-
         font-family: var(--font-heading); 
-
     }
-
     
-
     textarea {
-
         border: none;
-
         overflow: auto;
-
         outline: none;
-
     
-
         -webkit-box-shadow: none;
-
         -moz-box-shadow: none;
-
         box-shadow: none;
-
     }
-
     ons-list{
-
       opacity: 90%;
-
+      border-radius: 15px !important;
     }
-
     ons-row{
-
         padding: 5%;
-
     }
-
     ons-col, ons-card{
-
         min-width: 350px;
-
         margin: 0 auto;
-
+        border-radius: 15px !important;
     }
-
     video {
-
       /* override other styles to make responsive */
-
       width: 100%    !important;
-
       height: auto   !important;
-
     }
-
+    button {
+          border-radius: 6px !important;
+      }
     .menu_icon{
-
       padding-right: 10px;
-
     }
-
     .author{
-
       padding-left: 10px;
-
     }
-
     .form_container{
-
       margin: 0 auto;
-
     }
-
     .form_list{
-
         width: 100%;
-
         margin: 0 auto;
-
         max-width: 350px;
-
         min-width: 250px;
-
     }
-
     .form_list_item{
-
         width: 100%;
-
         min-width:200px;
-
         margin: 0;
-
     }
-
     .form_input{
-
         width: 100%;
-
         min-width:250px;
-
         margin: 0 auto;
-
     }
-
     .article { 
-
         height: 200px; 
-
         width:100%; 
-
         overflow: scroll;
-
         outline: none;
-
     
-
         -webkit-box-shadow: none;
-
         -moz-box-shadow: none;
-
         box-shadow: none; 
-
       }
-
       .expanded_article {
-
         width: 80%;
-
         padding-left: 10%;
-
         text-align: left;
-
       }
-
       .deployed_img_p{
-
         padding-left: 10%;
-
         padding-right: 10%;
-
         width: 80%;
-
       }
-
       .deployed_img{
-
         width: 100%;
-
       }
-
       .content_default{
-
         height: 200px;
-
       }
-
       .content_medium{
-
         height: 250px;
-
       }
-
       .content_tall{
-
         height: 300px;
-
       }
-
       .vid_container{
-
         margin: 0 auto;
-
         max-width: 80%;
-
         min-width: 250px;
-
       }
-
       
-
       /* Home Page Styles */
-
       .hero-section {
-
           min-height: 60vh;
-
           background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), var(--hero-bg);
-
           background-size: cover;
-
           background-position: center;
-
           display: flex;
-
           align-items: center;
-
           justify-content: center;
-
           text-align: center;
-
           color: white;
-
           margin-bottom: 2rem;
-
       }
-
-
 
       .hero-content {
-
           padding: 2rem;
-
       }
-
-
 
       .hero-title {
-
           font-size: 3rem;
-
           margin-bottom: 1rem;
-
-          text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-
+          text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
       }
-
-
 
       .hero-subtitle {
-
           font-size: 1.2rem;
-
           margin-bottom: 2rem;
-
-          text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
-
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
       }
 
-
+      .hero-cta {
+          margin: 0.5rem;
+          border-radius: 6px !important;
+      }
 
       .home-navigation {
-
           text-align: center;
-
           padding: 2rem;
-
           display: flex;
-
           flex-wrap: wrap;
-
           justify-content: center;
-
           gap: 1rem;
-
       }
-
-
 
       .home-nav-button {
-
           margin: 0.5rem;
-
+          border-radius: 6px !important;
       }
 
-
-
-             .home-content {
-
+      .home-content {
            padding: 2rem;
-
            max-width: 800px;
-
            margin: 0 auto;
-
        }
-
-
 
        /* Carousel-specific styles for proper scrolling */
-
        .carousel-content-container {
-
            height: calc(100vh - 120px); /* Account for toolbar height */
-
            overflow-y: auto;
-
            overflow-x: hidden;
-
            padding: 20px;
-
            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-
        }
-
-
 
        .carousel-item-content {
-
            min-height: 100%;
-
            position: relative;
-
        }
-
-
 
        /* Ensure fab buttons are always visible and clickable */
-
        .carousel-fab {
-
            position: relative !important;
-
            z-index: 1000 !important;
-
            touch-action: manipulation !important;
-
            pointer-events: auto !important;
-
            -webkit-touch-callout: none !important;
-
            -webkit-user-select: none !important;
-
            -khtml-user-select: none !important;
-
            -moz-user-select: none !important;
-
            -ms-user-select: none !important;
-
            user-select: none !important;
-
        }
-
        
-
        /* Disable carousel touch events on interactive elements */
-
        .carousel-fab * {
-
            pointer-events: auto !important;
-
            touch-action: manipulation !important;
-
        }
-
      </style>
 </head>
 <body>
+<ons-navigator id="myNavigator" page="carousel-home.html">
 <ons-page>
 <ons-toolbar modifier="material">
 <div class="left">
@@ -1100,14 +653,10 @@
 </div>
 <div class="center">
 <span id="carousel-title">
-
-        
-
-          Welcome to HVYM Press Test Site
-
-        
-
-      </span>
+          
+            Welcome to HVYM Press Test Site
+          
+        </span>
 </div>
 <div class="right">
 <ons-toolbar-button onclick="fn.next()">
@@ -1126,9 +675,7 @@
 <h1 class="hero-title">Build Amazing Static Sites</h1>
 <p class="hero-subtitle">With HVYM Press and Markdown - Now with Home Pages!</p>
 <ons-button class="hero-cta" modifier="large" onclick="fn.goToPage(1)">
-
                     Explore Now
-
                   </ons-button>
 </div>
 </div>
@@ -1139,40 +686,24 @@
 <p>This is a comprehensive test of the new home page functionality. You can use all standard markdown features while enjoying enhanced navigation capabilities.</p>
 <h2>🚀 Quick Navigation</h2>
 <p>Use these buttons to navigate to different sections:</p>
-<p><ons-button class="home-nav-button" modifier="primary" onclick="fn.load('HEAVYMETA Blog.html')">
-
-
+<p><ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
 
            Get Started
 
-
-
        </ons-button>
-<ons-button class="home-nav-button" modifier="primary" onclick="fn.load('IPFS Gateway 2023.html')">
-
-
+<ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
 
            View Tutorials
 
-
-
        </ons-button>
-<ons-button class="home-nav-button" modifier="primary" onclick="fn.load('HEAVYMETA Blog.html')">
-
-
+<ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
 
            About
 
-
-
        </ons-button>
-<ons-button class="home-nav-button" modifier="primary" onclick="fn.load('IPFS Gateway 2023.html')">
-
-
+<ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
 
            Contact
-
-
 
        </ons-button></p>
 <h2>✨ Features</h2>
@@ -1233,40 +764,24 @@
 <h2>🔗 Navigation Examples</h2>
 <p>Here are some examples of how navigation links work:</p>
 <ul>
-<li><strong>Primary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.load('HEAVYMETA Blog.html')">
-
-
+<li><strong>Primary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
 
            Get Started
 
-
-
        </ons-button> - Uses primary styling</li>
-<li><strong>Secondary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.load('IPFS Gateway 2023.html')">
-
-
+<li><strong>Secondary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
 
            Learn More
 
-
-
        </ons-button> - Uses secondary styling  </li>
-<li><strong>Outline button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.load('HEAVYMETA Blog.html')">
-
-
+<li><strong>Outline button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
 
            Documentation
 
-
-
        </ons-button> - Uses outline styling</li>
-<li><strong>Quiet button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.load('IPFS Gateway 2023.html')">
-
-
+<li><strong>Quiet button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
 
            Support
-
-
 
        </ons-button> - Uses quiet styling</li>
 </ul>
@@ -1313,9 +828,7 @@
 <ons-col width="90%">
 <ons-card data-card-name="Private Set up.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
 <div class="title">
-
                           Private Set up.md
-
                         </div>
 <div class="content">
 <ons-list modifier="default">
@@ -1454,7 +967,7 @@ server {
 <ons-list>
 </ons-list>
 </div>
-<ons-fab class="carousel-fab" modifier="material" onclick="fn.showExpandedArticle('Private Set up.md')" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" style="touch-action: manipulation; z-index: 1000;">
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Private Set up.md.html')">
 <ons-icon icon="fa-chevron-left"></ons-icon>
 </ons-fab>
 </div>
@@ -1471,12 +984,10 @@ server {
 <div class="carousel-content-container">
 <div class="carousel-item-content" style="text-align: center">
 <ons-row>
-<ons-col width="90%">
+<ons-col width="50.0%">
 <ons-card data-card-name="README.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
 <div class="title">
-
                           README.md
-
                         </div>
 <div class="content">
 <ons-list modifier="default">
@@ -1532,7 +1043,7 @@ python install.py
 <ons-list>
 </ons-list>
 </div>
-<ons-fab class="carousel-fab" modifier="material" onclick="fn.showExpandedArticle('README.md')" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" style="touch-action: manipulation; z-index: 1000;">
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_README.md.html')">
 <ons-icon icon="fa-chevron-left"></ons-icon>
 </ons-fab>
 </div>
@@ -1542,9 +1053,7 @@ python install.py
 </ons-card>
 <ons-card data-card-name="Public Set up.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
 <div class="title">
-
                           Public Set up.md
-
                         </div>
 <div class="content">
 <ons-list modifier="default">
@@ -1668,7 +1177,7 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 <ons-list>
 </ons-list>
 </div>
-<ons-fab class="carousel-fab" modifier="material" onclick="fn.showExpandedArticle('Public Set up.md')" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" style="touch-action: manipulation; z-index: 1000;">
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Public Set up.md.html')">
 <ons-icon icon="fa-chevron-left"></ons-icon>
 </ons-fab>
 </div>
@@ -1678,9 +1187,7 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 </ons-card>
 <ons-card data-card-name="Minter Dependencies.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
 <div class="title">
-
                           Minter Dependencies.md
-
                         </div>
 <div class="content">
 <ons-list modifier="default">
@@ -1699,7 +1206,7 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 <ons-list>
 </ons-list>
 </div>
-<ons-fab class="carousel-fab" modifier="material" onclick="fn.showExpandedArticle('Minter Dependencies.md')" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" style="touch-action: manipulation; z-index: 1000;">
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Minter Dependencies.md.html')">
 <ons-icon icon="fa-chevron-left"></ons-icon>
 </ons-fab>
 </div>
@@ -1709,9 +1216,7 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 </ons-card>
 <ons-card data-card-name="Let_s Begin.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
 <div class="title">
-
                           Let_s Begin.md
-
                         </div>
 <div class="content">
 <ons-list modifier="default">
@@ -1726,7 +1231,7 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 <ons-list>
 </ons-list>
 </div>
-<ons-fab class="carousel-fab" modifier="material" onclick="fn.showExpandedArticle('Let_s Begin.md')" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" style="touch-action: manipulation; z-index: 1000;">
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Let_s Begin.md.html')">
 <ons-icon icon="fa-chevron-left"></ons-icon>
 </ons-fab>
 </div>
@@ -1735,77 +1240,80 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 </div>
 </ons-card>
 </ons-col>
+<ons-col width="50.0%">
+</ons-col>
 </ons-row>
 </div>
 </div>
 </ons-carousel-item>
 </ons-carousel>
 </ons-page>
-<!-- Home Page Template (available for all page types) -->
-<template id="home.html">
+</ons-navigator>
+<!-- Carousel Home Page Template -->
+<template id="carousel-home.html">
 <ons-page>
 <ons-toolbar modifier="material">
+<div class="left">
+<ons-toolbar-button onclick="fn.prev()">
+<ons-icon icon="md-chevron-left"></ons-icon>
+</ons-toolbar-button>
+<ons-toolbar-button onclick="fn.goToHome()">
+<ons-icon icon="md-home"></ons-icon>
+</ons-toolbar-button>
+</div>
 <div class="center">
-
-        Welcome to HVYM Press Test Site
-
-      </div>
+<span id="carousel-title">
+          
+            Welcome to HVYM Press Test Site
+          
+        </span>
+</div>
+<div class="right">
+<ons-toolbar-button onclick="fn.next()">
+<ons-icon icon="md-chevron-right"></ons-icon>
+</ons-toolbar-button>
+</div>
 </ons-toolbar>
-<!-- Hero Section (if configured) -->
+<ons-carousel auto-scroll="" fullscreen="" id="carousel" overscrollable="" swipeable="">
+<ons-carousel-item>
+<div class="carousel-content-container">
+<div class="carousel-item-content" style="text-align: center">
+<ons-row>
+<ons-col width="100%">
 <div class="hero-section">
 <div class="hero-content">
 <h1 class="hero-title">Build Amazing Static Sites</h1>
 <p class="hero-subtitle">With HVYM Press and Markdown - Now with Home Pages!</p>
 <ons-button class="hero-cta" modifier="large" onclick="fn.goToPage(1)">
-
-                        Explore Now
-
-                      </ons-button>
+                      Explore Now
+                    </ons-button>
 </div>
 </div>
-<!-- Navigation Buttons (from frontmatter) -->
 <div class="home-navigation">
 </div>
-<!-- Main Content (processed markdown) -->
 <div class="home-content">
 <h1>Welcome to HVYM Press Test Site</h1>
 <p>This is a comprehensive test of the new home page functionality. You can use all standard markdown features while enjoying enhanced navigation capabilities.</p>
 <h2>🚀 Quick Navigation</h2>
 <p>Use these buttons to navigate to different sections:</p>
-<p><ons-button class="home-nav-button" modifier="primary" onclick="fn.load('HEAVYMETA Blog.html')">
-
-
+<p><ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
 
            Get Started
 
-
-
        </ons-button>
-<ons-button class="home-nav-button" modifier="primary" onclick="fn.load('IPFS Gateway 2023.html')">
-
-
+<ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
 
            View Tutorials
 
-
-
        </ons-button>
-<ons-button class="home-nav-button" modifier="primary" onclick="fn.load('HEAVYMETA Blog.html')">
-
-
+<ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
 
            About
 
-
-
        </ons-button>
-<ons-button class="home-nav-button" modifier="primary" onclick="fn.load('IPFS Gateway 2023.html')">
-
-
+<ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
 
            Contact
-
-
 
        </ons-button></p>
 <h2>✨ Features</h2>
@@ -1866,40 +1374,24 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 <h2>🔗 Navigation Examples</h2>
 <p>Here are some examples of how navigation links work:</p>
 <ul>
-<li><strong>Primary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.load('HEAVYMETA Blog.html')">
-
-
+<li><strong>Primary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
 
            Get Started
 
-
-
        </ons-button> - Uses primary styling</li>
-<li><strong>Secondary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.load('IPFS Gateway 2023.html')">
-
-
+<li><strong>Secondary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
 
            Learn More
 
-
-
        </ons-button> - Uses secondary styling  </li>
-<li><strong>Outline button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.load('HEAVYMETA Blog.html')">
-
-
+<li><strong>Outline button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
 
            Documentation
 
-
-
        </ons-button> - Uses outline styling</li>
-<li><strong>Quiet button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.load('IPFS Gateway 2023.html')">
-
-
+<li><strong>Quiet button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
 
            Support
-
-
 
        </ons-button> - Uses quiet styling</li>
 </ul>
@@ -1934,16 +1426,442 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 <p><strong>Tip</strong>: Try clicking the navigation buttons above to test the functionality. Each button should take you to the corresponding section of your site.</p>
 </blockquote>
 </div>
+</ons-col>
+</ons-row>
+</div>
+</div>
+</ons-carousel-item>
+<ons-carousel-item>
+<div class="carousel-content-container">
+<div class="carousel-item-content" style="text-align: center">
+<ons-row>
+<ons-col width="90%">
+<ons-card data-card-name="Private Set up.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
+<div class="title">
+                          Private Set up.md
+                        </div>
+<div class="content">
+<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
+<div class="expandable-content">
+<div class="article">
+<br/>
+<p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04
+<code>sudo apt update</code></p>
+<p>```
+sudo apt upgrade    </p>
+<p>sudo ufw allow 22   </p>
+<p>sudo ufw enable -y 
+```</p>
+<p>Create a new user, $USER is replaced with a real username:</p>
+<p><code>sudo adduser&nbsp;$USER</code></p>
+<p>Enable su-mode:</p>
+<p><code>su -</code></p>
+<p>Install sudo:</p>
+<p><code>apt-get install sudo -y</code></p>
+<p>Elevate the user:</p>
+<p><code>usermod -aG sudo $USER</code></p>
+<p>Open sudo config:</p>
+<p><code>visudo</code></p>
+<p>Modify permissions, adding line
+```</p>
+<h1></h1>
+<h1>This file MUST be edited with the 'visudo' command as root.</h1>
+<h1></h1>
+<h1>Please consider adding local content in /etc/sudoers.d/ instead of</h1>
+<h1>directly modifying this file.</h1>
+<h1></h1>
+<h1>See the man page for details on how to write a sudoers file.</h1>
+<h1></h1>
+<p>Defaults        env_reset
+Defaults        mail_badpass
+Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"</p>
+<h1>Host alias specification</h1>
+<h1>User alias specification</h1>
+<h1>Cmnd alias specification</h1>
+<h1>User privilege specification</h1>
+<p>root    ALL=(ALL:ALL) ALL
+$USER   ALL=(ALL:ALL) ALL</p>
+<h1>Members of the admin group may gain root privileges</h1>
+<p>%admin ALL=(ALL) ALL</p>
+<h1>Allow members of group sudo to execute any command</h1>
+<p>%sudo   ALL=(ALL:ALL) ALL</p>
+<h1>See sudoers(5) for more information on "#include" directives:</h1>
+<h1>includedir /etc/sudoers.d</h1>
+<p>```</p>
+<p>Switch over to your new user account:
+<code>su - $USER</code>
+Download the latest ipfs:
+<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
+extract:
+<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
+Install:
+<code>cd kubo
+sudo bash install.sh 
+ipfs --version</code></p>
+<p>Open swarm port:
+<code>sudo ufw allow 4001
+sudo ufw --force enable</code>
+Initialize ipfs, make note of your peer address that is returned on init:
+<code>ipfs init --profile server</code>
+Create the swarm key file</p>
+<p><code>cd ~/.ipfs
+sudo nano swarm.key</code></p>
+<p>Example key file, replace the key string with a uniquly generated one
+<code>/key/swarm/psk/1.0.0/
+/base16/
+25f64b1cf31f649817d495e446d4cbcc99000b8cc032a89b681e5f86f995fb30</code></p>
+<p>Create a new service:
+<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
+<p>Copy this code in replacing $USER with your username:
+```
+[Unit]
+Description=IPFS Daemon
+After=network.target</p>
+<p>[Service]
+User=$USER
+Environment=IPFS_PATH=/home/$USER/.ipfs
+ExecStart=/usr/local/bin/ipfs daemon --enable-namesys-pubsub
+StandardOutput=journal
+Restart=on-failure
+KillSignal=SIGINT</p>
+<p>[Install]
+WantedBy=multi-user.target
+```</p>
+<p>Start ipfs:
+<code>sudo systemctl daemon-reload 
+sudo systemctl start ipfs</code></p>
+<p>Enabled after rebooting:
+<code>sudo systemctl enable ipfs</code></p>
+<p>Remove all standard peers:
+<code>ipfs bootstrap rm --all</code></p>
+<p>Set ipfs config for gateway and api:</p>
+<p><code>ipfs config Addresses.Gateway /ip4/0.0.0.0/8080
+ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001</code></p>
+<p>Force p2p:
+<code>export LIBP2P_FORCE_PNET=1</code></p>
+<p>Now Install the nginx server:
+<code>sudo apt install nginx</code>
+Open port:
+<code>sudo ufw allow 80</code>
+<code>sudo systemctl reload nginx</code>
+Backup nginx original nginx config:
+<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
+Create a new config file:
+<code>sudo nano /etc/nginx/sites-available/default</code>
+Paste the following code, replacing 'your_domain_name.com' with yours:
+```
+server {
+    listen 80;
+    listen [::]:80;
+    server_name your_domain_name.com;</p>
+<pre><code>location /ipfs {
+    proxy_pass http://localhost:8080;
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+    allow all;
+}
+</code></pre>
+<p>}
+```</p>
+<p>Test the config, and reload the service:
+<code>sudo nginx -t</code>
+<code>sudo systemctl reload nginx</code></p>
+<p>Enable https with certbot:
+<code>sudo apt install certbot python3-certbot-nginx</code></p>
+<p>Let in HTTPS traffic:
+<code>sudo ufw allow 'Nginx Full'</code>
+<code>sudo ufw delete allow 'Nginx HTTP'</code></p>
+<p>Get the ssl certificate, replace 'example.com' with your domain:
+<code>sudo certbot --nginx -d example.com</code></p>
+<ons-list>
+</ons-list>
+</div>
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Private Set up.md.html')">
+<ons-icon icon="fa-chevron-left"></ons-icon>
+</ons-fab>
+</div>
+</ons-list-item>
+
+</div>
+</ons-card>
+</ons-col>
+</ons-row>
+</div>
+</div>
+</ons-carousel-item>
+<ons-carousel-item>
+<div class="carousel-content-container">
+<div class="carousel-item-content" style="text-align: center">
+<ons-row>
+<ons-col width="50.0%">
+<ons-card data-card-name="README.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
+<div class="title">
+                          README.md
+                        </div>
+<div class="content">
+<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
+<div class="expandable-content">
+<div class="article">
+<br/>
+<h1>HVYM Press</h1>
+<p>A modern, cross-platform static site generator with IPFS deployment capabilities using Pintheon.</p>
+<h2>🚀 Cross-Platform Support</h2>
+<p>This application now supports <strong>Windows</strong>, <strong>macOS</strong>, and <strong>Linux</strong> with automated installation scripts for each platform.</p>
+<h2>📋 Quick Installation</h2>
+<h3>Windows</h3>
+<p>```batch</p>
+<h1>Download and run as Administrator</h1>
+<p>install.bat
+```</p>
+<h3>macOS/Linux</h3>
+<p>```bash</p>
+<h1>Download and run</h1>
+<p>curl -L https://raw.githubusercontent.com/inviti8/hvym_press/refs/heads/main/install.sh | bash</p>
+<h1>Or use the Python installer</h1>
+<p>python3 install.py
+```</p>
+<h3>Manual Installation</h3>
+<p>```bash</p>
+<h1>Clone repository</h1>
+<p>git clone https://github.com/inviti8/hvym_press.git
+cd hvym_press</p>
+<h1>Install dependencies</h1>
+<p>pip install -r requirements.txt</p>
+<h1>Build and install</h1>
+<p>python build.py
+python install.py
+```</p>
+<h2>🔧 Features</h2>
+<ul>
+<li><strong>Cross-platform compatibility</strong> - Works on Windows, macOS, and Linux</li>
+<li><strong>IPFS deployment</strong> - Deploy sites to IPFS using Pintheon</li>
+<li><strong>Modern GUI</strong> - Built with FreeSimpleGUI</li>
+<li><strong>Template system</strong> - Customizable site templates</li>
+<li><strong>Local development</strong> - Built-in local server for testing</li>
+</ul>
+<h2>📖 Documentation</h2>
+<p>For detailed installation and usage instructions, see <a href="README_CROSS_PLATFORM.md">README_CROSS_PLATFORM.md</a>.</p>
+<h2>🆘 Support</h2>
+<ul>
+<li><strong>Issues</strong>: <a href="https://github.com/inviti8/hvym_press/issues">GitHub Issues</a></li>
+<li><strong>Documentation</strong>: <a href="README_CROSS_PLATFORM.md">Cross-Platform Guide</a></li>
+</ul>
+<hr/>
+<p><strong>Note</strong>: This application has been refactored to use Pintheon instead of Pinata for IPFS deployment, and all platform-specific issues have been resolved for full cross-platform compatibility.</p>
+<ons-list>
+</ons-list>
+</div>
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_README.md.html')">
+<ons-icon icon="fa-chevron-left"></ons-icon>
+</ons-fab>
+</div>
+</ons-list-item>
+
+</div>
+</ons-card>
+<ons-card data-card-name="Public Set up.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
+<div class="title">
+                          Public Set up.md
+                        </div>
+<div class="content">
+<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
+<div class="expandable-content">
+<div class="article">
+<br/>
+<p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04</p>
+<p><code>sudo apt update</code></p>
+<pre><code>sudo apt upgrade
+
+sudo ufw allow 22
+
+sudo ufw enable
+</code></pre>
+<p>Create a new user, $USER is replaced with a real username:</p>
+<p><code>sudo adduser&nbsp;$USER &amp;&amp; usermod -aG sudo&nbsp;$USER</code></p>
+<p>Switch over to your new user account:</p>
+<p><code>su - $USER</code>
+Download the latest ipfs:
+<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
+extract:
+<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
+Install:
+<code>cd kubo
+sudo bash install.sh
+ipfs --version</code></p>
+<p>Open swarm port:
+<code>sudo ufw allow 4001</code></p>
+<p>Initialize ipfs, make note of your peer address that is returned on init:
+<code>ipfs init --profile server</code></p>
+<p>Create a new service:
+<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
+<p>Copy this code in replacing $USER with your username:
+`[Unit]
+Description=IPFS Daemon
+After=network.target</p>
+<p>[Service]
+User=$USER
+Environment=IPFS_PATH=/home/$USER/.ipfs
+ExecStart=/usr/local/bin/ipfs daemon --init --migrate
+StandardOutput=journal
+Restart=on-failure
+KillSignal=SIGINT</p>
+<p>[Install]
+WantedBy=multi-user.target`</p>
+<p>Configure ipfs gateway, replace 'example.com' with your domain:
+NoFetch = True, means it will only retrieve files on your local node.</p>
+<p><code>ipfs config --json Gateway '{
+        "HTTPHeaders": {
+            "Access-Control-Allow-Origin": [
+                "*"
+            ]
+        },
+        "RootRedirect": "",
+        "Writable": false,
+        "PathPrefixes": [
+            "/blog",
+            "/refs"
+        ],
+        "APICommands": [],
+        "NoFetch": true,
+        "NoDNSLink": false,
+        "PublicGateways": {
+            "www.example.com": {
+                "NoDNSLink": false,
+                "Paths": [
+                    "/ipfs",
+                    "/ipns",
+                    "/api"
+                ],
+                "UseSubdomains": true
+            },
+            "example.com": {
+                "NoDNSLink": false,
+                "Paths": [
+                    "/ipfs",
+                    "/ipns",
+                    "/api"
+                ],
+                "UseSubdomains": false
+            }
+        }
+    }'</code></p>
+<p>Start ipfs:
+<code>sudo systemctl daemon-reload
+sudo systemctl start ipfs</code></p>
+<p>Enabled after rebooting:
+<code>sudo systemctl enable ipfs</code></p>
+<p>Now Install the nginx server:
+<code>sudo apt install nginx</code>
+Open port:
+<code>sudo ufw allow 80</code>
+Backup nginx original nginx config:
+<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
+Create a new config file:
+<code>sudo nano /etc/nginx/sites-available/default</code>
+Paste the following code, replacing 'your_domain_name.com' with yours:
+`server {
+    listen 80;
+    listen [::]:80;
+    server_name your_domain_name.com;</p>
+<pre><code>location /ipfs {
+    proxy_pass http://localhost:8080;
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+    allow all;
+}
+</code></pre>
+<p>}`</p>
+<p>Test the config, and reload the service:
+<code>sudo nginx -t
+sudo systemctl reload nginx</code></p>
+<p>Enable https with certbot:
+<code>sudo apt install certbot python3-certbot-nginx</code></p>
+<p>Let in HTTPS traffic:
+<code>sudo ufw allow 'Nginx Full'
+sudo ufw delete allow 'Nginx HTTP'</code></p>
+<p>Get the ssl certificate, replace 'example.com' with your domain:
+<code>sudo certbot --nginx -d example.com -d www.example.com</code></p>
+<ons-list>
+</ons-list>
+</div>
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Public Set up.md.html')">
+<ons-icon icon="fa-chevron-left"></ons-icon>
+</ons-fab>
+</div>
+</ons-list-item>
+
+</div>
+</ons-card>
+<ons-card data-card-name="Minter Dependencies.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
+<div class="title">
+                          Minter Dependencies.md
+                        </div>
+<div class="content">
+<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
+<div class="expandable-content">
+<div class="article">
+<br/>
+<p>Python:
+- <a href="https://pypi.org/project/py-solc-x/">Solidity Compiler, py-solc-x</a>
+- <a href="https://www.youtube.com/watch?v=7FcX9uWDuIQ&amp;list=PLAxJ4-o7ZoPeUqGpMhvJoVk5G-TrvMAd-&amp;index=12">Package Deployment</a></p>
+<p>Node:
+- npm install @openzeppelin/contracts</p>
+<p>Blender:
+- <a href="https://github.com/omigroup/omi-blender-gltf">omi-blender-gltf</a>
+- <a href="glTF-Blender-IO-materials-variants">gltf-Blender-IO-materials-variants</a></p>
+<ons-list>
+</ons-list>
+</div>
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Minter Dependencies.md.html')">
+<ons-icon icon="fa-chevron-left"></ons-icon>
+</ons-fab>
+</div>
+</ons-list-item>
+
+</div>
+</ons-card>
+<ons-card data-card-name="Let_s Begin.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
+<div class="title">
+                          Let_s Begin.md
+                        </div>
+<div class="content">
+<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
+<div class="expandable-content">
+<div class="article">
+<br/>
+<p>I have been working in the Games Industry for well over 10 years.  First starting as a 3D Artist then moving into Technical Art.  I can see that Web3 holds great potential for Artists.  Leveraging this tech, we can create content and host it on the decentralized web.  We can maintain, sell, and transfer real ownership of our art via NFTs.  This means we can take control of what we produce with no middlemen.</p>
+<p>Being that I am well versed in content creation for games, it only makes sense that I focus on this arena first.  I am currently working on a Blender Add-On that will allow us to export 3D assets to ipfs, and encapsulate all associated links in an NFT Minting page.  This page will allow others to purchase customized version of our game ready art assets as NFTs.  Though, instead of just being an image, HEAVYMETA NFTs have real utility.  Game developers can use these assets in games, allowing players to use the same assets across multiple games where viable.</p>
+<p>It's still the wild west in Web3, and to me that seems like the best time possible to stake a claim.  If you're reading this, you probably have similar thoughts.  If you're up for it, I'd love for you to come along with me on this ride.
+<img alt="DALL&middot;E 2022-10-03 14.20.02 - A digital illustration of X, 4k, detailed, trending in artstation, of a robotic samurai-cowboy standing in the middle of town with the sunrise behind .png" src="../_resources/DALL&middot;E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png"/></p>
+<ons-list>
+</ons-list>
+</div>
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Let_s Begin.md.html')">
+<ons-icon icon="fa-chevron-left"></ons-icon>
+</ons-fab>
+</div>
+</ons-list-item>
+
+</div>
+</ons-card>
+</ons-col>
+<ons-col width="50.0%">
+</ons-col>
+</ons-row>
+</div>
+</div>
+</ons-carousel-item>
+</ons-carousel>
 </ons-page>
 </template>
+<!-- Tabs Home Page Template -->
+<!-- Home Page Template (for splitter mode only) -->
 <!-- Regular Page Templates -->
 <template id="IPFS Gateway 2023.html">
 <ons-page>
 <ons-toolbar modifier="material">
 <div class="center">
-
         IPFS Gateway 2023
-
       </div>
 </ons-toolbar>
 <div style="text-align: center">
@@ -1951,9 +1869,7 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 <ons-col width="90%">
 <ons-card data-card-name="Private Set up.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
 <div class="title">
-
                       Private Set up.md
-
                     </div>
 <div class="content">
 <ons-list modifier="default">
@@ -2092,7 +2008,7 @@ server {
 <ons-list>
 </ons-list>
 </div>
-<ons-fab class="carousel-fab" modifier="material" onclick="fn.showExpandedArticle('Private Set up.md')" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" style="touch-action: manipulation; z-index: 1000;">
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Private Set up.md.html')">
 <ons-icon icon="fa-chevron-left"></ons-icon>
 </ons-fab>
 </div>
@@ -2109,19 +2025,15 @@ server {
 <ons-page>
 <ons-toolbar modifier="material">
 <div class="center">
-
         HEAVYMETA Blog
-
       </div>
 </ons-toolbar>
 <div style="text-align: center">
 <ons-row>
-<ons-col width="90%">
+<ons-col width="50.0%">
 <ons-card data-card-name="README.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
 <div class="title">
-
                       README.md
-
                     </div>
 <div class="content">
 <ons-list modifier="default">
@@ -2177,7 +2089,7 @@ python install.py
 <ons-list>
 </ons-list>
 </div>
-<ons-fab class="carousel-fab" modifier="material" onclick="fn.showExpandedArticle('README.md')" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" style="touch-action: manipulation; z-index: 1000;">
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_README.md.html')">
 <ons-icon icon="fa-chevron-left"></ons-icon>
 </ons-fab>
 </div>
@@ -2187,9 +2099,7 @@ python install.py
 </ons-card>
 <ons-card data-card-name="Public Set up.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
 <div class="title">
-
                       Public Set up.md
-
                     </div>
 <div class="content">
 <ons-list modifier="default">
@@ -2313,7 +2223,7 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 <ons-list>
 </ons-list>
 </div>
-<ons-fab class="carousel-fab" modifier="material" onclick="fn.showExpandedArticle('Public Set up.md')" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" style="touch-action: manipulation; z-index: 1000;">
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Public Set up.md.html')">
 <ons-icon icon="fa-chevron-left"></ons-icon>
 </ons-fab>
 </div>
@@ -2323,9 +2233,7 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 </ons-card>
 <ons-card data-card-name="Minter Dependencies.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
 <div class="title">
-
                       Minter Dependencies.md
-
                     </div>
 <div class="content">
 <ons-list modifier="default">
@@ -2344,7 +2252,7 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 <ons-list>
 </ons-list>
 </div>
-<ons-fab class="carousel-fab" modifier="material" onclick="fn.showExpandedArticle('Minter Dependencies.md')" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" style="touch-action: manipulation; z-index: 1000;">
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Minter Dependencies.md.html')">
 <ons-icon icon="fa-chevron-left"></ons-icon>
 </ons-fab>
 </div>
@@ -2354,9 +2262,7 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 </ons-card>
 <ons-card data-card-name="Let_s Begin.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
 <div class="title">
-
                       Let_s Begin.md
-
                     </div>
 <div class="content">
 <ons-list modifier="default">
@@ -2371,7 +2277,7 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 <ons-list>
 </ons-list>
 </div>
-<ons-fab class="carousel-fab" modifier="material" onclick="fn.showExpandedArticle('Let_s Begin.md')" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" style="touch-action: manipulation; z-index: 1000;">
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Let_s Begin.md.html')">
 <ons-icon icon="fa-chevron-left"></ons-icon>
 </ons-fab>
 </div>
@@ -2379,6 +2285,8 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 </ons-list>
 </div>
 </ons-card>
+</ons-col>
+<ons-col width="50.0%">
 </ons-col>
 </ons-row>
 </div>
