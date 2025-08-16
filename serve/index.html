@@ -184,94 +184,6 @@
       }
 
       
-      window.fn.prev = function() {
-        var carousel = document.getElementById('carousel');
-        carousel.prev();
-        fn.updateCarouselTitle();
-      };
-
-      window.fn.next = function() {
-        var carousel = document.getElementById('carousel');
-        carousel.next();
-        fn.updateCarouselTitle();
-      };
-
-      window.fn.goToHome = function() {
-        var carousel = document.getElementById('carousel');
-        if (carousel) {
-          carousel.setActiveIndex(0);
-          fn.updateCarouselTitle();
-        }
-      };
-
-      window.fn.goToPage = function(index) {
-        var carousel = document.getElementById('carousel');
-        if (carousel) {
-          carousel.setActiveIndex(index);
-          fn.updateCarouselTitle();
-        }
-      };
-
-      window.fn.goToPageByName = function(pageName) {
-        var carousel = document.getElementById('carousel');
-        if (carousel) {
-          // Find the page index by name
-          var pageIndex = -1;
-          
-          if (pageName === 'home') {
-            pageIndex = 0;
-          } else {
-          
-          
-            if (pageName === 'IPFS Gateway 2023') {
-              pageIndex = 1;
-            }
-          
-            if (pageName === 'HEAVYMETA Blog') {
-              pageIndex = 2;
-            }
-          
-          
-          }
-          
-          
-          if (pageIndex >= 0) {
-            carousel.setActiveIndex(pageIndex);
-            fn.updateCarouselTitle();
-          }
-        }
-      };
-
-      window.fn.updateCarouselTitle = function() {
-        var carousel = document.getElementById('carousel');
-        var titleElement = document.getElementById('carousel-title');
-        if (carousel && titleElement) {
-          var currentIndex = carousel.getActiveIndex();
-          var titles = [
-            
-            'Welcome to HVYM Press Test Site',
-            
-            
-            'IPFS Gateway 2023',
-            
-            'HEAVYMETA Blog'
-            
-          ];
-          
-          if (titles[currentIndex]) {
-            titleElement.textContent = titles[currentIndex];
-          }
-        }
-      };
-
-             // Add event listener for carousel changes
-       var carousel = document.getElementById('carousel');
-       if (carousel) {
-         carousel.addEventListener('postchange', function() {
-           fn.updateCarouselTitle();
-         });
-       }
-              
  
        
  
@@ -290,30 +202,30 @@
 
       
   /* variables for iOS components */
-  --background-color: rgba(40,70,69,1);
-  --text-color: rgba(155,252,248,1);
-  --sub-text-color: #01FFF4;
-  --highlight-color: hsl(177.41,100.00%,50.20%);
-  --second-highlight-color: rgba(4,200,191,1);
-  --border-color: rgba(157,255,251,1);
-  --button-background-color: rgba(2,207,198,1);
-  --button-cta-background-color: var(--second-highlight-color);
-  --button-light-color: rgba(255,255,255,1);
+  --background-color: #0d0d0d;
+  --text-color: #B8BCE8;
+  --sub-text-color: #999;
+  --highlight-color: rgba(136,115,208,1);
+  --second-highlight-color: #da5926;
+  --border-color: #242424;
+  --button-background-color: rgba(255,1,1,0.85);
+  --button-cta-background-color: hsl(0,70.86%,50.19%);
+  --button-light-color: white;
   --toolbar-background-color: #181818;
   --toolbar-button-color: var(--highlight-color);
   --toolbar-text-color: #fff;
   --toolbar-border-color: #242424;
-  --button-bar-color: var(--highlight-color);
-  --button-bar-active-text-color: rgba(230,230,230,1);
+  --button-bar-color: hsl(0,100.00%,50.20%);
+  --button-bar-active-text-color: #B8BCE8;
   --button-bar-active-background-color: color-mod(var(--button-bar-color) b(80%));
   --segment-color: var(--highlight-color);
-  --segment-active-text-color: rgba(82,82,82,1);
+  --segment-active-text-color: #fff;
   --segment-active-background-color: color-mod(var(--segment-color) b(80%));
   --list-background-color: #181818;
   --list-header-background-color: #111;
   --list-tap-active-background-color: #262626;
-  --list-item-chevron-color: #383833;
-  --progress-bar-color: hsl(165.65,100.00%,74.13%);
+  --list-item-chevron-color: hsl(0,100.00%,76.48%);
+  --progress-bar-color: var(--highlight-color);
   --progress-bar-secondary-color: color-mod(var(--progress-bar-color) b(55%));
   --progress-bar-background-color: transparent;
   --progress-circle-primary-color: var(--progress-bar-color);
@@ -323,7 +235,7 @@
   --tabbar-text-color: #aaa;
   --tabbar-highlight-text-color: var(--highlight-color);
   --tabbar-border-color: #0d0d0d;
-  --switch-highlight-color: rgba(161,248,244,1);
+  --switch-highlight-color: #44db5e;
   --switch-border-color: #666;
   --switch-background-color: var(--background-color);
   --range-track-background-color: #6b6f74;
@@ -331,28 +243,28 @@
   --range-thumb-background-color: #fff;
   --modal-background-color: color-mod(black a(70%));
   --modal-text-color: #fff;
-  --alert-dialog-background-color: rgba(131,113,90,0.47);
-  --alert-dialog-text-color: rgba(252,252,252,1);
-  --alert-dialog-button-color: var(--highlight-color);
-  --alert-dialog-separator-color: #ddd;
-  --dialog-background-color: rgba(143,231,227,0.94);
+  --alert-dialog-background-color: rgba(102,102,142,1);
+  --alert-dialog-text-color: rgba(168,160,238,1);
+  --alert-dialog-button-color: rgba(198,97,97,1);
+  --alert-dialog-separator-color: rgba(251,0,0,0.48);
+  --dialog-background-color: #0d0d0d;
   --dialog-text-color: #1f1f21;
   --popover-background-color: #242424;
   --popover-text-color: var(--text-color);
   --action-sheet-title-color: #8f8e94;
-  --action-sheet-button-separator-color: rgba(0, 0, 0, 0.1);
+  --action-sheet-button-separator-color: rgba(255,0,0,0.29);
   --action-sheet-button-color: var(--highlight-color);
   --action-sheet-button-destructive-color: #fe3824;
-  --action-sheet-button-background-color: rgba(93,100,99,0.61);
-  --action-sheet-button-active-background-color: rgba(201,201,201,1);
-  --action-sheet-cancel-button-background-color: rgba(86,69,69,0.78);
-  --notification-background-color: #01FFF4;
-  --notification-color: rgba(75,75,75,1);
+  --action-sheet-button-background-color: rgba(73,71,95,0.9);
+  --action-sheet-button-active-background-color: rgba(59,61,99,1);
+  --action-sheet-cancel-button-background-color: rgba(76,72,108,1);
+  --notification-background-color: rgba(255,24,0,1);
+  --notification-color: rgba(15,15,15,1);
   --search-input-background-color: color-mod(white a(9%));
-  --fab-text-color: rgba(68,68,68,1);
+  --fab-text-color: #ffffff;
   --fab-background-color: var(--highlight-color);
   --fab-active-background-color: color-mod(var(--fab-background-color) a(70%));
-  --card-background-color: rgba(103,162,159,0.61);
+  --card-background-color: var(--border-color);
   --card-text-color: var(--text-color);
   --toast-background-color: #ccc;
   --toast-text-color: #000;
@@ -361,11 +273,11 @@
   --select-input-border-color: var(--border-color);
 
   /* variables for Material Design components */
-  --material-background-color: rgba(54,45,45,1);
-  --material-text-color: rgba(255,255,255,1);
-  --material-notification-background-color: rgba(2,131,125,1);
-  --material-notification-color: white;
-  --material-switch-active-thumb-color: #01FFF4;
+  --material-background-color: #303030;
+  --material-text-color: #B8BCE8;
+  --material-notification-background-color: rgba(255,0,91,1);
+  --material-notification-color: rgba(0,0,0,1);
+  --material-switch-active-thumb-color: hsl(256,50.10%,59.39%);
   --material-switch-active-background-color: color-mod(var(--material-switch-active-thumb-color) a(50%));
   --material-switch-inactive-thumb-color: #bdbdbd;
   --material-switch-inactive-background-color: color-mod(white a(30%));
@@ -381,18 +293,18 @@
   --material-segment-active-background-color: #404040;
   --material-segment-text-color: color-mod(#fff a(62%));
   --material-segment-active-text-color: #cacaca;
-  --material-button-background-color: rgba(3,152,145,1);
-  --material-button-text-color: rgba(249,249,249,1);
+  --material-button-background-color: hsl(0,100.00%,41.96%);
+  --material-button-text-color: rgba(184,188,232,1);
   --material-button-disabled-background-color: color-mod(#b0b0b0 a(74%));
   --material-button-disabled-color: color-mod(white a(74%));
   --material-flat-button-active-background-color: color-mod(#666666 a(20%));
-  --material-list-background-color: color-mod(var(--material-background-color) l(+2%));
-  --material-list-item-separator-color: color-mod(white a(12%));
-  --material-list-header-text-color: #8a8a8a;
+  --material-list-background-color: rgba(37,31,31,1);
+  --material-list-item-separator-color: rgba(255,0,0,1);
+  --material-list-header-text-color: rgba(255,0,0,1);
   --material-checkbox-active-color: #fff;
   --material-checkbox-inactive-color: #717171;
   --material-checkbox-checkmark-color: #000;
-  --material-radio-button-active-color: #01FFF4;
+  --material-radio-button-active-color: hsl(0,100.00%,50.20%);
   --material-radio-button-inactive-color: #8e8e8e;
   --material-radio-button-disabled-color: #505050;
   --material-text-input-text-color: color-mod(#fff a(75%));
@@ -402,10 +314,10 @@
   --material-dialog-background-color: #424242;
   --material-dialog-text-color: var(--material-text-color);
   --material-alert-dialog-background-color: #424242;
-  --material-alert-dialog-title-color: white;
+  --material-alert-dialog-title-color: rgba(203,110,110,1);
   --material-alert-dialog-content-color: color-mod(var(--material-alert-dialog-title-color) a(85%));
-  --material-alert-dialog-button-color: rgba(3,170,163,1);
-  --material-progress-bar-primary-color: rgba(3,170,163,1);
+  --material-alert-dialog-button-color: rgba(166,161,209,1);
+  --material-progress-bar-primary-color: hsl(0,100.00%,50.00%);
   --material-progress-bar-secondary-color: color-mod(var(--material-progress-bar-primary-color) b(55%));
   --material-progress-bar-background-color: transparent;
   --material-progress-circle-primary-color: var(--material-progress-bar-primary-color);
@@ -416,7 +328,7 @@
   --material-tabbar-highlight-text-color: var(--material-toolbar-text-color);
   --material-tabbar-highlight-color: color-mod(var(--material-toolbar-background-color) l(+3%));
   --material-fab-text-color: #31313a;
-  --material-fab-background-color: rgba(165,255,251,1);
+  --material-fab-background-color: #ffffff;
   --material-fab-active-background-color: color-mod(white a(75%));
   --material-card-background-color: #424242;
   --material-card-text-color: color-mod(white a(46%));
@@ -432,7 +344,7 @@
   --material-action-sheet-text-color: #686868;
 
   /* others */
-  --tap-highlight-color: transparent;
+  --tap-highlight-color: rgba(148,153,255,0.37);
 
     }
 
@@ -468,7 +380,7 @@
     }
     ons-list{
       opacity: 90%;
-      border-radius: 15px !important;
+      border-radius: 6px !important;
     }
     ons-row{
         padding: 5%;
@@ -476,6 +388,8 @@
     ons-col, ons-card{
         min-width: 350px;
         margin: 0 auto;
+    }
+    ons-card{
         border-radius: 15px !important;
     }
     video {
@@ -640,1229 +554,487 @@
      </style>
 </head>
 <body>
-<ons-navigator id="myNavigator" page="carousel-home.html">
+<!-- Splitter Navigation Structure -->
+<ons-splitter>
+<ons-splitter-side collapse="" id="menu" side="left" swipeable="" width="220px">
 <ons-page>
-<ons-toolbar modifier="material">
-<div class="left">
-<ons-toolbar-button onclick="fn.prev()">
-<ons-icon icon="md-chevron-left"></ons-icon>
-</ons-toolbar-button>
-<ons-toolbar-button onclick="fn.goToHome()">
-<ons-icon icon="md-home"></ons-icon>
-</ons-toolbar-button>
-</div>
-<div class="center">
-<span id="carousel-title">
-          
-            Welcome to HVYM Press Test Site
-          
-        </span>
-</div>
-<div class="right">
-<ons-toolbar-button onclick="fn.next()">
-<ons-icon icon="md-chevron-right"></ons-icon>
-</ons-toolbar-button>
-</div>
-</ons-toolbar>
-<ons-carousel auto-scroll="" fullscreen="" id="carousel" overscrollable="" swipeable="">
-<ons-carousel-item>
-<div class="carousel-content-container">
-<div class="carousel-item-content" style="text-align: center">
-<ons-row>
-<ons-col width="100%">
-<div class="hero-section">
-<div class="hero-content">
-<h1 class="hero-title">Build Amazing Static Sites</h1>
-<p class="hero-subtitle">With HVYM Press and Markdown - Now with Home Pages!</p>
-<ons-button class="hero-cta" modifier="large" onclick="fn.goToPage(1)">
-                    Explore Now
-                  </ons-button>
-</div>
-</div>
-<div class="home-navigation">
-</div>
-<div class="home-content">
-<h1>Welcome to HVYM Press Test Site</h1>
-<p>This is a comprehensive test of the new home page functionality. You can use all standard markdown features while enjoying enhanced navigation capabilities.</p>
-<h2>🚀 Quick Navigation</h2>
-<p>Use these buttons to navigate to different sections:</p>
-<p><ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
-
-           Get Started
-
-       </ons-button>
-<ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
-
-           View Tutorials
-
-       </ons-button>
-<ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
-
-           About
-
-       </ons-button>
-<ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
-
-           Contact
-
-       </ons-button></p>
-<h2>✨ Features</h2>
-<ul>
-<li><strong>Easy markdown editing</strong> - Write content naturally</li>
-<li><strong>Automatic site generation</strong> - Build sites with one click</li>
-<li><strong>Professional layouts</strong> - Beautiful, responsive designs</li>
-<li><strong>SEO optimization</strong> - Built-in search engine optimization</li>
-<li><strong>Home page support</strong> - Project-level landing pages</li>
-<li><strong>Hero sections</strong> - Eye-catching introductions</li>
-<li><strong>Navigation buttons</strong> - Automatic conversion from markdown links</li>
-</ul>
-<h2>🎯 How It Works</h2>
-<p>The home page system automatically:</p>
-<ol>
-<li><strong>Detects</strong> your <code>home.md</code> file in the base project folder</li>
-<li><strong>Processes</strong> YAML frontmatter for configuration</li>
-<li><strong>Converts</strong> navigation links to functional buttons</li>
-<li><strong>Renders</strong> beautiful hero sections and layouts</li>
-<li><strong>Integrates</strong> seamlessly with existing site structure</li>
-</ol>
-<h2>🔧 Configuration Options</h2>
-<h3>Hero Section</h3>
-<ul>
-<li><code>hero_title</code>: Main headline text</li>
-<li><code>hero_subtitle</code>: Supporting text below the title</li>
-<li><code>hero_image</code>: Background image for hero section</li>
-<li><code>cta_button</code>: Call-to-action button configuration</li>
-</ul>
-<h3>Navigation</h3>
-<ul>
-<li><code>navigation</code>: Array of navigation button definitions</li>
-<li>Each button can have different styles: <code>primary</code>, <code>secondary</code>, <code>outline</code>, <code>quiet</code></li>
-<li>Automatic page reference detection and validation</li>
-</ul>
-<h3>Layout &amp; Styling</h3>
-<ul>
-<li><code>layout</code>: Page layout type (hero, default, etc.)</li>
-<li><code>style</code>: Button and component styling</li>
-<li>Responsive design that works on all devices</li>
-</ul>
-<h2>📱 Responsive Design</h2>
-<p>This home page is fully responsive and includes:</p>
-<ul>
-<li><strong>Mobile-first design</strong> - Optimized for all screen sizes</li>
-<li><strong>Touch-friendly buttons</strong> - Large, accessible navigation elements</li>
-<li><strong>Flexible layouts</strong> - Adapts to different content lengths</li>
-<li><strong>Professional typography</strong> - Readable on all devices</li>
-</ul>
-<h2>🎨 Customization</h2>
-<p>You can customize the appearance by:</p>
-<ul>
-<li>Adding custom CSS classes to navigation links</li>
-<li>Modifying the hero section background</li>
-<li>Adjusting button sizes and styles</li>
-<li>Customizing the content layout and spacing</li>
-</ul>
-<h2>🔗 Navigation Examples</h2>
-<p>Here are some examples of how navigation links work:</p>
-<ul>
-<li><strong>Primary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
-
-           Get Started
-
-       </ons-button> - Uses primary styling</li>
-<li><strong>Secondary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
-
-           Learn More
-
-       </ons-button> - Uses secondary styling  </li>
-<li><strong>Outline button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
-
-           Documentation
-
-       </ons-button> - Uses outline styling</li>
-<li><strong>Quiet button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
-
-           Support
-
-       </ons-button> - Uses quiet styling</li>
-</ul>
-<h2>📚 Content Guidelines</h2>
-<p>When writing your home page content:</p>
-<ol>
-<li><strong>Keep it concise</strong> - Focus on key messages</li>
-<li><strong>Use clear navigation</strong> - Make it easy to find important sections</li>
-<li><strong>Include calls-to-action</strong> - Guide users to next steps</li>
-<li><strong>Optimize for scanning</strong> - Use headers and bullet points</li>
-<li><strong>Test navigation</strong> - Ensure all page references are valid</li>
-</ol>
-<h2>🚨 Important Notes</h2>
-<ul>
-<li><strong>Home page files must be in the base project folder</strong> (not in subfolders)</li>
-<li><strong>Supported filenames</strong>: <code>home.md</code>, <code>index.md</code>, <code>landing.md</code>, <code>welcome.md</code></li>
-<li><strong>Page references</strong> must match existing section names exactly</li>
-<li><strong>Navigation links</strong> automatically convert to functional buttons</li>
-<li><strong>Invalid page references</strong> fall back to regular links with warnings</li>
-</ul>
-<h2>🎉 Ready to Test!</h2>
-<p>This home page demonstrates all the features we've implemented:</p>
-<p>✅ <strong>Frontmatter processing</strong> - YAML configuration<br/>
-✅ <strong>Hero section</strong> - Eye-catching introduction<br/>
-✅ <strong>Navigation buttons</strong> - Automatic link conversion<br/>
-✅ <strong>Responsive design</strong> - Mobile-friendly layout<br/>
-✅ <strong>Content rendering</strong> - Markdown to HTML processing<br/>
-✅ <strong>Page integration</strong> - Seamless site navigation  </p>
-<hr/>
-<p><em>Built with HVYM Press - Now with Home Page Support!</em></p>
-<blockquote>
-<p><strong>Tip</strong>: Try clicking the navigation buttons above to test the functionality. Each button should take you to the corresponding section of your site.</p>
-</blockquote>
-</div>
-</ons-col>
-</ons-row>
-</div>
-</div>
-</ons-carousel-item>
-<ons-carousel-item>
-<div class="carousel-content-container">
-<div class="carousel-item-content" style="text-align: center">
-<ons-row>
-<ons-col width="90%">
-<ons-card data-card-name="Private Set up.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                          Private Set up.md
-                        </div>
-<div class="content">
-<ons-list modifier="default">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
-<br/>
-<p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04
-<code>sudo apt update</code></p>
-<p>```
-sudo apt upgrade    </p>
-<p>sudo ufw allow 22   </p>
-<p>sudo ufw enable -y 
-```</p>
-<p>Create a new user, $USER is replaced with a real username:</p>
-<p><code>sudo adduser&nbsp;$USER</code></p>
-<p>Enable su-mode:</p>
-<p><code>su -</code></p>
-<p>Install sudo:</p>
-<p><code>apt-get install sudo -y</code></p>
-<p>Elevate the user:</p>
-<p><code>usermod -aG sudo $USER</code></p>
-<p>Open sudo config:</p>
-<p><code>visudo</code></p>
-<p>Modify permissions, adding line
-```</p>
-<h1></h1>
-<h1>This file MUST be edited with the 'visudo' command as root.</h1>
-<h1></h1>
-<h1>Please consider adding local content in /etc/sudoers.d/ instead of</h1>
-<h1>directly modifying this file.</h1>
-<h1></h1>
-<h1>See the man page for details on how to write a sudoers file.</h1>
-<h1></h1>
-<p>Defaults        env_reset
-Defaults        mail_badpass
-Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"</p>
-<h1>Host alias specification</h1>
-<h1>User alias specification</h1>
-<h1>Cmnd alias specification</h1>
-<h1>User privilege specification</h1>
-<p>root    ALL=(ALL:ALL) ALL
-$USER   ALL=(ALL:ALL) ALL</p>
-<h1>Members of the admin group may gain root privileges</h1>
-<p>%admin ALL=(ALL) ALL</p>
-<h1>Allow members of group sudo to execute any command</h1>
-<p>%sudo   ALL=(ALL:ALL) ALL</p>
-<h1>See sudoers(5) for more information on "#include" directives:</h1>
-<h1>includedir /etc/sudoers.d</h1>
-<p>```</p>
-<p>Switch over to your new user account:
-<code>su - $USER</code>
-Download the latest ipfs:
-<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
-extract:
-<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
-Install:
-<code>cd kubo
-sudo bash install.sh 
-ipfs --version</code></p>
-<p>Open swarm port:
-<code>sudo ufw allow 4001
-sudo ufw --force enable</code>
-Initialize ipfs, make note of your peer address that is returned on init:
-<code>ipfs init --profile server</code>
-Create the swarm key file</p>
-<p><code>cd ~/.ipfs
-sudo nano swarm.key</code></p>
-<p>Example key file, replace the key string with a uniquly generated one
-<code>/key/swarm/psk/1.0.0/
-/base16/
-25f64b1cf31f649817d495e446d4cbcc99000b8cc032a89b681e5f86f995fb30</code></p>
-<p>Create a new service:
-<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
-<p>Copy this code in replacing $USER with your username:
-```
-[Unit]
-Description=IPFS Daemon
-After=network.target</p>
-<p>[Service]
-User=$USER
-Environment=IPFS_PATH=/home/$USER/.ipfs
-ExecStart=/usr/local/bin/ipfs daemon --enable-namesys-pubsub
-StandardOutput=journal
-Restart=on-failure
-KillSignal=SIGINT</p>
-<p>[Install]
-WantedBy=multi-user.target
-```</p>
-<p>Start ipfs:
-<code>sudo systemctl daemon-reload 
-sudo systemctl start ipfs</code></p>
-<p>Enabled after rebooting:
-<code>sudo systemctl enable ipfs</code></p>
-<p>Remove all standard peers:
-<code>ipfs bootstrap rm --all</code></p>
-<p>Set ipfs config for gateway and api:</p>
-<p><code>ipfs config Addresses.Gateway /ip4/0.0.0.0/8080
-ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001</code></p>
-<p>Force p2p:
-<code>export LIBP2P_FORCE_PNET=1</code></p>
-<p>Now Install the nginx server:
-<code>sudo apt install nginx</code>
-Open port:
-<code>sudo ufw allow 80</code>
-<code>sudo systemctl reload nginx</code>
-Backup nginx original nginx config:
-<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
-Create a new config file:
-<code>sudo nano /etc/nginx/sites-available/default</code>
-Paste the following code, replacing 'your_domain_name.com' with yours:
-```
-server {
-    listen 80;
-    listen [::]:80;
-    server_name your_domain_name.com;</p>
-<pre><code>location /ipfs {
-    proxy_pass http://localhost:8080;
-    proxy_set_header Host $host;
-    proxy_cache_bypass $http_upgrade;
-    allow all;
-}
-</code></pre>
-<p>}
-```</p>
-<p>Test the config, and reload the service:
-<code>sudo nginx -t</code>
-<code>sudo systemctl reload nginx</code></p>
-<p>Enable https with certbot:
-<code>sudo apt install certbot python3-certbot-nginx</code></p>
-<p>Let in HTTPS traffic:
-<code>sudo ufw allow 'Nginx Full'</code>
-<code>sudo ufw delete allow 'Nginx HTTP'</code></p>
-<p>Get the ssl certificate, replace 'example.com' with your domain:
-<code>sudo certbot --nginx -d example.com</code></p>
 <ons-list>
-</ons-list>
-</div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Private Set up.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
-</div>
+<ons-list-item onclick="fn.load('home.html')" tappable="">
+<ons-icon class="menu_icon" icon="md-home"></ons-icon>
+<p>Home</p>
 </ons-list-item>
-</ons-list>
-</div>
-</ons-card>
-</ons-col>
-</ons-row>
-</div>
-</div>
-</ons-carousel-item>
-<ons-carousel-item>
-<div class="carousel-content-container">
-<div class="carousel-item-content" style="text-align: center">
-<ons-row>
-<ons-col width="50.0%">
-<ons-card data-card-name="README.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                          README.md
-                        </div>
-<div class="content">
-<ons-list modifier="default">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
-<br/>
-<h1>HVYM Press</h1>
-<p>A modern, cross-platform static site generator with IPFS deployment capabilities using Pintheon.</p>
-<h2>🚀 Cross-Platform Support</h2>
-<p>This application now supports <strong>Windows</strong>, <strong>macOS</strong>, and <strong>Linux</strong> with automated installation scripts for each platform.</p>
-<h2>📋 Quick Installation</h2>
-<h3>Windows</h3>
-<p>```batch</p>
-<h1>Download and run as Administrator</h1>
-<p>install.bat
-```</p>
-<h3>macOS/Linux</h3>
-<p>```bash</p>
-<h1>Download and run</h1>
-<p>curl -L https://raw.githubusercontent.com/inviti8/hvym_press/refs/heads/main/install.sh | bash</p>
-<h1>Or use the Python installer</h1>
-<p>python3 install.py
-```</p>
-<h3>Manual Installation</h3>
-<p>```bash</p>
-<h1>Clone repository</h1>
-<p>git clone https://github.com/inviti8/hvym_press.git
-cd hvym_press</p>
-<h1>Install dependencies</h1>
-<p>pip install -r requirements.txt</p>
-<h1>Build and install</h1>
-<p>python build.py
-python install.py
-```</p>
-<h2>🔧 Features</h2>
-<ul>
-<li><strong>Cross-platform compatibility</strong> - Works on Windows, macOS, and Linux</li>
-<li><strong>IPFS deployment</strong> - Deploy sites to IPFS using Pintheon</li>
-<li><strong>Modern GUI</strong> - Built with FreeSimpleGUI</li>
-<li><strong>Template system</strong> - Customizable site templates</li>
-<li><strong>Local development</strong> - Built-in local server for testing</li>
-</ul>
-<h2>📖 Documentation</h2>
-<p>For detailed installation and usage instructions, see <a href="README_CROSS_PLATFORM.md">README_CROSS_PLATFORM.md</a>.</p>
-<h2>🆘 Support</h2>
-<ul>
-<li><strong>Issues</strong>: <a href="https://github.com/inviti8/hvym_press/issues">GitHub Issues</a></li>
-<li><strong>Documentation</strong>: <a href="README_CROSS_PLATFORM.md">Cross-Platform Guide</a></li>
-</ul>
-<hr/>
-<p><strong>Note</strong>: This application has been refactored to use Pintheon instead of Pinata for IPFS deployment, and all platform-specific issues have been resolved for full cross-platform compatibility.</p>
-<ons-list>
-</ons-list>
-</div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_README.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
-</div>
+<ons-list-item onclick="fn.load('HEAVYMETA Blog.html')" tappable="">
+<ons-icon class="menu_icon" icon="fa-diamond"></ons-icon>
+<p>HEAVYMETA Blog</p>
 </ons-list-item>
+<ons-list-item onclick="fn.load('IPFS Gateway 2023.html')" tappable="">
+          IPFS Gateway 2023
+        </ons-list-item>
 </ons-list>
-</div>
-</ons-card>
-<ons-card data-card-name="Public Set up.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                          Public Set up.md
-                        </div>
-<div class="content">
-<ons-list modifier="default">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
-<br/>
-<p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04</p>
-<p><code>sudo apt update</code></p>
-<pre><code>sudo apt upgrade
-
-sudo ufw allow 22
-
-sudo ufw enable
-</code></pre>
-<p>Create a new user, $USER is replaced with a real username:</p>
-<p><code>sudo adduser&nbsp;$USER &amp;&amp; usermod -aG sudo&nbsp;$USER</code></p>
-<p>Switch over to your new user account:</p>
-<p><code>su - $USER</code>
-Download the latest ipfs:
-<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
-extract:
-<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
-Install:
-<code>cd kubo
-sudo bash install.sh
-ipfs --version</code></p>
-<p>Open swarm port:
-<code>sudo ufw allow 4001</code></p>
-<p>Initialize ipfs, make note of your peer address that is returned on init:
-<code>ipfs init --profile server</code></p>
-<p>Create a new service:
-<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
-<p>Copy this code in replacing $USER with your username:
-`[Unit]
-Description=IPFS Daemon
-After=network.target</p>
-<p>[Service]
-User=$USER
-Environment=IPFS_PATH=/home/$USER/.ipfs
-ExecStart=/usr/local/bin/ipfs daemon --init --migrate
-StandardOutput=journal
-Restart=on-failure
-KillSignal=SIGINT</p>
-<p>[Install]
-WantedBy=multi-user.target`</p>
-<p>Configure ipfs gateway, replace 'example.com' with your domain:
-NoFetch = True, means it will only retrieve files on your local node.</p>
-<p><code>ipfs config --json Gateway '{
-        "HTTPHeaders": {
-            "Access-Control-Allow-Origin": [
-                "*"
-            ]
-        },
-        "RootRedirect": "",
-        "Writable": false,
-        "PathPrefixes": [
-            "/blog",
-            "/refs"
-        ],
-        "APICommands": [],
-        "NoFetch": true,
-        "NoDNSLink": false,
-        "PublicGateways": {
-            "www.example.com": {
-                "NoDNSLink": false,
-                "Paths": [
-                    "/ipfs",
-                    "/ipns",
-                    "/api"
-                ],
-                "UseSubdomains": true
-            },
-            "example.com": {
-                "NoDNSLink": false,
-                "Paths": [
-                    "/ipfs",
-                    "/ipns",
-                    "/api"
-                ],
-                "UseSubdomains": false
-            }
-        }
-    }'</code></p>
-<p>Start ipfs:
-<code>sudo systemctl daemon-reload
-sudo systemctl start ipfs</code></p>
-<p>Enabled after rebooting:
-<code>sudo systemctl enable ipfs</code></p>
-<p>Now Install the nginx server:
-<code>sudo apt install nginx</code>
-Open port:
-<code>sudo ufw allow 80</code>
-Backup nginx original nginx config:
-<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
-Create a new config file:
-<code>sudo nano /etc/nginx/sites-available/default</code>
-Paste the following code, replacing 'your_domain_name.com' with yours:
-`server {
-    listen 80;
-    listen [::]:80;
-    server_name your_domain_name.com;</p>
-<pre><code>location /ipfs {
-    proxy_pass http://localhost:8080;
-    proxy_set_header Host $host;
-    proxy_cache_bypass $http_upgrade;
-    allow all;
-}
-</code></pre>
-<p>}`</p>
-<p>Test the config, and reload the service:
-<code>sudo nginx -t
-sudo systemctl reload nginx</code></p>
-<p>Enable https with certbot:
-<code>sudo apt install certbot python3-certbot-nginx</code></p>
-<p>Let in HTTPS traffic:
-<code>sudo ufw allow 'Nginx Full'
-sudo ufw delete allow 'Nginx HTTP'</code></p>
-<p>Get the ssl certificate, replace 'example.com' with your domain:
-<code>sudo certbot --nginx -d example.com -d www.example.com</code></p>
-<ons-list>
-</ons-list>
-</div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Public Set up.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
-</div>
-</ons-list-item>
-</ons-list>
-</div>
-</ons-card>
-<ons-card data-card-name="Minter Dependencies.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                          Minter Dependencies.md
-                        </div>
-<div class="content">
-<ons-list modifier="default">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
-<br/>
-<p>Python:
-- <a href="https://pypi.org/project/py-solc-x/">Solidity Compiler, py-solc-x</a>
-- <a href="https://www.youtube.com/watch?v=7FcX9uWDuIQ&amp;list=PLAxJ4-o7ZoPeUqGpMhvJoVk5G-TrvMAd-&amp;index=12">Package Deployment</a></p>
-<p>Node:
-- npm install @openzeppelin/contracts</p>
-<p>Blender:
-- <a href="https://github.com/omigroup/omi-blender-gltf">omi-blender-gltf</a>
-- <a href="glTF-Blender-IO-materials-variants">gltf-Blender-IO-materials-variants</a></p>
-<ons-list>
-</ons-list>
-</div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Minter Dependencies.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
-</div>
-</ons-list-item>
-</ons-list>
-</div>
-</ons-card>
-<ons-card data-card-name="Let_s Begin.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                          Let_s Begin.md
-                        </div>
-<div class="content">
-<ons-list modifier="default">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
-<br/>
-<p>I have been working in the Games Industry for well over 10 years.  First starting as a 3D Artist then moving into Technical Art.  I can see that Web3 holds great potential for Artists.  Leveraging this tech, we can create content and host it on the decentralized web.  We can maintain, sell, and transfer real ownership of our art via NFTs.  This means we can take control of what we produce with no middlemen.</p>
-<p>Being that I am well versed in content creation for games, it only makes sense that I focus on this arena first.  I am currently working on a Blender Add-On that will allow us to export 3D assets to ipfs, and encapsulate all associated links in an NFT Minting page.  This page will allow others to purchase customized version of our game ready art assets as NFTs.  Though, instead of just being an image, HEAVYMETA NFTs have real utility.  Game developers can use these assets in games, allowing players to use the same assets across multiple games where viable.</p>
-<p>It's still the wild west in Web3, and to me that seems like the best time possible to stake a claim.  If you're reading this, you probably have similar thoughts.  If you're up for it, I'd love for you to come along with me on this ride.
-<img alt="DALL&middot;E 2022-10-03 14.20.02 - A digital illustration of X, 4k, detailed, trending in artstation, of a robotic samurai-cowboy standing in the middle of town with the sunrise behind .png" src="../_resources/DALL&middot;E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png"/></p>
-<ons-list>
-</ons-list>
-</div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Let_s Begin.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
-</div>
-</ons-list-item>
-</ons-list>
-</div>
-</ons-card>
-</ons-col>
-<ons-col width="50.0%">
-</ons-col>
-</ons-row>
-</div>
-</div>
-</ons-carousel-item>
-</ons-carousel>
 </ons-page>
-</ons-navigator>
+</ons-splitter-side>
+<ons-splitter-content>
+<ons-navigator id="myNavigator" page="home.html"></ons-navigator>
+</ons-splitter-content>
+</ons-splitter>
 <!-- Carousel Home Page Template -->
-<template id="carousel-home.html">
-<ons-page>
-<ons-toolbar modifier="material">
-<div class="left">
-<ons-toolbar-button onclick="fn.prev()">
-<ons-icon icon="md-chevron-left"></ons-icon>
-</ons-toolbar-button>
-<ons-toolbar-button onclick="fn.goToHome()">
-<ons-icon icon="md-home"></ons-icon>
-</ons-toolbar-button>
-</div>
-<div class="center">
-<span id="carousel-title">
-          
-            Welcome to HVYM Press Test Site
-          
-        </span>
-</div>
-<div class="right">
-<ons-toolbar-button onclick="fn.next()">
-<ons-icon icon="md-chevron-right"></ons-icon>
-</ons-toolbar-button>
-</div>
-</ons-toolbar>
-<ons-carousel auto-scroll="" fullscreen="" id="carousel" overscrollable="" swipeable="">
-<ons-carousel-item>
-<div class="carousel-content-container">
-<div class="carousel-item-content" style="text-align: center">
-<ons-row>
-<ons-col width="100%">
-<div class="hero-section">
-<div class="hero-content">
-<h1 class="hero-title">Build Amazing Static Sites</h1>
-<p class="hero-subtitle">With HVYM Press and Markdown - Now with Home Pages!</p>
-<ons-button class="hero-cta" modifier="large" onclick="fn.goToPage(1)">
-                      Explore Now
-                    </ons-button>
-</div>
-</div>
-<div class="home-navigation">
-</div>
-<div class="home-content">
-<h1>Welcome to HVYM Press Test Site</h1>
-<p>This is a comprehensive test of the new home page functionality. You can use all standard markdown features while enjoying enhanced navigation capabilities.</p>
-<h2>🚀 Quick Navigation</h2>
-<p>Use these buttons to navigate to different sections:</p>
-<p><ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
-
-           Get Started
-
-       </ons-button>
-<ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
-
-           View Tutorials
-
-       </ons-button>
-<ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
-
-           About
-
-       </ons-button>
-<ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
-
-           Contact
-
-       </ons-button></p>
-<h2>✨ Features</h2>
-<ul>
-<li><strong>Easy markdown editing</strong> - Write content naturally</li>
-<li><strong>Automatic site generation</strong> - Build sites with one click</li>
-<li><strong>Professional layouts</strong> - Beautiful, responsive designs</li>
-<li><strong>SEO optimization</strong> - Built-in search engine optimization</li>
-<li><strong>Home page support</strong> - Project-level landing pages</li>
-<li><strong>Hero sections</strong> - Eye-catching introductions</li>
-<li><strong>Navigation buttons</strong> - Automatic conversion from markdown links</li>
-</ul>
-<h2>🎯 How It Works</h2>
-<p>The home page system automatically:</p>
-<ol>
-<li><strong>Detects</strong> your <code>home.md</code> file in the base project folder</li>
-<li><strong>Processes</strong> YAML frontmatter for configuration</li>
-<li><strong>Converts</strong> navigation links to functional buttons</li>
-<li><strong>Renders</strong> beautiful hero sections and layouts</li>
-<li><strong>Integrates</strong> seamlessly with existing site structure</li>
-</ol>
-<h2>🔧 Configuration Options</h2>
-<h3>Hero Section</h3>
-<ul>
-<li><code>hero_title</code>: Main headline text</li>
-<li><code>hero_subtitle</code>: Supporting text below the title</li>
-<li><code>hero_image</code>: Background image for hero section</li>
-<li><code>cta_button</code>: Call-to-action button configuration</li>
-</ul>
-<h3>Navigation</h3>
-<ul>
-<li><code>navigation</code>: Array of navigation button definitions</li>
-<li>Each button can have different styles: <code>primary</code>, <code>secondary</code>, <code>outline</code>, <code>quiet</code></li>
-<li>Automatic page reference detection and validation</li>
-</ul>
-<h3>Layout &amp; Styling</h3>
-<ul>
-<li><code>layout</code>: Page layout type (hero, default, etc.)</li>
-<li><code>style</code>: Button and component styling</li>
-<li>Responsive design that works on all devices</li>
-</ul>
-<h2>📱 Responsive Design</h2>
-<p>This home page is fully responsive and includes:</p>
-<ul>
-<li><strong>Mobile-first design</strong> - Optimized for all screen sizes</li>
-<li><strong>Touch-friendly buttons</strong> - Large, accessible navigation elements</li>
-<li><strong>Flexible layouts</strong> - Adapts to different content lengths</li>
-<li><strong>Professional typography</strong> - Readable on all devices</li>
-</ul>
-<h2>🎨 Customization</h2>
-<p>You can customize the appearance by:</p>
-<ul>
-<li>Adding custom CSS classes to navigation links</li>
-<li>Modifying the hero section background</li>
-<li>Adjusting button sizes and styles</li>
-<li>Customizing the content layout and spacing</li>
-</ul>
-<h2>🔗 Navigation Examples</h2>
-<p>Here are some examples of how navigation links work:</p>
-<ul>
-<li><strong>Primary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
-
-           Get Started
-
-       </ons-button> - Uses primary styling</li>
-<li><strong>Secondary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
-
-           Learn More
-
-       </ons-button> - Uses secondary styling  </li>
-<li><strong>Outline button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('HEAVYMETA Blog')">
-
-           Documentation
-
-       </ons-button> - Uses outline styling</li>
-<li><strong>Quiet button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.goToPageByName('IPFS Gateway 2023')">
-
-           Support
-
-       </ons-button> - Uses quiet styling</li>
-</ul>
-<h2>📚 Content Guidelines</h2>
-<p>When writing your home page content:</p>
-<ol>
-<li><strong>Keep it concise</strong> - Focus on key messages</li>
-<li><strong>Use clear navigation</strong> - Make it easy to find important sections</li>
-<li><strong>Include calls-to-action</strong> - Guide users to next steps</li>
-<li><strong>Optimize for scanning</strong> - Use headers and bullet points</li>
-<li><strong>Test navigation</strong> - Ensure all page references are valid</li>
-</ol>
-<h2>🚨 Important Notes</h2>
-<ul>
-<li><strong>Home page files must be in the base project folder</strong> (not in subfolders)</li>
-<li><strong>Supported filenames</strong>: <code>home.md</code>, <code>index.md</code>, <code>landing.md</code>, <code>welcome.md</code></li>
-<li><strong>Page references</strong> must match existing section names exactly</li>
-<li><strong>Navigation links</strong> automatically convert to functional buttons</li>
-<li><strong>Invalid page references</strong> fall back to regular links with warnings</li>
-</ul>
-<h2>🎉 Ready to Test!</h2>
-<p>This home page demonstrates all the features we've implemented:</p>
-<p>✅ <strong>Frontmatter processing</strong> - YAML configuration<br/>
-✅ <strong>Hero section</strong> - Eye-catching introduction<br/>
-✅ <strong>Navigation buttons</strong> - Automatic link conversion<br/>
-✅ <strong>Responsive design</strong> - Mobile-friendly layout<br/>
-✅ <strong>Content rendering</strong> - Markdown to HTML processing<br/>
-✅ <strong>Page integration</strong> - Seamless site navigation  </p>
-<hr/>
-<p><em>Built with HVYM Press - Now with Home Page Support!</em></p>
-<blockquote>
-<p><strong>Tip</strong>: Try clicking the navigation buttons above to test the functionality. Each button should take you to the corresponding section of your site.</p>
-</blockquote>
-</div>
-</ons-col>
-</ons-row>
-</div>
-</div>
-</ons-carousel-item>
-<ons-carousel-item>
-<div class="carousel-content-container">
-<div class="carousel-item-content" style="text-align: center">
-<ons-row>
-<ons-col width="90%">
-<ons-card data-card-name="Private Set up.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                          Private Set up.md
-                        </div>
-<div class="content">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
-<br/>
-<p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04
-<code>sudo apt update</code></p>
-<p>```
-sudo apt upgrade    </p>
-<p>sudo ufw allow 22   </p>
-<p>sudo ufw enable -y 
-```</p>
-<p>Create a new user, $USER is replaced with a real username:</p>
-<p><code>sudo adduser&nbsp;$USER</code></p>
-<p>Enable su-mode:</p>
-<p><code>su -</code></p>
-<p>Install sudo:</p>
-<p><code>apt-get install sudo -y</code></p>
-<p>Elevate the user:</p>
-<p><code>usermod -aG sudo $USER</code></p>
-<p>Open sudo config:</p>
-<p><code>visudo</code></p>
-<p>Modify permissions, adding line
-```</p>
-<h1></h1>
-<h1>This file MUST be edited with the 'visudo' command as root.</h1>
-<h1></h1>
-<h1>Please consider adding local content in /etc/sudoers.d/ instead of</h1>
-<h1>directly modifying this file.</h1>
-<h1></h1>
-<h1>See the man page for details on how to write a sudoers file.</h1>
-<h1></h1>
-<p>Defaults        env_reset
-Defaults        mail_badpass
-Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"</p>
-<h1>Host alias specification</h1>
-<h1>User alias specification</h1>
-<h1>Cmnd alias specification</h1>
-<h1>User privilege specification</h1>
-<p>root    ALL=(ALL:ALL) ALL
-$USER   ALL=(ALL:ALL) ALL</p>
-<h1>Members of the admin group may gain root privileges</h1>
-<p>%admin ALL=(ALL) ALL</p>
-<h1>Allow members of group sudo to execute any command</h1>
-<p>%sudo   ALL=(ALL:ALL) ALL</p>
-<h1>See sudoers(5) for more information on "#include" directives:</h1>
-<h1>includedir /etc/sudoers.d</h1>
-<p>```</p>
-<p>Switch over to your new user account:
-<code>su - $USER</code>
-Download the latest ipfs:
-<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
-extract:
-<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
-Install:
-<code>cd kubo
-sudo bash install.sh 
-ipfs --version</code></p>
-<p>Open swarm port:
-<code>sudo ufw allow 4001
-sudo ufw --force enable</code>
-Initialize ipfs, make note of your peer address that is returned on init:
-<code>ipfs init --profile server</code>
-Create the swarm key file</p>
-<p><code>cd ~/.ipfs
-sudo nano swarm.key</code></p>
-<p>Example key file, replace the key string with a uniquly generated one
-<code>/key/swarm/psk/1.0.0/
-/base16/
-25f64b1cf31f649817d495e446d4cbcc99000b8cc032a89b681e5f86f995fb30</code></p>
-<p>Create a new service:
-<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
-<p>Copy this code in replacing $USER with your username:
-```
-[Unit]
-Description=IPFS Daemon
-After=network.target</p>
-<p>[Service]
-User=$USER
-Environment=IPFS_PATH=/home/$USER/.ipfs
-ExecStart=/usr/local/bin/ipfs daemon --enable-namesys-pubsub
-StandardOutput=journal
-Restart=on-failure
-KillSignal=SIGINT</p>
-<p>[Install]
-WantedBy=multi-user.target
-```</p>
-<p>Start ipfs:
-<code>sudo systemctl daemon-reload 
-sudo systemctl start ipfs</code></p>
-<p>Enabled after rebooting:
-<code>sudo systemctl enable ipfs</code></p>
-<p>Remove all standard peers:
-<code>ipfs bootstrap rm --all</code></p>
-<p>Set ipfs config for gateway and api:</p>
-<p><code>ipfs config Addresses.Gateway /ip4/0.0.0.0/8080
-ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001</code></p>
-<p>Force p2p:
-<code>export LIBP2P_FORCE_PNET=1</code></p>
-<p>Now Install the nginx server:
-<code>sudo apt install nginx</code>
-Open port:
-<code>sudo ufw allow 80</code>
-<code>sudo systemctl reload nginx</code>
-Backup nginx original nginx config:
-<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
-Create a new config file:
-<code>sudo nano /etc/nginx/sites-available/default</code>
-Paste the following code, replacing 'your_domain_name.com' with yours:
-```
-server {
-    listen 80;
-    listen [::]:80;
-    server_name your_domain_name.com;</p>
-<pre><code>location /ipfs {
-    proxy_pass http://localhost:8080;
-    proxy_set_header Host $host;
-    proxy_cache_bypass $http_upgrade;
-    allow all;
-}
-</code></pre>
-<p>}
-```</p>
-<p>Test the config, and reload the service:
-<code>sudo nginx -t</code>
-<code>sudo systemctl reload nginx</code></p>
-<p>Enable https with certbot:
-<code>sudo apt install certbot python3-certbot-nginx</code></p>
-<p>Let in HTTPS traffic:
-<code>sudo ufw allow 'Nginx Full'</code>
-<code>sudo ufw delete allow 'Nginx HTTP'</code></p>
-<p>Get the ssl certificate, replace 'example.com' with your domain:
-<code>sudo certbot --nginx -d example.com</code></p>
-<ons-list>
-</ons-list>
-</div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Private Set up.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
-</div>
-</ons-list-item>
-
-</div>
-</ons-card>
-</ons-col>
-</ons-row>
-</div>
-</div>
-</ons-carousel-item>
-<ons-carousel-item>
-<div class="carousel-content-container">
-<div class="carousel-item-content" style="text-align: center">
-<ons-row>
-<ons-col width="50.0%">
-<ons-card data-card-name="README.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                          README.md
-                        </div>
-<div class="content">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
-<br/>
-<h1>HVYM Press</h1>
-<p>A modern, cross-platform static site generator with IPFS deployment capabilities using Pintheon.</p>
-<h2>🚀 Cross-Platform Support</h2>
-<p>This application now supports <strong>Windows</strong>, <strong>macOS</strong>, and <strong>Linux</strong> with automated installation scripts for each platform.</p>
-<h2>📋 Quick Installation</h2>
-<h3>Windows</h3>
-<p>```batch</p>
-<h1>Download and run as Administrator</h1>
-<p>install.bat
-```</p>
-<h3>macOS/Linux</h3>
-<p>```bash</p>
-<h1>Download and run</h1>
-<p>curl -L https://raw.githubusercontent.com/inviti8/hvym_press/refs/heads/main/install.sh | bash</p>
-<h1>Or use the Python installer</h1>
-<p>python3 install.py
-```</p>
-<h3>Manual Installation</h3>
-<p>```bash</p>
-<h1>Clone repository</h1>
-<p>git clone https://github.com/inviti8/hvym_press.git
-cd hvym_press</p>
-<h1>Install dependencies</h1>
-<p>pip install -r requirements.txt</p>
-<h1>Build and install</h1>
-<p>python build.py
-python install.py
-```</p>
-<h2>🔧 Features</h2>
-<ul>
-<li><strong>Cross-platform compatibility</strong> - Works on Windows, macOS, and Linux</li>
-<li><strong>IPFS deployment</strong> - Deploy sites to IPFS using Pintheon</li>
-<li><strong>Modern GUI</strong> - Built with FreeSimpleGUI</li>
-<li><strong>Template system</strong> - Customizable site templates</li>
-<li><strong>Local development</strong> - Built-in local server for testing</li>
-</ul>
-<h2>📖 Documentation</h2>
-<p>For detailed installation and usage instructions, see <a href="README_CROSS_PLATFORM.md">README_CROSS_PLATFORM.md</a>.</p>
-<h2>🆘 Support</h2>
-<ul>
-<li><strong>Issues</strong>: <a href="https://github.com/inviti8/hvym_press/issues">GitHub Issues</a></li>
-<li><strong>Documentation</strong>: <a href="README_CROSS_PLATFORM.md">Cross-Platform Guide</a></li>
-</ul>
-<hr/>
-<p><strong>Note</strong>: This application has been refactored to use Pintheon instead of Pinata for IPFS deployment, and all platform-specific issues have been resolved for full cross-platform compatibility.</p>
-<ons-list>
-</ons-list>
-</div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_README.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
-</div>
-</ons-list-item>
-
-</div>
-</ons-card>
-<ons-card data-card-name="Public Set up.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                          Public Set up.md
-                        </div>
-<div class="content">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
-<br/>
-<p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04</p>
-<p><code>sudo apt update</code></p>
-<pre><code>sudo apt upgrade
-
-sudo ufw allow 22
-
-sudo ufw enable
-</code></pre>
-<p>Create a new user, $USER is replaced with a real username:</p>
-<p><code>sudo adduser&nbsp;$USER &amp;&amp; usermod -aG sudo&nbsp;$USER</code></p>
-<p>Switch over to your new user account:</p>
-<p><code>su - $USER</code>
-Download the latest ipfs:
-<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
-extract:
-<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
-Install:
-<code>cd kubo
-sudo bash install.sh
-ipfs --version</code></p>
-<p>Open swarm port:
-<code>sudo ufw allow 4001</code></p>
-<p>Initialize ipfs, make note of your peer address that is returned on init:
-<code>ipfs init --profile server</code></p>
-<p>Create a new service:
-<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
-<p>Copy this code in replacing $USER with your username:
-`[Unit]
-Description=IPFS Daemon
-After=network.target</p>
-<p>[Service]
-User=$USER
-Environment=IPFS_PATH=/home/$USER/.ipfs
-ExecStart=/usr/local/bin/ipfs daemon --init --migrate
-StandardOutput=journal
-Restart=on-failure
-KillSignal=SIGINT</p>
-<p>[Install]
-WantedBy=multi-user.target`</p>
-<p>Configure ipfs gateway, replace 'example.com' with your domain:
-NoFetch = True, means it will only retrieve files on your local node.</p>
-<p><code>ipfs config --json Gateway '{
-        "HTTPHeaders": {
-            "Access-Control-Allow-Origin": [
-                "*"
-            ]
-        },
-        "RootRedirect": "",
-        "Writable": false,
-        "PathPrefixes": [
-            "/blog",
-            "/refs"
-        ],
-        "APICommands": [],
-        "NoFetch": true,
-        "NoDNSLink": false,
-        "PublicGateways": {
-            "www.example.com": {
-                "NoDNSLink": false,
-                "Paths": [
-                    "/ipfs",
-                    "/ipns",
-                    "/api"
-                ],
-                "UseSubdomains": true
-            },
-            "example.com": {
-                "NoDNSLink": false,
-                "Paths": [
-                    "/ipfs",
-                    "/ipns",
-                    "/api"
-                ],
-                "UseSubdomains": false
-            }
-        }
-    }'</code></p>
-<p>Start ipfs:
-<code>sudo systemctl daemon-reload
-sudo systemctl start ipfs</code></p>
-<p>Enabled after rebooting:
-<code>sudo systemctl enable ipfs</code></p>
-<p>Now Install the nginx server:
-<code>sudo apt install nginx</code>
-Open port:
-<code>sudo ufw allow 80</code>
-Backup nginx original nginx config:
-<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
-Create a new config file:
-<code>sudo nano /etc/nginx/sites-available/default</code>
-Paste the following code, replacing 'your_domain_name.com' with yours:
-`server {
-    listen 80;
-    listen [::]:80;
-    server_name your_domain_name.com;</p>
-<pre><code>location /ipfs {
-    proxy_pass http://localhost:8080;
-    proxy_set_header Host $host;
-    proxy_cache_bypass $http_upgrade;
-    allow all;
-}
-</code></pre>
-<p>}`</p>
-<p>Test the config, and reload the service:
-<code>sudo nginx -t
-sudo systemctl reload nginx</code></p>
-<p>Enable https with certbot:
-<code>sudo apt install certbot python3-certbot-nginx</code></p>
-<p>Let in HTTPS traffic:
-<code>sudo ufw allow 'Nginx Full'
-sudo ufw delete allow 'Nginx HTTP'</code></p>
-<p>Get the ssl certificate, replace 'example.com' with your domain:
-<code>sudo certbot --nginx -d example.com -d www.example.com</code></p>
-<ons-list>
-</ons-list>
-</div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Public Set up.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
-</div>
-</ons-list-item>
-
-</div>
-</ons-card>
-<ons-card data-card-name="Minter Dependencies.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                          Minter Dependencies.md
-                        </div>
-<div class="content">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
-<br/>
-<p>Python:
-- <a href="https://pypi.org/project/py-solc-x/">Solidity Compiler, py-solc-x</a>
-- <a href="https://www.youtube.com/watch?v=7FcX9uWDuIQ&amp;list=PLAxJ4-o7ZoPeUqGpMhvJoVk5G-TrvMAd-&amp;index=12">Package Deployment</a></p>
-<p>Node:
-- npm install @openzeppelin/contracts</p>
-<p>Blender:
-- <a href="https://github.com/omigroup/omi-blender-gltf">omi-blender-gltf</a>
-- <a href="glTF-Blender-IO-materials-variants">gltf-Blender-IO-materials-variants</a></p>
-<ons-list>
-</ons-list>
-</div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Minter Dependencies.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
-</div>
-</ons-list-item>
-
-</div>
-</ons-card>
-<ons-card data-card-name="Let_s Begin.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                          Let_s Begin.md
-                        </div>
-<div class="content">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
-<br/>
-<p>I have been working in the Games Industry for well over 10 years.  First starting as a 3D Artist then moving into Technical Art.  I can see that Web3 holds great potential for Artists.  Leveraging this tech, we can create content and host it on the decentralized web.  We can maintain, sell, and transfer real ownership of our art via NFTs.  This means we can take control of what we produce with no middlemen.</p>
-<p>Being that I am well versed in content creation for games, it only makes sense that I focus on this arena first.  I am currently working on a Blender Add-On that will allow us to export 3D assets to ipfs, and encapsulate all associated links in an NFT Minting page.  This page will allow others to purchase customized version of our game ready art assets as NFTs.  Though, instead of just being an image, HEAVYMETA NFTs have real utility.  Game developers can use these assets in games, allowing players to use the same assets across multiple games where viable.</p>
-<p>It's still the wild west in Web3, and to me that seems like the best time possible to stake a claim.  If you're reading this, you probably have similar thoughts.  If you're up for it, I'd love for you to come along with me on this ride.
-<img alt="DALL&middot;E 2022-10-03 14.20.02 - A digital illustration of X, 4k, detailed, trending in artstation, of a robotic samurai-cowboy standing in the middle of town with the sunrise behind .png" src="../_resources/DALL&middot;E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png"/></p>
-<ons-list>
-</ons-list>
-</div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Let_s Begin.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
-</div>
-</ons-list-item>
-
-</div>
-</ons-card>
-</ons-col>
-<ons-col width="50.0%">
-</ons-col>
-</ons-row>
-</div>
-</div>
-</ons-carousel-item>
-</ons-carousel>
-</ons-page>
-</template>
 <!-- Tabs Home Page Template -->
 <!-- Home Page Template (for splitter mode only) -->
+<template id="home.html">
+<ons-page>
+<ons-toolbar modifier="material">
+<div class="center">
+        Welcome to HVYM Press Test Site
+      </div>
+<div class="left">
+<ons-toolbar-button modifier="material" onclick="fn.open()">
+<ons-icon icon="md-menu"></ons-icon>
+</ons-toolbar-button>
+</div>
+</ons-toolbar>
+<!-- Hero Section (if configured) -->
+<div class="hero-section">
+<div class="hero-content">
+<h1 class="hero-title">Build Amazing Static Sites</h1>
+<p class="hero-subtitle">With HVYM Press and Markdown - Now with Home Pages!</p>
+<ons-button class="hero-cta" modifier="large" onclick="fn.load('HEAVYMETA Blog.html')">
+          Explore Now
+        </ons-button>
+</div>
+</div>
+<!-- Navigation Buttons (from frontmatter) -->
+<div class="home-navigation">
+</div>
+<!-- Main Content (processed markdown) -->
+<div class="home-content">
+<h1>Welcome to HVYM Press Test Site</h1>
+<p>This is a comprehensive test of the new home page functionality. You can use all standard markdown features while enjoying enhanced navigation capabilities.</p>
+<h2>🚀 Quick Navigation</h2>
+<p>Use these buttons to navigate to different sections:</p>
+<p><ons-button class="home-nav-button" modifier="primary" onclick="fn.load('HEAVYMETA Blog.html')">
+
+           Get Started
+
+       </ons-button>
+<ons-button class="home-nav-button" modifier="primary" onclick="fn.load('IPFS Gateway 2023.html')">
+
+           View Tutorials
+
+       </ons-button>
+<ons-button class="home-nav-button" modifier="primary" onclick="fn.load('HEAVYMETA Blog.html')">
+
+           About
+
+       </ons-button>
+<ons-button class="home-nav-button" modifier="primary" onclick="fn.load('IPFS Gateway 2023.html')">
+
+           Contact
+
+       </ons-button></p>
+<h2>✨ Features</h2>
+<ul>
+<li><strong>Easy markdown editing</strong> - Write content naturally</li>
+<li><strong>Automatic site generation</strong> - Build sites with one click</li>
+<li><strong>Professional layouts</strong> - Beautiful, responsive designs</li>
+<li><strong>SEO optimization</strong> - Built-in search engine optimization</li>
+<li><strong>Home page support</strong> - Project-level landing pages</li>
+<li><strong>Hero sections</strong> - Eye-catching introductions</li>
+<li><strong>Navigation buttons</strong> - Automatic conversion from markdown links</li>
+</ul>
+<h2>🎯 How It Works</h2>
+<p>The home page system automatically:</p>
+<ol>
+<li><strong>Detects</strong> your <code>home.md</code> file in the base project folder</li>
+<li><strong>Processes</strong> YAML frontmatter for configuration</li>
+<li><strong>Converts</strong> navigation links to functional buttons</li>
+<li><strong>Renders</strong> beautiful hero sections and layouts</li>
+<li><strong>Integrates</strong> seamlessly with existing site structure</li>
+</ol>
+<h2>🔧 Configuration Options</h2>
+<h3>Hero Section</h3>
+<ul>
+<li><code>hero_title</code>: Main headline text</li>
+<li><code>hero_subtitle</code>: Supporting text below the title</li>
+<li><code>hero_image</code>: Background image for hero section</li>
+<li><code>cta_button</code>: Call-to-action button configuration</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+<li><code>navigation</code>: Array of navigation button definitions</li>
+<li>Each button can have different styles: <code>primary</code>, <code>secondary</code>, <code>outline</code>, <code>quiet</code></li>
+<li>Automatic page reference detection and validation</li>
+</ul>
+<h3>Layout &amp; Styling</h3>
+<ul>
+<li><code>layout</code>: Page layout type (hero, default, etc.)</li>
+<li><code>style</code>: Button and component styling</li>
+<li>Responsive design that works on all devices</li>
+</ul>
+<h2>📱 Responsive Design</h2>
+<p>This home page is fully responsive and includes:</p>
+<ul>
+<li><strong>Mobile-first design</strong> - Optimized for all screen sizes</li>
+<li><strong>Touch-friendly buttons</strong> - Large, accessible navigation elements</li>
+<li><strong>Flexible layouts</strong> - Adapts to different content lengths</li>
+<li><strong>Professional typography</strong> - Readable on all devices</li>
+</ul>
+<h2>🎨 Customization</h2>
+<p>You can customize the appearance by:</p>
+<ul>
+<li>Adding custom CSS classes to navigation links</li>
+<li>Modifying the hero section background</li>
+<li>Adjusting button sizes and styles</li>
+<li>Customizing the content layout and spacing</li>
+</ul>
+<h2>🔗 Navigation Examples</h2>
+<p>Here are some examples of how navigation links work:</p>
+<ul>
+<li><strong>Primary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.load('HEAVYMETA Blog.html')">
+
+           Get Started
+
+       </ons-button> - Uses primary styling</li>
+<li><strong>Secondary button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.load('IPFS Gateway 2023.html')">
+
+           Learn More
+
+       </ons-button> - Uses secondary styling  </li>
+<li><strong>Outline button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.load('HEAVYMETA Blog.html')">
+
+           Documentation
+
+       </ons-button> - Uses outline styling</li>
+<li><strong>Quiet button</strong>: <ons-button class="home-nav-button" modifier="primary" onclick="fn.load('IPFS Gateway 2023.html')">
+
+           Support
+
+       </ons-button> - Uses quiet styling</li>
+</ul>
+<h2>📚 Content Guidelines</h2>
+<p>When writing your home page content:</p>
+<ol>
+<li><strong>Keep it concise</strong> - Focus on key messages</li>
+<li><strong>Use clear navigation</strong> - Make it easy to find important sections</li>
+<li><strong>Include calls-to-action</strong> - Guide users to next steps</li>
+<li><strong>Optimize for scanning</strong> - Use headers and bullet points</li>
+<li><strong>Test navigation</strong> - Ensure all page references are valid</li>
+</ol>
+<h2>🚨 Important Notes</h2>
+<ul>
+<li><strong>Home page files must be in the base project folder</strong> (not in subfolders)</li>
+<li><strong>Supported filenames</strong>: <code>home.md</code>, <code>index.md</code>, <code>landing.md</code>, <code>welcome.md</code></li>
+<li><strong>Page references</strong> must match existing section names exactly</li>
+<li><strong>Navigation links</strong> automatically convert to functional buttons</li>
+<li><strong>Invalid page references</strong> fall back to regular links with warnings</li>
+</ul>
+<h2>🎉 Ready to Test!</h2>
+<p>This home page demonstrates all the features we've implemented:</p>
+<p>✅ <strong>Frontmatter processing</strong> - YAML configuration<br/>
+✅ <strong>Hero section</strong> - Eye-catching introduction<br/>
+✅ <strong>Navigation buttons</strong> - Automatic link conversion<br/>
+✅ <strong>Responsive design</strong> - Mobile-friendly layout<br/>
+✅ <strong>Content rendering</strong> - Markdown to HTML processing<br/>
+✅ <strong>Page integration</strong> - Seamless site navigation  </p>
+<hr/>
+<p><em>Built with HVYM Press - Now with Home Page Support!</em></p>
+<blockquote>
+<p><strong>Tip</strong>: Try clicking the navigation buttons above to test the functionality. Each button should take you to the corresponding section of your site.</p>
+</blockquote>
+</div>
+</ons-page>
+</template>
 <!-- Regular Page Templates -->
+<template id="HEAVYMETA Blog.html">
+<ons-page>
+<ons-toolbar modifier="material">
+<div class="center">
+        HEAVYMETA Blog
+      </div>
+<div class="left">
+<ons-toolbar-button modifier="material" onclick="fn.open()">
+<ons-icon icon="md-menu"></ons-icon>
+</ons-toolbar-button>
+</div>
+</ons-toolbar>
+<div style="text-align: center">
+<ons-row>
+<ons-col width="50.0%">
+<ons-card data-card-name="Public Set up" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
+<div class="title">
+                      Public Set up
+                    </div>
+<div class="content">
+<ons-list modifier="default">
+<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
+<div class="expandable-content">
+<div class="article">
+<br/>
+<p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04</p>
+<p><code>sudo apt update</code></p>
+<pre><code>sudo apt upgrade
+
+sudo ufw allow 22
+
+sudo ufw enable
+</code></pre>
+<p>Create a new user, $USER is replaced with a real username:</p>
+<p><code>sudo adduser&nbsp;$USER &amp;&amp; usermod -aG sudo&nbsp;$USER</code></p>
+<p>Switch over to your new user account:</p>
+<p><code>su - $USER</code>
+Download the latest ipfs:
+<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
+extract:
+<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
+Install:
+<code>cd kubo
+sudo bash install.sh
+ipfs --version</code></p>
+<p>Open swarm port:
+<code>sudo ufw allow 4001</code></p>
+<p>Initialize ipfs, make note of your peer address that is returned on init:
+<code>ipfs init --profile server</code></p>
+<p>Create a new service:
+<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
+<p>Copy this code in replacing $USER with your username:
+`[Unit]
+Description=IPFS Daemon
+After=network.target</p>
+<p>[Service]
+User=$USER
+Environment=IPFS_PATH=/home/$USER/.ipfs
+ExecStart=/usr/local/bin/ipfs daemon --init --migrate
+StandardOutput=journal
+Restart=on-failure
+KillSignal=SIGINT</p>
+<p>[Install]
+WantedBy=multi-user.target`</p>
+<p>Configure ipfs gateway, replace 'example.com' with your domain:
+NoFetch = True, means it will only retrieve files on your local node.</p>
+<p><code>ipfs config --json Gateway '{
+        "HTTPHeaders": {
+            "Access-Control-Allow-Origin": [
+                "*"
+            ]
+        },
+        "RootRedirect": "",
+        "Writable": false,
+        "PathPrefixes": [
+            "/blog",
+            "/refs"
+        ],
+        "APICommands": [],
+        "NoFetch": true,
+        "NoDNSLink": false,
+        "PublicGateways": {
+            "www.example.com": {
+                "NoDNSLink": false,
+                "Paths": [
+                    "/ipfs",
+                    "/ipns",
+                    "/api"
+                ],
+                "UseSubdomains": true
+            },
+            "example.com": {
+                "NoDNSLink": false,
+                "Paths": [
+                    "/ipfs",
+                    "/ipns",
+                    "/api"
+                ],
+                "UseSubdomains": false
+            }
+        }
+    }'</code></p>
+<p>Start ipfs:
+<code>sudo systemctl daemon-reload
+sudo systemctl start ipfs</code></p>
+<p>Enabled after rebooting:
+<code>sudo systemctl enable ipfs</code></p>
+<p>Now Install the nginx server:
+<code>sudo apt install nginx</code>
+Open port:
+<code>sudo ufw allow 80</code>
+Backup nginx original nginx config:
+<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
+Create a new config file:
+<code>sudo nano /etc/nginx/sites-available/default</code>
+Paste the following code, replacing 'your_domain_name.com' with yours:
+`server {
+    listen 80;
+    listen [::]:80;
+    server_name your_domain_name.com;</p>
+<pre><code>location /ipfs {
+    proxy_pass http://localhost:8080;
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+    allow all;
+}
+</code></pre>
+<p>}`</p>
+<p>Test the config, and reload the service:
+<code>sudo nginx -t
+sudo systemctl reload nginx</code></p>
+<p>Enable https with certbot:
+<code>sudo apt install certbot python3-certbot-nginx</code></p>
+<p>Let in HTTPS traffic:
+<code>sudo ufw allow 'Nginx Full'
+sudo ufw delete allow 'Nginx HTTP'</code></p>
+<p>Get the ssl certificate, replace 'example.com' with your domain:
+<code>sudo certbot --nginx -d example.com -d www.example.com</code></p>
+<ons-list>
+</ons-list>
+</div>
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Public Set up.html')">
+<ons-icon icon="fa-chevron-left"></ons-icon>
+</ons-fab>
+</div>
+</ons-list-item>
+</ons-list>
+</div>
+</ons-card>
+<ons-card data-card-name="README.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
+<div class="title">
+                      README.md
+                    </div>
+<div class="content">
+<ons-list modifier="default">
+<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
+<div class="expandable-content">
+<div class="article">
+<br/>
+<h1>HVYM Press</h1>
+<p>A modern, cross-platform static site generator with IPFS deployment capabilities using Pintheon.</p>
+<h2>🚀 Cross-Platform Support</h2>
+<p>This application now supports <strong>Windows</strong>, <strong>macOS</strong>, and <strong>Linux</strong> with automated installation scripts for each platform.</p>
+<h2>📋 Quick Installation</h2>
+<h3>Windows</h3>
+<p>```batch</p>
+<h1>Download and run as Administrator</h1>
+<p>install.bat
+```</p>
+<h3>macOS/Linux</h3>
+<p>```bash</p>
+<h1>Download and run</h1>
+<p>curl -L https://raw.githubusercontent.com/inviti8/hvym_press/refs/heads/main/install.sh | bash</p>
+<h1>Or use the Python installer</h1>
+<p>python3 install.py
+```</p>
+<h3>Manual Installation</h3>
+<p>```bash</p>
+<h1>Clone repository</h1>
+<p>git clone https://github.com/inviti8/hvym_press.git
+cd hvym_press</p>
+<h1>Install dependencies</h1>
+<p>pip install -r requirements.txt</p>
+<h1>Build and install</h1>
+<p>python build.py
+python install.py
+```</p>
+<h2>🔧 Features</h2>
+<ul>
+<li><strong>Cross-platform compatibility</strong> - Works on Windows, macOS, and Linux</li>
+<li><strong>IPFS deployment</strong> - Deploy sites to IPFS using Pintheon</li>
+<li><strong>Modern GUI</strong> - Built with FreeSimpleGUI</li>
+<li><strong>Template system</strong> - Customizable site templates</li>
+<li><strong>Local development</strong> - Built-in local server for testing</li>
+</ul>
+<h2>📖 Documentation</h2>
+<p>For detailed installation and usage instructions, see <a href="README_CROSS_PLATFORM.md">README_CROSS_PLATFORM.md</a>.</p>
+<h2>🆘 Support</h2>
+<ul>
+<li><strong>Issues</strong>: <a href="https://github.com/inviti8/hvym_press/issues">GitHub Issues</a></li>
+<li><strong>Documentation</strong>: <a href="README_CROSS_PLATFORM.md">Cross-Platform Guide</a></li>
+</ul>
+<hr/>
+<p><strong>Note</strong>: This application has been refactored to use Pintheon instead of Pinata for IPFS deployment, and all platform-specific issues have been resolved for full cross-platform compatibility.</p>
+<ons-list>
+</ons-list>
+</div>
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_README.md.html')">
+<ons-icon icon="fa-chevron-left"></ons-icon>
+</ons-fab>
+</div>
+</ons-list-item>
+</ons-list>
+</div>
+</ons-card>
+</ons-col>
+<ons-col width="50.0%">
+<ons-card data-card-name="Minter Dependencies.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
+<div class="title">
+                      Minter Dependencies.md
+                    </div>
+<div class="content">
+<ons-list modifier="default">
+<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
+<div class="left">
+<img class="list-item__thumbnail" src="data:image/png;base64,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"/>
+<p class="list-item__subtitle author">test</p>
+</div>
+<div class="expandable-content">
+<div class="article">
+<br/>
+<p>Python:
+- <a href="https://pypi.org/project/py-solc-x/">Solidity Compiler, py-solc-x</a>
+- <a href="https://www.youtube.com/watch?v=7FcX9uWDuIQ&amp;list=PLAxJ4-o7ZoPeUqGpMhvJoVk5G-TrvMAd-&amp;index=12">Package Deployment</a></p>
+<p>Node:
+- npm install @openzeppelin/contracts</p>
+<p>Blender:
+- <a href="https://github.com/omigroup/omi-blender-gltf">omi-blender-gltf</a>
+- <a href="glTF-Blender-IO-materials-variants">gltf-Blender-IO-materials-variants</a></p>
+<ons-list>
+</ons-list>
+</div>
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Minter Dependencies.md.html')">
+<ons-icon icon="fa-chevron-left"></ons-icon>
+</ons-fab>
+</div>
+</ons-list-item>
+</ons-list>
+</div>
+</ons-card>
+<ons-card data-card-name="Let_s Begin.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
+<div class="title">
+                      Let_s Begin.md
+                    </div>
+<div class="content">
+<ons-list modifier="default">
+<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
+<div class="expandable-content">
+<div class="article">
+<br/>
+<p>I have been working in the Games Industry for well over 10 years.  First starting as a 3D Artist then moving into Technical Art.  I can see that Web3 holds great potential for Artists.  Leveraging this tech, we can create content and host it on the decentralized web.  We can maintain, sell, and transfer real ownership of our art via NFTs.  This means we can take control of what we produce with no middlemen.</p>
+<p>Being that I am well versed in content creation for games, it only makes sense that I focus on this arena first.  I am currently working on a Blender Add-On that will allow us to export 3D assets to ipfs, and encapsulate all associated links in an NFT Minting page.  This page will allow others to purchase customized version of our game ready art assets as NFTs.  Though, instead of just being an image, HEAVYMETA NFTs have real utility.  Game developers can use these assets in games, allowing players to use the same assets across multiple games where viable.</p>
+<p>It's still the wild west in Web3, and to me that seems like the best time possible to stake a claim.  If you're reading this, you probably have similar thoughts.  If you're up for it, I'd love for you to come along with me on this ride.
+<img alt="DALL&middot;E 2022-10-03 14.20.02 - A digital illustration of X, 4k, detailed, trending in artstation, of a robotic samurai-cowboy standing in the middle of town with the sunrise behind .png" src="../_resources/DALL&middot;E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png"/></p>
+<ons-list>
+</ons-list>
+</div>
+<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Let_s Begin.md.html')">
+<ons-icon icon="fa-chevron-left"></ons-icon>
+</ons-fab>
+</div>
+</ons-list-item>
+</ons-list>
+</div>
+</ons-card>
+</ons-col>
+</ons-row>
+</div>
+</ons-page>
+</template>
 <template id="IPFS Gateway 2023.html">
 <ons-page>
 <ons-toolbar modifier="material">
 <div class="center">
         IPFS Gateway 2023
       </div>
+<div class="left">
+<ons-toolbar-button modifier="material" onclick="fn.open()">
+<ons-icon icon="md-menu"></ons-icon>
+</ons-toolbar-button>
+</div>
 </ons-toolbar>
 <div style="text-align: center">
 <ons-row>
@@ -2021,91 +1193,24 @@ server {
 </div>
 </ons-page>
 </template>
-<template id="HEAVYMETA Blog.html">
-<ons-page>
+<template id="nav_Public Set up.html">
+<ons-page id="nav_Public Set up">
+<div>
 <ons-toolbar modifier="material">
-<div class="center">
-        HEAVYMETA Blog
-      </div>
+<div class="left">
+<ons-back-button modifier="material">Back</ons-back-button>
+</div>
+<div class="center"></div>
+<div class="left">
+<ons-toolbar-button modifier="material" onclick="fn.open()">
+<ons-icon icon="md-menu"></ons-icon>
+</ons-toolbar-button>
+</div>
 </ons-toolbar>
-<div style="text-align: center">
-<ons-row>
-<ons-col width="50.0%">
-<ons-card data-card-name="README.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                      README.md
-                    </div>
-<div class="content">
-<ons-list modifier="default">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
+<div style="text-align: center; background-color: rgba(255, 255, 255, 0.0);">
+<h1>Public Set up</h1>
 <br/>
-<h1>HVYM Press</h1>
-<p>A modern, cross-platform static site generator with IPFS deployment capabilities using Pintheon.</p>
-<h2>🚀 Cross-Platform Support</h2>
-<p>This application now supports <strong>Windows</strong>, <strong>macOS</strong>, and <strong>Linux</strong> with automated installation scripts for each platform.</p>
-<h2>📋 Quick Installation</h2>
-<h3>Windows</h3>
-<p>```batch</p>
-<h1>Download and run as Administrator</h1>
-<p>install.bat
-```</p>
-<h3>macOS/Linux</h3>
-<p>```bash</p>
-<h1>Download and run</h1>
-<p>curl -L https://raw.githubusercontent.com/inviti8/hvym_press/refs/heads/main/install.sh | bash</p>
-<h1>Or use the Python installer</h1>
-<p>python3 install.py
-```</p>
-<h3>Manual Installation</h3>
-<p>```bash</p>
-<h1>Clone repository</h1>
-<p>git clone https://github.com/inviti8/hvym_press.git
-cd hvym_press</p>
-<h1>Install dependencies</h1>
-<p>pip install -r requirements.txt</p>
-<h1>Build and install</h1>
-<p>python build.py
-python install.py
-```</p>
-<h2>🔧 Features</h2>
-<ul>
-<li><strong>Cross-platform compatibility</strong> - Works on Windows, macOS, and Linux</li>
-<li><strong>IPFS deployment</strong> - Deploy sites to IPFS using Pintheon</li>
-<li><strong>Modern GUI</strong> - Built with FreeSimpleGUI</li>
-<li><strong>Template system</strong> - Customizable site templates</li>
-<li><strong>Local development</strong> - Built-in local server for testing</li>
-</ul>
-<h2>📖 Documentation</h2>
-<p>For detailed installation and usage instructions, see <a href="README_CROSS_PLATFORM.md">README_CROSS_PLATFORM.md</a>.</p>
-<h2>🆘 Support</h2>
-<ul>
-<li><strong>Issues</strong>: <a href="https://github.com/inviti8/hvym_press/issues">GitHub Issues</a></li>
-<li><strong>Documentation</strong>: <a href="README_CROSS_PLATFORM.md">Cross-Platform Guide</a></li>
-</ul>
-<hr/>
-<p><strong>Note</strong>: This application has been refactored to use Pintheon instead of Pinata for IPFS deployment, and all platform-specific issues have been resolved for full cross-platform compatibility.</p>
-<ons-list>
-</ons-list>
-</div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_README.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
-</div>
-</ons-list-item>
-</ons-list>
-</div>
-</ons-card>
-<ons-card data-card-name="Public Set up.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                      Public Set up.md
-                    </div>
-<div class="content">
-<ons-list modifier="default">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
+<div class="expanded_article">
 <br/>
 <p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04</p>
 <p><code>sudo apt update</code></p>
@@ -2223,23 +1328,99 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 <ons-list>
 </ons-list>
 </div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Public Set up.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
 </div>
-</ons-list-item>
+</div>
+</ons-page>
+</template>
+<template id="nav_README.md.html">
+<ons-page id="nav_README.md">
+<div>
+<ons-toolbar modifier="material">
+<div class="left">
+<ons-back-button modifier="material">Back</ons-back-button>
+</div>
+<div class="center"></div>
+<div class="left">
+<ons-toolbar-button modifier="material" onclick="fn.open()">
+<ons-icon icon="md-menu"></ons-icon>
+</ons-toolbar-button>
+</div>
+</ons-toolbar>
+<div style="text-align: center; background-color: rgba(255, 255, 255, 0.0);">
+<h1>README.md</h1>
+<br/>
+<div class="expanded_article">
+<br/>
+<h1>HVYM Press</h1>
+<p>A modern, cross-platform static site generator with IPFS deployment capabilities using Pintheon.</p>
+<h2>🚀 Cross-Platform Support</h2>
+<p>This application now supports <strong>Windows</strong>, <strong>macOS</strong>, and <strong>Linux</strong> with automated installation scripts for each platform.</p>
+<h2>📋 Quick Installation</h2>
+<h3>Windows</h3>
+<p>```batch</p>
+<h1>Download and run as Administrator</h1>
+<p>install.bat
+```</p>
+<h3>macOS/Linux</h3>
+<p>```bash</p>
+<h1>Download and run</h1>
+<p>curl -L https://raw.githubusercontent.com/inviti8/hvym_press/refs/heads/main/install.sh | bash</p>
+<h1>Or use the Python installer</h1>
+<p>python3 install.py
+```</p>
+<h3>Manual Installation</h3>
+<p>```bash</p>
+<h1>Clone repository</h1>
+<p>git clone https://github.com/inviti8/hvym_press.git
+cd hvym_press</p>
+<h1>Install dependencies</h1>
+<p>pip install -r requirements.txt</p>
+<h1>Build and install</h1>
+<p>python build.py
+python install.py
+```</p>
+<h2>🔧 Features</h2>
+<ul>
+<li><strong>Cross-platform compatibility</strong> - Works on Windows, macOS, and Linux</li>
+<li><strong>IPFS deployment</strong> - Deploy sites to IPFS using Pintheon</li>
+<li><strong>Modern GUI</strong> - Built with FreeSimpleGUI</li>
+<li><strong>Template system</strong> - Customizable site templates</li>
+<li><strong>Local development</strong> - Built-in local server for testing</li>
+</ul>
+<h2>📖 Documentation</h2>
+<p>For detailed installation and usage instructions, see <a href="README_CROSS_PLATFORM.md">README_CROSS_PLATFORM.md</a>.</p>
+<h2>🆘 Support</h2>
+<ul>
+<li><strong>Issues</strong>: <a href="https://github.com/inviti8/hvym_press/issues">GitHub Issues</a></li>
+<li><strong>Documentation</strong>: <a href="README_CROSS_PLATFORM.md">Cross-Platform Guide</a></li>
+</ul>
+<hr/>
+<p><strong>Note</strong>: This application has been refactored to use Pintheon instead of Pinata for IPFS deployment, and all platform-specific issues have been resolved for full cross-platform compatibility.</p>
+<ons-list>
 </ons-list>
 </div>
-</ons-card>
-<ons-card data-card-name="Minter Dependencies.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                      Minter Dependencies.md
-                    </div>
-<div class="content">
-<ons-list modifier="default">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
+</div>
+</div>
+</ons-page>
+</template>
+<template id="nav_Minter Dependencies.md.html">
+<ons-page id="nav_Minter Dependencies.md">
+<div>
+<ons-toolbar modifier="material">
+<div class="left">
+<ons-back-button modifier="material">Back</ons-back-button>
+</div>
+<div class="center"></div>
+<div class="left">
+<ons-toolbar-button modifier="material" onclick="fn.open()">
+<ons-icon icon="md-menu"></ons-icon>
+</ons-toolbar-button>
+</div>
+</ons-toolbar>
+<div style="text-align: center; background-color: rgba(255, 255, 255, 0.0);">
+<h1>Minter Dependencies.md</h1>
+<br/>
+<div class="expanded_article">
 <br/>
 <p>Python:
 - <a href="https://pypi.org/project/py-solc-x/">Solidity Compiler, py-solc-x</a>
@@ -2252,23 +1433,28 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 <ons-list>
 </ons-list>
 </div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Minter Dependencies.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
 </div>
-</ons-list-item>
-</ons-list>
 </div>
-</ons-card>
-<ons-card data-card-name="Let_s Begin.md" modifier="material" style="max-width:90%;  margin:0 auto; margin-bottom: 5px;">
-<div class="title">
-                      Let_s Begin.md
-                    </div>
-<div class="content">
-<ons-list modifier="default">
-<ons-list-item class="list-item list-item--expandable expanded" expandable="" expanded="">
-<div class="expandable-content">
-<div class="article">
+</ons-page>
+</template>
+<template id="nav_Let_s Begin.md.html">
+<ons-page id="nav_Let_s Begin.md">
+<div>
+<ons-toolbar modifier="material">
+<div class="left">
+<ons-back-button modifier="material">Back</ons-back-button>
+</div>
+<div class="center"></div>
+<div class="left">
+<ons-toolbar-button modifier="material" onclick="fn.open()">
+<ons-icon icon="md-menu"></ons-icon>
+</ons-toolbar-button>
+</div>
+</ons-toolbar>
+<div style="text-align: center; background-color: rgba(255, 255, 255, 0.0);">
+<h1>Let_s Begin.md</h1>
+<br/>
+<div class="expanded_article">
 <br/>
 <p>I have been working in the Games Industry for well over 10 years.  First starting as a 3D Artist then moving into Technical Art.  I can see that Web3 holds great potential for Artists.  Leveraging this tech, we can create content and host it on the decentralized web.  We can maintain, sell, and transfer real ownership of our art via NFTs.  This means we can take control of what we produce with no middlemen.</p>
 <p>Being that I am well versed in content creation for games, it only makes sense that I focus on this arena first.  I am currently working on a Blender Add-On that will allow us to export 3D assets to ipfs, and encapsulate all associated links in an NFT Minting page.  This page will allow others to purchase customized version of our game ready art assets as NFTs.  Though, instead of just being an image, HEAVYMETA NFTs have real utility.  Game developers can use these assets in games, allowing players to use the same assets across multiple games where viable.</p>
@@ -2277,18 +1463,7 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 <ons-list>
 </ons-list>
 </div>
-<ons-fab modifier="material" onclick="myNavigator.pushPage('nav_Let_s Begin.md.html')">
-<ons-icon icon="fa-chevron-left"></ons-icon>
-</ons-fab>
 </div>
-</ons-list-item>
-</ons-list>
-</div>
-</ons-card>
-</ons-col>
-<ons-col width="50.0%">
-</ons-col>
-</ons-row>
 </div>
 </ons-page>
 </template>
@@ -2306,7 +1481,7 @@ sudo ufw delete allow 'Nginx HTTP'</code></p>
 </ons-toolbar-button>
 </div>
 </ons-toolbar>
-<div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
+<div style="text-align: center; background-color: rgba(255, 255, 255, 0.0);">
 <h1>Private Set up.md</h1>
 <br/>
 <div class="expanded_article">
@@ -2439,280 +1614,6 @@ server {
 <code>sudo ufw delete allow 'Nginx HTTP'</code></p>
 <p>Get the ssl certificate, replace 'example.com' with your domain:
 <code>sudo certbot --nginx -d example.com</code></p>
-<ons-list>
-</ons-list>
-</div>
-</div>
-</div>
-</ons-page>
-</template>
-<template id="nav_README.md.html">
-<ons-page id="nav_README.md">
-<div>
-<ons-toolbar modifier="material">
-<div class="left">
-<ons-back-button modifier="material">Back</ons-back-button>
-</div>
-<div class="center"></div>
-<div class="left">
-<ons-toolbar-button modifier="material" onclick="fn.open()">
-<ons-icon icon="md-menu"></ons-icon>
-</ons-toolbar-button>
-</div>
-</ons-toolbar>
-<div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
-<h1>README.md</h1>
-<br/>
-<div class="expanded_article">
-<br/>
-<h1>HVYM Press</h1>
-<p>A modern, cross-platform static site generator with IPFS deployment capabilities using Pintheon.</p>
-<h2>🚀 Cross-Platform Support</h2>
-<p>This application now supports <strong>Windows</strong>, <strong>macOS</strong>, and <strong>Linux</strong> with automated installation scripts for each platform.</p>
-<h2>📋 Quick Installation</h2>
-<h3>Windows</h3>
-<p>```batch</p>
-<h1>Download and run as Administrator</h1>
-<p>install.bat
-```</p>
-<h3>macOS/Linux</h3>
-<p>```bash</p>
-<h1>Download and run</h1>
-<p>curl -L https://raw.githubusercontent.com/inviti8/hvym_press/refs/heads/main/install.sh | bash</p>
-<h1>Or use the Python installer</h1>
-<p>python3 install.py
-```</p>
-<h3>Manual Installation</h3>
-<p>```bash</p>
-<h1>Clone repository</h1>
-<p>git clone https://github.com/inviti8/hvym_press.git
-cd hvym_press</p>
-<h1>Install dependencies</h1>
-<p>pip install -r requirements.txt</p>
-<h1>Build and install</h1>
-<p>python build.py
-python install.py
-```</p>
-<h2>🔧 Features</h2>
-<ul>
-<li><strong>Cross-platform compatibility</strong> - Works on Windows, macOS, and Linux</li>
-<li><strong>IPFS deployment</strong> - Deploy sites to IPFS using Pintheon</li>
-<li><strong>Modern GUI</strong> - Built with FreeSimpleGUI</li>
-<li><strong>Template system</strong> - Customizable site templates</li>
-<li><strong>Local development</strong> - Built-in local server for testing</li>
-</ul>
-<h2>📖 Documentation</h2>
-<p>For detailed installation and usage instructions, see <a href="README_CROSS_PLATFORM.md">README_CROSS_PLATFORM.md</a>.</p>
-<h2>🆘 Support</h2>
-<ul>
-<li><strong>Issues</strong>: <a href="https://github.com/inviti8/hvym_press/issues">GitHub Issues</a></li>
-<li><strong>Documentation</strong>: <a href="README_CROSS_PLATFORM.md">Cross-Platform Guide</a></li>
-</ul>
-<hr/>
-<p><strong>Note</strong>: This application has been refactored to use Pintheon instead of Pinata for IPFS deployment, and all platform-specific issues have been resolved for full cross-platform compatibility.</p>
-<ons-list>
-</ons-list>
-</div>
-</div>
-</div>
-</ons-page>
-</template>
-<template id="nav_Public Set up.md.html">
-<ons-page id="nav_Public Set up.md">
-<div>
-<ons-toolbar modifier="material">
-<div class="left">
-<ons-back-button modifier="material">Back</ons-back-button>
-</div>
-<div class="center"></div>
-<div class="left">
-<ons-toolbar-button modifier="material" onclick="fn.open()">
-<ons-icon icon="md-menu"></ons-icon>
-</ons-toolbar-button>
-</div>
-</ons-toolbar>
-<div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
-<h1>Public Set up.md</h1>
-<br/>
-<div class="expanded_article">
-<br/>
-<p>Spin up new server on <strong>Digital Ocean</strong>:&nbsp;Ubuntu 20.04</p>
-<p><code>sudo apt update</code></p>
-<pre><code>sudo apt upgrade
-
-sudo ufw allow 22
-
-sudo ufw enable
-</code></pre>
-<p>Create a new user, $USER is replaced with a real username:</p>
-<p><code>sudo adduser&nbsp;$USER &amp;&amp; usermod -aG sudo&nbsp;$USER</code></p>
-<p>Switch over to your new user account:</p>
-<p><code>su - $USER</code>
-Download the latest ipfs:
-<code>wget https://dist.ipfs.tech/kubo/v0.19.1/kubo_v0.19.1_linux-amd64.tar.gz</code>
-extract:
-<code>tar -xvzf kubo_v0.19.1_linux-amd64.tar.gz</code>
-Install:
-<code>cd kubo
-sudo bash install.sh
-ipfs --version</code></p>
-<p>Open swarm port:
-<code>sudo ufw allow 4001</code></p>
-<p>Initialize ipfs, make note of your peer address that is returned on init:
-<code>ipfs init --profile server</code></p>
-<p>Create a new service:
-<code>sudo nano /etc/systemd/system/ipfs.service</code></p>
-<p>Copy this code in replacing $USER with your username:
-`[Unit]
-Description=IPFS Daemon
-After=network.target</p>
-<p>[Service]
-User=$USER
-Environment=IPFS_PATH=/home/$USER/.ipfs
-ExecStart=/usr/local/bin/ipfs daemon --init --migrate
-StandardOutput=journal
-Restart=on-failure
-KillSignal=SIGINT</p>
-<p>[Install]
-WantedBy=multi-user.target`</p>
-<p>Configure ipfs gateway, replace 'example.com' with your domain:
-NoFetch = True, means it will only retrieve files on your local node.</p>
-<p><code>ipfs config --json Gateway '{
-        "HTTPHeaders": {
-            "Access-Control-Allow-Origin": [
-                "*"
-            ]
-        },
-        "RootRedirect": "",
-        "Writable": false,
-        "PathPrefixes": [
-            "/blog",
-            "/refs"
-        ],
-        "APICommands": [],
-        "NoFetch": true,
-        "NoDNSLink": false,
-        "PublicGateways": {
-            "www.example.com": {
-                "NoDNSLink": false,
-                "Paths": [
-                    "/ipfs",
-                    "/ipns",
-                    "/api"
-                ],
-                "UseSubdomains": true
-            },
-            "example.com": {
-                "NoDNSLink": false,
-                "Paths": [
-                    "/ipfs",
-                    "/ipns",
-                    "/api"
-                ],
-                "UseSubdomains": false
-            }
-        }
-    }'</code></p>
-<p>Start ipfs:
-<code>sudo systemctl daemon-reload
-sudo systemctl start ipfs</code></p>
-<p>Enabled after rebooting:
-<code>sudo systemctl enable ipfs</code></p>
-<p>Now Install the nginx server:
-<code>sudo apt install nginx</code>
-Open port:
-<code>sudo ufw allow 80</code>
-Backup nginx original nginx config:
-<code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default_back</code>
-Create a new config file:
-<code>sudo nano /etc/nginx/sites-available/default</code>
-Paste the following code, replacing 'your_domain_name.com' with yours:
-`server {
-    listen 80;
-    listen [::]:80;
-    server_name your_domain_name.com;</p>
-<pre><code>location /ipfs {
-    proxy_pass http://localhost:8080;
-    proxy_set_header Host $host;
-    proxy_cache_bypass $http_upgrade;
-    allow all;
-}
-</code></pre>
-<p>}`</p>
-<p>Test the config, and reload the service:
-<code>sudo nginx -t
-sudo systemctl reload nginx</code></p>
-<p>Enable https with certbot:
-<code>sudo apt install certbot python3-certbot-nginx</code></p>
-<p>Let in HTTPS traffic:
-<code>sudo ufw allow 'Nginx Full'
-sudo ufw delete allow 'Nginx HTTP'</code></p>
-<p>Get the ssl certificate, replace 'example.com' with your domain:
-<code>sudo certbot --nginx -d example.com -d www.example.com</code></p>
-<ons-list>
-</ons-list>
-</div>
-</div>
-</div>
-</ons-page>
-</template>
-<template id="nav_Minter Dependencies.md.html">
-<ons-page id="nav_Minter Dependencies.md">
-<div>
-<ons-toolbar modifier="material">
-<div class="left">
-<ons-back-button modifier="material">Back</ons-back-button>
-</div>
-<div class="center"></div>
-<div class="left">
-<ons-toolbar-button modifier="material" onclick="fn.open()">
-<ons-icon icon="md-menu"></ons-icon>
-</ons-toolbar-button>
-</div>
-</ons-toolbar>
-<div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
-<h1>Minter Dependencies.md</h1>
-<br/>
-<div class="expanded_article">
-<br/>
-<p>Python:
-- <a href="https://pypi.org/project/py-solc-x/">Solidity Compiler, py-solc-x</a>
-- <a href="https://www.youtube.com/watch?v=7FcX9uWDuIQ&amp;list=PLAxJ4-o7ZoPeUqGpMhvJoVk5G-TrvMAd-&amp;index=12">Package Deployment</a></p>
-<p>Node:
-- npm install @openzeppelin/contracts</p>
-<p>Blender:
-- <a href="https://github.com/omigroup/omi-blender-gltf">omi-blender-gltf</a>
-- <a href="glTF-Blender-IO-materials-variants">gltf-Blender-IO-materials-variants</a></p>
-<ons-list>
-</ons-list>
-</div>
-</div>
-</div>
-</ons-page>
-</template>
-<template id="nav_Let_s Begin.md.html">
-<ons-page id="nav_Let_s Begin.md">
-<div>
-<ons-toolbar modifier="material">
-<div class="left">
-<ons-back-button modifier="material">Back</ons-back-button>
-</div>
-<div class="center"></div>
-<div class="left">
-<ons-toolbar-button modifier="material" onclick="fn.open()">
-<ons-icon icon="md-menu"></ons-icon>
-</ons-toolbar-button>
-</div>
-</ons-toolbar>
-<div style="text-align: center; background-color: rgba(255, 255, 255, 0.5);">
-<h1>Let_s Begin.md</h1>
-<br/>
-<div class="expanded_article">
-<br/>
-<p>I have been working in the Games Industry for well over 10 years.  First starting as a 3D Artist then moving into Technical Art.  I can see that Web3 holds great potential for Artists.  Leveraging this tech, we can create content and host it on the decentralized web.  We can maintain, sell, and transfer real ownership of our art via NFTs.  This means we can take control of what we produce with no middlemen.</p>
-<p>Being that I am well versed in content creation for games, it only makes sense that I focus on this arena first.  I am currently working on a Blender Add-On that will allow us to export 3D assets to ipfs, and encapsulate all associated links in an NFT Minting page.  This page will allow others to purchase customized version of our game ready art assets as NFTs.  Though, instead of just being an image, HEAVYMETA NFTs have real utility.  Game developers can use these assets in games, allowing players to use the same assets across multiple games where viable.</p>
-<p>It's still the wild west in Web3, and to me that seems like the best time possible to stake a claim.  If you're reading this, you probably have similar thoughts.  If you're up for it, I'd love for you to come along with me on this ride.
-<img alt="DALL&middot;E 2022-10-03 14.20.02 - A digital illustration of X, 4k, detailed, trending in artstation, of a robotic samurai-cowboy standing in the middle of town with the sunrise behind .png" src="../_resources/DALL&middot;E%202022-10-03%2014.20.02%20-%20A%20digital%20illustratio.png"/></p>
 <ons-list>
 </ons-list>
 </div>

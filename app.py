@@ -52,39 +52,17 @@ import subprocess
 
 
 
-# hvym_theme = {'BACKGROUND': '#31b09c',
-
-#                 'TEXT': '#fff4c9',
-
-#                 'INPUT': '#712d3d',
-
-#                 'TEXT_INPUT': '#fff4c9',
-
-#                 'SCROLL': '#4ed8a7',
-
-#                 'BUTTON': ('#afe8c5', '#cf5270'),
-
-#                 'PROGRESS': ('#01826B', '#D0D0D0'),
-
-#                 'BORDER': 0,
-
-#                 'SLIDER_DEPTH': 0,
-
-#                 'PROGRESS_DEPTH': 0}
-
-
-
-hvym_theme = {'BACKGROUND': '#98314a',
+hvym_theme = {'BACKGROUND': "#3A4C4C",
 
                 'TEXT': '#fff4c9',
 
-                'INPUT': '#712d3d',
+                'INPUT': "#59837B",
 
                 'TEXT_INPUT': '#fff4c9',
 
-                'SCROLL': '#01826B',
+                'SCROLL': '#4ed8a7',
 
-                'BUTTON': ('#712d3d', '#31b09c'),
+                'BUTTON': ('#afe8c5', "#75585f"),
 
                 'PROGRESS': ('#01826B', '#D0D0D0'),
 
@@ -93,6 +71,28 @@ hvym_theme = {'BACKGROUND': '#98314a',
                 'SLIDER_DEPTH': 0,
 
                 'PROGRESS_DEPTH': 0}
+
+
+
+# hvym_theme = {'BACKGROUND': '#98314a',
+
+#                 'TEXT': '#fff4c9',
+
+#                 'INPUT': '#712d3d',
+
+#                 'TEXT_INPUT': '#fff4c9',
+
+#                 'SCROLL': '#01826B',
+
+#                 'BUTTON': ('#712d3d', '#31b09c'),
+
+#                 'PROGRESS': ('#01826B', '#D0D0D0'),
+
+#                 'BORDER': 0,
+
+#                 'SLIDER_DEPTH': 0,
+
+#                 'PROGRESS_DEPTH': 0}
 
 
 
