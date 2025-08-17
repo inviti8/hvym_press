@@ -1,8 +1,34 @@
 # -*- mode: python ; coding: utf-8 -*-
+"""
+PyInstaller spec file for hvym_press
+Platform-agnostic configuration with icon support
+"""
 
+import os
+import platform
+
+# Platform-specific icon configuration
+if platform.system() == "Windows":
+    icon_file = "images/logo.ico"
+else:
+    icon_file = "images/logo.png"
+
+# Source files (relative paths)
+source_files = [
+    'app.py',
+    'ColorPicker.py', 
+    'HVYM.py',
+    'IconPicker.py',
+    'LoadingWindow.py',
+    'MarkdownHandler.py',
+    'ServerHandler.py',
+    'SiteDataHandler.py',
+    'TreeData.py',
+    'W3DeployHandler.py'
+]
 
 a = Analysis(
-    ['/media/desktop/_dsk/dev/hvym_press/app.py', '/media/desktop/_dsk/dev/hvym_press/ColorPicker.py', '/media/desktop/_dsk/dev/hvym_press/HVYM.py', '/media/desktop/_dsk/dev/hvym_press/IconPicker.py', '/media/desktop/_dsk/dev/hvym_press/LoadingWindow.py', '/media/desktop/_dsk/dev/hvym_press/MarkdownHandler.py', '/media/desktop/_dsk/dev/hvym_press/ServerHandler.py', '/media/desktop/_dsk/dev/hvym_press/SiteDataHandler.py', '/media/desktop/_dsk/dev/hvym_press/TreeData.py', '/media/desktop/_dsk/dev/hvym_press/W3DeployHandler.py'],
+    source_files,
     pathex=[],
     binaries=[],
     datas=[('templates', 'templates'), ('images', 'images'), ('serve', 'serve')],
@@ -14,6 +40,7 @@ a = Analysis(
     noarchive=False,
     optimize=0,
 )
+
 pyz = PYZ(a.pure)
 
 exe = EXE(
@@ -35,4 +62,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=icon_file,  # Platform-specific icon
 )
