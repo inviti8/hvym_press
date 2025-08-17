@@ -4056,21 +4056,9 @@ class SiteDataHandler:
         # Create Onsen UI button with navigation
 
         button_html = f"""
-
-
-
        <ons-button onclick="{onclick_function}" modifier="{button_style}" class="home-nav-button">
-
-
-
            {text}
-
-
-
        </ons-button>
-
-
-
        """
 
         return BeautifulSoup(button_html, "html.parser").find("ons-button")

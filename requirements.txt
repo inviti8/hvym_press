@@ -30,3 +30,5 @@ urllib3>=2.5.0
 zipp==3.21.0
 stellar-sdk==12.3.0
 hvym_stellar==0.8
+cffi>=1.14.0
+pynacl>=1.4.0

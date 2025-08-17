@@ -271,13 +271,16 @@ class BuildManager:
             f"--distpath={self.dist_dir}",
             "--clean",
             "--noconfirm",
+            "--log-level", "DEBUG",  # Enable debug logging for PyInstaller
+            "--hidden-import", "cffi",  # Explicitly include cffi
+            "--hidden-import", "_cffi_backend",  # Explicitly include _cffi_backend
+            "--hidden-import", "nacl",  # Ensure PyNaCl is included
+            "--hidden-import", "hvym_stellar",  # Include your custom package
         ]
 
         # Add source files
         for file_name in self.config.source_files:
-            if (
-                file_name != "requirements.txt"
-            ):  # Don't include requirements.txt in executable
+            if file_name != "requirements.txt":  # Don't include requirements.txt in executable
                 source_file = self.build_dir / file_name
                 if source_file.exists():
                     cmd.append(str(source_file))
@@ -298,6 +301,7 @@ class BuildManager:
         try:
             result = subprocess.run(cmd, check=True, capture_output=True, text=True)
             print("SUCCESS: Executable built successfully")
+            print(f"Build output: {result.stdout}")
             return True
         except subprocess.CalledProcessError as e:
             print(f"ERROR: Build failed: {e}")
