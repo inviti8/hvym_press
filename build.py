@@ -105,6 +105,12 @@ else:
     executable_name = "hvym_press"
     add_data_sep = ":"
 
+# Platform-specific icon configuration
+if current_platform == "windows":
+    icon_param = "--icon=images/logo.ico"
+else:
+    icon_param = "--icon=images/logo.png"
+
 # build the python script into an executable using PyInstaller
 subprocess.run(
     [
@@ -122,6 +128,7 @@ subprocess.run(
         "--onefile",
         "--name=hvym_press",
         f"--distpath={dist_dir}",
+        icon_param,
         "--add-data",
         f"templates{add_data_sep}templates",
         "--add-data",

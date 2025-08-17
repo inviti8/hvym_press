@@ -263,12 +263,19 @@ class BuildManager:
         """Build executable using PyInstaller"""
         print("INFO: Building executable...")
 
+        # Platform-specific icon configuration
+        if self.platform_mgr.is_windows:
+            icon_param = "--icon=images/logo.ico"
+        else:
+            icon_param = "--icon=images/logo.png"
+
         # Prepare PyInstaller command
         cmd = [
             "pyinstaller",
             "--onefile",
             f"--name={self.config.project_name}",
             f"--distpath={self.dist_dir}",
+            icon_param,
             "--clean",
             "--noconfirm",
             "--log-level", "DEBUG",  # Enable debug logging for PyInstaller
