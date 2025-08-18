@@ -1,80 +1,29 @@
 import os
-
-
 import sys
-
-
 import io
-
-
 import json
-
-
 import time
-
-
 import pickle
-
-
 import pathlib
-
-
 import base64
-
-
 import requests
-
-
 import threading
-
-
 import webbrowser
-
-
 import MarkdownHandler
-
-
 import ServerHandler
-
-
 import SiteDataHandler
-
-
 import PIL.Image
-
-
 import ColorPicker
-
-
 import IconPicker
-
-
 import io
-
-
 import platform
-
-
 from PIL import Image, ImageDraw, ImageColor
-
-
 from jinja2 import Environment, FileSystemLoader
-
-
 import FreeSimpleGUI as sg
-
-
 import W3DeployHandler
-
-
 import TreeData
-
-
 import jsoneditor
-
-
 import subprocess
-
 
 hvym_theme = {
     "BACKGROUND": "#3A4C4C",
@@ -89,47 +38,29 @@ hvym_theme = {
     "PROGRESS_DEPTH": 0,
 }
 
-
 # hvym_theme = {'BACKGROUND': '#98314a',
-
-
 #                 'TEXT': '#fff4c9',
-
-
 #                 'INPUT': '#712d3d',
-
-
 #                 'TEXT_INPUT': '#fff4c9',
-
-
 #                 'SCROLL': '#01826B',
-
-
 #                 'BUTTON': ('#712d3d', '#31b09c'),
-
-
 #                 'PROGRESS': ('#01826B', '#D0D0D0'),
-
-
 #                 'BORDER': 0,
-
-
 #                 'SLIDER_DEPTH': 0,
-
-
 #                 'PROGRESS_DEPTH': 0}
 
 
 sg.theme_add_new("hvym", hvym_theme)
 
-
 sg.theme("hvym")
-
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
-
 LOGO = os.path.join(SCRIPT_DIR, "images", "logo.png")
+
+ICO= os.path.join(SCRIPT_DIR, "images", "logo.ico")
+
+sg.set_global_icon(ICO)
 
 
 NAME_SIZE = 15
@@ -2350,17 +2281,7 @@ def DoDeploy(data, window):
 
 def StartServer(path=SCRIPT_DIR, port=8000):
     """
-
-
-
     Starts a Simple HTTP Server on port 8000.
-
-
-
-
-
-
-
     """
 
     ServerHandler.Server(ServerHandler.ServerHandler)
@@ -2372,17 +2293,7 @@ def StartServer(path=SCRIPT_DIR, port=8000):
 
 def StopServer():
     """
-
-
-
     Stops the running server.
-
-
-
-
-
-
-
     """
 
     requests.post("http://localhost:8000/shutdown/", data={})
@@ -2393,6 +2304,13 @@ def LaunchStaticSite(route):
     url = os.path.join("http://localhost:8000", route)
 
     webbrowser.open_new_tab(url)
+
+
+def RefreshStaticSite(route):
+
+    url = os.path.join("http://localhost:8000", route)
+
+    webbrowser.open(url)
 
 
 check = [icon(0), icon(1), icon(2)]
@@ -2729,18 +2647,18 @@ deployment_settings_layout = [
                         font=font,
                     ),
                 ],
-                [
-                    name("Deployment:"),
-                    sg.Combo(
-                        ["local", "Pintheon"],
-                        default_value=DATA.settings.get("deploy_type", "Pintheon"),
-                        s=(22, 22),
-                        enable_events=True,
-                        readonly=True,
-                        k="SETTING-deploy_type",
-                        font=font,
-                    ),
-                ],
+                # [
+                #     name("Deployment:"),
+                #     sg.Combo(
+                #         ["local", "Pintheon"],
+                #         default_value=DATA.settings.get("deploy_type", "Pintheon"),
+                #         s=(22, 22),
+                #         enable_events=True,
+                #         readonly=True,
+                #         k="SETTING-deploy_type",
+                #         font=font,
+                #     ),
+                # ],
                 [
                     sg.Frame(
                         "Pintheon",
@@ -2790,7 +2708,7 @@ deployment_settings_layout = [
                         k="PINTHEON-GRP",
                         font=font,
                         visible=(
-                            DATA.settings.get("deploy_type", "Pintheon") == "Pintheon"
+                            True
                         ),
                     )
                 ],
@@ -2917,8 +2835,8 @@ tab2_layout = [
 
 
 menu_def = [
-    ["&Server", ["Start Server", "Stop Server"]],
-    ["&Rebuild", ["Rebuild Local"]],
+    # ["&Server", ["Start Server", "Stop Server"]],
+    ["&Rebuild", ["Rebuild Site"]],
     ["&Debug", ["Launch Debug"]],
     ["& Deploy", ["Launch Deploy"]],
     ["&Help", ["&About..."]],
@@ -3021,12 +2939,9 @@ while True:
             print("Pintheon deployment - no local server to stop")
 
     elif event == "Launch Debug":
-
-        deployType = DATA.settings["deploy_type"]
-
-        if deployType == "local":
-
-            print("Open Debug page")
+        if SERVER_STATUS.server_running == False:
+            threading.Thread(target=StartServer, args=(), daemon=True).start()
+            SERVER_STATUS.popup_server_status()
 
             if SERVER_STATUS.server_running == True:
 
@@ -3037,36 +2952,17 @@ while True:
                 LaunchStaticSite("serve")
 
             else:
-
                 sg.popup_ok("Start Localhost first")
 
-        elif deployType == "Pintheon":
 
-            print("Pintheon deployment - building site for deployment")
+    elif event == "Rebuild Site":
 
-            site_data = refreshSiteData(DATA)
+        print("Rebuild Site")
 
-            DATA.renderStaticPage("template_index.txt", site_data)
+        site_data = refreshSiteData(DATA)
 
-    elif event == "Rebuild Local":
+        DATA.renderStaticPage("template_index.txt", site_data)
 
-        deployType = DATA.settings["deploy_type"]
-
-        if deployType == "local":
-
-            print("Rebuild Local")
-
-            site_data = refreshSiteData(DATA)
-
-            DATA.renderStaticPage("template_index.txt", site_data)
-
-        elif deployType == "Pintheon":
-
-            print("Rebuild Pintheon site")
-
-            site_data = refreshSiteData(DATA)
-
-            DATA.renderStaticPage("template_index.txt", site_data)
 
     elif event == "Launch Deploy":
 
