@@ -60,7 +60,7 @@ LOGO = os.path.join(SCRIPT_DIR, "images", "logo.png")
 
 ICO= os.path.join(SCRIPT_DIR, "images", "logo.ico")
 
-sg.set_global_icon(ICO)
+sg.set_options(icon=base64.b64encode(open(LOGO, 'rb').read()))
 
 
 NAME_SIZE = 15
@@ -2311,17 +2311,34 @@ def RefreshStaticSite(route):
     url = os.path.join("http://localhost:8000", route)
 
     webbrowser.open(url)
+    
+
+def ValidateProjectPath(path):
+    result = False
+    for dirpath, dirnames, filenames in os.walk(path):
+        if dirpath.count(os.sep) == path.count(os.sep) + 1:
+            for filename in filenames:
+                if dirpath != path:
+                    print(os.path.join(dirpath, filename))
+                    if '.md' in filename:
+                        result = True
+
+    return result
+            
 
 
 check = [icon(0), icon(1), icon(2)]
 
 
-starting_path = sg.popup_get_folder("Site Directory", font=font, icon=LOGO)
-
+starting_path = sg.popup_get_folder("Site Directory", font=font)
 
 if not starting_path:
-
     sys.exit(0)
+
+if not ValidateProjectPath(starting_path):
+    sg.popup_ok("No mardown files found, Press cannot start")
+    sys.exit(0)
+
 
 
 DATA = SiteDataHandler.SiteDataHandler(starting_path, MarkdownHandler, W3DeployHandler)
