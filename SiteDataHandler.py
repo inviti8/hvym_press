@@ -6,58 +6,24 @@ Initialize with and object containing folder-objects, each containing and array
 with .md files contained in the folder:
 
     {
-
      'folder1':[md-file1, md_file2, md_file3,...etc],
-
      'folder2':[md-file1, md_file2, md_file3,...etc]
-
      }
-
 """
-
-
 import os
-
-
 import json
-
-
 import time
-
-
 import uuid
-
-
 import pickle
-
-
 import shutil
-
-
 import ffmpy
-
-
 import jsonpickle
-
-
 from pathlib import Path
-
-
 from bs4 import BeautifulSoup
-
-
 from mrkdwn_analysis import MarkdownAnalyzer
-
-
 from jinja2 import Environment, FileSystemLoader
-
-
 from collections import deque
-
-
 from hvym_stellar import *
-
-
 from stellar_sdk import Keypair
 
 
@@ -3173,7 +3139,7 @@ class SiteDataHandler:
 
         self.themes = list(self.css_themes.keys())
 
-        self.styles = ["default", "material"]
+        self.styles = ["default", "outlined", "material",  "material outlined"]
 
         self.deployTypes = ["Pintheon"]
 
