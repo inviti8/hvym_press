@@ -319,6 +319,15 @@
       {% endif %}
 
       {{data.settings.css_components}}
+      --outline-color: var(--highlight-color);
+      --outline-color-faint: var(--border-color);
+    }
+
+    .card--outlined {
+        border: 1px solid var(--outline-color);
+        box-shadow: 0 0 2px hsla(0, 0%, 14%, 0.1), 
+                 0 0 4px hsla(0, 0%, 45%, 0.156), 
+                 0 0 6px hsla(0, 0%, 48%, 0.4);   
     }
 
     /* Apply fonts throughout the template */
