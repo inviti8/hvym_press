@@ -448,6 +448,7 @@
           text-align: center;
           color: white;
           margin-bottom: 2rem;
+          border-radius: 10px !important;
       }
 
       .hero-content {
