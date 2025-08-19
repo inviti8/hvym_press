@@ -2995,32 +2995,12 @@ class SiteDataHandler:
 
         self.opensea_metadata = """{
 
-
-
   "description": "", 
-
-
-
   "external_url": "", 
-
-
-
   "image": "", 
-
-
-
   "name": "",
-
-
-
   "attributes": []
-
-
-
 }
-
-
-
       """
 
         self.css_themes = {
