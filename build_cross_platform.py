@@ -4,20 +4,17 @@ Cross-platform build script for hvym_press
 Replaces the Linux-specific build.py with universal platform support
 """
 
-import argparse
-import json
-import logging
 import os
-import platform
+import sys
 import shutil
 import subprocess
-import sys
+import platform
+import argparse
+import json
 import time
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 
-# Set up logger
-logger = logging.getLogger(__name__)
 
 class BuildConfig:
     """Configuration class for build settings"""
@@ -262,32 +259,10 @@ class BuildManager:
                 print(f"Error details: {e.stderr.decode()}")
             return False
 
-    def clean_build_directory(self):
-        """Clean the build directory before building."""
-        import shutil
-        
-        # Clean PyInstaller build directories
-        build_dirs = [
-            self.build_dir / "build",
-            self.build_dir / "dist",
-            self.build_dir / "__pycache__"
-        ]
-        
-        for dir_path in build_dirs:
-            if dir_path.exists():
-                print(f"INFO: Removing directory: {dir_path}")
-                shutil.rmtree(dir_path, ignore_errors=True)
-    
     def build_executable(self) -> bool:
         """Build executable using PyInstaller"""
         print("INFO: Building executable...")
-        
-        # Clean build directory before starting
-        self.clean_build_directory()
-        
-        # Ensure build directory exists
-        self.build_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Platform-specific icon configuration
         if self.platform_mgr.is_windows:
             icon_param = "--icon=images/logo.ico"
@@ -295,7 +270,6 @@ class BuildManager:
             icon_param = "--icon=images/logo.png"
 
         # Prepare PyInstaller command
-        # Start with base PyInstaller command
         cmd = [
             "pyinstaller",
             "--onefile",
@@ -304,33 +278,12 @@ class BuildManager:
             icon_param,
             "--clean",
             "--noconfirm",
-            "--log-level", "INFO",  # Reduced from DEBUG to INFO for cleaner logs
+            "--log-level", "DEBUG",  # Enable debug logging for PyInstaller
+            "--hidden-import", "cffi",  # Explicitly include cffi
+            "--hidden-import", "_cffi_backend",  # Explicitly include _cffi_backend
+            "--hidden-import", "nacl",  # Ensure PyNaCl is included
+            "--hidden-import", "hvym_stellar",  # Include your custom package
         ]
-        
-        # Add excluded modules
-        if hasattr(self, 'exclude_modules') and self.exclude_modules:
-            for module in self.exclude_modules:
-                cmd.extend(["--exclude", module])
-        
-        # Add hooks directory if it exists
-        hooks_dir = self.cwd / "hooks"
-        if hooks_dir.exists():
-            cmd.extend(["--additional-hooks-dir", str(hooks_dir)])
-            
-        # Add hidden imports
-        hidden_imports = [
-            "cffi",
-            "_cffi_backend",
-            "nacl",
-            "hvym_stellar",
-            "ipaddress"
-        ]
-        
-        for imp in hidden_imports:
-            cmd.extend(["--hidden-import", imp])
-            
-        # Collect data files for ipaddress
-        cmd.extend(["--collect-data", "ipaddress"])
 
         # Add source files
         for file_name in self.config.source_files:
@@ -496,12 +449,6 @@ Examples:
     parser.add_argument(
         "--check-deps", action="store_true", help="Check dependencies only (no build)"
     )
-    parser.add_argument(
-        "--exclude",
-        action="append",
-        default=[],
-        help="Exclude a specific module from the build (can be used multiple times)"
-    )
 
     args = parser.parse_args()
 
@@ -509,10 +456,6 @@ Examples:
     config = BuildConfig()
     platform_mgr = PlatformManager()
     build_mgr = BuildManager(config, platform_mgr)
-    
-    # Set build flags from command line
-    if args.exclude:
-        build_mgr.exclude_modules = args.exclude
 
     print("BUILD: hvym_press Cross-Platform Build Script")
     print("=" * 50)

@@ -27,34 +27,6 @@ This application is now fully compatible with:
 - **Build essentials** (Ubuntu/Debian: `sudo apt install build-essential`)
 - **Python dev packages** (Ubuntu/Debian: `sudo apt install python3-dev`)
 
-## 🐳 Docker-based Build (Linux)
-
-For Linux builds, we now use Docker to ensure compatibility across different Linux distributions. This approach builds the application in a controlled environment with an older version of GLIBC for maximum compatibility.
-
-### Prerequisites
-- Docker installed and running
-- Git
-
-### Building with Docker
-
-```bash
-# Clone the repository
-cd /path/to/workspace
-
-# Build the Docker image
-docker build -t hvym-press-builder -f docker/linux/Dockerfile .
-
-# Run the build inside the container
-docker run --rm \
-  -v "$(pwd):/app" \
-  -w /app \
-  -e PYTHONUNBUFFERED=1 \
-  hvym-press-builder
-
-# The built executable will be in the 'release' directory
-ls -l release/hvym_press
-```
-
 ## 🛠️ Installation
 
 ### Option 1: Automated Installation (Recommended)

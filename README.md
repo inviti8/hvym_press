@@ -8,8 +8,6 @@ This application now supports **Windows**, **macOS**, and **Linux** with automat
 
 ## 📋 Quick Installation
 
-> **Note for Linux Users**: We now use Docker for Linux builds to ensure maximum compatibility across different distributions. See [Docker-based Build](#-docker-based-build-linux) section for details.
-
 ### Windows
 ```batch
 # Download and run as Administrator

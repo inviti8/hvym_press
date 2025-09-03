@@ -6,7 +6,7 @@ on:
       - 'v*.*'  # Triggers on tags like v0.00, v0.01, v1.0, etc.
 
 env:
-  PYTHON_VERSION: '3.9'
+  PYTHON_VERSION: '3.11'
   PROJECT_NAME: 'hvym_press'
 
 jobs:
@@ -68,59 +68,34 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-      
-    - name: Build and run Docker container
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
       run: |
-        # Create necessary directories with proper permissions
-        mkdir -p release build
-        chmod -R 777 release build
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller pillow
         
-        # Build the Docker image with build context at the repository root
-        docker build \
-          --build-arg BUILDKIT_INLINE_CACHE=1 \
-          --build-arg USER_ID=$(id -u) \
-          --build-arg GROUP_ID=$(id -g) \
-          -t hvym-press-builder \
-          -f docker/linux/Dockerfile .
+    - name: Prepare icon files
+      run: |
+        # Ensure PNG logo is available for Linux builds
+        echo "Using PNG logo for Linux builds"
         
-        # Create a temporary directory for the build
-        TEMP_DIR=$(mktemp -d)
-        
-        # Get the current user and group IDs
-        USER_ID=$(id -u)
-        GROUP_ID=$(id -g)
-        
-        # Run the build inside the container with proper volume mounts and permissions
-        docker run --rm \
-          -v "$(pwd)/build:/app/build" \
-          -v "$(pwd)/release:/app/release" \
-          -v "${TEMP_DIR}:/tmp/build" \
-          -e USER_ID=${USER_ID} \
-          -e GROUP_ID=${GROUP_ID} \
-          -e PYTHONUNBUFFERED=1 \
-          -e PYTHONIOENCODING=utf-8 \
-          -e LANG=C.UTF-8 \
-          -e LC_ALL=C.UTF-8 \
-          -e HOME=/tmp/build \
-          --user "${USER_ID}:${GROUP_ID}" \
-          hvym-press-builder
-        
-        # Clean up temporary directory
-        rm -rf "${TEMP_DIR}"
-        
-        # Verify the executable was created and is executable
-        if [ ! -x "release/hvym_press" ]; then
-          echo "::error::Build failed - executable not found or not executable"
-          ls -la release/ 2>/dev/null || echo "release/ directory not found"
-          exit 1
-        fi
-        
+    - name: Build Linux executable
+      run: |
+        python build_cross_platform.py
         echo "Build completed for Linux"
-        ls -lh release/hvym_press
-        file release/hvym_press || true
-        ldd release/hvym_press 2>/dev/null || true
         
     - name: Upload Linux artifact
       uses: actions/upload-artifact@v4
