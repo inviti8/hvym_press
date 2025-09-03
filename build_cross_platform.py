@@ -317,7 +317,7 @@ class BuildManager:
         if hooks_dir.exists():
             cmd.extend(["--additional-hooks-dir", str(hooks_dir)])
             
-        # Add hidden imports and collect submodules
+        # Add hidden imports
         hidden_imports = [
             "cffi",
             "_cffi_backend",
@@ -329,9 +329,8 @@ class BuildManager:
         for imp in hidden_imports:
             cmd.extend(["--hidden-import", imp])
             
-        # Explicitly collect all ipaddress modules and data
-        cmd.extend(["--collect-all", "ipaddress"])
-        cmd.extend(["--collect-submodules", "ipaddress"])
+        # Collect data files for ipaddress
+        cmd.extend(["--collect-data", "ipaddress"])
 
         # Add source files
         for file_name in self.config.source_files:
