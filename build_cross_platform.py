@@ -292,7 +292,8 @@ class BuildManager:
             "cffi",
             "_cffi_backend",
             "nacl",
-            "hvym_stellar"
+            "hvym_stellar",
+            "ipaddress"
         ]
         
         for imp in hidden_imports:
