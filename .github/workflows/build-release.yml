@@ -94,7 +94,22 @@ jobs:
         
     - name: Build Linux executable
       run: |
-        python build_cross_platform.py
+        # Install older Python version for better compatibility
+        sudo apt-get update
+        sudo apt-get install -y python3.8 python3.8-venv python3-pip
+        
+        # Create and activate venv with Python 3.8
+        python3.8 -m venv venv
+        source venv/bin/activate
+        
+        # Install build dependencies
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller==5.13.0
+        
+        # Build with compatibility flags
+        python build_cross_platform.py --exclude _tkinter --exclude _ssl
+        
         echo "Build completed for Linux"
         
     - name: Upload Linux artifact

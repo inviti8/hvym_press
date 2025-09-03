@@ -270,6 +270,7 @@ class BuildManager:
             icon_param = "--icon=images/logo.png"
 
         # Prepare PyInstaller command
+        # Start with base PyInstaller command
         cmd = [
             "pyinstaller",
             "--onefile",
@@ -278,12 +279,24 @@ class BuildManager:
             icon_param,
             "--clean",
             "--noconfirm",
-            "--log-level", "DEBUG",  # Enable debug logging for PyInstaller
-            "--hidden-import", "cffi",  # Explicitly include cffi
-            "--hidden-import", "_cffi_backend",  # Explicitly include _cffi_backend
-            "--hidden-import", "nacl",  # Ensure PyNaCl is included
-            "--hidden-import", "hvym_stellar",  # Include your custom package
+            "--log-level", "INFO",  # Reduced from DEBUG to INFO for cleaner logs
         ]
+        
+        # Add excluded modules
+        if hasattr(self, 'exclude_modules') and self.exclude_modules:
+            for module in self.exclude_modules:
+                cmd.extend(["--exclude", module])
+        
+        # Add hidden imports
+        hidden_imports = [
+            "cffi",
+            "_cffi_backend",
+            "nacl",
+            "hvym_stellar"
+        ]
+        
+        for imp in hidden_imports:
+            cmd.extend(["--hidden-import", imp])
 
         # Add source files
         for file_name in self.config.source_files:
@@ -449,6 +462,12 @@ Examples:
     parser.add_argument(
         "--check-deps", action="store_true", help="Check dependencies only (no build)"
     )
+    parser.add_argument(
+        "--exclude",
+        action="append",
+        default=[],
+        help="Exclude a specific module from the build (can be used multiple times)"
+    )
 
     args = parser.parse_args()
 
@@ -456,6 +475,10 @@ Examples:
     config = BuildConfig()
     platform_mgr = PlatformManager()
     build_mgr = BuildManager(config, platform_mgr)
+    
+    # Set build flags from command line
+    if args.exclude:
+        build_mgr.exclude_modules = args.exclude
 
     print("BUILD: hvym_press Cross-Platform Build Script")
     print("=" * 50)
