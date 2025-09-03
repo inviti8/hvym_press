@@ -259,10 +259,32 @@ class BuildManager:
                 print(f"Error details: {e.stderr.decode()}")
             return False
 
+    def clean_build_directory(self):
+        """Clean the build directory before building."""
+        import shutil
+        
+        # Clean PyInstaller build directories
+        build_dirs = [
+            self.build_dir / "build",
+            self.build_dir / "dist",
+            self.build_dir / "__pycache__"
+        ]
+        
+        for dir_path in build_dirs:
+            if dir_path.exists():
+                logger.info(f"Removing directory: {dir_path}")
+                shutil.rmtree(dir_path, ignore_errors=True)
+    
     def build_executable(self) -> bool:
         """Build executable using PyInstaller"""
-        print("INFO: Building executable...")
-
+        logger.info("Building executable...")
+        
+        # Clean build directory before starting
+        self.clean_build_directory()
+        
+        # Ensure build directory exists
+        self.build_dir.mkdir(parents=True, exist_ok=True)
+        
         # Platform-specific icon configuration
         if self.platform_mgr.is_windows:
             icon_param = "--icon=images/logo.ico"
@@ -304,7 +326,8 @@ class BuildManager:
         for imp in hidden_imports:
             cmd.extend(["--hidden-import", imp])
             
-        # Explicitly collect ipaddress submodules
+        # Explicitly collect all ipaddress modules and data
+        cmd.extend(["--collect-all", "ipaddress"])
         cmd.extend(["--collect-submodules", "ipaddress"])
 
         # Add source files
