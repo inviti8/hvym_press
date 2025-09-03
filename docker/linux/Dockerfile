@@ -21,6 +21,9 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
+# Copy the application first
+COPY . .
+
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir pyinstaller==5.13.0
@@ -29,10 +32,7 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 COPY docker/linux/build.sh /usr/local/bin/build-app
 RUN chmod +x /usr/local/bin/build-app
 
-# Copy the rest of the application
-COPY . /app
-
-# Set working directory
+# Set working directory (redundant but explicit)
 WORKDIR /app
 
 # Create a non-root user

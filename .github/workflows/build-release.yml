@@ -78,27 +78,41 @@ jobs:
         chmod -R 777 release build
         
         # Build the Docker image with build context at the repository root
-        docker build -t hvym-press-builder -f docker/linux/Dockerfile .
+        # and pass build arguments for better caching
+        docker build \
+          --build-arg BUILDKIT_INLINE_CACHE=1 \
+          -t hvym-press-builder \
+          -f docker/linux/Dockerfile .
+        
+        # Create a temporary directory for the build
+        TEMP_DIR=$(mktemp -d)
         
         # Run the build inside the container with proper volume mounts
         docker run --rm \
           -v "$(pwd):/app" \
+          -v "${TEMP_DIR}:/tmp/build" \
           -w /app \
           -e PYTHONUNBUFFERED=1 \
           -e PYTHONIOENCODING=utf-8 \
           -e LANG=C.UTF-8 \
           -e LC_ALL=C.UTF-8 \
+          -e HOME=/tmp/build \
           hvym-press-builder
+        
+        # Clean up temporary directory
+        rm -rf "${TEMP_DIR}"
         
         # Verify the executable was created and is executable
         if [ ! -x "release/hvym_press" ]; then
           echo "::error::Build failed - executable not found or not executable"
-          ls -la release/ || true
+          ls -la release/ 2>/dev/null || echo "release/ directory not found"
           exit 1
         fi
         
         echo "Build completed for Linux"
         ls -lh release/hvym_press
+        file release/hvym_press || true
+        ldd release/hvym_press 2>/dev/null || true
         
     - name: Upload Linux artifact
       uses: actions/upload-artifact@v4
