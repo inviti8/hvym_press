@@ -68,49 +68,37 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Set up Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-        
-    - name: Cache pip dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          
-    - name: Install dependencies
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      
+    - name: Build and run Docker container
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pyinstaller pillow
+        # Create necessary directories with proper permissions
+        mkdir -p release build
+        chmod -R 777 release build
         
-    - name: Prepare icon files
-      run: |
-        # Ensure PNG logo is available for Linux builds
-        echo "Using PNG logo for Linux builds"
+        # Build the Docker image with build context at the repository root
+        docker build -t hvym-press-builder -f docker/linux/Dockerfile .
         
-    - name: Build Linux executable
-      run: |
-        # Install older Python version for better compatibility
-        sudo apt-get update
-        sudo apt-get install -y python3.8 python3.8-venv python3-pip
+        # Run the build inside the container with proper volume mounts
+        docker run --rm \
+          -v "$(pwd):/app" \
+          -w /app \
+          -e PYTHONUNBUFFERED=1 \
+          -e PYTHONIOENCODING=utf-8 \
+          -e LANG=C.UTF-8 \
+          -e LC_ALL=C.UTF-8 \
+          hvym-press-builder
         
-        # Create and activate venv with Python 3.8
-        python3.8 -m venv venv
-        source venv/bin/activate
-        
-        # Install build dependencies
-        pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pyinstaller==5.13.0
-        
-        # Build with compatibility flags
-        python build_cross_platform.py --exclude _tkinter --exclude _ssl
+        # Verify the executable was created and is executable
+        if [ ! -x "release/hvym_press" ]; then
+          echo "::error::Build failed - executable not found or not executable"
+          ls -la release/ || true
+          exit 1
+        fi
         
         echo "Build completed for Linux"
+        ls -lh release/hvym_press
         
     - name: Upload Linux artifact
       uses: actions/upload-artifact@v4
