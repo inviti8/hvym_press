@@ -39,8 +39,9 @@ RUN groupadd -g ${GROUP_ID} builder && \
     chmod -R 755 /app
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir pyinstaller==5.13.0
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir ipaddress pyinstaller==5.13.0
 
 # Copy build script and make it executable
 COPY docker/linux/build.sh /usr/local/bin/build-app
