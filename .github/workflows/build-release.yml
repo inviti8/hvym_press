@@ -6,7 +6,7 @@ on:
       - 'v*.*'  # Triggers on tags like v0.00, v0.01, v1.0, etc.
 
 env:
-  PYTHON_VERSION: '3.11'
+  PYTHON_VERSION: '3.9'
   PROJECT_NAME: 'hvym_press'
 
 jobs:
