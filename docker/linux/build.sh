@@ -7,10 +7,13 @@ uname -a
 python --version
 pip --version
 
-# Create necessary directories with proper permissions
+# Ensure directories exist with correct permissions
 echo "\n=== Setting up directories ==="
-mkdir -p build release
-chmod -R 777 build release
+mkdir -p /app/build /app/release
+chmod -R 755 /app/build /app/release
+
+# Ensure we have write permissions in the build directories
+chmod -R u+w /app/build /app/release
 
 # Install dependencies
 echo "\n=== Installing dependencies ==="
@@ -26,6 +29,7 @@ fi
 
 # Build the executable
 echo "\n=== Building executable ==="
+cd /app
 python build_cross_platform.py --exclude _tkinter --exclude _ssl
 
 # Verify the executable was created

@@ -18,11 +18,25 @@ RUN apt-get update && apt-get install -y \
     liblzma-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Set build arguments for user/group IDs
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+
+# Create app directory and set permissions
+RUN mkdir -p /app/build /app/release && \
+    chmod -R 777 /app
+
 # Set working directory
 WORKDIR /app
 
-# Copy the application first
+# Copy the application
 COPY . .
+
+# Create non-root user with specified UID/GID
+RUN groupadd -g ${GROUP_ID} builder && \
+    useradd -m -u ${USER_ID} -g builder builder && \
+    chown -R builder:builder /app && \
+    chmod -R 755 /app
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt && \
@@ -30,16 +44,10 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 
 # Copy build script and make it executable
 COPY docker/linux/build.sh /usr/local/bin/build-app
-RUN chmod +x /usr/local/bin/build-app
+RUN chown ${USER_ID}:${GROUP_ID} /usr/local/bin/build-app && \
+    chmod +x /usr/local/bin/build-app
 
-# Set working directory (redundant but explicit)
-WORKDIR /app
-
-# Create a non-root user
-RUN useradd -m -u 1000 builder && \
-    mkdir -p /app/build /app/release && \
-    chown -R builder:builder /app
-
+# Switch to non-root user
 USER builder
 
 # Set the entrypoint

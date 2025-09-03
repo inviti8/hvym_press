@@ -78,25 +78,33 @@ jobs:
         chmod -R 777 release build
         
         # Build the Docker image with build context at the repository root
-        # and pass build arguments for better caching
         docker build \
           --build-arg BUILDKIT_INLINE_CACHE=1 \
+          --build-arg USER_ID=$(id -u) \
+          --build-arg GROUP_ID=$(id -g) \
           -t hvym-press-builder \
           -f docker/linux/Dockerfile .
         
         # Create a temporary directory for the build
         TEMP_DIR=$(mktemp -d)
         
-        # Run the build inside the container with proper volume mounts
+        # Get the current user and group IDs
+        USER_ID=$(id -u)
+        GROUP_ID=$(id -g)
+        
+        # Run the build inside the container with proper volume mounts and permissions
         docker run --rm \
-          -v "$(pwd):/app" \
+          -v "$(pwd)/build:/app/build" \
+          -v "$(pwd)/release:/app/release" \
           -v "${TEMP_DIR}:/tmp/build" \
-          -w /app \
+          -e USER_ID=${USER_ID} \
+          -e GROUP_ID=${GROUP_ID} \
           -e PYTHONUNBUFFERED=1 \
           -e PYTHONIOENCODING=utf-8 \
           -e LANG=C.UTF-8 \
           -e LC_ALL=C.UTF-8 \
           -e HOME=/tmp/build \
+          --user "${USER_ID}:${GROUP_ID}" \
           hvym-press-builder
         
         # Clean up temporary directory
