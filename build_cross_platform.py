@@ -4,17 +4,20 @@ Cross-platform build script for hvym_press
 Replaces the Linux-specific build.py with universal platform support
 """
 
-import os
-import sys
-import shutil
-import subprocess
-import platform
 import argparse
 import json
+import logging
+import os
+import platform
+import shutil
+import subprocess
+import sys
 import time
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 
+# Set up logger
+logger = logging.getLogger(__name__)
 
 class BuildConfig:
     """Configuration class for build settings"""
@@ -272,12 +275,12 @@ class BuildManager:
         
         for dir_path in build_dirs:
             if dir_path.exists():
-                logger.info(f"Removing directory: {dir_path}")
+                print(f"INFO: Removing directory: {dir_path}")
                 shutil.rmtree(dir_path, ignore_errors=True)
     
     def build_executable(self) -> bool:
         """Build executable using PyInstaller"""
-        logger.info("Building executable...")
+        print("INFO: Building executable...")
         
         # Clean build directory before starting
         self.clean_build_directory()
