@@ -79,6 +79,79 @@ python install.py
 python3 install.py
 ```
 
+## 🏠 Home Page Configuration
+
+HVYM Press supports a special `home.md` file that serves as your site's landing page. This file uses YAML frontmatter for configuration and supports advanced navigation features.
+
+### Basic Home Page Example
+
+```yaml
+---
+title: Welcome to My Site
+hero_title: Build Amazing Static Sites
+hero_subtitle: With HVYM Press and Markdown
+hero_image: ./_resources/hero.jpg
+layout: hero
+navigation:
+  - text: Get Started
+    page: Getting Started
+    style: primary
+  - text: View Features
+    page: Features
+    style: secondary
+cta_button:
+  text: Quick Start
+  page: Getting Started
+seo:
+  description: A modern static site generator with IPFS deployment
+  keywords: static site, markdown, IPFS, documentation
+---
+
+# Welcome to My Site
+
+[Get Started](Getting Started) | [View Features](Features)
+```
+
+### Navigation Links
+
+For internal navigation, use the page display name in square brackets:
+
+```markdown
+[Link Text](Page Display Name)
+```
+
+Example:
+```markdown
+[View Documentation](Documentation)
+[See Examples](Examples)
+```
+
+### Navigation Button Styles
+
+Available button styles:
+- `primary` - Solid, prominent button
+- `secondary` - Secondary action button
+- `outline` - Outlined button
+- `quiet` - Subtle text button
+
+### Required Frontmatter Fields
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| `title` | Page title | `title: My Site` |
+| `layout` | Page layout | `layout: hero` |
+| `navigation` | Array of navigation buttons | See example above |
+
+### SEO Optimization
+
+Use the `seo` section to add metadata:
+
+```yaml
+seo:
+  description: A brief description of your site
+  keywords: keyword1, keyword2, keyword3
+```
+
 ## 🏗️ Building from Source
 
 ### Build Scripts

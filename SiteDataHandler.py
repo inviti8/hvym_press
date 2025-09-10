@@ -3905,39 +3905,32 @@ class SiteDataHandler:
         return re.sub(link_pattern, process_link, html_content)
 
     def _isPageReference(self, href):
-        """Check if href is a reference to a site page"""
+        """Check if href is a reference to a site page.
+        
+        Args:
+            href (str): The href to check, which could be a path or page name
+            
+        Returns:
+            bool: True if the href references a valid page, False otherwise
+        """
+        if not href or not isinstance(href, str):
+            return False
 
-        # Remove common prefixes and file extensions
-
+        # Clean and normalize the href
         clean_href = (
-            href.lstrip("#")
-            .lstrip("/")
-            .lstrip("./")
+            href.lstrip("#/.")
             .replace(".html", "")
             .replace(".md", "")
+            .lower()
+            .strip()
         )
 
-        # Check if it matches a page title (case-insensitive)
+        # Skip empty or non-page references (like external URLs)
+        if not clean_href or clean_href.startswith(('http://', 'https://', 'mailto:', 'tel:')):
+            return False
 
-        for page in self.pageList:
-
-            if clean_href.lower() == page.lower():
-
-                return True
-
-        # For testing purposes, also check against common section names
-
-        # This allows the home page to work even when pageList is empty
-
-        test_sections = ["HEAVYMETA Blog", "IPFS Gateway 2023"]
-
-        for section in test_sections:
-
-            if clean_href.lower() == section.lower():
-
-                return True
-
-        return False
+        # Check against existing pages in pageList (case-insensitive)
+        return any(page.lower() == clean_href for page in self.pageList if page and isinstance(page, str))
 
     def processHomePageNavigation(self, html_content):
         """Process HTML content to convert navigation links to functional buttons"""
