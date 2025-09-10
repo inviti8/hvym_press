@@ -112,19 +112,54 @@ seo:
 [Get Started](Getting Started) | [View Features](Features)
 ```
 
-### Navigation Links
+### Section-Based Navigation
 
-For internal navigation, use the page display name in square brackets:
+HVYM Press organizes content into sections (folders), and the navigation system is designed to work with these sections. Here's how it works:
 
-```markdown
-[Link Text](Page Display Name)
+1. **Sections** are folders containing markdown files
+2. Each section's first markdown file serves as the landing page for that section
+3. Navigation links should reference the section name (folder name)
+
+#### Example Project Structure
+
+```
+project/
+├── section_a/
+│   ├── getting_started.md
+│   └── advanced_features.md
+├── section_b/
+│   ├── examples.md
+│   └── tutorials.md
+└── home.md
 ```
 
-Example:
-```markdown
-[View Documentation](Documentation)
-[See Examples](Examples)
+#### Navigation in home.md
+
+In your `home.md`, reference sections by their folder name in the navigation:
+
+```yaml
+navigation:
+  - text: Get Started
+    page: section_a        # Points to section_a/getting_started.md
+    style: primary
+  - text: View Examples
+    page: section_b        # Points to section_b/examples.md
+    style: secondary
 ```
+
+#### Internal Links in Markdown
+
+For internal links within your content, you can use either:
+
+1. **Section-based links** (recommended):
+   ```markdown
+   [Getting Started](section_a)
+   ```
+
+2. **Direct file links** (if needed):
+   ```markdown
+   [Advanced Features](section_a/advanced_features)
+   ```
 
 ### Navigation Button Styles
 
@@ -140,7 +175,7 @@ Available button styles:
 |-------|-------------|---------|
 | `title` | Page title | `title: My Site` |
 | `layout` | Page layout | `layout: hero` |
-| `navigation` | Array of navigation buttons | See example above |
+| `navigation` | Array of navigation buttons. Each button should have `text`, `page` (section name), and `style`. | See example above |
 
 ### SEO Optimization
 

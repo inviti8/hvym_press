@@ -3604,77 +3604,23 @@ class SiteDataHandler:
 
     def detectHomePage(self):
         """Detect if a home page exists and return its configuration
-
-
-
-
-
-
-
         IMPORTANT: Home page detection ONLY looks in the base project folder (self.filePath),
-
-
-
         NOT in subfolders. This ensures home pages are project-level landing pages.
-
-
-
-
-
-
 
         Example project structure:
 
-
-
         project/
-
-
-
         ├── section1/
-
-
-
         │   ├── hello.md
-
-
-
         │   └── Info.md
-
-
-
         ├── section2/
-
-
-
         │   ├── About.md
-
-
-
         │   ├── Tutorial1.md
-
-
-
         │   └── Tutorial2.md
-
-
-
         ├── _resources/
-
-
-
         │   ├── hello.png
-
-
-
         │   └── cat.jpg
-
-
-
         └── home.md  ← This is detected as the home page
-
-
-
         """
 
         home_candidates = ["home.md", "index.md", "landing.md", "welcome.md"]
@@ -3704,33 +3650,10 @@ class SiteDataHandler:
 
     def validateHomePageLocation(self, file_path):
         """Validate that a potential home page is in the correct location
-
-
-
-
-
-
-
         Args:
-
-
-
             file_path (str): Path to the file to validate
-
-
-
-
-
-
-
         Returns:
-
-
-
             bool: True if file is in base project folder, False otherwise
-
-
-
         """
 
         # Ensure the file is directly in the base project folder
