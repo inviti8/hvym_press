@@ -24,6 +24,8 @@ import W3DeployHandler
 import TreeData
 import jsoneditor
 import subprocess
+import threading
+from queue import Queue, Empty
 
 hvym_theme = {
     "BACKGROUND": "#3A4C4C",
@@ -2179,106 +2181,163 @@ def create_image_grid_popup(image_array, num_cols):
         return None, None
 
 
-def DoDeploy(data, window):
+def popup_deployment_status():
+    """Create a loading wheel popup for deployment, similar to server status."""
+    
+    # Animated GIF for loading wheel (same as server status)
+    ring_gray_segments = b"R0lGODlhQABAAKUAACQmJJyenNTS1GRmZOzq7Ly+vDw+PNze3ISGhPT29MzKzDw6PLS2tExKTCwuLKyqrNza3GxubPTy9MTGxOTm5IyOjPz+/CwqLKSipNTW1GxqbOzu7MTCxERCROTi5Pz6/MzOzExOTJSSlP7+/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJCQAjACwAAAAAQABAAAAG/sCRcEgsGouWxIYwlDw4B8txSq1ahx8CRMEpcBTDA2B8CSEKkqt6LbQQMl2vHCwUAy7ke6TwYfuRHhNdg3IcE0MeY3eKeBcGGAl/bBaBhJZeh0KJeIqddwsYUpJVEgqFp4R0I3aerQAhAqNTHqi1XaoHnK6MdwGyRB8Ctra4no2LnXgaG78jHyCX0XNhuq7VYyFpv8/Dl8W8x7sio31Y0N3TddfgyAAV5AoHwCDot2Hs63jjWOVXwlDzpHWZIMDDkA0IBizY1WmfkFKxrtAaJM8cqgkHIlERIKKDOCISBHDgYJDUpZJCng1SQEDUlQ8MGnh614SLHG1HLNA7SSQB/jQPLtl8wHBBH0iRXrqACEqEgsCKKXGOgtCA5kNhhbpQOPJB0DCUzZoAs2lpZD9E9aCGLRJMYAGwIyx4dauA6VpubicEJVCPg8a1IEd248BkyL9uagGjFSwtojO3Su0qtmAKcjm+kAsrNoLZVpfCENDV3cy18jAIQkxLS0w6zCBpYCxA5iC1dZN6HySgy2TbyFxbEghAdtybyGFpBJx2Q128yAHIW5tLn069uvXrQ5QLZE79eTcKnRtbP16LgATIvKf/jibBQr3avXVbHqG6Ftze3gXSCU1X8uYP9V3CXHi2aNYbgdEU9"
+    
+    layout = [
+        [
+            sg.Image(
+                data=ring_gray_segments,
+                enable_events=True,
+                background_color="white",
+                key="-IMAGE-",
+                right_click_menu=["UNUSED", ["Exit"]],
+                pad=0,
+            )
+        ],
+    ]
+
+    window = sg.Window(
+        "Deploying",
+        layout,
+        no_titlebar=True,
+        grab_anywhere=False,
+        keep_on_top=True,
+        alpha_channel=0.8,
+        margins=(0, 0),
+    )
+    
+    return window, ring_gray_segments
+
+def DoDeployWorker(data, queue):
     """
-
-
-
-    Simplified deployment flow:
-
-
-
-    1. Upload media files
-
-
-
-    2. Generate HTML with deployed media links
-
-
-
-    3. Build site
-
-
-
-    4. Deploy site
-
-
-
+    Worker function that runs the actual deployment in a background thread.
+    This is called from DoDeploy which runs in the main thread.
     """
-
     try:
-
         # Step 1: Deploy media files
-
         print("Step 1: Deploying media files...")
-
         media_result = data.deployMedia()
 
         if not media_result or media_result[0] is None:
-
-            sg.popup_error("Failed to deploy media files")
-
+            queue.put(('error', "Failed to deploy media files"))
             return
 
-        print(f"Successfully deployed media files")
+        # Step 2: Validate media deployment and manifest
+        if not data.deployHandler.manifest or "media_files" not in data.deployHandler.manifest:
+            queue.put(('error', "Media deployment succeeded but no files in manifest"))
+            return
+        
+        media_files_count = len(data.deployHandler.manifest["media_files"])
+        if media_files_count == 0:
+            queue.put(('error', "Media deployment succeeded but manifest is empty"))
+            return
+            
+        print(f"DEBUG: Media deployment successful, {media_files_count} files in manifest")
 
-        # Step 2: Update HTML with deployed media links
-
-        print("Step 2: Updating HTML with deployed media links...")
-
+        # Step 3: Ensure manifest is passed to markdown handler
+        if data.deployHandler.manifest:
+            data.markdownHandler.deployerManifest = data.deployHandler.manifest
+            print("DEBUG: Manifest passed to markdown handler")
+        
+        # Update all article HTML with deployed media links
         data.updateAllArticleHTML(data.filePath)
 
-        # Step 3: Build the site
-
-        print("Step 3: Building site...")
-
+        # Step 4: Build the site with updated manifest
         site_data = data.generateSiteData()
-
+        
+        # Ensure markdown handler has latest manifest before rendering
+        if data.deployHandler.manifest:
+            data.markdownHandler.deployerManifest = data.deployHandler.manifest
+            print("DEBUG: Manifest ensured in markdown handler before template rendering")
+        
         data.renderStaticPage("template_index.txt", site_data)
 
-        # Step 4: Deploy the site
-
-        print("Step 4: Deploying site...")
-
+        # Step 5: Deploy the site
         if not hasattr(data, "distPath") or not data.distPath:
-
-            sg.popup_error("No distribution path configured")
-
+            queue.put(('error', "No distribution path configured"))
             return
 
         site_result = data.deploySite(data.distPath)
 
         if site_result and site_result[0] is not None:
-
             site_cid, site_url = site_result
-
-            print(f"Site deployed successfully!\nSite URL: {site_url}")
-
+            queue.put(('success', f"Site deployed successfully!\nSite URL: {site_url}"))
             webbrowser.open_new_tab(site_url)
-
         else:
-
-            print("Deploy Failed!")
+            queue.put(('error', "Site deployment failed!"))
 
     except Exception as e:
-
-        sg.popup_error(f"Deployment failed: {str(e)}")
-
-        print(f"Deployment error: {e}")
-
+        import traceback
+        error_msg = f"Deployment failed: {str(e)}\n\n{traceback.format_exc()}"
+        queue.put(('error', error_msg))
         # Cleanup on error
-
         try:
-
             if hasattr(data, "deleteDist"):
-
                 data.deleteDist()
-
         except Exception as cleanup_error:
+            queue.put(('error', f"Cleanup failed: {cleanup_error}"))
+    finally:
+        queue.put(('done', None))
 
-            print(f"Cleanup failed: {cleanup_error}")
+def DoDeploy(data, window):
+    """
+    Deployment function that runs in the main thread (like server status popup).
+    Creates the loading wheel and manages the deployment process.
+    """
+    # Create a queue to communicate between threads
+    queue = Queue()
+    
+    # Start the worker thread
+    thread = threading.Thread(target=DoDeployWorker, args=(data, queue), daemon=True)
+    thread.start()
 
-
+    # Create loading wheel window (runs in main thread like server status popup)
+    loading_window, gif = popup_deployment_status()
+    
+    # Start monitoring thread that will close the window when deployment completes
+    def monitor_deployment():
+        while True:
+            try:
+                msg_type, msg = queue.get(timeout=0.1)
+                if msg_type in ['success', 'error', 'done']:
+                    if loading_window and hasattr(loading_window, 'write_event_value'):
+                        loading_window.write_event_value("Exit", "")
+                    break
+            except Empty:
+                continue
+            except Exception:
+                break
+    
+    monitor_thread = threading.Thread(target=monitor_deployment, daemon=True)
+    monitor_thread.start()
+    
+    # Main event loop - similar to server status popup
+    while True:
+        event, values = loading_window.read(timeout=10)
+        if event == "Exit":
+            break
+        if event in (sg.WIN_CLOSED, "Exit", "Cancel"):
+            break
+        # Update the animation in the window
+        loading_window["-IMAGE-"].update_animation(gif, time_between_frames=100)
+    
+    loading_window.close()
+    
+    # Get the final result and show appropriate popup
+    try:
+        msg_type, msg = queue.get_nowait()
+        if msg_type == 'success':
+            sg.popup_ok(msg, title='Success')
+        elif msg_type == 'error':
+            sg.popup_error(msg, title='Error')
+    except Empty:
+        pass
+    
+    thread.join(timeout=1)  # Wait for thread to finish
 def StartServer(path=SCRIPT_DIR, port=8000):
     """
     Starts a Simple HTTP Server on port 8000.
@@ -2664,18 +2723,18 @@ deployment_settings_layout = [
                         font=font,
                     ),
                 ],
-                # [
-                #     name("Deployment:"),
-                #     sg.Combo(
-                #         ["local", "Pintheon"],
-                #         default_value=DATA.settings.get("deploy_type", "Pintheon"),
-                #         s=(22, 22),
-                #         enable_events=True,
-                #         readonly=True,
-                #         k="SETTING-deploy_type",
-                #         font=font,
-                #     ),
-                # ],
+                [
+                    name("Deployment:"),
+                    sg.Combo(
+                        ["local", "Pintheon"],
+                        default_value=DATA.settings.get("deploy_type", "Pintheon"),
+                        s=(22, 22),
+                        enable_events=True,
+                        readonly=True,
+                        k="SETTING-deploy_type",
+                        font=font,
+                    ),
+                ],
                 [
                     sg.Frame(
                         "Pintheon",
@@ -2998,9 +3057,7 @@ while True:
 
             if option == "Yes":
 
-                threading.Thread(
-                    target=DoDeploy, args=(DATA, window), daemon=True
-                ).start()
+                DoDeploy(DATA, window)
 
     elif event == "Version":
 

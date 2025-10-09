@@ -9,8 +9,10 @@ import socket
 import time
 import sys
 import os
+import mimetypes
+from path_utils import url_to_path, normalize_path, ensure_directory
 
-SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
+SCRIPT_DIR = normalize_path(os.path.dirname(__file__))
 
 
 class ServerStatusHandler:
@@ -172,23 +174,146 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Content-type", "text/html")
         self.end_headers()
 
+    def guess_type(self, path):
+        """Guess the MIME type of a file."""
+        base, ext = os.path.splitext(path)
+        if ext.lower() in mimetypes.types_map:
+            return mimetypes.types_map[ext.lower()]
+        return 'application/octet-stream'
+
+    def list_directory(self, path):
+        """Helper to produce a directory listing (from SimpleHTTPRequestHandler with Windows fixes)."""
+        try:
+            list = os.listdir(path)
+        except OSError:
+            self.send_error(404, "No permission to list directory")
+            return None
+        
+        list.sort(key=lambda a: a.lower())
+        r = []
+        try:
+            displaypath = os.path.basename(path)
+            if displaypath == '':
+                displaypath = path
+            r.append('<!DOCTYPE html>')
+            r.append('<html><head>')
+            r.append('<meta charset="utf-8">')
+            r.append(f'<title>Directory listing for {displaypath}</title>')
+            r.append('<style>body { font-family: Arial, sans-serif; margin: 20px; }')
+            r.append('a { text-decoration: none; color: #0366d6; }')
+            r.append('a:hover { text-decoration: underline; }')
+            r.append('</style></head><body>')
+            r.append(f'<h2>Directory listing for {displaypath}</h2>')
+            r.append('<hr><ul>')
+            
+            # Add parent directory link
+            parent = os.path.dirname(path.rstrip(os.sep))
+            if parent != path.rstrip(os.sep) and os.path.exists(parent):
+                r.append(f'<li><a href="{os.path.relpath(parent, path)}/../">../</a></li>')
+            
+            for name in list:
+                fullname = os.path.join(path, name)
+                displayname = name
+                # Append / for directories or @ for symbolic links
+                if os.path.isdir(fullname):
+                    displayname = name + "/"
+                    fullname = os.path.join(fullname, "")
+                r.append(f'<li><a href="{os.path.relpath(fullname, path).replace(os.sep, "/")}">{displayname}</a></li>')
+            
+            r.append('</ul><hr></body></html>')
+            encoded = '\n'.join(r).encode('utf-8', 'surrogateescape')
+            
+            self.send_response(200)
+            self.send_header("Content-type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+            return None
+        except Exception as e:
+            self.send_error(500, f"Error generating directory listing: {str(e)}")
+            return None
+
     def do_GET(self):
+        # Handle special paths
         if self.path == "/kill_server/":
             print("Shutdown server")
             threading.Thread(target=self.server.shutdown, daemon=True).start()
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b"Server shutting down...")
+            return
+            
+        # Handle favicon.ico
+        if self.path == "/favicon.ico":
+            favicon_path = os.path.join(SCRIPT_DIR, 'favicon.ico')
+            if os.path.exists(favicon_path):
+                with open(favicon_path, 'rb') as f:
+                    self.send_response(200)
+                    self.send_header('Content-type', 'image/x-icon')
+                    self.end_headers()
+                    self.wfile.write(f.read())
+                    return
+            else:
+                # Return 204 No Content if no favicon.ico exists
+                self.send_response(204)
+                self.end_headers()
+                return
 
-        return http.server.SimpleHTTPRequestHandler.do_GET(self)
+        # Convert URL path to filesystem path
+        path = url_to_path(SCRIPT_DIR, self.path)
+        
+        # Check if path exists and is within the document root for security
+        if not os.path.abspath(path).startswith(os.path.abspath(SCRIPT_DIR)):
+            self.send_error(403, "Forbidden - Path outside document root")
+            return
+            
+        if os.path.isdir(path):
+            # Ensure the path ends with a slash for relative links to work
+            if not self.path.endswith('/'):
+                self.send_response(301)
+                self.send_header('Location', self.path + '/')
+                self.end_headers()
+                return
+                
+            # Look for index.html if it exists
+            index_path = os.path.join(path, 'index.html')
+            if os.path.exists(index_path):
+                path = index_path
+            else:
+                # Generate directory listing
+                self.list_directory(path)
+                return
+        
+        # Serve the file
+        try:
+            with open(path, 'rb') as f:
+                fs = os.fstat(f.fileno())
+                self.send_response(200)
+                self.send_header("Content-type", self.guess_type(path))
+                self.send_header("Content-Length", str(fs[6]))
+                self.send_header("Last-Modified", self.date_time_string(fs.st_mtime))
+                self.end_headers()
+                self.copyfile(f, self.wfile)
+        except IOError:
+            self.send_error(404, "File not found")
 
     def do_POST(self):
         self._set_headers()
         if self.path.startswith("/shutdown"):
             print("server shutting down.")
-            # threading.Thread(target = self.server.socket.close, daemon=True).start()
             threading.Thread(target=self.server.shutdown, daemon=True).start()
-            # sys.exit()
-            # os.kill(os.getpid(), signal.SIGINT)
-            # self.__shutdown_request = True
-            # self.__is_shut_down.wait()
+            self.wfile.write(b"Server shutting down...")
+            return
+            
+        # Handle other POST requests here
+        content_length = int(self.headers.get('Content-Length', 0))
+        post_data = self.rfile.read(content_length)
+        
+        # Default response for unhandled POST requests
+        self.send_response(501, "Not Implemented")
+        self.end_headers()
+        self.wfile.write(b"This endpoint is not implemented")
 
 
 class TCPServer(socketserver.TCPServer):

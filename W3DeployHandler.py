@@ -146,7 +146,7 @@ class W3DeployHandler:
             gateway = backend_endpoint
 
         self.pintheon = {
-            "api_url": "https://localhost:9999/api_upload",
+            "api_url": self.pintheonApiURL,
             "access_token": self.build_access_token(),
             "gateway": gateway,
             "encrypted": settings.get("pintheon_encrypted", False),
@@ -314,6 +314,10 @@ class W3DeployHandler:
                     "access_token": self.build_access_token(),
                     "encrypted": str(self.pintheon["encrypted"]).lower(),
                 }
+
+                print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                print(self.pintheon["api_url"])
+                print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 
                 # Make the upload request to Pintheon's api_upload endpoint
                 response = requests.post(
@@ -874,7 +878,7 @@ class W3DeployHandler:
     def updateSettings(self, settings):
         """Update Pintheon settings from application settings."""
         # Extract hostname and port from backend_end_point for gateway
-        backend_endpoint = settings.get("backend_end_point", "localhost:9999")
+        backend_endpoint = settings.get("backend_end_point", "localhost:5000")
         if backend_endpoint.startswith("https://"):
             gateway = backend_endpoint[8:]  # Remove 'https://'
         elif backend_endpoint.startswith("http://"):

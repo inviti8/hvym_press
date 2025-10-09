@@ -42,9 +42,10 @@ file7 = cwd / "ServerHandler.py"
 file8 = cwd / "SiteDataHandler.py"
 file9 = cwd / "TreeData.py"
 file10 = cwd / "W3DeployHandler.py"
-file11 = cwd / "requirements.txt"
+file11 = cwd / "path_utils.py"
+file12 = cwd / "requirements.txt"
 
-files = [file1, file2, file3, file4, file5, file6, file7, file8, file9, file10, file11]
+files = [file1, file2, file3, file4, file5, file6, file7, file8, file9, file10, file11, file12]
 
 # target directories for the build folder and files
 build_dir = cwd / "build"
@@ -125,6 +126,7 @@ subprocess.run(
         str(file8),
         str(file9),
         str(file10),
+        str(file11),
         "--onefile",
         "--name=hvym_press",
         f"--distpath={dist_dir}",

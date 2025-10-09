@@ -3077,7 +3077,7 @@ class SiteDataHandler:
             "siteID": uuid.uuid4().hex,
             "customTheme": "",
             "pintheon_access_token": "",
-            "backend_end_point": "https://127.0.0.1:9999",
+            "backend_end_point": "https://127.0.0.1:5000",
             "backend_timeout": 100,
             "nft_site_type": "None",
             "nft_type": "None",
@@ -3405,51 +3405,35 @@ class SiteDataHandler:
 
     def renderStaticPage(self, template_file, data):
         """
-
-
-
         Render the static page with media links already replaced.
-
-
-
         First renders to serve folder, then copies to dist folder for deployment.
-
-
-
         """
 
+        # Ensure markdown handler has the latest manifest before rendering
+        if hasattr(self, "deployHandler") and self.deployHandler.manifest:
+            self.markdownHandler.deployerManifest = self.deployHandler.manifest
+            print("DEBUG: Manifest ensured in markdown handler before static page rendering")
+
         # Render to serve folder first
-
         target_path = os.path.join(SCRIPT_DIR, "serve")
-
         page_path = os.path.join(target_path, "index.html")
 
         self.markdownHandler.renderPageTemplate(template_file, data, page_path)
 
         # Ensure dist folder exists and copy the rendered file there
-
         if hasattr(self, "distPath") and self.distPath:
-
             import shutil
 
             os.makedirs(self.distPath, exist_ok=True)
-
             dist_index_path = os.path.join(self.distPath, "index.html")
 
             # Copy the rendered index.html to dist folder
-
             try:
-
                 shutil.copy2(page_path, dist_index_path)
-
                 print(f"Copied rendered index.html to dist folder: {dist_index_path}")
-
             except Exception as e:
-
                 print(f"Warning: Could not copy to dist folder: {e}")
-
         else:
-
             print("Warning: No distPath configured, cannot copy rendered file")
 
     def generateFormData(self, page, article):
@@ -4660,60 +4644,78 @@ class SiteDataHandler:
 
     def deployMedia(self, usefullPath=False, askPermission=True):
         """
-
-
-
         Deploy all media files from the media folder.
-
-
-
         Returns a tuple (media_cid, status) for backward compatibility.
-
-
-
         """
 
         try:
-
             result = False
-
             deployFolder = self.resourcePath
 
+            # Validate that we have a deploy handler
+            if not hasattr(self, "deployHandler") or not self.deployHandler:
+                print("Error: No deploy handler available")
+                return (None, None)
+
+            # Refresh debug media
             self.refreshDebugMedia()
 
+            # Determine which folder to deploy from
             if (
                 os.path.isdir(self.debugResourcePath)
                 and len(os.listdir(self.debugResourcePath)) > 0
             ):
-
                 deployFolder = self.debugResourcePath
+                print(f"DEBUG: Deploying from debug folder: {deployFolder}")
+            else:
+                print(f"DEBUG: Deploying from resource folder: {deployFolder}")
 
+            # Validate deploy folder exists and has files
+            if not os.path.isdir(deployFolder):
+                print(f"Error: Deploy folder does not exist: {deployFolder}")
+                return (None, None)
+
+            folder_files = os.listdir(deployFolder)
+            if not folder_files:
+                print(f"Warning: Deploy folder is empty: {deployFolder}")
+                return (None, None)
+
+            print(f"DEBUG: Found {len(folder_files)} files in deploy folder")
+
+            # Ensure manifest is passed to markdown handler
             if self.deployHandler.manifest != None:
-
                 self.markdownHandler.deployerManifest = self.deployHandler.manifest
 
             # Use the new simplified media upload method
-
             media_manifest = self.deployHandler.uploadMediaFiles(deployFolder)
 
+            # Validate upload results
+            if not media_manifest:
+                print("Error: Media upload returned empty manifest")
+                return (None, None)
+
+            # Save deployment data
             self.deployHandler.saveData()
 
+            # Validate manifest was properly updated
+            if not self.deployHandler.manifest or "media_files" not in self.deployHandler.manifest:
+                print("Error: Manifest not properly updated after media upload")
+                return (None, None)
+
+            print(f"DEBUG: Successfully deployed {len(media_manifest)} media files")
+
             # For backward compatibility, return a tuple
-
             if media_manifest:
-
                 # Return first media file's CID and a status message
-
                 first_file = next(iter(media_manifest.values()))
-
                 return (first_file["cid"], "media_deployed")
 
             return (None, None)
 
         except Exception as e:
-
             print(f"Error deploying media: {e}")
-
+            import traceback
+            print(f"Traceback: {traceback.format_exc()}")
             return (None, None)
 
     def deploySite(self, usefullPath=False, askPermission=True):

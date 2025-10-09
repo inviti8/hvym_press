@@ -85,6 +85,14 @@ class MarkdownHandler:
                 )
                 return deployed_url
 
+        # Try to find by removing media directory prefix if present
+        if href.startswith(f"{self.mediaDir}/"):
+            filename_without_prefix = href[len(f"{self.mediaDir}/"):]
+            if filename_without_prefix in media_files:
+                deployed_url = media_files[filename_without_prefix]["url"]
+                print(f"DEBUG: Prefix-removed match found for {filename_without_prefix}: {deployed_url}")
+                return deployed_url
+
         print(f"DEBUG: No deployed URL found for {decoded_filename} (from {href})")
         print(
             f"DEBUG: Original href: {href}, extracted filename: {filename}, decoded filename: {decoded_filename}"
@@ -239,9 +247,17 @@ class MarkdownHandler:
         try:
             with open(filePath, "r", encoding="utf-8") as file:
                 md_file = file.read()
+            
             # Fix image paths in markdown BEFORE conversion (for local deployment)
-            # Use configurable media directory
-            md_file = md_file.replace(f"../{self.mediaDir}/", f"./{self.mediaDir}/")
+            # Use more robust path replacement with regex
+            import re
+            
+            # Replace various path formats: ../_resources/, ./_resources/, _resources/
+            md_file = re.sub(
+                rf'(?:\.\./|\./)?{re.escape(self.mediaDir)}/',
+                f'{self.mediaDir}/',
+                md_file
+            )
 
             # Convert markdown to HTML
             html = markdown.markdown(md_file)
@@ -254,6 +270,8 @@ class MarkdownHandler:
 
         except Exception as e:
             print(f"Error generating HTML from {filePath}: {e}")
+            import traceback
+            print(f"Traceback: {traceback.format_exc()}")
             return f"<p>Error generating HTML: {e}</p>"
 
     def _renderTemplate(self, template_file, data):
@@ -261,16 +279,24 @@ class MarkdownHandler:
         return template.render(data=data)
 
     def renderPageTemplate(self, template_file, data, page):
+        # First render the template with data
         output = self._renderTemplate(template_file, data)
 
+        # Process template media links if manifest is available
+        if self.deployerManifest and "media_files" in self.deployerManifest:
+            print("DEBUG: Processing template media links with deployed URLs")
+            output = self.processTemplateMedia(output)
+        else:
+            print("DEBUG: No manifest available for template media processing")
+
         # Debug: Check if the rendered output contains media links
-        if f"../{self.mediaDir}/" in output:
+        if f"../{self.mediaDir}/" in output or f"{self.mediaDir}/" in output:
             print(f"DEBUG: Rendered template still contains local media links!")
             # Find and show examples
             import re
 
             media_links = re.findall(
-                f'\\.\\./{re.escape(self.mediaDir)}/[^"\\s]+', output
+                f'(?:\\.\\./)?{re.escape(self.mediaDir)}/[^"\\s]+', output
             )
             if media_links:
                 print(
@@ -283,7 +309,7 @@ class MarkdownHandler:
         output = self._shortenMediaLinks(output)
 
         # Debug: Check after shortening (output is still string)
-        if f"../{self.mediaDir}/" in output:
+        if f"../{self.mediaDir}/" in output or f"{self.mediaDir}/" in output:
             print(f"DEBUG: After shortening, still contains local media links!")
         else:
             print(f"DEBUG: After shortening, no local media links found")
@@ -294,6 +320,44 @@ class MarkdownHandler:
 
         print(f"DEBUG: Template rendered to: {page}")
         print(f"DEBUG: File size: {len(output)} characters")
+
+    def processTemplateMedia(self, template_content):
+        """
+        Process media links in template content, including template-level media references.
+        
+        :param template_content: Template content string
+        :type template_content: (str)
+        :return: Template content with media links replaced
+        :rtype: (str)
+        """
+        if not self.deployerManifest or "media_files" not in self.deployerManifest:
+            print("DEBUG: No manifest or media_files in manifest for template processing")
+            return template_content
+        
+        import re
+        
+        # Pattern to match media file references in template content
+        # This handles various formats: _resources/file.jpg, ./_resources/file.jpg, etc.
+        media_pattern = rf'(?:\./)?{re.escape(self.mediaDir)}/([^"\s\'>]+)'
+        
+        def replace_media_link(match):
+            full_path = match.group(0)  # e.g., "_resources/banner.jpg"
+            filename = match.group(1)   # e.g., "banner.jpg"
+            
+            # Try to find the deployed URL for this file
+            deployed_url = self._deployedURL(full_path)
+            
+            if deployed_url != full_path:
+                print(f"DEBUG: Template media replacement: {full_path} -> {deployed_url}")
+                return deployed_url
+            else:
+                print(f"DEBUG: No deployed URL found for template media: {full_path}")
+                return full_path
+        
+        # Replace media references in template content
+        processed_content = re.sub(media_pattern, replace_media_link, template_content)
+        
+        return processed_content
 
     def testMediaReplacement(self, test_html, manifest):
         """

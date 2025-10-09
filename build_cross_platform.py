@@ -32,6 +32,7 @@ class BuildConfig:
             "SiteDataHandler.py",
             "TreeData.py",
             "W3DeployHandler.py",
+            "path_utils.py",
             "requirements.txt",
         ]
 
