@@ -3853,31 +3853,47 @@ class SiteDataHandler:
         
         return str(soup)
 
-    def _createArticleNavigationButton(self, page_name):
+    def _createArticleNavigationButton(self, page_name, classes=None):
+        home_candidates = ["home.md", "index.md", "landing.md", "welcome.md"]
         # Clean up the page name by removing any .html extension
         clean_page_name = page_name.replace('.html', '')
         # Use the link text if available, otherwise use the page name
         text = getattr(self, '_last_link_text', clean_page_name.replace('_', ' ').title())
+        prepend = 'nav_'
+        if clean_page_name in home_candidates:
+            clean_page_name = clean_page_name.replace('.md', '')
+            prepend = ''
         
-        onclick_function = f"myNavigator.pushPage('nav_{clean_page_name}.html')"
+        onclick_function = f"myNavigator.pushPage('{prepend}{clean_page_name}.html')"
+
+         # Add default classes
+        button_classes = ["article-nav-button"]
+        # Add any additional classes passed in
+        if classes:
+            button_classes.extend(classes)
 
         button_html = f"""
-        <ons-button onclick="{onclick_function}" modifier="primary" class="article-nav-button">
+        <ons-button onclick="{onclick_function}" class="{' '.join(button_classes)}">
             {text}
         </ons-button>
         """
         return BeautifulSoup(button_html, "html.parser").find("ons-button")
 
     def _createArticleNavigationLink(self, page_name):
+        home_candidates = ["home.md", "index.md", "landing.md", "welcome.md"]
         # Clean up the page name by removing any .html extension
         clean_page_name = page_name.replace('.html', '')
         # Use the link text if available, otherwise use the page name
         text = getattr(self, '_last_link_text', clean_page_name.replace('_', ' ').title())
+        prepend = 'nav_'
+        if clean_page_name in home_candidates:
+            clean_page_name = clean_page_name.replace('.md', '')
+            prepend = ''
         
-        onclick_function = f"myNavigator.pushPage('nav_{clean_page_name}.html')"
+        onclick_function = f"myNavigator.pushPage('{prepend}{clean_page_name}.html')"
 
         button_html = f"""
-        <a href="#nav:{clean_page_name}.html" onclick="{onclick_function}" modifier="primary" class="article-nav-link">
+        <a href="#nav:{clean_page_name}.html" onclick="{onclick_function}" class="article-nav-link">
             {text}
         </a>
         """
@@ -3921,7 +3937,7 @@ class SiteDataHandler:
         # Create Onsen UI button with navigation
 
         button_html = f"""
-       <ons-button onclick="{onclick_function}" modifier="{button_style}" class="home-nav-button">
+       <ons-button onclick="{onclick_function}" modifier="{button_style}" class="home-nav-button hover-fade">
            {text}
        </ons-button>
        """
@@ -3983,7 +3999,7 @@ class SiteDataHandler:
 
 
 
-       <ons-button onclick="{onclick_function}" modifier="{button_style}" size="{button_size}" class="home-nav-button">
+       <ons-button onclick="{onclick_function}" modifier="{button_style}" size="{button_size}" class="home-nav-button hover-fade">
 
 
 
@@ -4905,7 +4921,14 @@ class SiteDataHandler:
                 page_name = link.get("data-page", "").replace('.html', '')
                  # Store the link text to be used in the button
                 self._last_link_text = link.get_text()
-                button = self._createArticleNavigationButton(page_name)
+                # Get the original classes from the link
+                original_classes = link.get('class', [])
+                # Remove 'article-nav-button' as we'll add it in _createArticleNavigationButton
+                original_classes = [c for c in original_classes if c != 'article-nav-button']
+                # Add 'hover-fade' class
+                original_classes.append('hover-fade')
+
+                button = self._createArticleNavigationButton(page_name, classes=original_classes)
                 if button:
                         link.replace_with(button)
                 
