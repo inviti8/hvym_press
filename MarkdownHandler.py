@@ -40,16 +40,41 @@ class MarkdownHandler:
         """
         import re
         
-        # Pattern to match markdown links
-        link_pattern = r"\[([^\]]+)\]\(([^)]+)\)"
+        # Updated pattern to match markdown links with optional attributes
+        link_pattern = r"\[([^\]]+)\]\(([^)]+)\)\s*(?:\{([^}]*)\})?"
         
         def process_article_link(match):
             text = match.group(1)
             href = match.group(2)
+            attrs = match.group(3) or ""
             
+            # Parse attributes
+            classes = []
+            attr_dict = {}
+            if attrs:
+                # Split attributes by spaces
+                attr_parts = re.findall(r'(\w+)(?:=(["\'])(.*?)\2)?', attrs)
+                for name, _, value in attr_parts:
+                    if name == "class":
+                        classes.extend(value.split())
+                    else:
+                        attr_dict[name] = value
+
             # Check if this is an article link (contains .md)
             if '.md' in href:
-                return f'<a href="#nav:{href}" class="article-nav-link" data-page="{href}">{text}</a>'
+                # # Add article-nav-link to unassigned markdown links
+                if "article-nav-button" not in classes and len(classes) == 0:
+                    classes.append("article-nav-link")
+                
+                # Build class string
+                class_attr = f' class="{" ".join(classes)}"' if classes else ""
+                
+                # Build other attributes
+                other_attrs = " ".join(f'{k}="{v}"' for k, v in attr_dict.items())
+                attrs_str = f" {other_attrs}" if other_attrs else ""
+
+                
+                return f'<a href="#nav:{href}"{class_attr} data-page="{href}"{attrs_str}>{text}</a>'
             
             # If not an article link, return original
             return match.group(0)

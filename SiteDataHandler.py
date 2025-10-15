@@ -3868,6 +3868,21 @@ class SiteDataHandler:
         """
         return BeautifulSoup(button_html, "html.parser").find("ons-button")
 
+    def _createArticleNavigationLink(self, page_name):
+        # Clean up the page name by removing any .html extension
+        clean_page_name = page_name.replace('.html', '')
+        # Use the link text if available, otherwise use the page name
+        text = getattr(self, '_last_link_text', clean_page_name.replace('_', ' ').title())
+        
+        onclick_function = f"myNavigator.pushPage('nav_{clean_page_name}.html')"
+
+        button_html = f"""
+        <a href="#nav:{clean_page_name}.html" onclick="{onclick_function}" modifier="primary" class="article-nav-link">
+            {text}
+        </a>
+        """
+        return BeautifulSoup(button_html, "html.parser").find("a")
+
     def _createNavigationButton(self, link_element, page_name, navigation_type):
         """Create a functional navigation button from a link"""
 
@@ -4882,14 +4897,28 @@ class SiteDataHandler:
             
             # Process article navigation links
             soup = BeautifulSoup(html_content, "html.parser")
+            article_btns = soup.find_all("a", class_="article-nav-button")
             article_links = soup.find_all("a", class_="article-nav-link")
             
-            for link in article_links:
+            for link in article_btns:
                 # Clean up the page name by removing any .html extension
                 page_name = link.get("data-page", "").replace('.html', '')
                  # Store the link text to be used in the button
                 self._last_link_text = link.get_text()
                 button = self._createArticleNavigationButton(page_name)
+                if button:
+                        link.replace_with(button)
+                
+                # Clean up the stored text
+                if hasattr(self, '_last_link_text'):
+                    delattr(self, '_last_link_text')
+
+            for link in article_links:
+                # Clean up the page name by removing any .html extension
+                page_name = link.get("data-page", "").replace('.html', '')
+                 # Store the link text to be used in the button
+                self._last_link_text = link.get_text()
+                button = self._createArticleNavigationLink(page_name)
                 if button:
                         link.replace_with(button)
                 
