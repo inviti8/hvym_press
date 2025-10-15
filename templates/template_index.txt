@@ -677,17 +677,18 @@
               </div>
               {% endif %}
               
-              {% if data.homePage.navigation %}
-              <div class="home-navigation">
-                {% for nav_item in data.homePage.navigation %}
-                  {% if nav_item.page in data.pageList %}
-                  <ons-button onclick="fn.goToPageByName('{{nav_item.page}}')" modifier="{{nav_item.style or 'primary'}}" class="home-nav-button">
-                    {{nav_item.text}}
-                  </ons-button>
-                  {% endif %}
-                {% endfor %}
-              </div>
-              {% endif %}
+              <!-- Navigation Buttons (from frontmatter) -->
+                {% if data.homePage.navigation %}
+                <div class="home-navigation">
+                  {% for nav_item in data.homePage.navigation %}
+                    <ons-button onclick="fn.goToPageByName('{{nav_item.page}}')" 
+                                modifier="{{nav_item.style or 'primary'}}" 
+                                class="home-nav-button">
+                      {{nav_item.text}}
+                    </ons-button>
+                  {% endfor %}
+                </div>
+                {% endif %}
               
               <div class="home-content">
                 {{data.homePage.content.html|safe}}
@@ -878,15 +879,17 @@
                   </div>
                 </div>
                 {% endif %}
-                
+
+                <!-- Navigation Buttons (from frontmatter) -->
                 {% if data.homePage.navigation %}
                 <div class="home-navigation">
+                <a href="#nav:page_a2.md.html">TEST</a>
                   {% for nav_item in data.homePage.navigation %}
-                    {% if nav_item.page in data.pageList %}
-                    <ons-button onclick="fn.goToPageByName('{{nav_item.page}}')" modifier="{{nav_item.style or 'primary'}}" class="home-nav-button">
+                    <ons-button onclick="fn.goToTabByName('{{nav_item.page}}')" 
+                                modifier="{{nav_item.style or 'primary'}}" 
+                                class="home-nav-button">
                       {{nav_item.text}}
                     </ons-button>
-                    {% endif %}
                   {% endfor %}
                 </div>
                 {% endif %}
@@ -1054,11 +1057,11 @@
     {% if data.homePage.navigation %}
     <div class="home-navigation">
       {% for nav_item in data.homePage.navigation %}
-        {% if nav_item.page in data.pageList %}
-        <ons-button onclick="fn.goToTabByName('{{nav_item.page}}')" modifier="{{nav_item.style or 'primary'}}" class="home-nav-button">
+        <ons-button onclick="fn.goToTabByName('{{nav_item.page}}')" 
+                    modifier="{{nav_item.style or 'primary'}}" 
+                    class="home-nav-button">
           {{nav_item.text}}
         </ons-button>
-        {% endif %}
       {% endfor %}
     </div>
     {% endif %}
@@ -1110,11 +1113,11 @@
     {% if data.homePage.navigation %}
     <div class="home-navigation">
       {% for nav_item in data.homePage.navigation %}
-        {% if nav_item.page in data.pageList %}
-        <ons-button onclick="fn.load('{{nav_item.page}}.html')" modifier="{{nav_item.style or 'primary'}}" class="home-nav-button">
+        <ons-button onclick="fn.load('{{nav_item.page}}.html')" 
+                    modifier="{{nav_item.style or 'primary'}}" 
+                    class="home-nav-button">
           {{nav_item.text}}
         </ons-button>
-        {% endif %}
       {% endfor %}
     </div>
     {% endif %}
