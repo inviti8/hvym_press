@@ -29,6 +29,34 @@ class MarkdownHandler:
         self.deployerManifest = deployerManifest
         self.mediaDir = "_resources"  # Default fallback
 
+    def processArticleLinks(self, markdown_content):
+        """Process markdown content to identify article navigation links.
+        
+        Args:
+            markdown_content (str): The markdown content to process
+            
+        Returns:
+            str: Processed markdown with navigation links marked up
+        """
+        import re
+        
+        # Pattern to match markdown links
+        link_pattern = r"\[([^\]]+)\]\(([^)]+)\)"
+        
+        def process_article_link(match):
+            text = match.group(1)
+            href = match.group(2)
+            
+            # Check if this is an article link (contains .md)
+            if '.md' in href:
+                return f'<a href="#nav:{href}" class="article-nav-link" data-page="{href}">{text}</a>'
+            
+            # If not an article link, return original
+            return match.group(0)
+        
+        # Process all markdown links
+        return re.sub(link_pattern, process_article_link, markdown_content)
+
     def _deployedURL(self, href):
         """
         Get the deployed IPFS URL for a media file.
@@ -247,6 +275,9 @@ class MarkdownHandler:
         try:
             with open(filePath, "r", encoding="utf-8") as file:
                 md_file = file.read()
+            
+            # Process article links in markdown
+            md_file = self.processArticleLinks(md_file)
             
             # Fix image paths in markdown BEFORE conversion (for local deployment)
             # Use more robust path replacement with regex

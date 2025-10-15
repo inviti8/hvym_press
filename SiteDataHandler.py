@@ -3506,8 +3506,6 @@ class SiteDataHandler:
 
                 article_data[prop] = self.articleData[page][k][prop]
 
-            # Debug: Check what HTML content we have
-
             if "html" in article_data and article_data["html"]:
 
                 print(
@@ -3841,28 +3839,34 @@ class SiteDataHandler:
 
     def processHomePageNavigation(self, html_content):
         """Process HTML content to convert navigation links to functional buttons"""
-
         soup = BeautifulSoup(html_content, "html.parser")
-
-        # Find all navigation links
-
+        
+        # Process regular navigation links
         nav_links = soup.find_all("a", class_="nav-link")
-
         for link in nav_links:
-
             page_name = link.get("data-page", "")
-
             if page_name and page_name in self.pageList:
-
-                # Create Onsen UI button with correct navigation type
-
                 button = self._createNavigationButton(
                     link, page_name, self.settings["pageType"]
                 )
-
                 link.replace_with(button)
-
+        
         return str(soup)
+
+    def _createArticleNavigationButton(self, page_name):
+        # Clean up the page name by removing any .html extension
+        clean_page_name = page_name.replace('.html', '')
+        # Use the link text if available, otherwise use the page name
+        text = getattr(self, '_last_link_text', clean_page_name.replace('_', ' ').title())
+        
+        onclick_function = f"myNavigator.pushPage('nav_{clean_page_name}.html')"
+
+        button_html = f"""
+        <ons-button onclick="{onclick_function}" modifier="primary" class="article-nav-button">
+            {text}
+        </ons-button>
+        """
+        return BeautifulSoup(button_html, "html.parser").find("ons-button")
 
     def _createNavigationButton(self, link_element, page_name, navigation_type):
         """Create a functional navigation button from a link"""
@@ -4865,21 +4869,36 @@ class SiteDataHandler:
             self.updateArticleData(folder, path, data)
 
     def updateArticleHTML(self, folder, path, filePath):
-
         if folder in self.articleData:
-
             t = time.strftime(
                 "%b %d %H:%M:%S %Y", time.gmtime(os.path.getmtime(filePath))
             )
 
-            if self.deployHandler.manifest != None:
-
+            if self.deployHandler.manifest is not None:
                 self.markdownHandler.deployerManifest = self.deployHandler.manifest
 
-            self.articleData[folder][path]["html"] = self.markdownHandler.generateHTML(
-                filePath
-            )
-
+            # Generate the HTML content
+            html_content = self.markdownHandler.generateHTML(filePath)
+            
+            # Process article navigation links
+            soup = BeautifulSoup(html_content, "html.parser")
+            article_links = soup.find_all("a", class_="article-nav-link")
+            
+            for link in article_links:
+                # Clean up the page name by removing any .html extension
+                page_name = link.get("data-page", "").replace('.html', '')
+                 # Store the link text to be used in the button
+                self._last_link_text = link.get_text()
+                button = self._createArticleNavigationButton(page_name)
+                if button:
+                        link.replace_with(button)
+                
+                # Clean up the stored text
+                if hasattr(self, '_last_link_text'):
+                    delattr(self, '_last_link_text')
+            
+            # Store the processed HTML
+            self.articleData[folder][path]["html"] = str(soup)
             self.articleData[folder][path]["time_stamp"] = t
 
     def updateAllArticleHTML(self, folder):
