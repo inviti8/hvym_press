@@ -882,10 +882,8 @@
 
                 <!-- Navigation Buttons (from frontmatter) -->
                 {% if data.homePage.navigation %}
-                <div class="home-navigation">
-                <a href="#nav:page_a2.md.html">TEST</a>
                   {% for nav_item in data.homePage.navigation %}
-                    <ons-button onclick="fn.goToTabByName('{{nav_item.page}}')" 
+                    <ons-button onclick="fn.goToPageByName('{{nav_item.page}}')" 
                                 modifier="{{nav_item.style or 'primary'}}" 
                                 class="home-nav-button">
                       {{nav_item.text}}

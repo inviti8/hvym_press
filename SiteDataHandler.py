@@ -3854,16 +3854,22 @@ class SiteDataHandler:
         return str(soup)
 
     def _createArticleNavigationButton(self, page_name, classes=None):
+        navigation_type = self.settings["pageType"]
         home_candidates = ["home.md", "index.md", "landing.md", "welcome.md"]
         # Clean up the page name by removing any .html extension
         clean_page_name = page_name.replace('.html', '')
         # Use the link text if available, otherwise use the page name
         text = getattr(self, '_last_link_text', clean_page_name.replace('_', ' ').title())
         prepend = 'nav_'
+
         if clean_page_name in home_candidates:
             clean_page_name = clean_page_name.replace('.md', '')
             prepend = ''
-        
+            if navigation_type == "carousel":
+                prepend = 'carousel-'
+            elif navigation_type == "tabs":
+                prepend = 'tabs-'
+
         onclick_function = f"myNavigator.pushPage('{prepend}{clean_page_name}.html')"
 
          # Add default classes
@@ -3880,16 +3886,23 @@ class SiteDataHandler:
         return BeautifulSoup(button_html, "html.parser").find("ons-button")
 
     def _createArticleNavigationLink(self, page_name):
+        navigation_type = self.settings["pageType"]
         home_candidates = ["home.md", "index.md", "landing.md", "welcome.md"]
         # Clean up the page name by removing any .html extension
         clean_page_name = page_name.replace('.html', '')
         # Use the link text if available, otherwise use the page name
         text = getattr(self, '_last_link_text', clean_page_name.replace('_', ' ').title())
         prepend = 'nav_'
+
         if clean_page_name in home_candidates:
             clean_page_name = clean_page_name.replace('.md', '')
             prepend = ''
-        
+            if navigation_type == "carousel":
+                prepend = 'carousel-'
+            elif navigation_type == "tabs":
+                prepend = 'tabs-'
+
+
         onclick_function = f"myNavigator.pushPage('{prepend}{clean_page_name}.html')"
 
         button_html = f"""
