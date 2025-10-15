@@ -61,7 +61,7 @@ class MarkdownHandler:
                         attr_dict[name] = value
 
             # Check if this is an article link (contains .md)
-            if '.md' in href:
+            if '.md' in href and 'https' not in href:
                 # # Add article-nav-link to unassigned markdown links
                 if "article-nav-button" not in classes and len(classes) == 0:
                     classes.append("article-nav-link")
