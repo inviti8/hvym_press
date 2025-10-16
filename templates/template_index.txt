@@ -516,6 +516,69 @@
            margin: 0 auto;
        }
 
+       /* Feature Cards */
+      .features {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 1.5rem;
+          padding: 2rem 1rem;
+          max-width: 1200px;
+          margin: 0 auto;
+      }
+
+      .feature-card {
+          background: var(--background-color);
+          border-radius: 8px;
+          padding: 1.5rem;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+          transition: transform 0.2s, box-shadow 0.2s;
+
+      }
+
+      .feature-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      }
+
+      .feature-card h3 {
+          font-size: 1.2rem;
+          margin: 0 0 0.75rem 0;
+          color: var(--text-color);
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+      }
+
+      .feature-card p {
+          margin: 0;
+          color: var(--text-secondary-color);
+          line-height: 1.6;
+      }
+
+      .feature-icon {
+          font-size: 1.5rem;
+          margin-right: 0.5rem;
+      }
+
+      .section-title {
+          text-align: center;
+          font-size: 2rem;
+          margin: 3rem 0 1.5rem;
+          color: var(--text-color);
+          position: relative;
+          padding-bottom: 1rem;
+      }
+
+      .section-title:after {
+          content: '';
+          display: block;
+          width: 60px;
+          height: 3px;
+          background: var(--primary-color);
+          margin: 0.5rem auto 0;
+          border-radius: 3px;
+      }
+
        /* Carousel-specific styles for proper scrolling */
        .carousel-content-container {
            height: calc(100vh - 120px); /* Account for toolbar height */
@@ -552,6 +615,70 @@
        .article-nav-button {
             float: right;
             margin: 1em 0;
+        }
+        /* Carousel feature cards layout */
+        .carousel-content-container .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 100%;
+            padding: 1rem;
+        }
+
+        .carousel-content-container .feature-card {
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.5rem;
+            width: 280px;
+        }
+
+        .carousel-content-container .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .carousel-content-container .features-section {
+            width: 100%;
+            margin: 2rem 0;
+        }
+
+        /* Ensure text is readable on light backgrounds */
+        .carousel-content-container .feature-card h3 {
+            color: #333;
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+        }
+
+        .carousel-content-container .feature-card p {
+            color: #666;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Make sure the carousel content is scrollable */
+        .carousel-item-content {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .carousel-content-container .features {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .carousel-content-container .feature-card {
+                width: 100%;
+                max-width: 350px;
+            }
         }
      </style>
 
@@ -663,22 +790,22 @@
               {% if data.homePage.content.hero_title or data.homePage.content.hero_image %}
               <div class="hero-section" {% if data.homePage.content.hero_image %}style="background-image: url('{{data.homePage.content.hero_image}}')"{% endif %}>
                 <div class="hero-content">
+
                   {% if data.homePage.content.hero_title %}
                   <h1 class="hero-title">{{data.homePage.content.hero_title}}</h1>
                   {% endif %}
+
                   {% if data.homePage.content.hero_subtitle %}
                   <p class="hero-subtitle">{{data.homePage.content.hero_subtitle}}</p>
                   {% endif %}
+
                   {% if data.homePage.content.cta_button.text %}
                   <ons-button onclick="fn.goToPage(1)" modifier="large" class="hero-cta">
                     {{data.homePage.content.cta_button.text}}
                   </ons-button>
                   {% endif %}
-                </div>
-              </div>
-              {% endif %}
-              
-              <!-- Navigation Buttons (from frontmatter) -->
+
+                <!-- Navigation Buttons (from frontmatter) -->
                 {% if data.homePage.navigation %}
                 <div class="home-navigation">
                   {% for nav_item in data.homePage.navigation %}
@@ -690,6 +817,26 @@
                   {% endfor %}
                 </div>
                 {% endif %}
+
+                  {% if data.homePage.content.features %}
+                  <div class="features-section">
+                    <div class="features">
+                      {% for feature in data.homePage.content.features %}
+                        <div class="feature-card">
+                          <h3>
+                            <span class="feature-icon">{{ feature.title.split(' ')[0] }}</span>
+                            {{ feature.title.split(' ')[1:]|join(' ') }}
+                          </h3>
+                          <p>{{ feature.details }}</p>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  {% endif %}
+                  
+                </div>
+              </div>
+              {% endif %}
               
               <div class="home-content">
                 {{data.homePage.content.html|safe}}
@@ -1028,40 +1175,56 @@
   <ons-page>
 
     <ons-toolbar modifier="{{data.settings.style}}">
-      <div class="center">
-        {{data.homePage.title}}
-      </div>
     </ons-toolbar>
     
     <!-- Hero Section (if configured) -->
     {% if data.homePage.content.hero_title or data.homePage.content.hero_image %}
     <div class="hero-section" {% if data.homePage.content.hero_image %}style="background-image: url('{{data.homePage.content.hero_image}}')"{% endif %}>
       <div class="hero-content">
+
         {% if data.homePage.content.hero_title %}
         <h1 class="hero-title">{{data.homePage.content.hero_title}}</h1>
         {% endif %}
         {% if data.homePage.content.hero_subtitle %}
         <p class="hero-subtitle">{{data.homePage.content.hero_subtitle}}</p>
         {% endif %}
+
         {% if data.homePage.content.cta_button.text %}
         <ons-button onclick="fn.goToTabByName('{{data.pages[0].title}}')" modifier="large" class="hero-cta">
           {{data.homePage.content.cta_button.text}}
         </ons-button>
         {% endif %}
+
+        <!-- Navigation Buttons (from frontmatter) -->
+        {% if data.homePage.navigation %}
+        <div class="home-navigation">
+          {% for nav_item in data.homePage.navigation %}
+            <ons-button onclick="fn.goToTabByName('{{nav_item.page}}')" 
+                        modifier="{{nav_item.style or 'primary'}}" 
+                        class="home-nav-button">
+              {{nav_item.text}}
+            </ons-button>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if data.homePage.content.features %}
+          <div class="features-section">
+            <div class="features">
+              {% for feature in data.homePage.content.features %}
+              <div class="feature-card">
+                <h3>
+                  <span class="feature-icon">{{ feature.title.split(' ')[0] }}</span>
+                  {{ feature.title.split(' ')[1:]|join(' ') }}
+                </h3>
+                <p>{{ feature.details }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          
+        {% endif %}
       </div>
-    </div>
-    {% endif %}
-    
-    <!-- Navigation Buttons (from frontmatter) -->
-    {% if data.homePage.navigation %}
-    <div class="home-navigation">
-      {% for nav_item in data.homePage.navigation %}
-        <ons-button onclick="fn.goToTabByName('{{nav_item.page}}')" 
-                    modifier="{{nav_item.style or 'primary'}}" 
-                    class="home-nav-button">
-          {{nav_item.text}}
-        </ons-button>
-      {% endfor %}
     </div>
     {% endif %}
     
@@ -1079,9 +1242,6 @@
   <ons-page>
 
     <ons-toolbar modifier="{{data.settings.style}}">
-      <div class="center">
-        {{data.homePage.title}}
-      </div>
       <div class="left">
         <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
           <ons-icon icon="md-menu"></ons-icon>
@@ -1093,31 +1253,51 @@
     {% if data.homePage.content.hero_title or data.homePage.content.hero_image %}
     <div class="hero-section" {% if data.homePage.content.hero_image %}style="background-image: url('{{data.homePage.content.hero_image}}')"{% endif %}>
       <div class="hero-content">
+
         {% if data.homePage.content.hero_title %}
         <h1 class="hero-title">{{data.homePage.content.hero_title}}</h1>
         {% endif %}
         {% if data.homePage.content.hero_subtitle %}
         <p class="hero-subtitle">{{data.homePage.content.hero_subtitle}}</p>
         {% endif %}
+
         {% if data.homePage.content.cta_button.text %}
         <ons-button onclick="fn.load('{{data.pages[0].title}}.html')" modifier="large" class="hero-cta">
           {{data.homePage.content.cta_button.text}}
         </ons-button>
         {% endif %}
+
+        <!-- Navigation Buttons (from frontmatter) -->
+        {% if data.homePage.navigation %}
+        <div class="home-navigation">
+          {% for nav_item in data.homePage.navigation %}
+            <ons-button onclick="fn.load('{{nav_item.page}}.html')" 
+                        modifier="{{nav_item.style or 'primary'}}" 
+                        class="home-nav-button">
+              {{nav_item.text}}
+            </ons-button>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Feature Cards Section -->
+        {% if data.homePage.content.features %}
+        <div class="features-section">
+          <div class="features">
+            {% for feature in data.homePage.content.features %}
+            <div class="feature-card">
+              <h3>
+                <span class="feature-icon">{{ feature.title.split(' ')[0] }}</span>
+                {{ feature.title.split(' ')[1:]|join(' ') }}
+              </h3>
+              <p>{{ feature.details }}</p>
+            </div>
+          {% endfor %}
+
+          </div>
+        </div>
+        {% endif %}
       </div>
-    </div>
-    {% endif %}
-    
-    <!-- Navigation Buttons (from frontmatter) -->
-    {% if data.homePage.navigation %}
-    <div class="home-navigation">
-      {% for nav_item in data.homePage.navigation %}
-        <ons-button onclick="fn.load('{{nav_item.page}}.html')" 
-                    modifier="{{nav_item.style or 'primary'}}" 
-                    class="home-nav-button">
-          {{nav_item.text}}
-        </ons-button>
-      {% endfor %}
     </div>
     {% endif %}
     
@@ -1134,9 +1314,6 @@
 <template id="{{page.title}}.html">
   <ons-page>
     <ons-toolbar modifier="{{data.settings.style}}">
-      <div class="center">
-        {{page.title}}
-      </div>
       {% if data.settings.pageType == 'splitter' %}
       <div class="left">
         <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">

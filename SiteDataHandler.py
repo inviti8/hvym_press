@@ -3734,6 +3734,7 @@ class SiteDataHandler:
                     "hero_subtitle": frontmatter.get("hero_subtitle", ""),
                     "hero_image": frontmatter.get("hero_image", ""),
                     "cta_button": frontmatter.get("cta_button", {}),
+                    "features": frontmatter.get("features", []),  # Add features array
                 },
                 "navigation": frontmatter.get("navigation", []),
                 "seo": frontmatter.get("seo", {}),
