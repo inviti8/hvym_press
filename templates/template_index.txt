@@ -204,8 +204,9 @@
 
       window.fn.goToHome = function() {
         var carousel = document.getElementById('carousel');
+        console.log('Go Home')
         if (carousel) {
-          carousel.setActiveIndex(0);
+          carousel.first();
           fn.updateCarouselTitle();
         }
       };
@@ -1293,9 +1294,16 @@
       </div>
       <div class="center"></div>
       <div class="left">
+      {% if data.settings.pageType == 'splitter' %}
         <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
           <ons-icon icon="md-menu"></ons-icon>
         </ons-toolbar-button>
+      {% endif %}
+      {% if data.settings.pageType == 'carousel' %}
+        <ons-toolbar-button onclick="fn.load('carousel-home.html')">
+            <ons-icon icon="md-home"></ons-icon>
+        </ons-toolbar-button>
+      {% endif %}
       </div>
     </ons-toolbar>
 
