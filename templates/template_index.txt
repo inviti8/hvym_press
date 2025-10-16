@@ -502,12 +502,38 @@
           display: flex;
           flex-wrap: wrap;
           justify-content: center;
-          gap: 1rem;
+          gap: 1.5rem;
       }
 
       .home-nav-button {
           margin: 0.5rem;
           border-radius: 6px !important;
+          display: inline-flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-width: 120px;
+          min-height: 60px;
+          padding: 0.75rem 1rem;
+      }
+
+      .home-nav-button img {
+          max-width: 48px;
+          max-height: 48px;
+          margin-bottom: 0.5rem;
+          object-fit: contain;
+      }
+
+      .home-nav-button.image-button {
+          min-width: auto;
+          background: none;
+          border: none;
+          box-shadow: none;
+          padding: 0.5rem;
+      }
+
+      .home-nav-button.image-button img {
+          margin: 0;
       }
 
       .home-content {
@@ -809,10 +835,16 @@
                 {% if data.homePage.navigation %}
                 <div class="home-navigation">
                   {% for nav_item in data.homePage.navigation %}
-                    <ons-button onclick="fn.goToPageByName('{{nav_item.page}}')" 
+                    <ons-button onclick="fn.load('{{nav_item.page}}.html')" 
                                 modifier="{{nav_item.style or 'primary'}}" 
-                                class="home-nav-button">
-                      {{nav_item.text}}
+                                class="home-nav-button {% if nav_item.image %}image-button{% endif %}"
+                                title="{{nav_item.text or nav_item.alt or ''}}">
+                      {% if nav_item.image %}
+                        <img src="{{nav_item.image}}" alt="{{nav_item.alt or nav_item.text or ''}}" loading="lazy">
+                      {% endif %}
+                      {% if nav_item.text and not nav_item.hide_text %}
+                        <span>{{nav_item.text}}</span>
+                      {% endif %}
                     </ons-button>
                   {% endfor %}
                 </div>
@@ -1199,10 +1231,16 @@
         {% if data.homePage.navigation %}
         <div class="home-navigation">
           {% for nav_item in data.homePage.navigation %}
-            <ons-button onclick="fn.goToTabByName('{{nav_item.page}}')" 
+            <ons-button onclick="fn.load('{{nav_item.page}}.html')" 
                         modifier="{{nav_item.style or 'primary'}}" 
-                        class="home-nav-button">
-              {{nav_item.text}}
+                        class="home-nav-button {% if nav_item.image %}image-button{% endif %}"
+                        title="{{nav_item.text or nav_item.alt or ''}}">
+              {% if nav_item.image %}
+                <img src="{{nav_item.image}}" alt="{{nav_item.alt or nav_item.text or ''}}" loading="lazy">
+              {% endif %}
+              {% if nav_item.text and not nav_item.hide_text %}
+                <span>{{nav_item.text}}</span>
+              {% endif %}
             </ons-button>
           {% endfor %}
         </div>
@@ -1273,8 +1311,14 @@
           {% for nav_item in data.homePage.navigation %}
             <ons-button onclick="fn.load('{{nav_item.page}}.html')" 
                         modifier="{{nav_item.style or 'primary'}}" 
-                        class="home-nav-button">
-              {{nav_item.text}}
+                        class="home-nav-button {% if nav_item.image %}image-button{% endif %}"
+                        title="{{nav_item.text or nav_item.alt or ''}}">
+              {% if nav_item.image %}
+                <img src="{{nav_item.image}}" alt="{{nav_item.alt or nav_item.text or ''}}" loading="lazy">
+              {% endif %}
+              {% if nav_item.text and not nav_item.hide_text %}
+                <span>{{nav_item.text}}</span>
+              {% endif %}
             </ons-button>
           {% endfor %}
         </div>
