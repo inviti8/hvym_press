@@ -419,6 +419,10 @@
     ons-card, img{
         border-radius: 15px !important;
     }
+
+    ons-toolbar{
+      padding-top: 5px !important;
+    }
     video {
       /* override other styles to make responsive */
       width: 100%    !important;
@@ -426,7 +430,7 @@
     }
     button {
           border-radius: 6px !important;
-      }
+    }
 
     /* Apply the hover effect */
       ons-button {
@@ -809,6 +813,10 @@
         {% endif %}
         alt="{{data.settings.siteName}} Logo" 
         style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-top: 5px; margin-right: 10px; margin-left: 10px;">
+{% else %}
+    <ons-toolbar-button id="tabs-home-button" onclick="fn.goToTabByName('home')">
+        <ons-icon icon="chevron-left"></ons-icon>
+    </ons-toolbar-button>
 {% endif %}
 
 </ons-toolbar>
@@ -839,7 +847,7 @@
     <ons-toolbar modifier="{{data.settings.style}}">
       <div class="left">
         <ons-toolbar-button id="carousel-back-button" onclick="fn.prev()">
-            <ons-icon icon="md-chevron-left"></ons-icon>
+            <ons-icon icon="md-chevron-left" size="30px"></ons-icon>
         </ons-toolbar-button>
         
         {% if data.settings.siteLogo %}
@@ -869,7 +877,7 @@
       </div>
       <div class="right">
         <ons-toolbar-button onclick="fn.next()">
-           <ons-icon icon="md-chevron-right"></ons-icon>
+           <ons-icon icon="md-chevron-right" size="30px"></ons-icon>
       </ons-toolbar-button>
     </div>
     </ons-toolbar>
@@ -1087,7 +1095,7 @@
     <ons-toolbar modifier="{{data.settings.style}}">
       <div class="left">
         <ons-toolbar-button id="carousel-back-button" onclick="fn.prev()">
-            <ons-icon icon="md-chevron-left"></ons-icon>
+            <ons-icon icon="md-chevron-left" size="30px"></ons-icon>
         </ons-toolbar-button>
 
         {% if data.settings.siteLogo %}
@@ -1117,7 +1125,7 @@
       </div>
       <div class="right">
         <ons-toolbar-button id="carousel-next-button" onclick="fn.next()">
-           <ons-icon icon="md-chevron-right"></ons-icon>
+           <ons-icon icon="md-chevron-right" size="30px"></ons-icon>
       </ons-toolbar-button>
     </div>
     </ons-toolbar>
@@ -1375,11 +1383,13 @@
     {% if data.settings.pageType == 'splitter' %}
       <div class="left">
         <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
-          <ons-icon icon="md-menu"></ons-icon>
+          
           {% if data.settings.siteLogo %}
           <img src="{{data.settings.siteLogo}}" 
               alt="{{data.settings.siteName}} Logo" 
               style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
+          {% else %}
+          <ons-icon icon="md-menu"></ons-icon>
           {% endif %}
         </ons-toolbar-button>
       </div>
@@ -1469,13 +1479,15 @@
       {% if data.settings.pageType == 'splitter' %}
       <div class="left">
         <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
-          <ons-icon icon="md-menu"></ons-icon>
-        </ons-toolbar-button>
         {% if data.settings.siteLogo %}
           <img src="{{data.settings.siteLogo}}" 
               alt="{{data.settings.siteName}} Logo" 
               style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
-          {% endif %}
+        {% else %}
+          <ons-icon icon="md-menu"></ons-icon>
+        {% endif %}
+        </ons-toolbar-button>
+        
       </div>
       {% endif %}
     </ons-toolbar>
