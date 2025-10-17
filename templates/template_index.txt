@@ -41,7 +41,13 @@
         if (menu) {
           menu.close();
         }
-        myNavigator.resetToPage(page, { animation: 'fade' });
+        
+        if(carousel){
+          fn.goToPageByName(page);
+          myNavigator.popPage();
+        }else{
+          myNavigator.resetToPage(page, { animation: 'fade' });
+        }
       } else if (tabbar) {
         // Tabs mode - extract page name and switch tabs
         var pageName = page.replace('.html', '');
@@ -153,7 +159,40 @@
     }
 
     ons.ready(function() {
+      var myNavigator = document.getElementById('myNavigator');
+      var tabbar = document.querySelector('ons-tabbar');
+      var carousel = document.getElementById('carousel');
       var forms = document.getElementsByTagName("form");
+
+      if(carousel){
+        var back = document.getElementById("carousel-back-button");
+
+        var toggle_back_btn = function() {
+          var idx = carousel.getActiveIndex();
+          console.log(idx)
+          if(idx === 0){
+            back.style.opacity = 0;
+          }else{
+            back.style.opacity = 1;
+          };
+        };
+
+        var onload = function() {
+          toggle_back_btn();
+        };
+
+        var onpostpush = function() {
+          toggle_back_btn();
+        };
+
+        var onpostnavpush = function() {
+          toggle_back_btn();
+        };
+
+        carousel.addEventListener('refresh', onload);
+        carousel.addEventListener('postchange', onpostpush);
+        
+      };
 
       for (var i = 0; i < forms.length; i++) {
          var form = forms.item(i);
@@ -221,16 +260,17 @@
 
       window.fn.goToPageByName = function(pageName) {
         var carousel = document.getElementById('carousel');
+        console.log(pageName)
         if (carousel) {
           // Find the page index by name
           var pageIndex = -1;
           {% if data.hasHomePage %}
-          if (pageName === 'home') {
+          if (pageName.includes('home') || pageName.includes('index')) {
             pageIndex = 0;
           } else {
           {% endif %}
           {% for page in data.pages %}
-            if (pageName === '{{page.title}}') {
+            if (pageName.includes('{{page.title}}')) {
               pageIndex = {% if data.hasHomePage %}{{loop.index}}{% else %}{{loop.index0}}{% endif %};
             }
           {% endfor %}
@@ -294,9 +334,15 @@
            }
            {% endif %}
            
-           if (tabIndex >= 0) {
-             tabbar.setActiveTab(tabIndex);
-           }
+           if(tabIndex === 0){
+              var myNavigator = document.getElementById('myNavigator');
+              if(myNavigator && myNavigator.pages.length > 0){
+                myNavigator.popPage();
+              };
+              tabbar.setActiveTab(tabIndex);
+            }else{
+              tabbar.setActiveTab(tabIndex);
+            };
          }
        };
        {% endif %}
@@ -755,11 +801,14 @@
 {% else %}
 <ons-navigator id="myNavigator" page="{{data.pages[0].title}}.html" hide-toolbar=false>
 {% endif %}
-<ons-toolbar>
+<ons-toolbar modifier="{{data.settings.style}}">
 {% if data.settings.siteLogo %}
-    <img src="{{data.settings.siteLogo}}" 
+    <img src="{{data.settings.siteLogo}}"
+        {% if data.hasHomePage %}
+          onclick="fn.goToTabByName('home')"
+        {% endif %}
         alt="{{data.settings.siteName}} Logo" 
-        style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
+        style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-top: 5px; margin-right: 10px; margin-left: 10px;">
 {% endif %}
 
 </ons-toolbar>
@@ -789,18 +838,24 @@
   <ons-page>
     <ons-toolbar modifier="{{data.settings.style}}">
       <div class="left">
-        <ons-toolbar-button onclick="fn.prev()">
+        <ons-toolbar-button id="carousel-back-button" onclick="fn.prev()">
             <ons-icon icon="md-chevron-left"></ons-icon>
         </ons-toolbar-button>
-        {% if data.hasHomePage %}
-        <ons-toolbar-button onclick="fn.goToHome()">
-            <ons-icon icon="md-home"></ons-icon>
-        </ons-toolbar-button>
-        {% endif %}
+        
         {% if data.settings.siteLogo %}
-          <img src="{{data.settings.siteLogo}}" 
+          <img src="{{data.settings.siteLogo}}"
+              {% if data.hasHomePage %}
+              onclick="fn.goToHome()"
+              {% endif %}
               alt="{{data.settings.siteName}} Logo" 
-              style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
+              style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-top: 5px; margin-right: 10px; margin-left: 10px;">
+        {% else %} 
+        <ons-toolbar-button onclick="fn.goToHome()">
+            {% if data.hasHomePage %}
+            <ons-toolbar-button onclick="fn.goToHome()">
+                <ons-icon icon="md-home"></ons-icon>
+            </ons-toolbar-button>
+            {% endif %}
         {% endif %}
       </div>
       <div class="center">
@@ -1031,19 +1086,23 @@
   <ons-page>
     <ons-toolbar modifier="{{data.settings.style}}">
       <div class="left">
-        <ons-toolbar-button onclick="fn.prev()">
+        <ons-toolbar-button id="carousel-back-button" onclick="fn.prev()">
             <ons-icon icon="md-chevron-left"></ons-icon>
         </ons-toolbar-button>
-        {% if data.hasHomePage %}
-        <ons-toolbar-button onclick="fn.goToHome()">
-            <ons-icon icon="md-home"></ons-icon>
-        </ons-toolbar-button>
-        {% endif %}
 
         {% if data.settings.siteLogo %}
-          <img src="{{data.settings.siteLogo}}" 
+          <img src="{{data.settings.siteLogo}}"
+              {% if data.hasHomePage %}
+              onclick="fn.goToHome()"
+              {% endif %}
               alt="{{data.settings.siteName}} Logo" 
-              style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
+              style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-top: 5px; margin-right: 10px; margin-left: 10px;">
+        {% else %}
+          {% if data.hasHomePage %}
+          <ons-toolbar-button onclick="fn.goToHome()">
+              <ons-icon icon="md-home"></ons-icon>
+          </ons-toolbar-button>
+          {% endif %}
         {% endif %}
         
       </div>
@@ -1057,7 +1116,7 @@
         </span>
       </div>
       <div class="right">
-        <ons-toolbar-button onclick="fn.next()">
+        <ons-toolbar-button id="carousel-next-button" onclick="fn.next()">
            <ons-icon icon="md-chevron-right"></ons-icon>
       </ons-toolbar-button>
     </div>
@@ -1567,13 +1626,6 @@
       <div class="left">
         <ons-back-button modifier="{{data.settings.style}}">Back</ons-back-button>
       </div>
-      <div class="center">
-      {% if data.settings.siteLogo %}
-          <img src="{{data.settings.siteLogo}}" 
-              alt="{{data.settings.siteName}} Logo" 
-              style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
-          {% endif %}
-      </div>
       <div class="left">
       {% if data.settings.pageType == 'splitter' %}
         <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
@@ -1581,9 +1633,17 @@
         </ons-toolbar-button>
       {% endif %}
       {% if data.settings.pageType == 'carousel' %}
+        {% if data.settings.siteLogo %}
+            <img src="{{data.settings.siteLogo}}"
+                onclick="fn.load('carousel-home.html')"
+                alt="{{data.settings.siteName}} Logo" 
+                style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
+        {% else %}
         <ons-toolbar-button onclick="fn.load('carousel-home.html')">
             <ons-icon icon="md-home"></ons-icon>
         </ons-toolbar-button>
+        {% endif %}
+        
       {% endif %}
       </div>
     </ons-toolbar>
