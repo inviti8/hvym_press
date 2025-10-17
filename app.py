@@ -1180,7 +1180,7 @@ def popup_nft_settings():
         DATA.updateSetting("nft_type", values["SETTING-nft_type"])
 
         DATA.updateSetting("metadata", values["SETTING-metadata"])
-
+                
         DATA.saveData()
 
         DATA.deployHandler.updateSettings(DATA.settings)
@@ -2485,6 +2485,23 @@ ui_settings_layout = [
                     ),
                 ],
                 [
+                    name("Site Logo"),
+                    sg.Input(
+                        default_text=DATA.settings["siteLogoPath"],
+                        s=20,
+                        enable_events=True,
+                        k="SETTING-siteLogoPath",
+                        font=font,
+                    ),
+                    sg.FileBrowse(
+                        file_types=(
+                            ("Image files", "*.png *.jpg *.jpeg *.svg *.gif"),
+                            ("All files", "*.*"),
+                        ),
+                        initial_folder=os.path.expanduser("~"),
+                    ),
+                ],
+                [
                     name("Custom CSS"),
                     sg.Input(
                         default_text=DATA.settings["customTheme"],
@@ -3164,6 +3181,10 @@ while True:
         setting = arr[len(arr) - 1]
 
         val = values[event]
+
+        # Handle logo upload if a new file was selected
+        if values["SETTING-siteLogoPath"] and os.path.exists(values["SETTING-siteLogoPath"]):
+            DATA.updateLogoImage(values["SETTING-siteLogoPath"])
 
         DATA.updateSetting(setting, val)
 

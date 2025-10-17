@@ -3076,6 +3076,8 @@ class SiteDataHandler:
             "description": "",
             "siteID": uuid.uuid4().hex,
             "customTheme": "",
+            "siteLogoPath": "",
+            "siteLogo": "",
             "pintheon_access_token": "",
             "backend_end_point": "https://127.0.0.1:5000",
             "backend_timeout": 100,
@@ -5030,6 +5032,20 @@ class SiteDataHandler:
             self.addFolder(folder, self.metaData)
 
             self.updateMetaData(folder, path, data)
+
+    def updateLogoImage(self,  path):
+        val = ''
+        try:
+            with open(path, "rb") as img_file:
+                # Read and encode the image as base64
+                img_data = base64.b64encode(img_file.read()).decode('utf-8')
+                # Add data URL prefix for web display
+                val = f"data:image/png;base64,{img_data}"
+
+        except Exception as e:
+                print(f"Error processing logo: {e}")
+
+        self.updateSetting("siteLogo", val);
 
     def updateSetting(self, setting, value):
 

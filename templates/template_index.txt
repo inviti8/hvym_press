@@ -518,8 +518,8 @@
       }
 
       .home-nav-button img {
-          max-width: 48px;
-          max-height: 48px;
+          max-width: 128px;
+          max-height: 128px;
           margin-bottom: 0.5rem;
           object-fit: contain;
       }
@@ -751,10 +751,18 @@
 
 {% if data.settings.pageType == 'tabs' %}
 {% if data.hasHomePage %}
-<ons-navigator id="myNavigator" hide-toolbar=true>
+<ons-navigator id="myNavigator" hide-toolbar=false>
 {% else %}
-<ons-navigator id="myNavigator" page="{{data.pages[0].title}}.html" hide-toolbar=true>
+<ons-navigator id="myNavigator" page="{{data.pages[0].title}}.html" hide-toolbar=false>
 {% endif %}
+<ons-toolbar>
+{% if data.settings.siteLogo %}
+    <img src="{{data.settings.siteLogo}}" 
+        alt="{{data.settings.siteName}} Logo" 
+        style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
+{% endif %}
+
+</ons-toolbar>
   <ons-page>
     <ons-tabbar swipeable position="auto">
       {% if data.hasHomePage %}
@@ -788,6 +796,11 @@
         <ons-toolbar-button onclick="fn.goToHome()">
             <ons-icon icon="md-home"></ons-icon>
         </ons-toolbar-button>
+        {% endif %}
+        {% if data.settings.siteLogo %}
+          <img src="{{data.settings.siteLogo}}" 
+              alt="{{data.settings.siteName}} Logo" 
+              style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
         {% endif %}
       </div>
       <div class="center">
@@ -1018,6 +1031,13 @@
             <ons-icon icon="md-home"></ons-icon>
         </ons-toolbar-button>
         {% endif %}
+
+        {% if data.settings.siteLogo %}
+          <img src="{{data.settings.siteLogo}}" 
+              alt="{{data.settings.siteName}} Logo" 
+              style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
+        {% endif %}
+        
       </div>
       <div class="center">
         <span id="carousel-title">
@@ -1205,9 +1225,6 @@
 {% if data.settings.pageType == 'tabs' %}
 <template id="tabs-home.html">
   <ons-page>
-
-    <ons-toolbar modifier="{{data.settings.style}}">
-    </ons-toolbar>
     
     <!-- Hero Section (if configured) -->
     {% if data.homePage.content.hero_title or data.homePage.content.hero_image %}
@@ -1280,11 +1297,19 @@
   <ons-page>
 
     <ons-toolbar modifier="{{data.settings.style}}">
+    {% if data.settings.pageType == 'splitter' %}
       <div class="left">
         <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
           <ons-icon icon="md-menu"></ons-icon>
+          {% if data.settings.siteLogo %}
+          <img src="{{data.settings.siteLogo}}" 
+              alt="{{data.settings.siteName}} Logo" 
+              style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
+          {% endif %}
         </ons-toolbar-button>
       </div>
+    
+    {% endif %}
     </ons-toolbar>
     
     <!-- Hero Section (if configured) -->
@@ -1363,6 +1388,11 @@
         <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
           <ons-icon icon="md-menu"></ons-icon>
         </ons-toolbar-button>
+        {% if data.settings.siteLogo %}
+          <img src="{{data.settings.siteLogo}}" 
+              alt="{{data.settings.siteName}} Logo" 
+              style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
+          {% endif %}
       </div>
       {% endif %}
     </ons-toolbar>
@@ -1513,7 +1543,13 @@
       <div class="left">
         <ons-back-button modifier="{{data.settings.style}}">Back</ons-back-button>
       </div>
-      <div class="center"></div>
+      <div class="center">
+      {% if data.settings.siteLogo %}
+          <img src="{{data.settings.siteLogo}}" 
+              alt="{{data.settings.siteName}} Logo" 
+              style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
+          {% endif %}
+      </div>
       <div class="left">
       {% if data.settings.pageType == 'splitter' %}
         <ons-toolbar-button onclick="fn.open()" modifier="{{data.settings.style}}">
