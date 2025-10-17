@@ -848,7 +848,15 @@
                 {% if data.homePage.navigation %}
                 <div class="home-navigation">
                   {% for nav_item in data.homePage.navigation %}
-                    <ons-button onclick="fn.load('{{nav_item.page}}.html')" 
+                  {% if data.settings.pageType == 'splitter' %}
+                    <ons-button onclick="fn.load('{{nav_item.page}}.html')"
+                  {% endif %}
+                  {% if data.settings.pageType == 'carousel' %}
+                    <ons-button onclick="fn.goToPageByName('{{nav_item.page}}')"
+                  {% endif %}
+                  {% if data.settings.pageType == 'tabs' %}
+                    <ons-button onclick="fn.goToTabByName('{{nav_item.page}}')"
+                  {% endif %}
                                 modifier="{{nav_item.style or 'primary'}}" 
                                 class="home-nav-button {% if nav_item.image %}image-button{% endif %}"
                                 title="{{nav_item.text or nav_item.alt or ''}}">
@@ -1248,7 +1256,15 @@
         {% if data.homePage.navigation %}
         <div class="home-navigation">
           {% for nav_item in data.homePage.navigation %}
-            <ons-button onclick="fn.load('{{nav_item.page}}.html')" 
+                  {% if data.settings.pageType == 'splitter' %}
+                    <ons-button onclick="fn.load('{{nav_item.page}}.html')"
+                  {% endif %}
+                  {% if data.settings.pageType == 'carousel' %}
+                    <ons-button onclick="fn.goToPageByName('{{nav_item.page}}')"
+                  {% endif %}
+                  {% if data.settings.pageType == 'tabs' %}
+                    <ons-button onclick="fn.goToTabByName('{{nav_item.page}}')"
+                  {% endif %}
                         modifier="{{nav_item.style or 'primary'}}" 
                         class="home-nav-button {% if nav_item.image %}image-button{% endif %}"
                         title="{{nav_item.text or nav_item.alt or ''}}">
@@ -1334,7 +1350,15 @@
         {% if data.homePage.navigation %}
         <div class="home-navigation">
           {% for nav_item in data.homePage.navigation %}
-            <ons-button onclick="fn.load('{{nav_item.page}}.html')" 
+                  {% if data.settings.pageType == 'splitter' %}
+                    <ons-button onclick="fn.load('{{nav_item.page}}.html')"
+                  {% endif %}
+                  {% if data.settings.pageType == 'carousel' %}
+                    <ons-button onclick="fn.goToPageByName('{{nav_item.page}}')"
+                  {% endif %}
+                  {% if data.settings.pageType == 'tabs' %}
+                    <ons-button onclick="fn.goToTabByName('{{nav_item.page}}')"
+                  {% endif %}
                         modifier="{{nav_item.style or 'primary'}}" 
                         class="home-nav-button {% if nav_item.image %}image-button{% endif %}"
                         title="{{nav_item.text or nav_item.alt or ''}}">
