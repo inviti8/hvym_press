@@ -3066,6 +3066,7 @@ class SiteDataHandler:
             "css_components": self.css_components,
             "uiFramework": "onsen",
             "pageType": "splitter",
+            "homeAlignment": "center",
             "menuSide": "right",
             "style": "default",
             "row_pad": 5,
@@ -3118,6 +3119,8 @@ class SiteDataHandler:
         self.uiFramework = ["onsen"]
 
         self.navigation = ["splitter", "tabs", "carousel"]
+
+        self.homeAlignment = ["left", "center", "right", "left-to-right", "right-to-left"]
 
         self.themes = list(self.css_themes.keys())
 

@@ -2450,6 +2450,18 @@ ui_settings_layout = [
                     ),
                 ],
                 [
+                    name("Home Alignment"),
+                    sg.Combo(
+                        DATA.homeAlignment,
+                        default_value=DATA.settings["homeAlignment"],
+                        s=(15, 22),
+                        enable_events=True,
+                        readonly=True,
+                        k="SETTING-homeAlignment",
+                        font=font,
+                    ),
+                ],
+                [
                     name("Style"),
                     sg.Combo(
                         DATA.styles,
