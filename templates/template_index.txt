@@ -576,6 +576,8 @@
 
       .expanded_article_div {
         padding-top: 5vh;
+        overflow-y: scroll;
+        height:400px;
       }
       .deployed_img_p{
         padding-left: 10%;
