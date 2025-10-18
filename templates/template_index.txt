@@ -412,7 +412,7 @@
     }
 
     /* Apply element rounding to cards, images, and other UI elements */
-    ons-card, .card, .image-container, .media-container, .media-item {
+    ons-card, .card, .image-container, .media-container, .media-item, .hero-section {
       border-radius: var(--element-border-radius) !important;
       overflow: hidden;
     }
@@ -577,7 +577,7 @@
       .expanded_article_div {
         padding-top: 5vh;
         overflow-y: scroll;
-        height:400px;
+        height:90vh;
       }
       .deployed_img_p{
         padding-left: 10%;
