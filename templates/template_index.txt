@@ -601,6 +601,8 @@
           padding: 2rem;
           display: flex;
           flex-direction: column;
+          max-width: 100%;
+          box-sizing: border-box;
           {% if data.settings.homeAlignment == 'left-to-right' %}
           align-items: flex-start;
           text-align: left;
@@ -617,6 +619,9 @@
           font-size: 3rem;
           margin-bottom: 1rem;
           text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          hyphens: auto;
           {% if data.settings.homeAlignment == 'left-to-right' %}
           text-align: left;
           width: 100%;
@@ -628,25 +633,64 @@
 
       .hero-subtitle {
           font-size: 1.2rem;
+          max-width: 100%;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          width: 100%;
           {% if data.settings.homeAlignment == 'left-to-right' %}
           text-align: center;
-          width: 100%;
           {% elif data.settings.homeAlignment == 'right-to-left' %}
           text-align: center;
-          width: 100%;
+          {% else %}
+          text-align: {{data.settings.homeAlignment or 'center'}};
           {% endif %}
-          margin-bottom: 2rem;
+          margin: 0 auto 2rem;
           text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
       }
 
       .hero-cta {
           margin: 0.5rem 0;
           border-radius: 6px !important;
+          white-space: nowrap;
           {% if data.settings.homeAlignment == 'left-to-right' %}
           align-self: flex-start;
           {% elif data.settings.homeAlignment == 'right-to-left' %}
           align-self: flex-end;
           {% endif %}
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+          .hero-content {
+              padding: 1.5rem;
+          }
+          
+          .hero-title {
+              font-size: 2rem;
+              text-align: center !important;
+          }
+          
+          .hero-subtitle {
+              font-size: 1.1rem;
+              text-align: center !important;
+          }
+          
+          .hero-cta {
+              align-self: center !important;
+              width: 100%;
+              max-width: 300px;
+              margin: 0.5rem auto !important;
+          }
+      }
+      
+      @media (max-width: 480px) {
+          .hero-title {
+              font-size: 1.75rem;
+          }
+          
+          .hero-subtitle {
+              font-size: 1rem;
+          }
       }
 
       .home-navigation {
