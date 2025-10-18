@@ -43,7 +43,11 @@
         }
         
         if(carousel){
-          fn.goToPageByName(page);
+          if((page.indexOf('home') !== -1) || (page.indexOf('index') !== -1)){
+            carousel.first()
+          }else{
+            fn.goToPageByName(page);
+          }
           myNavigator.popPage();
         }else{
           myNavigator.resetToPage(page, { animation: 'fade' });
@@ -166,14 +170,17 @@
 
       if(carousel){
         var back = document.getElementById("carousel-back-button");
+        var home = document.getElementById("carousel-home-button");
 
         var toggle_back_btn = function() {
           var idx = carousel.getActiveIndex();
           console.log(idx)
           if(idx === 0){
             back.style.opacity = 0;
+            home.style.opacity = 0;
           }else{
             back.style.opacity = 1;
+            home.style.opacity = 1;
           };
         };
 
@@ -192,6 +199,33 @@
         carousel.addEventListener('refresh', onload);
         carousel.addEventListener('postchange', onpostpush);
         
+      };
+
+      if(tabbar){
+        var onpostpush = function(){
+          console.log('tab bar postpush')
+          console.log(tabbar.getActiveTabIndex())
+        };
+
+        tabbar.addEventListener('postchange', onpostpush);
+      };
+
+      if(myNavigator){
+        var onpostpush = function(){
+          if(tabbar){
+            if(myNavigator.topPage.id === 'tabs-home'){
+              window.location.reload();
+            }
+          }
+
+          if(carousel){
+            if(myNavigator.topPage.id === 'carousel-home'){
+              window.location.reload();
+            }
+          }
+        };
+
+        myNavigator.addEventListener('postpush', onpostpush);
       };
 
       for (var i = 0; i < forms.length; i++) {
@@ -820,7 +854,7 @@
 {% endif %}
 
 </ons-toolbar>
-  <ons-page>
+  <ons-page id="tabs">
     <ons-tabbar swipeable position="auto">
       {% if data.hasHomePage %}
         <ons-tab page="tabs-home.html" label="Home" icon="md-home" active></ons-tab>
@@ -858,10 +892,9 @@
               alt="{{data.settings.siteName}} Logo" 
               style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-top: 5px; margin-right: 10px; margin-left: 10px;">
         {% else %} 
-        <ons-toolbar-button onclick="fn.goToHome()">
             {% if data.hasHomePage %}
-            <ons-toolbar-button onclick="fn.goToHome()">
-                <ons-icon icon="md-home"></ons-icon>
+            <ons-toolbar-button id="carousel-home-button" onclick="fn.goToHome()">
+                <ons-icon icon="md-home" size="30px"></ons-icon>
             </ons-toolbar-button>
             {% endif %}
         {% endif %}
@@ -1091,7 +1124,7 @@
 <!-- Carousel Home Page Template -->
 {% if data.settings.pageType == 'carousel' %}
 <template id="carousel-home.html">
-  <ons-page>
+  <ons-page id="carousel-home">
     <ons-toolbar modifier="{{data.settings.style}}">
       <div class="left">
         <ons-toolbar-button id="carousel-back-button" onclick="fn.prev()">
@@ -1107,8 +1140,8 @@
               style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-top: 5px; margin-right: 10px; margin-left: 10px;">
         {% else %}
           {% if data.hasHomePage %}
-          <ons-toolbar-button onclick="fn.goToHome()">
-              <ons-icon icon="md-home"></ons-icon>
+          <ons-toolbar-button id="carousel-home-button" onclick="fn.goToHome()">
+              <ons-icon icon="md-home" size="30px"></ons-icon>
           </ons-toolbar-button>
           {% endif %}
         {% endif %}
@@ -1299,7 +1332,7 @@
 <!-- Tabs Home Page Template -->
 {% if data.settings.pageType == 'tabs' %}
 <template id="tabs-home.html">
-  <ons-page>
+  <ons-page id="tabs-home">
     
     <!-- Hero Section (if configured) -->
     {% if data.homePage.content.hero_title or data.homePage.content.hero_image %}
@@ -1377,7 +1410,7 @@
 <!-- Home Page Template (for splitter mode only) -->
 {% if data.hasHomePage and data.settings.pageType == 'splitter' %}
 <template id="home.html">
-  <ons-page>
+  <ons-page id="splitter-home">
 
     <ons-toolbar modifier="{{data.settings.style}}">
     {% if data.settings.pageType == 'splitter' %}
@@ -1651,8 +1684,8 @@
                 alt="{{data.settings.siteName}} Logo" 
                 style="height: 32px; width: auto; max-width: 120px; object-fit: contain; margin-right: 10px; margin-left: 10px;">
         {% else %}
-        <ons-toolbar-button onclick="fn.load('carousel-home.html')">
-            <ons-icon icon="md-home"></ons-icon>
+        <ons-toolbar-button id="carousel-article-home-button" onclick="myNavigator.pushPage('carousel-home.html')">
+            <ons-icon icon="md-home" size="30px"></ons-icon>
         </ons-toolbar-button>
         {% endif %}
         
