@@ -3106,6 +3106,8 @@ class SiteDataHandler:
                 },
             },
             "fontSettings": {"enableCustomFonts": True, "fontDisplay": "swap"},
+            "buttonRounding": 6.0,  # Default border radius for buttons in pixels
+            "elementRounding": 4.0,  # Default border radius for cards and images in pixels
         }
 
         # Set resourcePath after settings is initialized

@@ -400,6 +400,26 @@
       {{data.settings.css_components}}
       --outline-color: var(--highlight-color);
       --outline-color-faint: var(--border-color);
+      
+      /* Custom border radius settings */
+      --button-border-radius: {{data.settings.buttonRounding}}px;
+      --element-border-radius: {{data.settings.elementRounding}}px;
+    }
+
+    /* Apply button rounding */
+    ons-button, button, .button, .btn, input[type="button"], input[type="submit"], input[type="reset"] {
+      border-radius: var(--button-border-radius) !important;
+    }
+
+    /* Apply element rounding to cards, images, and other UI elements */
+    ons-card, .card, .image-container, .media-container, .media-item {
+      border-radius: var(--element-border-radius) !important;
+      overflow: hidden;
+    }
+
+    /* Ensure form elements have consistent border radius */
+    input, textarea, select, .form-control {
+      border-radius: var(--element-border-radius) !important;
     }
 
     /* Global font application */
@@ -479,7 +499,7 @@
     }
     ons-list{
       opacity: 90%;
-      border-radius: 6px !important;
+      border-radius: var(--element-border-radius);
     }
     ons-row{
         padding: {{data.settings.row_pad}}%;
@@ -488,9 +508,7 @@
         min-width: 350px;
         margin: 0 auto;
     }
-    ons-card, img{
-        border-radius: 15px !important;
-    }
+
 
     ons-toolbar{
       padding-top: 5px !important;
@@ -501,7 +519,7 @@
       height: auto   !important;
     }
     button {
-          border-radius: 6px !important;
+          border-radius: var(--button-border-radius) !important;
     }
 
     /* Apply the hover effect */
@@ -594,7 +612,7 @@
           text-align: center;
           color: white;
           margin-bottom: 2rem;
-          border-radius: 10px !important;
+          border-radius: var(--element-border-radius) !important;
       }
 
       .hero-content {
@@ -650,7 +668,7 @@
 
       .hero-cta {
           margin: 0.5rem 0;
-          border-radius: 6px !important;
+          border-radius: var(--button-border-radius) !important;
           white-space: nowrap;
           {% if data.settings.homeAlignment == 'left-to-right' %}
           align-self: flex-start;
@@ -704,7 +722,7 @@
 
       .home-nav-button {
           margin: 0.5rem;
-          border-radius: 6px !important;
+          border-radius: var(--button-border-radius) !important;
           display: inline-flex;
           flex-direction: column;
           align-items: center;
@@ -751,7 +769,7 @@
 
       .feature-card {
           background: var(--background-color);
-          border-radius: 8px;
+          border-radius: var(--element-border-radius);
           padding: 1.5rem;
           box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
           transition: transform 0.2s, box-shadow 0.2s;
@@ -799,7 +817,7 @@
           height: 3px;
           background: var(--primary-color);
           margin: 0.5rem auto 0;
-          border-radius: 3px;
+          border-radius: var(--element-border-radius);
       }
 
        /* Carousel-specific styles for proper scrolling */
@@ -850,7 +868,7 @@
         }
 
         .carousel-content-container .feature-card {
-            border-radius: 8px;
+            border-radius: var(--element-border-radius);
             padding: 1rem;
             margin: 0.5rem;
             width: 280px;
