@@ -402,6 +402,44 @@
       --outline-color-faint: var(--border-color);
     }
 
+    /* Global font application */
+    body {
+      font-family: var(--font-primary, Arial, sans-serif);
+    }
+
+    /* Target common Onsen UI text elements */
+    ons-page,
+    ons-toolbar,
+    ons-card,
+    ons-list,
+    ons-list-item,
+    ons-button,
+    ons-input,
+    ons-select,
+    ons-search-input,
+    ons-switch {
+      font-family: var(--font-primary, Arial, sans-serif) !important;
+    }
+
+    /* Apply heading font to heading elements */
+    h1, h2, h3, h4, h5, h6,
+    .toolbar__title,
+    .toolbar__center,
+    .card__title,
+    .list__item__title,
+    .list__item__subtitle,
+    .button {
+      font-family: var(--font-heading, Helvetica, Arial, sans-serif) !important;
+    }
+
+    /* Ensure form elements inherit the font */
+    input,
+    textarea,
+    select,
+    button {
+      font-family: inherit;
+    }
+
     .card--outlined {
         border: 1px solid var(--outline-color);
         box-shadow: 0 0 2px hsla(0, 0%, 14%, 0.1), 
